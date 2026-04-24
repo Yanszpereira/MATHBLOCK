@@ -180,7 +180,7 @@ internal static class CodexUnityBridge
     {
         using (NetworkStream stream = client.GetStream())
         using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
-        using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true })
+        using (StreamWriter writer = new StreamWriter(stream, new UTF8Encoding(false)) { AutoFlush = true })
         {
             string raw = reader.ReadLine();
             if (string.IsNullOrWhiteSpace(raw))
