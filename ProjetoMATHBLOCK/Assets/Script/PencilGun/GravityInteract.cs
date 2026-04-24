@@ -4,12 +4,23 @@ using System.Collections;
 
 public class GravityInteract : MonoBehaviour
 {
+    public enum PencilOperator
+    {
+        None,
+        Addition,
+        Subtraction,
+        Multiplication,
+        Division
+    }
+
     public float grabDistance = 10f;
     public float speed = 5f;
     public float grabCooldown = 0.3f; // tempo de espera após soltar
 
     public Transform camera;
-    public Transform playerFront; // ponto na frente do player 
+    public Transform playerFront; // ponto na frente do player
+
+    [SerializeField] private PencilOperator equippedOperator = PencilOperator.None;
 
     private bool grabbed;
     private bool canRaycast = true;
@@ -17,6 +28,8 @@ public class GravityInteract : MonoBehaviour
 
     private Transform grabbedObject;
     private Rigidbody grabbedRb;
+
+    public PencilOperator EquippedOperator => equippedOperator;
 
     void Update()
     {
@@ -46,40 +59,118 @@ public class GravityInteract : MonoBehaviour
         if (isOnCooldown)
             return;
 
-        // se já estiver segurando, apenas solta
-        if (grabbed)
+        if (grabbed && equippedOperator == PencilOperator.None)
         {
             Soltar();
-            return; // impede pegar no mesmo input
+            return;
         }
 
-        // tenta pegar
-        if (canRaycast)
+        RaycastHit hit;
+        if (!Physics.Raycast(camera.position, camera.forward, out hit, grabDistance))
+            return;
+
+        if (!hit.collider.CompareTag("MathBlock"))
+            return;
+
+        HandleMathBlockInteraction(hit);
+    }
+
+    private void HandleMathBlockInteraction(RaycastHit hit)
+    {
+        var targetBlock = hit.collider.GetComponent<MathBlockValue>();
+
+        if (equippedOperator != PencilOperator.None && grabbed && grabbedObject != null)
         {
-            RaycastHit hit;
-            if (Physics.Raycast(camera.position, camera.forward, out hit, grabDistance))
+            if (hit.transform == grabbedObject)
             {
-                if (hit.collider.CompareTag("MathBlock"))
-                {
-                    Pegar(hit);
-                }
+                return;
             }
+
+            var carriedBlock = grabbedObject.GetComponent<MathBlockValue>();
+            if (carriedBlock == null)
+            {
+                Debug.LogWarning($"Bloco carregado {grabbedObject.name} nao possui MathBlockValue.");
+                return;
+            }
+
+            if (targetBlock == null)
+            {
+                targetBlock = hit.collider.gameObject.AddComponent<MathBlockValue>();
+            }
+
+            int carriedValue = carriedBlock.CurrentValue;
+            int targetValue = targetBlock.CurrentValue;
+
+            if (targetBlock.TryApplyOperator(equippedOperator, carriedValue))
+            {
+                Debug.Log(
+                    $"Operacao concluida: {targetValue} {equippedOperator} {carriedValue} = {targetBlock.CurrentValue}"
+                );
+
+                Destroy(grabbedObject.gameObject);
+                grabbedObject = null;
+                grabbedRb = null;
+                grabbed = false;
+                canRaycast = true;
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"Operacao invalida: {targetValue} {equippedOperator} {carriedValue} no bloco {hit.collider.name}"
+                );
+            }
+
+            return;
         }
+
+        if (!grabbed && canRaycast)
+        {
+            Pegar(hit);
+        }
+    }
+
+    public void SetEquippedOperator(PencilOperator newOperator)
+    {
+        PencilOperator previousOperator = equippedOperator;
+        equippedOperator = newOperator;
+
+        if (previousOperator == newOperator)
+        {
+            Debug.Log($"Player manteve o operador equipado: {equippedOperator}");
+            return;
+        }
+
+        Debug.Log($"Player trocou operador: {previousOperator} -> {equippedOperator}");
+    }
+
+    public void ClearEquippedOperator()
+    {
+        equippedOperator = PencilOperator.None;
+        Debug.Log("Player limpou o operador equipado.");
     }
 
     public void Pegar(RaycastHit hit)
     {
         grabbedRb = hit.transform.GetComponent<Rigidbody>();
         grabbedObject = hit.transform;
+        MathBlockValue mathBlockValue = hit.transform.GetComponent<MathBlockValue>();
 
-        if (grabbedRb != null)
+        if (grabbedRb == null)
         {
-            grabbed = true;
-            grabbedRb.useGravity = false;
-            grabbedRb.isKinematic = true;
+            grabbedObject = null;
+            return;
         }
 
+        grabbedRb.isKinematic = true;
+        grabbedRb.useGravity = false;
+        if (mathBlockValue != null)
+        {
+            mathBlockValue.ResetRotationToOriginal();
+        }
+
+        grabbed = true;
         canRaycast = false;
+        Debug.Log($"Bloco segurado: {grabbedObject.name}");
     }
 
     public void Soltar()

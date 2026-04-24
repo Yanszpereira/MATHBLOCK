@@ -155,6 +155,7 @@ MonoBehaviour:
   grabCooldown: 0.3
   camera: {fileID: 1867135235}
   playerFront: {fileID: 2108499513}
+  equippedOperator: 0
 --- !u!4 &37903180
 Transform:
   m_ObjectHideFlags: 0
@@ -1609,6 +1610,7 @@ GameObject:
   - component: {fileID: 1218914477}
   - component: {fileID: 1218914476}
   - component: {fileID: 1218914475}
+  - component: {fileID: 1218914479}
   m_Layer: 0
   m_Name: Cube 2
   m_TagString: MathBlock
@@ -1740,6 +1742,23 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1218914473}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1218914479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218914473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f2b7d5c9b6a4bce8b7f0ce0c8b8c7aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MathBlockValue
+  currentValue: 4
+  updateScaleFromValue: 0
+  scaleStep: 0.15
+  minimumScaleMultiplier: 0.5
+  maximumScaleMultiplier: 3
 --- !u!1 &1265947179
 GameObject:
   m_ObjectHideFlags: 0
@@ -2033,6 +2052,7 @@ GameObject:
   - component: {fileID: 1438411379}
   - component: {fileID: 1438411378}
   - component: {fileID: 1438411377}
+  - component: {fileID: 1438411381}
   m_Layer: 0
   m_Name: Cube
   m_TagString: MathBlock
@@ -2164,6 +2184,23 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1438411375}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1438411381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1438411375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f2b7d5c9b6a4bce8b7f0ce0c8b8c7aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MathBlockValue
+  currentValue: 2
+  updateScaleFromValue: 0
+  scaleStep: 0.15
+  minimumScaleMultiplier: 0.5
+  maximumScaleMultiplier: 3
 --- !u!1 &1790131284
 GameObject:
   m_ObjectHideFlags: 0
@@ -2418,8 +2455,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OperatorsScript
   playerVision: {fileID: 1867135235}
-  playerPosition: {fileID: 1265947187}
   grabDistance: 10
+  pencilGun: {fileID: 37903179}
 --- !u!1 &1931423271
 GameObject:
   m_ObjectHideFlags: 0
@@ -2433,6 +2470,7 @@ GameObject:
   - component: {fileID: 1931423275}
   - component: {fileID: 1931423274}
   - component: {fileID: 1931423273}
+  - component: {fileID: 1931423277}
   m_Layer: 0
   m_Name: Cube 3
   m_TagString: MathBlock
@@ -2564,6 +2602,23 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1931423271}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1931423277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1931423271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f2b7d5c9b6a4bce8b7f0ce0c8b8c7aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MathBlockValue
+  currentValue: 1
+  updateScaleFromValue: 0
+  scaleStep: 0.15
+  minimumScaleMultiplier: 0.5
+  maximumScaleMultiplier: 3
 --- !u!1 &1932979477
 GameObject:
   m_ObjectHideFlags: 0
@@ -2878,6 +2933,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6354128285853301808, guid: c1753d37c01d6c54da3221330f01a1ae, type: 3}
+      propertyPath: operatorType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6354128285853301808, guid: c1753d37c01d6c54da3221330f01a1ae, type: 3}
       propertyPath: prefabOriginal
       value: 
       objectReference: {fileID: 7227793994595785456, guid: c1753d37c01d6c54da3221330f01a1ae, type: 3}
@@ -2898,6 +2957,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1904946780}
     m_Modifications:
+    - target: {fileID: 806054125960064736, guid: 42188484dd2e2bf4fa1fbeb9d41a22be, type: 3}
+      propertyPath: operatorType
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 806054125960064736, guid: 42188484dd2e2bf4fa1fbeb9d41a22be, type: 3}
       propertyPath: prefabOriginal
       value: 
@@ -2964,6 +3027,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1904946780}
     m_Modifications:
+    - target: {fileID: 5019036959766054010, guid: 9d84b2a8070a6a24390f962c37889c8a, type: 3}
+      propertyPath: operatorType
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 5019036959766054010, guid: 9d84b2a8070a6a24390f962c37889c8a, type: 3}
       propertyPath: prefabOriginal
       value: 
@@ -3064,6 +3131,10 @@ PrefabInstance:
     - target: {fileID: 842511208128030946, guid: 56fc319dc5808384591e0626fedf8bdd, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7512946832404241274, guid: 56fc319dc5808384591e0626fedf8bdd, type: 3}
+      propertyPath: operatorType
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7512946832404241274, guid: 56fc319dc5808384591e0626fedf8bdd, type: 3}
       propertyPath: prefabOriginal
