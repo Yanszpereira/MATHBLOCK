@@ -9,8 +9,7 @@ public class MathBlockValue : MonoBehaviour
 
     private static readonly (string name, Vector3 direction, Quaternion rotation)[] FaceLabels =
     {
-        ("ValueLabel_Front", Vector3.forward, Quaternion.identity),
-        ("ValueLabel_Back", Vector3.back, Quaternion.Euler(0f, 180f, 0f))
+        ("ValueLabel_Front", Vector3.forward, Quaternion.identity)
     };
 
     [SerializeField] private int currentValue = 1;
@@ -24,6 +23,7 @@ public class MathBlockValue : MonoBehaviour
 
     private Vector3 baseScale;
     private Quaternion originalRotation;
+    private Material labelMaterial;
     private TextMesh[] valueLabels;
 
     public int CurrentValue => currentValue;
@@ -49,6 +49,21 @@ public class MathBlockValue : MonoBehaviour
         EnsureLabels();
         RefreshLabels();
         RefreshVisual();
+    }
+
+    private void OnDestroy()
+    {
+        if (labelMaterial != null)
+        {
+            if (Application.isPlaying)
+            {
+                Destroy(labelMaterial);
+            }
+            else
+            {
+                DestroyImmediate(labelMaterial);
+            }
+        }
     }
 
     public void SetValue(int newValue)
@@ -138,6 +153,8 @@ public class MathBlockValue : MonoBehaviour
             return;
         }
 
+        Material resolvedMaterial = GetOrCreateLabelMaterial(builtinFont);
+        Vector3 center = GetLocalCenter();
         Vector3 halfExtents = GetLocalHalfExtents();
         float offset = Mathf.Max(labelSurfaceOffset, 0.001f);
 
@@ -168,17 +185,16 @@ public class MathBlockValue : MonoBehaviour
             Renderer labelRenderer = labelTransform.GetComponent<Renderer>();
             if (labelRenderer != null)
             {
-                labelRenderer.sharedMaterial = builtinFont.material;
+                labelRenderer.sharedMaterial = resolvedMaterial;
                 labelRenderer.shadowCastingMode = ShadowCastingMode.Off;
                 labelRenderer.receiveShadows = false;
                 labelRenderer.allowOcclusionWhenDynamic = false;
                 labelRenderer.lightProbeUsage = LightProbeUsage.Off;
                 labelRenderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
-                labelRenderer.sortingOrder = 10;
             }
 
             Vector3 direction = FaceLabels[i].direction;
-            Vector3 faceOffset = new Vector3(
+            Vector3 faceOffset = center + new Vector3(
                 direction.x * (halfExtents.x + offset),
                 direction.y * (halfExtents.y + offset),
                 direction.z * (halfExtents.z + offset)
@@ -200,22 +216,59 @@ public class MathBlockValue : MonoBehaviour
         return cachedBuiltinFont;
     }
 
-    private Vector3 GetLocalHalfExtents()
+    private Material GetOrCreateLabelMaterial(Font builtinFont)
+    {
+        if (labelMaterial != null)
+        {
+            labelMaterial.color = labelColor;
+            return labelMaterial;
+        }
+
+        labelMaterial = new Material(builtinFont.material)
+        {
+            name = $"{name}_LabelMaterial",
+            hideFlags = HideFlags.HideAndDontSave
+        };
+        labelMaterial.CopyPropertiesFromMaterial(builtinFont.material);
+        labelMaterial.mainTexture = builtinFont.material.mainTexture;
+        labelMaterial.shader = builtinFont.material.shader;
+        labelMaterial.renderQueue = builtinFont.material.renderQueue;
+        labelMaterial.color = labelColor;
+        return labelMaterial;
+    }
+
+    private Vector3 GetLocalCenter()
     {
         BoxCollider boxCollider = GetComponent<BoxCollider>();
         if (boxCollider != null)
         {
-            Vector3 scaledSize = Vector3.Scale(boxCollider.size, transform.localScale);
-            return scaledSize * 0.5f;
+            return boxCollider.center;
         }
 
         Renderer renderer = GetComponent<Renderer>();
         if (renderer != null)
         {
-            return renderer.bounds.size * 0.5f;
+            return renderer.localBounds.center;
         }
 
-        return transform.localScale * 0.5f;
+        return Vector3.zero;
+    }
+
+    private Vector3 GetLocalHalfExtents()
+    {
+        BoxCollider boxCollider = GetComponent<BoxCollider>();
+        if (boxCollider != null)
+        {
+            return boxCollider.size * 0.5f;
+        }
+
+        Renderer renderer = GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            return renderer.localBounds.extents;
+        }
+
+        return Vector3.one * 0.5f;
     }
 
     private void RefreshLabels()
@@ -235,6 +288,12 @@ public class MathBlockValue : MonoBehaviour
             label.fontSize = Mathf.RoundToInt(labelFontSize);
             label.anchor = TextAnchor.MiddleCenter;
             label.alignment = TextAlignment.Center;
+
+            Renderer labelRenderer = label.GetComponent<Renderer>();
+            if (labelRenderer != null && labelMaterial != null)
+            {
+                labelRenderer.sharedMaterial = labelMaterial;
+            }
         }
     }
 

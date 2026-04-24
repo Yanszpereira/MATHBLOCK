@@ -59,14 +59,37 @@ public class GravityInteract : MonoBehaviour
         if (isOnCooldown)
             return;
 
-        if (grabbed && equippedOperator == PencilOperator.None)
+        RaycastHit hit;
+        bool hasHit = Physics.Raycast(camera.position, camera.forward, out hit, grabDistance);
+
+        if (grabbed)
         {
-            Soltar();
-            return;
+            if (!hasHit)
+            {
+                Soltar();
+                return;
+            }
+
+            if (!hit.collider.CompareTag("MathBlock"))
+            {
+                Soltar();
+                return;
+            }
+
+            if (hit.transform == grabbedObject)
+            {
+                Soltar();
+                return;
+            }
+
+            if (equippedOperator == PencilOperator.None)
+            {
+                Soltar();
+                return;
+            }
         }
 
-        RaycastHit hit;
-        if (!Physics.Raycast(camera.position, camera.forward, out hit, grabDistance))
+        if (!hasHit)
             return;
 
         if (!hit.collider.CompareTag("MathBlock"))
@@ -81,11 +104,6 @@ public class GravityInteract : MonoBehaviour
 
         if (equippedOperator != PencilOperator.None && grabbed && grabbedObject != null)
         {
-            if (hit.transform == grabbedObject)
-            {
-                return;
-            }
-
             var carriedBlock = grabbedObject.GetComponent<MathBlockValue>();
             if (carriedBlock == null)
             {

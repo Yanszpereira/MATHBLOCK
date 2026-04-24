@@ -1,11 +1,9 @@
 #if UNITY_EDITOR
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -78,16 +76,16 @@ internal static class CodexUnityBridge
         public string message;
     }
 
-    private static readonly ConcurrentQueue<Action> MainThreadQueue = new ConcurrentQueue<Action>();
     private static readonly object LifecycleLock = new object();
+    private const double RetryDelaySeconds = 2d;
     private static TcpListener Listener;
-    private static Thread ListenerThread;
     private static bool IsRunning;
+    private static double NextStartAttemptTime;
     private static int Port => ReadPortFromEnvironment();
 
     static CodexUnityBridge()
     {
-        EditorApplication.update += DrainMainThreadQueue;
+        EditorApplication.update += OnEditorUpdate;
         EditorApplication.quitting += Shutdown;
         AssemblyReloadEvents.beforeAssemblyReload += Shutdown;
         StartIfNeeded();
@@ -101,7 +99,7 @@ internal static class CodexUnityBridge
             return port;
         }
 
-        return 24680;
+        return 24681;
     }
 
     private static void StartIfNeeded()
@@ -118,15 +116,18 @@ internal static class CodexUnityBridge
                 Listener = new TcpListener(IPAddress.Loopback, Port);
                 Listener.Start();
                 IsRunning = true;
-                ListenerThread = new Thread(ListenLoop);
-                ListenerThread.IsBackground = true;
-                ListenerThread.Start();
+                NextStartAttemptTime = double.PositiveInfinity;
                 Debug.Log($"Codex Unity bridge ativo em 127.0.0.1:{Port}");
             }
             catch (Exception ex)
             {
+                CleanupListener();
                 IsRunning = false;
-                Debug.LogError($"Falha ao iniciar bridge do Codex Unity: {ex.Message}");
+                NextStartAttemptTime = EditorApplication.timeSinceStartup + RetryDelaySeconds;
+                Debug.LogWarning(
+                    $"Falha ao iniciar bridge do Codex Unity em 127.0.0.1:{Port}. " +
+                    $"Nova tentativa em {RetryDelaySeconds:0.#}s. Detalhe: {ex.Message}"
+                );
             }
         }
     }
@@ -136,52 +137,37 @@ internal static class CodexUnityBridge
         lock (LifecycleLock)
         {
             IsRunning = false;
-            try
-            {
-                Listener?.Stop();
-            }
-            catch
-            {
-                // Ignorado: o editor esta encerrando.
-            }
+            CleanupListener();
+            NextStartAttemptTime = EditorApplication.timeSinceStartup + RetryDelaySeconds;
         }
     }
 
-    private static void ListenLoop()
+    private static void CleanupListener()
     {
-        while (IsRunning)
+        try
         {
-            try
-            {
-                using (TcpClient client = Listener.AcceptTcpClient())
-                {
-                    HandleClient(client);
-                }
-            }
-            catch (SocketException)
-            {
-                if (!IsRunning)
-                {
-                    return;
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-                return;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Erro no bridge Unity: {ex.Message}");
-            }
+            Listener?.Stop();
         }
+        catch
+        {
+            // Ignorado: o listener pode ja ter sido encerrado.
+        }
+
+        Listener = null;
     }
 
     private static void HandleClient(TcpClient client)
     {
+        client.ReceiveTimeout = 1000;
+        client.SendTimeout = 1000;
+
         using (NetworkStream stream = client.GetStream())
         using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
         using (StreamWriter writer = new StreamWriter(stream, new UTF8Encoding(false)) { AutoFlush = true })
         {
+            stream.ReadTimeout = 1000;
+            stream.WriteTimeout = 1000;
+
             string raw = reader.ReadLine();
             if (string.IsNullOrWhiteSpace(raw))
             {
@@ -189,45 +175,50 @@ internal static class CodexUnityBridge
             }
 
             BridgeRequest request = JsonUtility.FromJson<BridgeRequest>(raw);
-            BridgeResponse response = ExecuteOnMainThread(() => HandleRequest(request));
+            BridgeResponse response = HandleRequest(request);
             writer.WriteLine(JsonUtility.ToJson(response));
         }
     }
 
-    private static BridgeResponse ExecuteOnMainThread(Func<BridgeResponse> action, int timeoutMs = 10000)
+    private static void OnEditorUpdate()
     {
-        ManualResetEventSlim gate = new ManualResetEventSlim(false);
-        BridgeResponse response = null;
-
-        MainThreadQueue.Enqueue(() =>
+        if (!IsRunning && EditorApplication.timeSinceStartup >= NextStartAttemptTime)
         {
-            try
-            {
-                response = action();
-            }
-            catch (Exception ex)
-            {
-                response = ErrorResponse("exception", ex.Message);
-            }
-            finally
-            {
-                gate.Set();
-            }
-        });
-
-        if (!gate.Wait(timeoutMs))
-        {
-            return ErrorResponse("timeout", "O Unity bridge expirou aguardando a main thread.");
+            StartIfNeeded();
         }
 
-        return response ?? ErrorResponse("empty", "Resposta vazia do Unity bridge.");
+        PumpIncomingClients();
     }
 
-    private static void DrainMainThreadQueue()
+    private static void PumpIncomingClients()
     {
-        while (MainThreadQueue.TryDequeue(out Action action))
+        if (!IsRunning || Listener == null)
         {
-            action();
+            return;
+        }
+
+        try
+        {
+            while (Listener.Pending())
+            {
+                using (TcpClient client = Listener.AcceptTcpClient())
+                {
+                    HandleClient(client);
+                }
+            }
+        }
+        catch (SocketException ex)
+        {
+            Debug.LogWarning($"Bridge Unity perdeu o listener e vai tentar reiniciar: {ex.Message}");
+            Shutdown();
+        }
+        catch (ObjectDisposedException)
+        {
+            Shutdown();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Erro no bridge Unity ao processar conexoes: {ex.Message}");
         }
     }
 
