@@ -6,10 +6,14 @@ public class MathBlockValue : MonoBehaviour
 {
     private static Font cachedBuiltinFont;
     private const string LabelRootName = "ValueLabels";
+    private const string LabelShaderName = "MathBlock/LabelOverlay";
 
-    private static readonly (string name, Vector3 direction, Quaternion rotation)[] FaceLabels =
+    private static readonly (string name, Vector3 direction)[] FaceLabels =
     {
-        ("ValueLabel_Front", Vector3.forward, Quaternion.identity)
+        ("ValueLabel_Front", Vector3.forward),
+        ("ValueLabel_Back", Vector3.back),
+        ("ValueLabel_Left", Vector3.left),
+        ("ValueLabel_Right", Vector3.right)
     };
 
     [SerializeField] private int currentValue = 1;
@@ -17,8 +21,8 @@ public class MathBlockValue : MonoBehaviour
     [SerializeField] private float scaleStep = 0.15f;
     [SerializeField] private float minimumScaleMultiplier = 0.5f;
     [SerializeField] private float maximumScaleMultiplier = 3f;
-    [SerializeField] private float labelSurfaceOffset = 0.002f;
-    [SerializeField] private float labelFontSize = 28f;
+    [SerializeField] private float labelSurfaceOffset = -0.0005f;
+    [SerializeField] private float labelFontSize = 120f;
     [SerializeField] private Color labelColor = Color.white;
 
     private Vector3 baseScale;
@@ -154,9 +158,6 @@ public class MathBlockValue : MonoBehaviour
         }
 
         Material resolvedMaterial = GetOrCreateLabelMaterial(builtinFont);
-        Vector3 center = GetLocalCenter();
-        Vector3 halfExtents = GetLocalHalfExtents();
-        float offset = Mathf.Max(labelSurfaceOffset, 0.001f);
 
         for (int i = 0; i < FaceLabels.Length; i++)
         {
@@ -193,16 +194,7 @@ public class MathBlockValue : MonoBehaviour
                 labelRenderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
             }
 
-            Vector3 direction = FaceLabels[i].direction;
-            Vector3 faceOffset = center + new Vector3(
-                direction.x * (halfExtents.x + offset),
-                direction.y * (halfExtents.y + offset),
-                direction.z * (halfExtents.z + offset)
-            );
-
-            labelTransform.localPosition = faceOffset;
-            labelTransform.localRotation = FaceLabels[i].rotation;
-            labelTransform.localScale = Vector3.one * 0.75f;
+            UpdateLabelTransform(labelTransform, FaceLabels[i].direction);
             valueLabels[i] = labelMesh;
         }
     }
@@ -221,18 +213,27 @@ public class MathBlockValue : MonoBehaviour
         if (labelMaterial != null)
         {
             labelMaterial.color = labelColor;
+            labelMaterial.mainTexture = builtinFont.material.mainTexture;
             return labelMaterial;
         }
 
-        labelMaterial = new Material(builtinFont.material)
+        Shader labelShader = Shader.Find(LabelShaderName);
+        Material sourceMaterial = builtinFont.material;
+        labelMaterial = labelShader != null
+            ? new Material(labelShader)
+            : new Material(sourceMaterial);
+
+        labelMaterial.name = $"{name}_LabelMaterial";
+        labelMaterial.hideFlags = HideFlags.HideAndDontSave;
+
+        if (labelShader == null)
         {
-            name = $"{name}_LabelMaterial",
-            hideFlags = HideFlags.HideAndDontSave
-        };
-        labelMaterial.CopyPropertiesFromMaterial(builtinFont.material);
-        labelMaterial.mainTexture = builtinFont.material.mainTexture;
-        labelMaterial.shader = builtinFont.material.shader;
-        labelMaterial.renderQueue = builtinFont.material.renderQueue;
+            labelMaterial.CopyPropertiesFromMaterial(sourceMaterial);
+            labelMaterial.shader = sourceMaterial.shader;
+            labelMaterial.renderQueue = sourceMaterial.renderQueue;
+        }
+
+        labelMaterial.mainTexture = sourceMaterial.mainTexture;
         labelMaterial.color = labelColor;
         return labelMaterial;
     }
@@ -283,6 +284,7 @@ public class MathBlockValue : MonoBehaviour
             if (label == null)
                 continue;
 
+            UpdateLabelTransform(label.transform, FaceLabels[i].direction);
             label.text = valueText;
             label.color = labelColor;
             label.fontSize = Mathf.RoundToInt(labelFontSize);
@@ -295,6 +297,22 @@ public class MathBlockValue : MonoBehaviour
                 labelRenderer.sharedMaterial = labelMaterial;
             }
         }
+    }
+
+    private void UpdateLabelTransform(Transform labelTransform, Vector3 direction)
+    {
+        Vector3 center = GetLocalCenter();
+        Vector3 halfExtents = GetLocalHalfExtents();
+        float offset = Mathf.Clamp(labelSurfaceOffset, -0.01f, 0.01f);
+        Vector3 faceOffset = center + new Vector3(
+            direction.x * (halfExtents.x + offset),
+            direction.y * (halfExtents.y + offset),
+            direction.z * (halfExtents.z + offset)
+        );
+
+        labelTransform.localPosition = faceOffset;
+        labelTransform.localRotation = Quaternion.LookRotation(direction, Vector3.up) * Quaternion.Euler(0f, 180f, 0f);
+        labelTransform.localScale = Vector3.one * 0.75f;
     }
 
     private void RefreshVisual()

@@ -78,6 +78,7 @@ internal static class CodexUnityBridge
 
     private static readonly object LifecycleLock = new object();
     private const double RetryDelaySeconds = 2d;
+    private const double FastRetryDelaySeconds = 0.5d;
     private static TcpListener Listener;
     private static bool IsRunning;
     private static double NextStartAttemptTime;
@@ -86,8 +87,10 @@ internal static class CodexUnityBridge
     static CodexUnityBridge()
     {
         EditorApplication.update += OnEditorUpdate;
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         EditorApplication.quitting += Shutdown;
         AssemblyReloadEvents.beforeAssemblyReload += Shutdown;
+        AppDomain.CurrentDomain.DomainUnload += OnDomainUnload;
         StartIfNeeded();
     }
 
@@ -114,6 +117,8 @@ internal static class CodexUnityBridge
             try
             {
                 Listener = new TcpListener(IPAddress.Loopback, Port);
+                Listener.ExclusiveAddressUse = false;
+                Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 Listener.Start();
                 IsRunning = true;
                 NextStartAttemptTime = double.PositiveInfinity;
@@ -134,11 +139,21 @@ internal static class CodexUnityBridge
 
     private static void Shutdown()
     {
+        ShutdownWithRetry(RetryDelaySeconds);
+    }
+
+    private static void OnDomainUnload(object sender, EventArgs args)
+    {
+        ShutdownWithRetry(double.PositiveInfinity);
+    }
+
+    private static void ShutdownWithRetry(double retryDelaySeconds)
+    {
         lock (LifecycleLock)
         {
             IsRunning = false;
             CleanupListener();
-            NextStartAttemptTime = EditorApplication.timeSinceStartup + RetryDelaySeconds;
+            NextStartAttemptTime = EditorApplication.timeSinceStartup + retryDelaySeconds;
         }
     }
 
@@ -190,6 +205,20 @@ internal static class CodexUnityBridge
         PumpIncomingClients();
     }
 
+    private static void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.ExitingEditMode || state == PlayModeStateChange.ExitingPlayMode)
+        {
+            ShutdownWithRetry(double.PositiveInfinity);
+            return;
+        }
+
+        if (state == PlayModeStateChange.EnteredEditMode || state == PlayModeStateChange.EnteredPlayMode)
+        {
+            ShutdownWithRetry(FastRetryDelaySeconds);
+        }
+    }
+
     private static void PumpIncomingClients()
     {
         if (!IsRunning || Listener == null)
@@ -210,11 +239,11 @@ internal static class CodexUnityBridge
         catch (SocketException ex)
         {
             Debug.LogWarning($"Bridge Unity perdeu o listener e vai tentar reiniciar: {ex.Message}");
-            Shutdown();
+            ShutdownWithRetry(RetryDelaySeconds);
         }
         catch (ObjectDisposedException)
         {
-            Shutdown();
+            ShutdownWithRetry(RetryDelaySeconds);
         }
         catch (Exception ex)
         {

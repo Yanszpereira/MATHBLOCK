@@ -39,6 +39,8 @@ public class GravityInteract : MonoBehaviour
             Color.red
         );
 
+        HandleBlockInputs();
+
         // se estiver segurando um objeto
         if (grabbed && grabbedObject != null)
         {
@@ -50,100 +52,101 @@ public class GravityInteract : MonoBehaviour
         }
     }
 
+    private void HandleBlockInputs()
+    {
+        Keyboard keyboard = Keyboard.current;
+
+        if (keyboard != null && keyboard.eKey.wasPressedThisFrame)
+        {
+            TryHandleApplyOperator();
+        }
+    }
+
     public void OnInteractEvent(InputAction.CallbackContext context)
     {
-        if (!context.performed)
-            return;
+        if (context.performed)
+        {
+            TryHandleGrabOrDrop();
+        }
+    }
 
-        // bloqueia qualquer ação durante cooldown
+    private void TryHandleGrabOrDrop()
+    {
         if (isOnCooldown)
             return;
 
-        RaycastHit hit;
-        bool hasHit = Physics.Raycast(camera.position, camera.forward, out hit, grabDistance);
-
         if (grabbed)
         {
-            if (!hasHit)
-            {
-                Soltar();
-                return;
-            }
-
-            if (!hit.collider.CompareTag("MathBlock"))
-            {
-                Soltar();
-                return;
-            }
-
-            if (hit.transform == grabbedObject)
-            {
-                Soltar();
-                return;
-            }
-
-            if (equippedOperator == PencilOperator.None)
-            {
-                Soltar();
-                return;
-            }
-        }
-
-        if (!hasHit)
-            return;
-
-        if (!hit.collider.CompareTag("MathBlock"))
-            return;
-
-        HandleMathBlockInteraction(hit);
-    }
-
-    private void HandleMathBlockInteraction(RaycastHit hit)
-    {
-        var targetBlock = hit.collider.GetComponent<MathBlockValue>();
-
-        if (equippedOperator != PencilOperator.None && grabbed && grabbedObject != null)
-        {
-            var carriedBlock = grabbedObject.GetComponent<MathBlockValue>();
-            if (carriedBlock == null)
-            {
-                Debug.LogWarning($"Bloco carregado {grabbedObject.name} nao possui MathBlockValue.");
-                return;
-            }
-
-            if (targetBlock == null)
-            {
-                targetBlock = hit.collider.gameObject.AddComponent<MathBlockValue>();
-            }
-
-            int carriedValue = carriedBlock.CurrentValue;
-            int targetValue = targetBlock.CurrentValue;
-
-            if (targetBlock.TryApplyOperator(equippedOperator, carriedValue))
-            {
-                Debug.Log(
-                    $"Operacao concluida: {targetValue} {equippedOperator} {carriedValue} = {targetBlock.CurrentValue}"
-                );
-
-                Destroy(grabbedObject.gameObject);
-                grabbedObject = null;
-                grabbedRb = null;
-                grabbed = false;
-                canRaycast = true;
-            }
-            else
-            {
-                Debug.LogWarning(
-                    $"Operacao invalida: {targetValue} {equippedOperator} {carriedValue} no bloco {hit.collider.name}"
-                );
-            }
-
+            Soltar();
             return;
         }
 
-        if (!grabbed && canRaycast)
+        if (!TryGetMathBlockHit(out RaycastHit hit))
+            return;
+
+        if (canRaycast)
         {
             Pegar(hit);
+        }
+    }
+
+    private void TryHandleApplyOperator()
+    {
+        if (isOnCooldown || !grabbed || grabbedObject == null || equippedOperator == PencilOperator.None)
+            return;
+
+        if (!TryGetMathBlockHit(out RaycastHit hit))
+            return;
+
+        if (hit.transform == grabbedObject)
+            return;
+
+        HandleOperatorApplication(hit);
+    }
+
+    private bool TryGetMathBlockHit(out RaycastHit hit)
+    {
+        if (!Physics.Raycast(camera.position, camera.forward, out hit, grabDistance))
+            return false;
+
+        return hit.collider.CompareTag("MathBlock");
+    }
+
+    private void HandleOperatorApplication(RaycastHit hit)
+    {
+        var targetBlock = hit.collider.GetComponent<MathBlockValue>();
+        var carriedBlock = grabbedObject.GetComponent<MathBlockValue>();
+        if (carriedBlock == null)
+        {
+            Debug.LogWarning($"Bloco carregado {grabbedObject.name} nao possui MathBlockValue.");
+            return;
+        }
+
+        if (targetBlock == null)
+        {
+            targetBlock = hit.collider.gameObject.AddComponent<MathBlockValue>();
+        }
+
+        int carriedValue = carriedBlock.CurrentValue;
+        int targetValue = targetBlock.CurrentValue;
+
+        if (targetBlock.TryApplyOperator(equippedOperator, carriedValue))
+        {
+            Debug.Log(
+                $"Operacao concluida: {targetValue} {equippedOperator} {carriedValue} = {targetBlock.CurrentValue}"
+            );
+
+            Destroy(grabbedObject.gameObject);
+            grabbedObject = null;
+            grabbedRb = null;
+            grabbed = false;
+            canRaycast = true;
+        }
+        else
+        {
+            Debug.LogWarning(
+                $"Operacao invalida: {targetValue} {equippedOperator} {carriedValue} no bloco {hit.collider.name}"
+            );
         }
     }
 
