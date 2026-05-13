@@ -2503,6 +2503,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Look
   mouseSensitivity: 30
   cameraTransform: {fileID: 1867135235}
+  enableWalkBob: 1
+  bobFrequency: 8
+  bobVerticalAmplitude: 0.02
+  bobHorizontalAmplitude: 0.02
+  cameraTiltAmplitude: 0.85
+  bobReturnSpeed: 10
+  pencilTransform: {fileID: 0}
+  pencilVerticalAmplitude: 0
+  pencilHorizontalAmplitude: 0
+  pencilRotationAmplitude: 0
 --- !u!136 &1265947184
 CapsuleCollider:
   m_ObjectHideFlags: 0

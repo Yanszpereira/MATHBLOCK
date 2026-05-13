@@ -6,6 +6,7 @@ public class ConfettiParticleConfigurator : MonoBehaviour
     [SerializeField] private Material confettiMaterial;
     [SerializeField] private Mesh confettiMesh;
     [SerializeField] private bool configureOnAwake = true;
+    private const float PaletteStep = 0.25f;
 
     private void Awake()
     {
@@ -49,10 +50,7 @@ public class ConfettiParticleConfigurator : MonoBehaviour
         main.startSpeed = new ParticleSystem.MinMaxCurve(4f, 8f);
         main.startSize = new ParticleSystem.MinMaxCurve(0.08f, 0.18f);
         main.startRotation = new ParticleSystem.MinMaxCurve(0f, 360f * Mathf.Deg2Rad);
-        main.startColor = new ParticleSystem.MinMaxGradient(
-            new Color(1f, 0.1f, 0.1f),
-            new Color(0.1f, 0.8f, 1f)
-        );
+        main.startColor = CreatePaletteGradient();
         main.gravityModifier = new ParticleSystem.MinMaxCurve(0.8f, 1.2f);
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.simulationSpeed = 1f;
@@ -117,11 +115,8 @@ public class ConfettiParticleConfigurator : MonoBehaviour
         gradient.SetKeys(
             new[]
             {
-                new GradientColorKey(new Color(1f, 0.1f, 0.1f), 0f),
-                new GradientColorKey(new Color(1f, 0.85f, 0.05f), 0.25f),
-                new GradientColorKey(new Color(0.1f, 0.8f, 1f), 0.5f),
-                new GradientColorKey(new Color(0.3f, 1f, 0.2f), 0.7f),
-                new GradientColorKey(new Color(0.9f, 0.2f, 1f), 1f)
+                new GradientColorKey(Color.white, 0f),
+                new GradientColorKey(Color.white, 1f)
             },
             new[]
             {
@@ -134,6 +129,32 @@ public class ConfettiParticleConfigurator : MonoBehaviour
         ParticleSystem.ColorOverLifetimeModule color = particles.colorOverLifetime;
         color.enabled = true;
         color.color = new ParticleSystem.MinMaxGradient(gradient);
+    }
+
+    private static ParticleSystem.MinMaxGradient CreatePaletteGradient()
+    {
+        Gradient gradient = new Gradient();
+        gradient.mode = GradientMode.Fixed;
+        gradient.SetKeys(
+            new[]
+            {
+                new GradientColorKey(Color.red, 0f),
+                new GradientColorKey(Color.green, PaletteStep),
+                new GradientColorKey(Color.yellow, PaletteStep * 2f),
+                new GradientColorKey(Color.blue, PaletteStep * 3f),
+                new GradientColorKey(Color.blue, 1f)
+            },
+            new[]
+            {
+                new GradientAlphaKey(1f, 0f),
+                new GradientAlphaKey(1f, 1f)
+            }
+        );
+
+        return new ParticleSystem.MinMaxGradient(gradient)
+        {
+            mode = ParticleSystemGradientMode.RandomColor
+        };
     }
 
     private static void ConfigureSizeOverLifetime(ParticleSystem particles)

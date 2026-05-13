@@ -8,10 +8,16 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 12f;
     public float gravity = -9.81f;
 
+    [Header("Block Duplication")]
+    [SerializeField] private int availableBlockDuplications = 5;
+
     private float horizontalInput;
     private float verticalInput;
     private float verticalVelocity;
     private Vector3 velocity;
+
+    public bool IsTryingToMove => new Vector2(horizontalInput, verticalInput).sqrMagnitude > 0.01f;
+    public int AvailableBlockDuplications => availableBlockDuplications;
 
     void Update()
     {
@@ -35,5 +41,14 @@ public class PlayerMovement : MonoBehaviour
         horizontalInput = input.x;
         verticalInput = input.y;
 
+    }
+
+    public bool TryConsumeBlockDuplication()
+    {
+        if (availableBlockDuplications <= 0)
+            return false;
+
+        availableBlockDuplications--;
+        return true;
     }
 }

@@ -16,6 +16,18 @@ public class MathBlockValue : MonoBehaviour
         ("ValueLabel_Right", Vector3.right)
     };
 
+    private static readonly Color[] VibrantBlockColors =
+    {
+        new Color(1f, 0.05f, 0.02f),
+        new Color(0.05f, 0.25f, 1f),
+        new Color(1f, 0.88f, 0.02f),
+        new Color(0.02f, 0.85f, 0.18f),
+        new Color(1f, 0.28f, 0.02f),
+        new Color(0.02f, 0.8f, 0.95f),
+        new Color(0.55f, 0.02f, 1f),
+        new Color(0.85f, 1f, 0.02f)
+    };
+
     [SerializeField] private int currentValue = 1;
     [SerializeField] private bool updateScaleFromValue = false;
     [SerializeField] private float scaleStep = 0.15f;
@@ -24,10 +36,12 @@ public class MathBlockValue : MonoBehaviour
     [SerializeField] private float labelSurfaceOffset = -0.0005f;
     [SerializeField] private float labelFontSize = 120f;
     [SerializeField] private Color labelColor = Color.white;
+    [SerializeField] private bool randomizeColorOnStart = true;
 
     private Vector3 baseScale;
     private Quaternion originalRotation;
     private Material labelMaterial;
+    private Material[] runtimeColorMaterials;
     private TextMesh[] valueLabels;
 
     public int CurrentValue => currentValue;
@@ -39,7 +53,8 @@ public class MathBlockValue : MonoBehaviour
         {
             if (block.GetComponent<MathBlockValue>() == null)
             {
-                block.AddComponent<MathBlockValue>();
+                MathBlockValue blockValue = block.AddComponent<MathBlockValue>();
+                blockValue.randomizeColorOnStart = false;
             }
         }
     }
@@ -50,6 +65,7 @@ public class MathBlockValue : MonoBehaviour
         baseScale = transform.localScale;
         originalRotation = transform.rotation;
         currentValue = Mathf.Max(0, currentValue);
+        RandomizeCubeColor();
         EnsureLabels();
         RefreshLabels();
         RefreshVisual();
@@ -66,6 +82,25 @@ public class MathBlockValue : MonoBehaviour
             else
             {
                 DestroyImmediate(labelMaterial);
+            }
+        }
+
+        if (runtimeColorMaterials != null)
+        {
+            for (int i = 0; i < runtimeColorMaterials.Length; i++)
+            {
+                Material material = runtimeColorMaterials[i];
+                if (material == null)
+                    continue;
+
+                if (Application.isPlaying)
+                {
+                    Destroy(material);
+                }
+                else
+                {
+                    DestroyImmediate(material);
+                }
             }
         }
     }
@@ -323,5 +358,73 @@ public class MathBlockValue : MonoBehaviour
         float multiplier = 1f + ((currentValue - 1f) * scaleStep);
         multiplier = Mathf.Clamp(multiplier, minimumScaleMultiplier, maximumScaleMultiplier);
         transform.localScale = baseScale * multiplier;
+    }
+
+    private void RandomizeCubeColor()
+    {
+        if (!Application.isPlaying || !randomizeColorOnStart)
+            return;
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        if (renderers == null || renderers.Length == 0)
+            return;
+
+        Color randomColor = VibrantBlockColors[Random.Range(0, VibrantBlockColors.Length)];
+
+        runtimeColorMaterials = new Material[renderers.Length];
+        int materialCount = 0;
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer targetRenderer = renderers[i];
+            if (targetRenderer == null || IsLabelRenderer(targetRenderer))
+                continue;
+
+            Material sourceMaterial = targetRenderer.sharedMaterial;
+            if (sourceMaterial == null)
+                continue;
+
+            Material runtimeMaterial = new Material(sourceMaterial)
+            {
+                name = $"{name}_RuntimeColorMaterial"
+            };
+
+            ApplyColor(runtimeMaterial, randomColor);
+            targetRenderer.material = runtimeMaterial;
+            runtimeColorMaterials[materialCount] = runtimeMaterial;
+            materialCount++;
+        }
+
+        if (materialCount != runtimeColorMaterials.Length)
+        {
+            System.Array.Resize(ref runtimeColorMaterials, materialCount);
+        }
+    }
+
+    private bool IsLabelRenderer(Renderer targetRenderer)
+    {
+        Transform current = targetRenderer.transform;
+        while (current != null && current != transform)
+        {
+            if (current.name == LabelRootName || current.GetComponent<TextMesh>() != null)
+                return true;
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    private static void ApplyColor(Material material, Color color)
+    {
+        if (material.HasProperty("_BaseColor"))
+        {
+            material.SetColor("_BaseColor", color);
+        }
+
+        if (material.HasProperty("_Color"))
+        {
+            material.SetColor("_Color", color);
+        }
     }
 }

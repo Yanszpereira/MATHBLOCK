@@ -21,7 +21,12 @@ public class GravityInteract : MonoBehaviour
     public Transform playerFront; // ponto na frente do player
 
     [SerializeField] private PencilOperator equippedOperator = PencilOperator.None;
+    [SerializeField] private float duplicateSpawnHeight = 1.5f;
+    [SerializeField] private PlayerMovement playerMovement;
 
+    private PlayerInput playerInput;
+    private InputAction applyOperatorAction;
+    private InputAction duplicateBlockAction;
     private bool grabbed;
     private bool canRaycast = true;
     private bool isOnCooldown;
@@ -31,6 +36,44 @@ public class GravityInteract : MonoBehaviour
 
     public PencilOperator EquippedOperator => equippedOperator;
 
+    private void Awake()
+    {
+        if (playerMovement == null)
+        {
+            playerMovement = GetComponentInParent<PlayerMovement>();
+        }
+
+        playerInput = GetComponentInParent<PlayerInput>();
+        if (playerInput != null)
+        {
+            applyOperatorAction = playerInput.actions.FindAction("Operators", throwIfNotFound: false);
+            duplicateBlockAction = playerInput.actions.FindAction("DuplicateBlock", throwIfNotFound: false);
+
+            if (applyOperatorAction != null)
+            {
+                applyOperatorAction.performed += OnApplyOperatorInput;
+            }
+
+            if (duplicateBlockAction != null)
+            {
+                duplicateBlockAction.performed += OnDuplicateBlockInput;
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (applyOperatorAction != null)
+        {
+            applyOperatorAction.performed -= OnApplyOperatorInput;
+        }
+
+        if (duplicateBlockAction != null)
+        {
+            duplicateBlockAction.performed -= OnDuplicateBlockInput;
+        }
+    }
+
     void Update()
     {
         Debug.DrawRay(
@@ -38,8 +81,6 @@ public class GravityInteract : MonoBehaviour
             camera.forward * grabDistance,
             Color.red
         );
-
-        HandleBlockInputs();
 
         // se estiver segurando um objeto
         if (grabbed && grabbedObject != null)
@@ -52,14 +93,14 @@ public class GravityInteract : MonoBehaviour
         }
     }
 
-    private void HandleBlockInputs()
+    private void OnApplyOperatorInput(InputAction.CallbackContext context)
     {
-        Keyboard keyboard = Keyboard.current;
+        TryHandleApplyOperator();
+    }
 
-        if (keyboard != null && keyboard.eKey.wasPressedThisFrame)
-        {
-            TryHandleApplyOperator();
-        }
+    private void OnDuplicateBlockInput(InputAction.CallbackContext context)
+    {
+        TryHandleDuplicateBlock();
     }
 
     public void OnInteractEvent(InputAction.CallbackContext context)
@@ -102,6 +143,17 @@ public class GravityInteract : MonoBehaviour
             return;
 
         HandleOperatorApplication(hit);
+    }
+
+    private void TryHandleDuplicateBlock()
+    {
+        if (isOnCooldown || grabbed || playerMovement == null || playerMovement.AvailableBlockDuplications <= 0)
+            return;
+
+        if (!TryGetMathBlockHit(out RaycastHit hit))
+            return;
+
+        DuplicateBlock(hit.transform);
     }
 
     private bool TryGetMathBlockHit(out RaycastHit hit)
@@ -147,6 +199,69 @@ public class GravityInteract : MonoBehaviour
             Debug.LogWarning(
                 $"Operacao invalida: {targetValue} {equippedOperator} {carriedValue} no bloco {hit.collider.name}"
             );
+        }
+    }
+
+    private void DuplicateBlock(Transform sourceBlock)
+    {
+        if (sourceBlock == null)
+            return;
+
+        Vector3 spawnPosition = sourceBlock.position + Vector3.up * duplicateSpawnHeight;
+        GameObject duplicatedBlock = Instantiate(sourceBlock.gameObject, spawnPosition, sourceBlock.rotation);
+        duplicatedBlock.name = $"{sourceBlock.name}_Clone";
+        CopyRendererColors(sourceBlock, duplicatedBlock.transform);
+
+        Rigidbody duplicatedRigidbody = duplicatedBlock.GetComponent<Rigidbody>();
+        if (duplicatedRigidbody != null)
+        {
+            duplicatedRigidbody.isKinematic = false;
+            duplicatedRigidbody.useGravity = true;
+            duplicatedRigidbody.linearVelocity = Vector3.zero;
+            duplicatedRigidbody.angularVelocity = Vector3.zero;
+        }
+
+        if (!playerMovement.TryConsumeBlockDuplication())
+        {
+            Destroy(duplicatedBlock);
+            return;
+        }
+
+        Debug.Log($"Bloco duplicado: {sourceBlock.name}. Duplicacoes restantes: {playerMovement.AvailableBlockDuplications}");
+    }
+
+    private void CopyRendererColors(Transform sourceBlock, Transform duplicatedBlock)
+    {
+        Renderer[] sourceRenderers = sourceBlock.GetComponentsInChildren<Renderer>();
+        Renderer[] duplicatedRenderers = duplicatedBlock.GetComponentsInChildren<Renderer>();
+        int rendererCount = Mathf.Min(sourceRenderers.Length, duplicatedRenderers.Length);
+
+        for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++)
+        {
+            Material[] sourceMaterials = sourceRenderers[rendererIndex].materials;
+            Material[] duplicatedMaterials = duplicatedRenderers[rendererIndex].materials;
+            int materialCount = Mathf.Min(sourceMaterials.Length, duplicatedMaterials.Length);
+
+            for (int materialIndex = 0; materialIndex < materialCount; materialIndex++)
+            {
+                CopyMaterialColor(sourceMaterials[materialIndex], duplicatedMaterials[materialIndex]);
+            }
+        }
+    }
+
+    private static void CopyMaterialColor(Material sourceMaterial, Material duplicatedMaterial)
+    {
+        if (sourceMaterial == null || duplicatedMaterial == null)
+            return;
+
+        if (sourceMaterial.HasProperty("_BaseColor") && duplicatedMaterial.HasProperty("_BaseColor"))
+        {
+            duplicatedMaterial.SetColor("_BaseColor", sourceMaterial.GetColor("_BaseColor"));
+        }
+
+        if (sourceMaterial.HasProperty("_Color") && duplicatedMaterial.HasProperty("_Color"))
+        {
+            duplicatedMaterial.SetColor("_Color", sourceMaterial.GetColor("_Color"));
         }
     }
 
