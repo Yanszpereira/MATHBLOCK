@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class PadMathBlockDetector : MonoBehaviour
 {
-    [SerializeField] private string mathBlockTag = "Mathblock";
+    [SerializeField] private string mathBlockTag = "MathBlock";
     [SerializeField] private bool acceptExistingProjectTag = true;
     [SerializeField] private GameObject connectedVerifierObject;
 
