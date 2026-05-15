@@ -22,6 +22,8 @@ public class GravityInteract : MonoBehaviour
 
     [SerializeField] private PencilOperator equippedOperator = PencilOperator.None;
     [SerializeField] private float duplicateSpawnHeight = 1.5f;
+    [SerializeField] private float releaseVelocityMultiplier = 1f;
+    [SerializeField] private float maxReleaseSpeed = 18f;
     [SerializeField] private PlayerMovement playerMovement;
 
     private PlayerInput playerInput;
@@ -33,6 +35,9 @@ public class GravityInteract : MonoBehaviour
 
     private Transform grabbedObject;
     private Rigidbody grabbedRb;
+    private Vector3 carriedVelocity;
+    private Vector3 lastCarriedPosition;
+    private bool hasLastCarriedPosition;
 
     public PencilOperator EquippedOperator => equippedOperator;
 
@@ -90,6 +95,8 @@ public class GravityInteract : MonoBehaviour
                 playerFront.position,
                 Time.deltaTime * speed
             );
+
+            UpdateCarriedVelocity();
         }
     }
 
@@ -306,6 +313,9 @@ public class GravityInteract : MonoBehaviour
 
         grabbed = true;
         canRaycast = false;
+        carriedVelocity = Vector3.zero;
+        lastCarriedPosition = grabbedObject.position;
+        hasLastCarriedPosition = true;
         Debug.Log($"Bloco segurado: {grabbedObject.name}");
     }
 
@@ -313,16 +323,39 @@ public class GravityInteract : MonoBehaviour
     {
         if (grabbedRb != null)
         {
+            Vector3 releaseVelocity = Vector3.ClampMagnitude(
+                carriedVelocity * releaseVelocityMultiplier,
+                maxReleaseSpeed
+            );
+
             grabbedRb.useGravity = true;
             grabbedRb.isKinematic = false;
+            grabbedRb.linearVelocity = releaseVelocity;
         }
 
         grabbedRb = null;
         grabbedObject = null;
         grabbed = false;
+        carriedVelocity = Vector3.zero;
+        hasLastCarriedPosition = false;
 
         canRaycast = false;
         StartCoroutine(GrabCooldown());
+    }
+
+    private void UpdateCarriedVelocity()
+    {
+        if (grabbedObject == null || Time.deltaTime <= 0f)
+            return;
+
+        Vector3 currentPosition = grabbedObject.position;
+        if (hasLastCarriedPosition)
+        {
+            carriedVelocity = (currentPosition - lastCarriedPosition) / Time.deltaTime;
+        }
+
+        lastCarriedPosition = currentPosition;
+        hasLastCarriedPosition = true;
     }
 
     IEnumerator GrabCooldown()
