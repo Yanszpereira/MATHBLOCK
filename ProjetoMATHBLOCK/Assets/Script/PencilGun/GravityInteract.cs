@@ -25,10 +25,13 @@ public class GravityInteract : MonoBehaviour
     [SerializeField] private float releaseVelocityMultiplier = 1f;
     [SerializeField] private float maxReleaseSpeed = 18f;
     [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private Transform operatorAbsorbTarget;
+    [SerializeField] private Vector3 operatorAbsorbTargetCameraLocalPosition = new Vector3(0f, -0.55f, 0.45f);
 
     private PlayerInput playerInput;
     private InputAction applyOperatorAction;
     private InputAction duplicateBlockAction;
+    private InputAction undoBlockOperationAction;
     private bool grabbed;
     private bool canRaycast = true;
     private bool isOnCooldown;
@@ -40,6 +43,7 @@ public class GravityInteract : MonoBehaviour
     private bool hasLastCarriedPosition;
 
     public PencilOperator EquippedOperator => equippedOperator;
+    public Transform OperatorAbsorbTarget => GetOrCreateOperatorAbsorbTarget();
 
     private void Awake()
     {
@@ -53,6 +57,7 @@ public class GravityInteract : MonoBehaviour
         {
             applyOperatorAction = playerInput.actions.FindAction("Operators", throwIfNotFound: false);
             duplicateBlockAction = playerInput.actions.FindAction("DuplicateBlock", throwIfNotFound: false);
+            undoBlockOperationAction = playerInput.actions.FindAction("UndoBlockOperation", throwIfNotFound: false);
 
             if (applyOperatorAction != null)
             {
@@ -62,6 +67,11 @@ public class GravityInteract : MonoBehaviour
             if (duplicateBlockAction != null)
             {
                 duplicateBlockAction.performed += OnDuplicateBlockInput;
+            }
+
+            if (undoBlockOperationAction != null)
+            {
+                undoBlockOperationAction.performed += OnUndoBlockOperationInput;
             }
         }
     }
@@ -77,6 +87,11 @@ public class GravityInteract : MonoBehaviour
         {
             duplicateBlockAction.performed -= OnDuplicateBlockInput;
         }
+
+        if (undoBlockOperationAction != null)
+        {
+            undoBlockOperationAction.performed -= OnUndoBlockOperationInput;
+        }
     }
 
     void Update()
@@ -90,9 +105,10 @@ public class GravityInteract : MonoBehaviour
         // se estiver segurando um objeto
         if (grabbed && grabbedObject != null)
         {
+            Vector3 targetPosition = GetCarriedTargetPosition();
             grabbedObject.position = Vector3.Lerp(
                 grabbedObject.position,
-                playerFront.position,
+                targetPosition,
                 Time.deltaTime * speed
             );
 
@@ -108,6 +124,11 @@ public class GravityInteract : MonoBehaviour
     private void OnDuplicateBlockInput(InputAction.CallbackContext context)
     {
         TryHandleDuplicateBlock();
+    }
+
+    private void OnUndoBlockOperationInput(InputAction.CallbackContext context)
+    {
+        TryHandleUndoBlockOperation();
     }
 
     public void OnInteractEvent(InputAction.CallbackContext context)
@@ -163,6 +184,27 @@ public class GravityInteract : MonoBehaviour
         DuplicateBlock(hit.transform);
     }
 
+    private void TryHandleUndoBlockOperation()
+    {
+        if (isOnCooldown || grabbed)
+            return;
+
+        if (!TryGetMathBlockHit(out RaycastHit hit))
+            return;
+
+        MathBlockValue targetBlock = hit.collider.GetComponent<MathBlockValue>();
+        if (targetBlock == null)
+        {
+            Debug.LogWarning($"Bloco {hit.collider.name} nao possui MathBlockValue para desfazer operacao.");
+            return;
+        }
+
+        if (!targetBlock.TryUndoLastOperation(duplicateSpawnHeight))
+        {
+            Debug.Log($"Bloco {targetBlock.name} nao possui operacoes para desfazer.");
+        }
+    }
+
     private bool TryGetMathBlockHit(out RaycastHit hit)
     {
         if (!Physics.Raycast(camera.position, camera.forward, out hit, grabDistance))
@@ -186,13 +228,12 @@ public class GravityInteract : MonoBehaviour
             targetBlock = hit.collider.gameObject.AddComponent<MathBlockValue>();
         }
 
-        int carriedValue = carriedBlock.CurrentValue;
         int targetValue = targetBlock.CurrentValue;
 
-        if (targetBlock.TryApplyOperator(equippedOperator, carriedValue))
+        if (targetBlock.TryApplyOperator(equippedOperator, carriedBlock))
         {
             Debug.Log(
-                $"Operacao concluida: {targetValue} {equippedOperator} {carriedValue} = {targetBlock.CurrentValue}"
+                $"Operacao concluida: {targetValue} {equippedOperator} {carriedBlock.CurrentValue} = {targetBlock.CurrentValue}"
             );
 
             Destroy(grabbedObject.gameObject);
@@ -204,7 +245,7 @@ public class GravityInteract : MonoBehaviour
         else
         {
             Debug.LogWarning(
-                $"Operacao invalida: {targetValue} {equippedOperator} {carriedValue} no bloco {hit.collider.name}"
+                $"Operacao invalida: {targetValue} {equippedOperator} {carriedBlock.CurrentValue} no bloco {hit.collider.name}"
             );
         }
     }
@@ -292,6 +333,35 @@ public class GravityInteract : MonoBehaviour
         Debug.Log("Player limpou o operador equipado.");
     }
 
+    public Transform GetOrCreateOperatorAbsorbTarget()
+    {
+        if (operatorAbsorbTarget != null)
+            return operatorAbsorbTarget;
+
+        Transform targetParent = camera != null ? camera : transform;
+        Transform existingTarget = targetParent.Find("OperatorAbsorbTarget");
+        if (existingTarget != null)
+        {
+            operatorAbsorbTarget = existingTarget;
+            return operatorAbsorbTarget;
+        }
+
+        GameObject targetObject = new GameObject("OperatorAbsorbTarget");
+        targetObject.transform.SetParent(targetParent, false);
+        targetObject.transform.localPosition = GetOperatorAbsorbTargetLocalPosition(targetParent);
+        targetObject.transform.localRotation = Quaternion.identity;
+        operatorAbsorbTarget = targetObject.transform;
+        return operatorAbsorbTarget;
+    }
+
+    private Vector3 GetOperatorAbsorbTargetLocalPosition(Transform targetParent)
+    {
+        if (targetParent == camera)
+            return operatorAbsorbTargetCameraLocalPosition;
+
+        return Vector3.forward * 0.9f;
+    }
+
     public void Pegar(RaycastHit hit)
     {
         grabbedRb = hit.transform.GetComponent<Rigidbody>();
@@ -356,6 +426,20 @@ public class GravityInteract : MonoBehaviour
 
         lastCarriedPosition = currentPosition;
         hasLastCarriedPosition = true;
+    }
+
+    private Vector3 GetCarriedTargetPosition()
+    {
+        if (playerFront == null)
+            return grabbedObject.position;
+
+        Vector3 targetPosition = playerFront.position;
+        if (camera == null)
+            return targetPosition;
+
+        float verticalOffset = Mathf.Max(0f, camera.forward.y) * Vector3.Distance(camera.position, playerFront.position);
+        targetPosition.y = playerFront.position.y + verticalOffset;
+        return targetPosition;
     }
 
     IEnumerator GrabCooldown()

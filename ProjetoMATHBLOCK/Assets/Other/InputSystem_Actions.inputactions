@@ -52,6 +52,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "UndoBlockOperation",
+                    "type": "Button",
+                    "id": "e15115d7-35d8-48d1-a34e-5b38b05f3141",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Jump",
                     "type": "Button",
                     "id": "c52d9062-097d-4727-8b21-c430674a7757",
@@ -224,6 +233,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "DuplicateBlock",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0c4cd9f3-f3c5-46de-b265-8bbba51d2f9d",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UndoBlockOperation",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

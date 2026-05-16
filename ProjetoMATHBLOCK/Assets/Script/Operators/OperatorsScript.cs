@@ -6,6 +6,7 @@ public class OperatorsScript : MonoBehaviour
     public Transform playerVision;   // camera / direcao do raycast
     public float grabDistance = 3f;
     public GravityInteract pencilGun;
+    [SerializeField] private Transform operatorAbsorbTarget;
 
     private opItem equippedSceneOperator;
 
@@ -34,7 +35,21 @@ public class OperatorsScript : MonoBehaviour
         }
 
         pencilGun.SetEquippedOperator(item.operatorType);
-        item.ConsumeFromScene();
+        item.ConsumeFromScene(GetAbsorbTarget());
         equippedSceneOperator = item;
+    }
+
+    private Transform GetAbsorbTarget()
+    {
+        if (pencilGun != null)
+        {
+            operatorAbsorbTarget = pencilGun.GetOrCreateOperatorAbsorbTarget();
+            return operatorAbsorbTarget;
+        }
+
+        if (operatorAbsorbTarget != null)
+            return operatorAbsorbTarget;
+
+        return null;
     }
 }

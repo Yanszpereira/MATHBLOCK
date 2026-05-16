@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using System.Collections.Generic;
 
 [DisallowMultipleComponent]
 public class MathBlockValue : MonoBehaviour
@@ -43,8 +44,30 @@ public class MathBlockValue : MonoBehaviour
     private Material labelMaterial;
     private Material[] runtimeColorMaterials;
     private TextMesh[] valueLabels;
+    private readonly List<AppliedBlockOperation> appliedOperationHistory = new List<AppliedBlockOperation>();
 
     public int CurrentValue => currentValue;
+
+    private struct AppliedBlockOperation
+    {
+        public int previousTargetValue;
+        public int consumedBlockValue;
+        public string consumedBlockName;
+        public RendererColorSnapshot[] consumedBlockColors;
+    }
+
+    private struct RendererColorSnapshot
+    {
+        public MaterialColorSnapshot[] materialColors;
+    }
+
+    private struct MaterialColorSnapshot
+    {
+        public bool hasBaseColor;
+        public Color baseColor;
+        public bool hasColor;
+        public Color color;
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void BootstrapMathBlockLabels()
@@ -124,8 +147,12 @@ public class MathBlockValue : MonoBehaviour
         }
     }
 
-    public bool TryApplyOperator(GravityInteract.PencilOperator operatorType, int operandValue)
+    public bool TryApplyOperator(GravityInteract.PencilOperator operatorType, MathBlockValue consumedBlock)
     {
+        if (consumedBlock == null)
+            return false;
+
+        int operandValue = consumedBlock.CurrentValue;
         int nextValue = currentValue;
 
         switch (operatorType)
@@ -154,8 +181,33 @@ public class MathBlockValue : MonoBehaviour
                 return false;
         }
 
+        AppliedBlockOperation operation = new AppliedBlockOperation
+        {
+            previousTargetValue = currentValue,
+            consumedBlockValue = consumedBlock.CurrentValue,
+            consumedBlockName = consumedBlock.name,
+            consumedBlockColors = consumedBlock.CaptureRendererColors()
+        };
+
+        appliedOperationHistory.Add(operation);
         SetValue(nextValue);
         Debug.Log($"Bloco {name} atualizado para {currentValue} usando {operatorType}");
+        return true;
+    }
+
+    public bool TryUndoLastOperation(float spawnHeight)
+    {
+        if (appliedOperationHistory.Count == 0)
+            return false;
+
+        int lastIndex = appliedOperationHistory.Count - 1;
+        AppliedBlockOperation operation = appliedOperationHistory[lastIndex];
+        appliedOperationHistory.RemoveAt(lastIndex);
+
+        SetValue(operation.previousTargetValue);
+        RestoreConsumedBlock(operation, spawnHeight);
+
+        Debug.Log($"Bloco {name} desfez a ultima operacao e voltou para {currentValue}.");
         return true;
     }
 
@@ -401,6 +453,109 @@ public class MathBlockValue : MonoBehaviour
         }
     }
 
+    private void RestoreConsumedBlock(AppliedBlockOperation operation, float spawnHeight)
+    {
+        Vector3 spawnPosition = transform.position + Vector3.up * spawnHeight;
+        GameObject restoredBlock = Instantiate(gameObject, spawnPosition, transform.rotation);
+        restoredBlock.name = $"{operation.consumedBlockName}_Restored";
+
+        MathBlockValue restoredValue = restoredBlock.GetComponent<MathBlockValue>();
+        if (restoredValue != null)
+        {
+            restoredValue.InitializeRestoredBlock(operation.consumedBlockValue, operation.consumedBlockColors);
+        }
+
+        Rigidbody restoredRigidbody = restoredBlock.GetComponent<Rigidbody>();
+        if (restoredRigidbody != null)
+        {
+            restoredRigidbody.isKinematic = false;
+            restoredRigidbody.useGravity = true;
+            restoredRigidbody.linearVelocity = Vector3.zero;
+            restoredRigidbody.angularVelocity = Vector3.zero;
+        }
+    }
+
+    private void InitializeRestoredBlock(int restoredValue, RendererColorSnapshot[] restoredColors)
+    {
+        appliedOperationHistory.Clear();
+        SetValue(restoredValue);
+        ApplyRendererColors(restoredColors);
+        ResetRotationToOriginal();
+    }
+
+    private RendererColorSnapshot[] CaptureRendererColors()
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        List<RendererColorSnapshot> snapshots = new List<RendererColorSnapshot>();
+
+        for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+        {
+            Renderer targetRenderer = renderers[rendererIndex];
+            if (targetRenderer == null || IsLabelRenderer(targetRenderer))
+                continue;
+
+            Material[] materials = targetRenderer.materials;
+            MaterialColorSnapshot[] materialSnapshots = new MaterialColorSnapshot[materials.Length];
+
+            for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
+            {
+                Material material = materials[materialIndex];
+                if (material == null)
+                    continue;
+
+                MaterialColorSnapshot materialSnapshot = new MaterialColorSnapshot();
+                if (material.HasProperty("_BaseColor"))
+                {
+                    materialSnapshot.hasBaseColor = true;
+                    materialSnapshot.baseColor = material.GetColor("_BaseColor");
+                }
+
+                if (material.HasProperty("_Color"))
+                {
+                    materialSnapshot.hasColor = true;
+                    materialSnapshot.color = material.GetColor("_Color");
+                }
+
+                materialSnapshots[materialIndex] = materialSnapshot;
+            }
+
+            snapshots.Add(new RendererColorSnapshot
+            {
+                materialColors = materialSnapshots
+            });
+        }
+
+        return snapshots.ToArray();
+    }
+
+    private void ApplyRendererColors(RendererColorSnapshot[] snapshots)
+    {
+        if (snapshots == null)
+            return;
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        int snapshotIndex = 0;
+
+        for (int rendererIndex = 0; rendererIndex < renderers.Length && snapshotIndex < snapshots.Length; rendererIndex++)
+        {
+            Renderer targetRenderer = renderers[rendererIndex];
+            if (targetRenderer == null || IsLabelRenderer(targetRenderer))
+                continue;
+
+            Material[] materials = targetRenderer.materials;
+            MaterialColorSnapshot[] materialSnapshots = snapshots[snapshotIndex].materialColors;
+            int materialCount = Mathf.Min(materials.Length, materialSnapshots.Length);
+
+            for (int materialIndex = 0; materialIndex < materialCount; materialIndex++)
+            {
+                ApplyColorSnapshot(materials[materialIndex], materialSnapshots[materialIndex]);
+            }
+
+            targetRenderer.materials = materials;
+            snapshotIndex++;
+        }
+    }
+
     private bool IsLabelRenderer(Renderer targetRenderer)
     {
         Transform current = targetRenderer.transform;
@@ -425,6 +580,22 @@ public class MathBlockValue : MonoBehaviour
         if (material.HasProperty("_Color"))
         {
             material.SetColor("_Color", color);
+        }
+    }
+
+    private static void ApplyColorSnapshot(Material material, MaterialColorSnapshot snapshot)
+    {
+        if (material == null)
+            return;
+
+        if (snapshot.hasBaseColor && material.HasProperty("_BaseColor"))
+        {
+            material.SetColor("_BaseColor", snapshot.baseColor);
+        }
+
+        if (snapshot.hasColor && material.HasProperty("_Color"))
+        {
+            material.SetColor("_Color", snapshot.color);
         }
     }
 }
