@@ -2155,6 +2155,11 @@ Transform:
   - {fileID: 2108499513}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1317428876 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4462685689750837230, guid: 7450982254879c54d9fa480089910260, type: 3}
+  m_PrefabInstance: {fileID: 194037171155106500}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1336172575
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7887,7 +7892,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1852749045142371672, guid: 7450982254879c54d9fa480089910260, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2089031917}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4462685689750837230, guid: 7450982254879c54d9fa480089910260, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3745622628272927377}
   m_SourcePrefab: {fileID: 100100000, guid: 7450982254879c54d9fa480089910260, type: 3}
 --- !u!1001 &1479064329454811943
 PrefabInstance:
@@ -8071,6 +8079,28 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1852749045142371672, guid: 7450982254879c54d9fa480089910260, type: 3}
   m_PrefabInstance: {fileID: 194037171155106500}
   m_PrefabAsset: {fileID: 0}
+--- !u!95 &3745622628272927377
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1317428876}
+  m_Enabled: 0
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ebd2b0c00520eb64ea2977b8e92fda25, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &4083501151365322671 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6665485820077906188, guid: d6147e99ba3c9ee47b109b61f7724d48, type: 3}

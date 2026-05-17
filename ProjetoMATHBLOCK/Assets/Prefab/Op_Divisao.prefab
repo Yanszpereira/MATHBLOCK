@@ -126,6 +126,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::opItem
   operatorType: 4
+  reactivationAnimation: {fileID: 7400000, guid: b2cbf2628a9840b4e9f06b8a5ec931af, type: 2}
   useWobble: 1
   wobbleAmplitude: 0.15
   wobbleSpeed: 1.5
+  usePointLightFade: 1
+  lightFadeInDuration: 0.45
+  lightFadeOutDuration: 0.35

@@ -4,6 +4,9 @@ public class opItem : MonoBehaviour
 {
     public GravityInteract.PencilOperator operatorType;
 
+    [Header("Reactivation Animation")]
+    [SerializeField] private AnimationClip reactivationAnimation;
+
     [Header("Absorb Effect")]
     [SerializeField] private OperatorAbsorbEffect absorbEffectPrefab;
     [SerializeField] private OperatorAbsorbWaveEffect absorbWaveEffectPrefab;
@@ -13,21 +16,33 @@ public class opItem : MonoBehaviour
     [SerializeField] private float wobbleAmplitude = 0.15f;
     [SerializeField] private float wobbleSpeed = 1.5f;
 
+    [Header("Point Light Fade")]
+    [SerializeField] private bool usePointLightFade;
+    [SerializeField] private float lightFadeInDuration = 0.45f;
+    [SerializeField] private float lightFadeOutDuration = 0.35f;
+
     private Vector3 originalPosition;
     private Quaternion originalRotation;
+    private Vector3 originalScale;
     private float wobbleTimeOffset;
     private Renderer[] cachedRenderers;
     private Collider[] cachedColliders;
+    private Light[] cachedLights;
+    private float[] originalLightIntensities;
     private bool configuredUseWobble;
+    private Coroutine reactivationRoutine;
+    private Coroutine lightFadeRoutine;
 
     private void Awake()
     {
         originalPosition = transform.position;
         originalRotation = transform.rotation;
+        originalScale = transform.localScale;
         configuredUseWobble = useWobble;
         wobbleTimeOffset = Random.Range(0f, Mathf.PI * 2f);
         cachedRenderers = GetComponentsInChildren<Renderer>(true);
         cachedColliders = GetComponentsInChildren<Collider>(true);
+        CacheLights();
     }
 
     private void Update()
@@ -41,6 +56,9 @@ public class opItem : MonoBehaviour
 
     public void ConsumeFromScene(Transform absorbTarget)
     {
+        StopReactivationAnimation();
+        transform.localScale = originalScale;
+        FadeLightsOut();
         SpawnAbsorbEffect(absorbTarget);
         SetScenePresence(false);
     }
@@ -49,6 +67,8 @@ public class opItem : MonoBehaviour
     {
         transform.SetPositionAndRotation(originalPosition, originalRotation);
         SetScenePresence(true);
+        FadeLightsIn();
+        PlayReactivationAnimation();
     }
 
     private void SpawnAbsorbEffect(Transform absorbTarget)
@@ -140,5 +160,159 @@ public class opItem : MonoBehaviour
                 targetCollider.enabled = isVisible;
             }
         }
+    }
+
+    private void CacheLights()
+    {
+        cachedLights = GetComponentsInChildren<Light>(true);
+        originalLightIntensities = new float[cachedLights.Length];
+
+        for (int i = 0; i < cachedLights.Length; i++)
+        {
+            if (cachedLights[i] != null)
+            {
+                originalLightIntensities[i] = cachedLights[i].intensity;
+            }
+        }
+    }
+
+    private void FadeLightsIn()
+    {
+        if (!usePointLightFade)
+            return;
+
+        EnsureLightsCached();
+        StopLightFade();
+
+        for (int i = 0; i < cachedLights.Length; i++)
+        {
+            if (cachedLights[i] != null)
+            {
+                cachedLights[i].enabled = true;
+                cachedLights[i].intensity = 0f;
+            }
+        }
+
+        lightFadeRoutine = StartCoroutine(FadeLightsRoutine(true, lightFadeInDuration));
+    }
+
+    private void FadeLightsOut()
+    {
+        if (!usePointLightFade)
+            return;
+
+        EnsureLightsCached();
+        StopLightFade();
+        lightFadeRoutine = StartCoroutine(FadeLightsRoutine(false, lightFadeOutDuration));
+    }
+
+    private void EnsureLightsCached()
+    {
+        if (cachedLights == null || cachedLights.Length == 0)
+        {
+            CacheLights();
+        }
+    }
+
+    private void StopLightFade()
+    {
+        if (lightFadeRoutine == null)
+            return;
+
+        StopCoroutine(lightFadeRoutine);
+        lightFadeRoutine = null;
+    }
+
+    private System.Collections.IEnumerator FadeLightsRoutine(bool fadeIn, float duration)
+    {
+        float safeDuration = Mathf.Max(duration, 0.01f);
+        float elapsed = 0f;
+        float[] startIntensities = new float[cachedLights.Length];
+
+        for (int i = 0; i < cachedLights.Length; i++)
+        {
+            if (cachedLights[i] != null)
+            {
+                startIntensities[i] = cachedLights[i].intensity;
+            }
+        }
+
+        while (elapsed < safeDuration)
+        {
+            float t = elapsed / safeDuration;
+            ApplyLightFade(fadeIn, startIntensities, t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        ApplyLightFade(fadeIn, startIntensities, 1f);
+
+        if (!fadeIn)
+        {
+            for (int i = 0; i < cachedLights.Length; i++)
+            {
+                if (cachedLights[i] != null)
+                {
+                    cachedLights[i].enabled = false;
+                }
+            }
+        }
+
+        lightFadeRoutine = null;
+    }
+
+    private void ApplyLightFade(bool fadeIn, float[] startIntensities, float t)
+    {
+        for (int i = 0; i < cachedLights.Length; i++)
+        {
+            if (cachedLights[i] == null)
+                continue;
+
+            float targetIntensity = originalLightIntensities[i];
+            float endIntensity = fadeIn ? targetIntensity : 0f;
+            cachedLights[i].intensity = Mathf.Lerp(startIntensities[i], endIntensity, t);
+        }
+    }
+
+    private void PlayReactivationAnimation()
+    {
+        if (reactivationAnimation == null)
+            return;
+
+        StopReactivationAnimation();
+
+        reactivationRoutine = StartCoroutine(PlayReactivationAnimationRoutine());
+    }
+
+    private void StopReactivationAnimation()
+    {
+        if (reactivationRoutine == null)
+            return;
+
+        StopCoroutine(reactivationRoutine);
+        reactivationRoutine = null;
+    }
+
+    private System.Collections.IEnumerator PlayReactivationAnimationRoutine()
+    {
+        bool shouldResumeWobble = configuredUseWobble;
+        useWobble = false;
+
+        float duration = Mathf.Max(reactivationAnimation.length, 0.01f);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            reactivationAnimation.SampleAnimation(gameObject, elapsed);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        reactivationAnimation.SampleAnimation(gameObject, duration);
+        transform.position = originalPosition;
+        transform.rotation = originalRotation;
+        transform.localScale = originalScale;
+        useWobble = shouldResumeWobble;
+        reactivationRoutine = null;
     }
 }
