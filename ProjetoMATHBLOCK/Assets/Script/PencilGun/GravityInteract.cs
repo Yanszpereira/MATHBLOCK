@@ -24,6 +24,9 @@ public class GravityInteract : MonoBehaviour
     [SerializeField] private float duplicateSpawnHeight = 1.5f;
     [SerializeField] private float releaseVelocityMultiplier = 1f;
     [SerializeField] private float maxReleaseSpeed = 18f;
+    [SerializeField] private float minCarriedBlockDistance = 1f;
+    [SerializeField] private float maxCarriedBlockDistance = 15f;
+    [SerializeField] private float carriedBlockScrollSpeed = 0.45f;
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private Transform operatorAbsorbTarget;
     [SerializeField] private Vector3 operatorAbsorbTargetCameraLocalPosition = new Vector3(0f, -0.55f, 0.45f);
@@ -41,6 +44,7 @@ public class GravityInteract : MonoBehaviour
     private Vector3 carriedVelocity;
     private Vector3 lastCarriedPosition;
     private bool hasLastCarriedPosition;
+    private float currentCarriedBlockDistance;
 
     public PencilOperator EquippedOperator => equippedOperator;
     public Transform OperatorAbsorbTarget => GetOrCreateOperatorAbsorbTarget();
@@ -105,6 +109,8 @@ public class GravityInteract : MonoBehaviour
         // se estiver segurando um objeto
         if (grabbed && grabbedObject != null)
         {
+            HandleCarriedBlockZoom();
+
             Vector3 targetPosition = GetCarriedTargetPosition();
             grabbedObject.position = Vector3.Lerp(
                 grabbedObject.position,
@@ -389,6 +395,7 @@ public class GravityInteract : MonoBehaviour
 
         grabbed = true;
         canRaycast = false;
+        currentCarriedBlockDistance = GetInitialCarriedBlockDistance();
         carriedVelocity = Vector3.zero;
         lastCarriedPosition = grabbedObject.position;
         hasLastCarriedPosition = true;
@@ -436,16 +443,43 @@ public class GravityInteract : MonoBehaviour
 
     private Vector3 GetCarriedTargetPosition()
     {
-        if (playerFront == null)
-            return grabbedObject.position;
-
-        Vector3 targetPosition = playerFront.position;
         if (camera == null)
-            return targetPosition;
+        {
+            if (playerFront != null)
+                return playerFront.position;
 
-        float verticalOffset = Mathf.Max(0f, camera.forward.y) * Vector3.Distance(camera.position, playerFront.position);
-        targetPosition.y = playerFront.position.y + verticalOffset;
-        return targetPosition;
+            return grabbedObject.position;
+        }
+
+        return camera.position + (camera.forward * currentCarriedBlockDistance);
+    }
+
+    private void HandleCarriedBlockZoom()
+    {
+        Mouse mouse = Mouse.current;
+        if (mouse == null)
+            return;
+
+        float scrollY = mouse.scroll.ReadValue().y;
+        if (Mathf.Approximately(scrollY, 0f))
+            return;
+
+        float scrollDirection = Mathf.Sign(scrollY);
+        currentCarriedBlockDistance += scrollDirection * carriedBlockScrollSpeed;
+        currentCarriedBlockDistance = Mathf.Clamp(
+            currentCarriedBlockDistance,
+            minCarriedBlockDistance,
+            maxCarriedBlockDistance
+        );
+    }
+
+    private float GetInitialCarriedBlockDistance()
+    {
+        float initialDistance = playerFront != null && camera != null
+            ? Vector3.Distance(camera.position, playerFront.position)
+            : minCarriedBlockDistance;
+
+        return Mathf.Clamp(initialDistance, minCarriedBlockDistance, maxCarriedBlockDistance);
     }
 
     IEnumerator GrabCooldown()

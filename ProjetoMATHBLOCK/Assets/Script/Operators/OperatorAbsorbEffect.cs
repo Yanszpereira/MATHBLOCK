@@ -12,6 +12,7 @@ public class OperatorAbsorbEffect : MonoBehaviour
     [SerializeField] private float maxLifetimeAfterReach = 0.08f;
     [SerializeField] private float emissionDuration = 0.6f;
     [SerializeField] private bool playOnInit = true;
+    [SerializeField] private Sprite particleSprite;
 
     private ParticleSystem.Particle[] particleBuffer;
     private bool initialized;
@@ -63,7 +64,13 @@ public class OperatorAbsorbEffect : MonoBehaviour
 
     public void Init(Transform newTarget, Color color)
     {
+        Init(newTarget, color, particleSprite);
+    }
+
+    public void Init(Transform newTarget, Color color, Sprite sprite)
+    {
         target = newTarget != null ? newTarget : ResolveFallbackTarget();
+        particleSprite = sprite;
         ConfigureParticleSystem(color);
         initialized = true;
         startedAt = Time.time;
@@ -172,6 +179,7 @@ public class OperatorAbsorbEffect : MonoBehaviour
         ConfigureColorOverLifetime(baseColor);
         ConfigureSizeOverLifetime();
         ConfigureTrails(baseColor);
+        ConfigureSpriteSheet();
         ConfigureRenderer(baseColor);
     }
 
@@ -249,26 +257,20 @@ public class OperatorAbsorbEffect : MonoBehaviour
         particleRenderer.shadowCastingMode = ShadowCastingMode.Off;
         particleRenderer.receiveShadows = false;
 
-        if (particleRenderer.sharedMaterial == null)
+        if (particleSprite != null || particleRenderer.sharedMaterial == null)
         {
-            Shader shader = Shader.Find("Particles/Standard Unlit");
-            if (shader == null)
+            Material material = CreateTransparentParticleMaterial("OperatorAbsorbParticleMaterial", particleSprite, baseColor);
+            if (material != null)
             {
-                shader = Shader.Find("Sprites/Default");
-            }
-
-            if (shader != null)
-            {
-                Material material = new Material(shader)
-                {
-                    name = "OperatorAbsorbParticleMaterial"
-                };
                 particleRenderer.sharedMaterial = material;
+                particleRenderer.trailMaterial = material;
             }
         }
 
         if (particleRenderer.sharedMaterial != null)
         {
+            ApplySpriteToMaterial(particleRenderer.sharedMaterial, particleSprite);
+
             if (particleRenderer.sharedMaterial.HasProperty("_BaseColor"))
             {
                 particleRenderer.sharedMaterial.SetColor("_BaseColor", baseColor);
@@ -279,6 +281,110 @@ public class OperatorAbsorbEffect : MonoBehaviour
                 particleRenderer.sharedMaterial.SetColor("_Color", baseColor);
             }
         }
+    }
+
+    private void ConfigureSpriteSheet()
+    {
+        ParticleSystem.TextureSheetAnimationModule textureSheet = particles.textureSheetAnimation;
+        if (particleSprite == null)
+        {
+            textureSheet.enabled = false;
+            return;
+        }
+
+        textureSheet.enabled = true;
+        textureSheet.mode = ParticleSystemAnimationMode.Sprites;
+        textureSheet.timeMode = ParticleSystemAnimationTimeMode.Lifetime;
+        textureSheet.frameOverTime = new ParticleSystem.MinMaxCurve(0f);
+
+        while (textureSheet.spriteCount > 0)
+        {
+            textureSheet.RemoveSprite(0);
+        }
+
+        textureSheet.AddSprite(particleSprite);
+    }
+
+    private static void ApplySpriteToMaterial(Material material, Sprite sprite)
+    {
+        if (material == null || sprite == null || sprite.texture == null)
+            return;
+
+        if (material.HasProperty("_BaseMap"))
+        {
+            material.SetTexture("_BaseMap", sprite.texture);
+        }
+
+        if (material.HasProperty("_MainTex"))
+        {
+            material.SetTexture("_MainTex", sprite.texture);
+        }
+    }
+
+    private static Material CreateTransparentParticleMaterial(string materialName, Sprite sprite, Color color)
+    {
+        Shader shader = Shader.Find("Sprites/Default");
+        if (shader == null)
+        {
+            shader = Shader.Find("Particles/Standard Unlit");
+        }
+
+        if (shader == null)
+            return null;
+
+        Material material = new Material(shader)
+        {
+            name = materialName,
+            hideFlags = HideFlags.HideAndDontSave,
+            renderQueue = (int)RenderQueue.Transparent
+        };
+
+        ApplySpriteToMaterial(material, sprite);
+        ConfigureTransparentBlend(material);
+
+        if (material.HasProperty("_BaseColor"))
+        {
+            material.SetColor("_BaseColor", color);
+        }
+
+        if (material.HasProperty("_Color"))
+        {
+            material.SetColor("_Color", color);
+        }
+
+        return material;
+    }
+
+    private static void ConfigureTransparentBlend(Material material)
+    {
+        material.SetOverrideTag("RenderType", "Transparent");
+
+        if (material.HasProperty("_Surface"))
+        {
+            material.SetFloat("_Surface", 1f);
+        }
+
+        if (material.HasProperty("_Mode"))
+        {
+            material.SetFloat("_Mode", 2f);
+        }
+
+        if (material.HasProperty("_SrcBlend"))
+        {
+            material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+        }
+
+        if (material.HasProperty("_DstBlend"))
+        {
+            material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+        }
+
+        if (material.HasProperty("_ZWrite"))
+        {
+            material.SetFloat("_ZWrite", 0f);
+        }
+
+        material.EnableKeyword("_ALPHABLEND_ON");
     }
 
     private Transform ResolveFallbackTarget()

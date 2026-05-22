@@ -12,6 +12,7 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
     [SerializeField] private float outwardSpeed = 1.15f;
     [SerializeField] private int particleCount = 96;
     [SerializeField] private float particleSize = 0.105f;
+    [SerializeField] private Sprite particleSprite;
 
     private bool initialized;
 
@@ -35,6 +36,12 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
 
     public void Init(Color color)
     {
+        Init(color, particleSprite);
+    }
+
+    public void Init(Color color, Sprite sprite)
+    {
+        particleSprite = sprite;
         Configure(color);
         initialized = true;
         particles.Play(true);
@@ -87,6 +94,7 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
 
         ConfigureColorOverLifetime(color);
         ConfigureSizeOverLifetime();
+        ConfigureSpriteSheet();
         ConfigureRenderer(WithAlpha(color, 0.55f));
     }
 
@@ -137,7 +145,7 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         renderer.shadowCastingMode = ShadowCastingMode.Off;
         renderer.receiveShadows = false;
 
-        renderer.sharedMaterial = CreateCircleMaterial(color);
+        renderer.sharedMaterial = CreateParticleMaterial(color, particleSprite);
 
         if (renderer.sharedMaterial == null)
             return;
@@ -153,12 +161,34 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         }
     }
 
-    private static Material CreateCircleMaterial(Color color)
+    private void ConfigureSpriteSheet()
     {
-        Shader shader = Shader.Find("Particles/Standard Unlit");
+        ParticleSystem.TextureSheetAnimationModule textureSheet = particles.textureSheetAnimation;
+        if (particleSprite == null)
+        {
+            textureSheet.enabled = false;
+            return;
+        }
+
+        textureSheet.enabled = true;
+        textureSheet.mode = ParticleSystemAnimationMode.Sprites;
+        textureSheet.timeMode = ParticleSystemAnimationTimeMode.Lifetime;
+        textureSheet.frameOverTime = new ParticleSystem.MinMaxCurve(0f);
+
+        while (textureSheet.spriteCount > 0)
+        {
+            textureSheet.RemoveSprite(0);
+        }
+
+        textureSheet.AddSprite(particleSprite);
+    }
+
+    private static Material CreateParticleMaterial(Color color, Sprite sprite)
+    {
+        Shader shader = Shader.Find("Sprites/Default");
         if (shader == null)
         {
-            shader = Shader.Find("Sprites/Default");
+            shader = Shader.Find("Particles/Standard Unlit");
         }
 
         if (shader == null)
@@ -167,10 +197,15 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         Material material = new Material(shader)
         {
             name = "OperatorAbsorbWaveCircleMaterial",
-            hideFlags = HideFlags.HideAndDontSave
+            hideFlags = HideFlags.HideAndDontSave,
+            renderQueue = (int)RenderQueue.Transparent
         };
 
-        Texture2D texture = GetCircleTexture();
+        ConfigureTransparentBlend(material);
+
+        Texture2D texture = sprite != null && sprite.texture != null
+            ? sprite.texture
+            : GetCircleTexture();
         if (texture != null)
         {
             if (material.HasProperty("_BaseMap"))
@@ -195,6 +230,38 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         }
 
         return material;
+    }
+
+    private static void ConfigureTransparentBlend(Material material)
+    {
+        material.SetOverrideTag("RenderType", "Transparent");
+
+        if (material.HasProperty("_Surface"))
+        {
+            material.SetFloat("_Surface", 1f);
+        }
+
+        if (material.HasProperty("_Mode"))
+        {
+            material.SetFloat("_Mode", 2f);
+        }
+
+        if (material.HasProperty("_SrcBlend"))
+        {
+            material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+        }
+
+        if (material.HasProperty("_DstBlend"))
+        {
+            material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+        }
+
+        if (material.HasProperty("_ZWrite"))
+        {
+            material.SetFloat("_ZWrite", 0f);
+        }
+
+        material.EnableKeyword("_ALPHABLEND_ON");
     }
 
     private static Color WithAlpha(Color color, float alpha)
