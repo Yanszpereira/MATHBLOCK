@@ -97,3 +97,23 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Unity cache / database files
+*.db
+*.mdb
+*.ldb
+*.opendb
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Rider / VSCode
+.idea/
+.vscode/
+
+# Generated cache
+/Library/ArtifactDB*
+/Library/Artifacts/
+/Library/PackageCache/
+/Library/SourceAssetDB*

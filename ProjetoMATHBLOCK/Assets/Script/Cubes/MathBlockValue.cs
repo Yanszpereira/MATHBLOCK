@@ -38,30 +38,25 @@ public class MathBlockValue : MonoBehaviour
     [SerializeField] private float labelFontSize = 120f;
     [SerializeField] private Color labelColor = Color.white;
     [SerializeField] private bool randomizeColorOnStart = true;
+    [SerializeField] private int blockId = -1;
 
     private Vector3 baseScale;
     private Quaternion originalRotation;
     private Material labelMaterial;
     private Material[] runtimeColorMaterials;
     private TextMesh[] valueLabels;
-    private readonly List<AppliedBlockOperation> appliedOperationHistory = new List<AppliedBlockOperation>();
+    private Stack<DesfazerManager.Acao> operationStack = new Stack<DesfazerManager.Acao>();
 
     public int CurrentValue => currentValue;
+    public int BlockId => blockId;
+    public Stack<DesfazerManager.Acao> OperationStack => operationStack;
 
-    private struct AppliedBlockOperation
-    {
-        public int previousTargetValue;
-        public int consumedBlockValue;
-        public string consumedBlockName;
-        public RendererColorSnapshot[] consumedBlockColors;
-    }
-
-    private struct RendererColorSnapshot
+    public struct RendererColorSnapshot
     {
         public MaterialColorSnapshot[] materialColors;
     }
 
-    private struct MaterialColorSnapshot
+    public struct MaterialColorSnapshot
     {
         public bool hasBaseColor;
         public Color baseColor;
@@ -92,10 +87,17 @@ public class MathBlockValue : MonoBehaviour
         EnsureLabels();
         RefreshLabels();
         RefreshVisual();
+        RegisterWithUndoManager();
     }
 
     private void OnDestroy()
     {
+        DesfazerManager undoManager;
+        if (DesfazerManager.TryGetExistingInstance(out undoManager))
+        {
+            undoManager.UnregisterBlock(this);
+        }
+
         if (labelMaterial != null)
         {
             if (Application.isPlaying)
@@ -142,9 +144,37 @@ public class MathBlockValue : MonoBehaviour
         Rigidbody rigidbody = GetComponent<Rigidbody>();
         if (rigidbody != null)
         {
-            rigidbody.angularVelocity = Vector3.zero;
-            rigidbody.linearVelocity = Vector3.zero;
+            if (!rigidbody.isKinematic)
+            {
+                rigidbody.angularVelocity = Vector3.zero;
+                rigidbody.linearVelocity = Vector3.zero;
+            }
         }
+    }
+
+    public void SetBlockIdFromController(int newBlockId)
+    {
+        blockId = newBlockId;
+    }
+
+    public void InitializeDuplicatedBlock()
+    {
+        operationStack.Clear();
+        DesfazerManager.Instance.AssignNewBlockId(this);
+    }
+
+    public void InitializeRestoredFromUndo(int restoredBlockId, Stack<DesfazerManager.Acao> restoredStack)
+    {
+        randomizeColorOnStart = false;
+        operationStack = restoredStack ?? new Stack<DesfazerManager.Acao>();
+        DesfazerManager.Instance.RestoreBlockId(this, restoredBlockId);
+        ResetRotationToOriginal();
+    }
+
+    public void DetachFromUndoRuntime()
+    {
+        randomizeColorOnStart = false;
+        DesfazerManager.Instance.UnregisterBlock(this);
     }
 
     public bool TryApplyOperator(GravityInteract.PencilOperator operatorType, MathBlockValue consumedBlock)
@@ -181,15 +211,11 @@ public class MathBlockValue : MonoBehaviour
                 return false;
         }
 
-        AppliedBlockOperation operation = new AppliedBlockOperation
-        {
-            previousTargetValue = currentValue,
-            consumedBlockValue = consumedBlock.CurrentValue,
-            consumedBlockName = consumedBlock.name,
-            consumedBlockColors = consumedBlock.CaptureRendererColors()
-        };
+        int previousTargetValue = currentValue;
 
-        appliedOperationHistory.Add(operation);
+        if (!DesfazerManager.Instance.TryRecordOperation(this, consumedBlock, operatorType, previousTargetValue))
+            return false;
+
         SetValue(nextValue);
         Debug.Log($"Bloco {name} atualizado para {currentValue} usando {operatorType}");
         return true;
@@ -197,18 +223,12 @@ public class MathBlockValue : MonoBehaviour
 
     public bool TryUndoLastOperation(float spawnHeight)
     {
-        if (appliedOperationHistory.Count == 0)
-            return false;
+        return DesfazerManager.Instance.TryUndoLastOperation(this, spawnHeight);
+    }
 
-        int lastIndex = appliedOperationHistory.Count - 1;
-        AppliedBlockOperation operation = appliedOperationHistory[lastIndex];
-        appliedOperationHistory.RemoveAt(lastIndex);
-
-        SetValue(operation.previousTargetValue);
-        RestoreConsumedBlock(operation, spawnHeight);
-
-        Debug.Log($"Bloco {name} desfez a ultima operacao e voltou para {currentValue}.");
-        return true;
+    private void RegisterWithUndoManager()
+    {
+        DesfazerManager.Instance.RegisterBlock(this);
     }
 
     private void RemoveLegacyGridChildren()
@@ -453,37 +473,7 @@ public class MathBlockValue : MonoBehaviour
         }
     }
 
-    private void RestoreConsumedBlock(AppliedBlockOperation operation, float spawnHeight)
-    {
-        Vector3 spawnPosition = transform.position + Vector3.up * spawnHeight;
-        GameObject restoredBlock = Instantiate(gameObject, spawnPosition, transform.rotation);
-        restoredBlock.name = $"{operation.consumedBlockName}_Restored";
-
-        MathBlockValue restoredValue = restoredBlock.GetComponent<MathBlockValue>();
-        if (restoredValue != null)
-        {
-            restoredValue.InitializeRestoredBlock(operation.consumedBlockValue, operation.consumedBlockColors);
-        }
-
-        Rigidbody restoredRigidbody = restoredBlock.GetComponent<Rigidbody>();
-        if (restoredRigidbody != null)
-        {
-            restoredRigidbody.isKinematic = false;
-            restoredRigidbody.useGravity = true;
-            restoredRigidbody.linearVelocity = Vector3.zero;
-            restoredRigidbody.angularVelocity = Vector3.zero;
-        }
-    }
-
-    private void InitializeRestoredBlock(int restoredValue, RendererColorSnapshot[] restoredColors)
-    {
-        appliedOperationHistory.Clear();
-        SetValue(restoredValue);
-        ApplyRendererColors(restoredColors);
-        ResetRotationToOriginal();
-    }
-
-    private RendererColorSnapshot[] CaptureRendererColors()
+    public RendererColorSnapshot[] CaptureRendererColors()
     {
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
         List<RendererColorSnapshot> snapshots = new List<RendererColorSnapshot>();
@@ -528,7 +518,7 @@ public class MathBlockValue : MonoBehaviour
         return snapshots.ToArray();
     }
 
-    private void ApplyRendererColors(RendererColorSnapshot[] snapshots)
+    public void ApplyRendererColors(RendererColorSnapshot[] snapshots)
     {
         if (snapshots == null)
             return;

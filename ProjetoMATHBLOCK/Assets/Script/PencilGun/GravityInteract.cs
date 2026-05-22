@@ -260,6 +260,12 @@ public class GravityInteract : MonoBehaviour
         duplicatedBlock.name = $"{sourceBlock.name}_Clone";
         CopyRendererColors(sourceBlock, duplicatedBlock.transform);
 
+        MathBlockValue duplicatedValue = duplicatedBlock.GetComponent<MathBlockValue>();
+        if (duplicatedValue != null)
+        {
+            duplicatedValue.InitializeDuplicatedBlock();
+        }
+
         Rigidbody duplicatedRigidbody = duplicatedBlock.GetComponent<Rigidbody>();
         if (duplicatedRigidbody != null)
         {
