@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GravityInteract : MonoBehaviour
 {
@@ -27,6 +29,8 @@ public class GravityInteract : MonoBehaviour
     [SerializeField] private float minCarriedBlockDistance = 1f;
     [SerializeField] private float maxCarriedBlockDistance = 15f;
     [SerializeField] private float carriedBlockScrollSpeed = 0.45f;
+    [SerializeField, Range(0f, 1f)] private float carriedBlockCollisionOpacity = 0.3f;
+    [SerializeField] private float carriedBlockOpacityLerpSpeed = 8f;
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private Transform operatorAbsorbTarget;
     [SerializeField] private Vector3 operatorAbsorbTargetCameraLocalPosition = new Vector3(0f, -0.55f, 0.45f);
@@ -41,10 +45,15 @@ public class GravityInteract : MonoBehaviour
 
     private Transform grabbedObject;
     private Rigidbody grabbedRb;
+    private MathBlockValue grabbedBlockValue;
     private Vector3 carriedVelocity;
     private Vector3 lastCarriedPosition;
     private bool hasLastCarriedPosition;
     private float currentCarriedBlockDistance;
+    private readonly List<CollisionIgnorePair> ignoredCarriedBlockCollisions = new List<CollisionIgnorePair>();
+    private readonly List<CarriedRendererState> carriedRendererStates = new List<CarriedRendererState>();
+    private float currentCarriedBlockOpacity = 1f;
+    private float targetCarriedBlockOpacity = 1f;
 
     public PencilOperator EquippedOperator => equippedOperator;
     public Transform OperatorAbsorbTarget => GetOrCreateOperatorAbsorbTarget();
@@ -82,6 +91,10 @@ public class GravityInteract : MonoBehaviour
 
     private void OnDestroy()
     {
+        ClearCarriedOperationPreview();
+        RestoreCarriedBlockOpacity();
+        RestoreCarriedBlockCollisions();
+
         if (applyOperatorAction != null)
         {
             applyOperatorAction.performed -= OnApplyOperatorInput;
@@ -119,6 +132,7 @@ public class GravityInteract : MonoBehaviour
             );
 
             UpdateCarriedVelocity();
+            UpdateCarriedBlockCollisionOpacity(Time.deltaTime);
         }
     }
 
@@ -213,10 +227,39 @@ public class GravityInteract : MonoBehaviour
 
     private bool TryGetMathBlockHit(out RaycastHit hit)
     {
-        if (!Physics.Raycast(camera.position, camera.forward, out hit, grabDistance))
+        RaycastHit[] hits = Physics.RaycastAll(camera.position, camera.forward, grabDistance);
+        float nearestDistance = float.MaxValue;
+        bool hasHit = false;
+        hit = default;
+
+        for (int hitIndex = 0; hitIndex < hits.Length; hitIndex++)
+        {
+            RaycastHit candidateHit = hits[hitIndex];
+            Collider candidateCollider = candidateHit.collider;
+            if (candidateCollider == null || !candidateCollider.CompareTag("MathBlock"))
+                continue;
+
+            if (IsColliderFromGrabbedObject(candidateCollider))
+                continue;
+
+            if (candidateHit.distance >= nearestDistance)
+                continue;
+
+            nearestDistance = candidateHit.distance;
+            hit = candidateHit;
+            hasHit = true;
+        }
+
+        return hasHit;
+    }
+
+    private bool IsColliderFromGrabbedObject(Collider targetCollider)
+    {
+        if (targetCollider == null || grabbedObject == null)
             return false;
 
-        return hit.collider.CompareTag("MathBlock");
+        Transform targetTransform = targetCollider.transform;
+        return targetTransform == grabbedObject || targetTransform.IsChildOf(grabbedObject);
     }
 
     private void HandleOperatorApplication(RaycastHit hit)
@@ -235,6 +278,8 @@ public class GravityInteract : MonoBehaviour
         }
 
         int targetValue = targetBlock.CurrentValue;
+        ClearCarriedOperationPreview();
+        RestoreCarriedBlockOpacity();
 
         if (targetBlock.TryApplyOperator(equippedOperator, carriedBlock))
         {
@@ -242,9 +287,12 @@ public class GravityInteract : MonoBehaviour
                 $"Operacao concluida: {targetValue} {equippedOperator} {carriedBlock.CurrentValue} = {targetBlock.CurrentValue}"
             );
 
+            RestoreCarriedBlockCollisions();
+            RestoreCarriedBlockOpacity();
             Destroy(grabbedObject.gameObject);
             grabbedObject = null;
             grabbedRb = null;
+            grabbedBlockValue = null;
             grabbed = false;
             canRaycast = true;
         }
@@ -342,6 +390,7 @@ public class GravityInteract : MonoBehaviour
     public void ClearEquippedOperator()
     {
         equippedOperator = PencilOperator.None;
+        ClearCarriedOperationPreview();
         Debug.Log("Player limpou o operador equipado.");
     }
 
@@ -376,18 +425,24 @@ public class GravityInteract : MonoBehaviour
 
     public void Pegar(RaycastHit hit)
     {
+        RestoreCarriedBlockCollisions();
+
         grabbedRb = hit.transform.GetComponent<Rigidbody>();
         grabbedObject = hit.transform;
         MathBlockValue mathBlockValue = hit.transform.GetComponent<MathBlockValue>();
+        grabbedBlockValue = mathBlockValue;
 
         if (grabbedRb == null)
         {
             grabbedObject = null;
+            grabbedBlockValue = null;
             return;
         }
 
         grabbedRb.isKinematic = true;
         grabbedRb.useGravity = false;
+        CacheCarriedBlockRenderers(grabbedObject);
+        IgnoreCarriedBlockCollisions(grabbedObject);
         if (mathBlockValue != null)
         {
             mathBlockValue.ResetRotationToOriginal();
@@ -404,6 +459,10 @@ public class GravityInteract : MonoBehaviour
 
     public void Soltar()
     {
+        ClearCarriedOperationPreview();
+        RestoreCarriedBlockCollisions();
+        RestoreCarriedBlockOpacity();
+
         if (grabbedRb != null)
         {
             Vector3 releaseVelocity = Vector3.ClampMagnitude(
@@ -418,12 +477,318 @@ public class GravityInteract : MonoBehaviour
 
         grabbedRb = null;
         grabbedObject = null;
+        grabbedBlockValue = null;
         grabbed = false;
         carriedVelocity = Vector3.zero;
         hasLastCarriedPosition = false;
 
         canRaycast = false;
         StartCoroutine(GrabCooldown());
+    }
+
+    private void IgnoreCarriedBlockCollisions(Transform carriedBlock)
+    {
+        if (carriedBlock == null)
+            return;
+
+        Collider[] carriedColliders = carriedBlock.GetComponentsInChildren<Collider>();
+        if (carriedColliders == null || carriedColliders.Length == 0)
+            return;
+
+        GameObject[] mathBlocks = GameObject.FindGameObjectsWithTag("MathBlock");
+        foreach (Collider carriedCollider in carriedColliders)
+        {
+            if (carriedCollider == null)
+                continue;
+
+            foreach (GameObject mathBlock in mathBlocks)
+            {
+                if (mathBlock == null || mathBlock.transform == carriedBlock || mathBlock.transform.IsChildOf(carriedBlock))
+                    continue;
+
+                Collider[] targetColliders = mathBlock.GetComponentsInChildren<Collider>();
+                foreach (Collider targetCollider in targetColliders)
+                {
+                    if (targetCollider == null || targetCollider == carriedCollider)
+                        continue;
+
+                    Physics.IgnoreCollision(carriedCollider, targetCollider, true);
+                    ignoredCarriedBlockCollisions.Add(new CollisionIgnorePair(carriedCollider, targetCollider));
+                }
+            }
+        }
+    }
+
+    private void RestoreCarriedBlockCollisions()
+    {
+        for (int i = 0; i < ignoredCarriedBlockCollisions.Count; i++)
+        {
+            CollisionIgnorePair pair = ignoredCarriedBlockCollisions[i];
+            if (pair.First != null && pair.Second != null)
+            {
+                Physics.IgnoreCollision(pair.First, pair.Second, false);
+            }
+        }
+
+        ignoredCarriedBlockCollisions.Clear();
+    }
+
+    private void CacheCarriedBlockRenderers(Transform carriedBlock)
+    {
+        RestoreCarriedBlockOpacity();
+
+        if (carriedBlock == null)
+            return;
+
+        Renderer[] renderers = carriedBlock.GetComponentsInChildren<Renderer>();
+        for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+        {
+            Renderer targetRenderer = renderers[rendererIndex];
+            if (targetRenderer == null || IsCarriedBlockLabelRenderer(targetRenderer))
+                continue;
+
+            Material[] materials = targetRenderer.materials;
+            for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
+            {
+                Material material = materials[materialIndex];
+                if (material == null)
+                    continue;
+
+                carriedRendererStates.Add(new CarriedRendererState(targetRenderer, material));
+            }
+        }
+
+        currentCarriedBlockOpacity = 1f;
+        targetCarriedBlockOpacity = 1f;
+    }
+
+    private void UpdateCarriedBlockCollisionOpacity(float deltaTime)
+    {
+        bool isOverlapping = TryGetCarriedBlockOverlap(out MathBlockValue overlappedBlock);
+        targetCarriedBlockOpacity = isOverlapping ? carriedBlockCollisionOpacity : 1f;
+        UpdateCarriedOperationPreview(overlappedBlock);
+        UpdateCarriedBlockOpacity(deltaTime);
+    }
+
+    private bool TryGetCarriedBlockOverlap(out MathBlockValue overlappedBlock)
+    {
+        overlappedBlock = null;
+
+        if (grabbedObject == null)
+            return false;
+
+        Collider[] carriedColliders = grabbedObject.GetComponentsInChildren<Collider>();
+        if (carriedColliders == null || carriedColliders.Length == 0)
+            return false;
+
+        GameObject[] mathBlocks = GameObject.FindGameObjectsWithTag("MathBlock");
+        foreach (Collider carriedCollider in carriedColliders)
+        {
+            if (carriedCollider == null || !carriedCollider.enabled)
+                continue;
+
+            foreach (GameObject mathBlock in mathBlocks)
+            {
+                if (mathBlock == null || mathBlock.transform == grabbedObject || mathBlock.transform.IsChildOf(grabbedObject))
+                    continue;
+
+                Collider[] targetColliders = mathBlock.GetComponentsInChildren<Collider>();
+                foreach (Collider targetCollider in targetColliders)
+                {
+                    if (targetCollider == null || !targetCollider.enabled || targetCollider == carriedCollider)
+                        continue;
+
+                    if (Physics.ComputePenetration(
+                        carriedCollider,
+                        carriedCollider.transform.position,
+                        carriedCollider.transform.rotation,
+                        targetCollider,
+                        targetCollider.transform.position,
+                        targetCollider.transform.rotation,
+                        out _,
+                        out _))
+                    {
+                        overlappedBlock = mathBlock.GetComponent<MathBlockValue>();
+                        if (overlappedBlock == null)
+                        {
+                            overlappedBlock = mathBlock.GetComponentInParent<MathBlockValue>();
+                        }
+
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void UpdateCarriedOperationPreview(MathBlockValue targetBlock)
+    {
+        if (grabbedBlockValue == null || targetBlock == null || equippedOperator == PencilOperator.None)
+        {
+            ClearCarriedOperationPreview();
+            return;
+        }
+
+        if (TryCalculateOperationPreview(targetBlock.CurrentValue, grabbedBlockValue.CurrentValue, equippedOperator, out int previewResult))
+        {
+            grabbedBlockValue.SetPreviewValue(previewResult);
+        }
+        else
+        {
+            ClearCarriedOperationPreview();
+        }
+    }
+
+    private void ClearCarriedOperationPreview()
+    {
+        if (grabbedBlockValue != null)
+        {
+            grabbedBlockValue.ClearPreviewValue();
+        }
+    }
+
+    private static bool TryCalculateOperationPreview(
+        int targetValue,
+        int carriedValue,
+        PencilOperator operatorType,
+        out int result)
+    {
+        result = targetValue;
+
+        switch (operatorType)
+        {
+            case PencilOperator.Addition:
+                result = targetValue + carriedValue;
+                return true;
+
+            case PencilOperator.Subtraction:
+                result = targetValue - carriedValue;
+                return result >= 0;
+
+            case PencilOperator.Multiplication:
+                result = targetValue * carriedValue;
+                return true;
+
+            case PencilOperator.Division:
+                if (carriedValue <= 0 || targetValue % carriedValue != 0)
+                    return false;
+
+                result = targetValue / carriedValue;
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    private void UpdateCarriedBlockOpacity(float deltaTime)
+    {
+        if (carriedRendererStates.Count == 0)
+            return;
+
+        float previousOpacity = currentCarriedBlockOpacity;
+        float lerpFactor = 1f - Mathf.Exp(-Mathf.Max(0.01f, carriedBlockOpacityLerpSpeed) * deltaTime);
+        currentCarriedBlockOpacity = Mathf.Lerp(currentCarriedBlockOpacity, targetCarriedBlockOpacity, lerpFactor);
+        if (Mathf.Abs(currentCarriedBlockOpacity - targetCarriedBlockOpacity) < 0.01f)
+        {
+            currentCarriedBlockOpacity = targetCarriedBlockOpacity;
+        }
+
+        bool shouldUseTransparentMaterial = currentCarriedBlockOpacity < 0.999f || targetCarriedBlockOpacity < 0.999f;
+        bool reachedOpaque = previousOpacity < 0.999f && currentCarriedBlockOpacity >= 0.999f && targetCarriedBlockOpacity >= 0.999f;
+
+        for (int stateIndex = 0; stateIndex < carriedRendererStates.Count; stateIndex++)
+        {
+            CarriedRendererState state = carriedRendererStates[stateIndex];
+            if (state.Renderer == null || state.Material == null)
+                continue;
+
+            if (shouldUseTransparentMaterial)
+            {
+                ConfigureTransparentMaterial(state.Material);
+                state.ApplyAlpha(currentCarriedBlockOpacity);
+            }
+            else if (reachedOpaque)
+            {
+                state.RestoreMaterialState();
+                state.ApplyAlpha(1f);
+            }
+        }
+    }
+
+    private void RestoreCarriedBlockOpacity()
+    {
+        for (int stateIndex = 0; stateIndex < carriedRendererStates.Count; stateIndex++)
+        {
+            CarriedRendererState state = carriedRendererStates[stateIndex];
+            if (state.Renderer == null || state.Material == null)
+                continue;
+
+            state.RestoreMaterialState();
+            state.ApplyAlpha(1f);
+        }
+
+        carriedRendererStates.Clear();
+        currentCarriedBlockOpacity = 1f;
+        targetCarriedBlockOpacity = 1f;
+    }
+
+    private static bool IsCarriedBlockLabelRenderer(Renderer targetRenderer)
+    {
+        if (targetRenderer == null)
+            return false;
+
+        Transform current = targetRenderer.transform;
+        while (current != null)
+        {
+            if (current.name == "ValueLabels" || current.GetComponent<TextMesh>() != null)
+                return true;
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    private static void ConfigureTransparentMaterial(Material material)
+    {
+        if (material == null)
+            return;
+
+        material.SetOverrideTag("RenderType", "Transparent");
+
+        if (material.HasProperty("_Surface"))
+        {
+            material.SetFloat("_Surface", 1f);
+        }
+
+        if (material.HasProperty("_Mode"))
+        {
+            material.SetFloat("_Mode", 3f);
+        }
+
+        if (material.HasProperty("_SrcBlend"))
+        {
+            material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+        }
+
+        if (material.HasProperty("_DstBlend"))
+        {
+            material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+        }
+
+        if (material.HasProperty("_ZWrite"))
+        {
+            material.SetFloat("_ZWrite", 0f);
+        }
+
+        material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        material.DisableKeyword("_ALPHATEST_ON");
+        material.EnableKeyword("_ALPHABLEND_ON");
+        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        material.renderQueue = (int)RenderQueue.Transparent;
     }
 
     private void UpdateCarriedVelocity()
@@ -488,5 +853,206 @@ public class GravityInteract : MonoBehaviour
         yield return new WaitForSeconds(grabCooldown);
         isOnCooldown = false;
         canRaycast = true;
+    }
+
+    private struct CollisionIgnorePair
+    {
+        public readonly Collider First;
+        public readonly Collider Second;
+
+        public CollisionIgnorePair(Collider first, Collider second)
+        {
+            First = first;
+            Second = second;
+        }
+    }
+
+    private struct CarriedRendererState
+    {
+        public readonly Renderer Renderer;
+        public readonly Material Material;
+        private readonly bool hasBaseColor;
+        private readonly Color baseColor;
+        private readonly bool hasColor;
+        private readonly Color color;
+        private readonly bool hasSurface;
+        private readonly float surface;
+        private readonly bool hasMode;
+        private readonly float mode;
+        private readonly bool hasSrcBlend;
+        private readonly float srcBlend;
+        private readonly bool hasDstBlend;
+        private readonly float dstBlend;
+        private readonly bool hasZWrite;
+        private readonly float zWrite;
+        private readonly int renderQueue;
+        private readonly string renderTypeTag;
+        private readonly bool hadTransparentKeyword;
+        private readonly bool hadAlphaTestKeyword;
+        private readonly bool hadAlphaBlendKeyword;
+        private readonly bool hadAlphaPremultiplyKeyword;
+        private readonly bool hasPropertyBlockColors;
+        private readonly Color propertyBlockBaseColor;
+        private readonly Color propertyBlockColor;
+
+        public CarriedRendererState(Renderer targetRenderer, Material material)
+        {
+            Renderer = targetRenderer;
+            Material = material;
+            hasBaseColor = material.HasProperty("_BaseColor");
+            baseColor = hasBaseColor ? material.GetColor("_BaseColor") : Color.white;
+            hasColor = material.HasProperty("_Color");
+            color = hasColor ? material.GetColor("_Color") : Color.white;
+            hasSurface = material.HasProperty("_Surface");
+            surface = hasSurface ? material.GetFloat("_Surface") : 0f;
+            hasMode = material.HasProperty("_Mode");
+            mode = hasMode ? material.GetFloat("_Mode") : 0f;
+            hasSrcBlend = material.HasProperty("_SrcBlend");
+            srcBlend = hasSrcBlend ? material.GetFloat("_SrcBlend") : 0f;
+            hasDstBlend = material.HasProperty("_DstBlend");
+            dstBlend = hasDstBlend ? material.GetFloat("_DstBlend") : 0f;
+            hasZWrite = material.HasProperty("_ZWrite");
+            zWrite = hasZWrite ? material.GetFloat("_ZWrite") : 0f;
+            renderQueue = material.renderQueue;
+            renderTypeTag = material.GetTag("RenderType", false, string.Empty);
+            hadTransparentKeyword = material.IsKeywordEnabled("_SURFACE_TYPE_TRANSPARENT");
+            hadAlphaTestKeyword = material.IsKeywordEnabled("_ALPHATEST_ON");
+            hadAlphaBlendKeyword = material.IsKeywordEnabled("_ALPHABLEND_ON");
+            hadAlphaPremultiplyKeyword = material.IsKeywordEnabled("_ALPHAPREMULTIPLY_ON");
+
+            MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+            targetRenderer.GetPropertyBlock(propertyBlock);
+            hasPropertyBlockColors = !propertyBlock.isEmpty;
+            propertyBlockBaseColor = hasPropertyBlockColors && hasBaseColor
+                ? propertyBlock.GetColor("_BaseColor")
+                : Color.white;
+            propertyBlockColor = hasPropertyBlockColors && hasColor
+                ? propertyBlock.GetColor("_Color")
+                : Color.white;
+        }
+
+        public void ApplyAlpha(float alpha)
+        {
+            if (Material == null)
+                return;
+
+            if (hasBaseColor)
+            {
+                Color nextBaseColor = baseColor;
+                nextBaseColor.a = alpha;
+                Material.SetColor("_BaseColor", nextBaseColor);
+            }
+
+            if (hasColor)
+            {
+                Color nextColor = color;
+                nextColor.a = alpha;
+                Material.SetColor("_Color", nextColor);
+            }
+
+            if (Renderer != null && hasPropertyBlockColors)
+            {
+                MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+                Renderer.GetPropertyBlock(propertyBlock);
+
+                if (hasBaseColor)
+                {
+                    Color nextPropertyBaseColor = propertyBlockBaseColor;
+                    nextPropertyBaseColor.a = alpha;
+                    propertyBlock.SetColor("_BaseColor", nextPropertyBaseColor);
+                }
+
+                if (hasColor)
+                {
+                    Color nextPropertyColor = propertyBlockColor;
+                    nextPropertyColor.a = alpha;
+                    propertyBlock.SetColor("_Color", nextPropertyColor);
+                }
+
+                Renderer.SetPropertyBlock(propertyBlock);
+            }
+        }
+
+        public void RestoreMaterialState()
+        {
+            if (Material == null)
+                return;
+
+            if (hasBaseColor)
+            {
+                Material.SetColor("_BaseColor", baseColor);
+            }
+
+            if (hasColor)
+            {
+                Material.SetColor("_Color", color);
+            }
+
+            if (hasSurface)
+            {
+                Material.SetFloat("_Surface", surface);
+            }
+
+            if (hasMode)
+            {
+                Material.SetFloat("_Mode", mode);
+            }
+
+            if (hasSrcBlend)
+            {
+                Material.SetFloat("_SrcBlend", srcBlend);
+            }
+
+            if (hasDstBlend)
+            {
+                Material.SetFloat("_DstBlend", dstBlend);
+            }
+
+            if (hasZWrite)
+            {
+                Material.SetFloat("_ZWrite", zWrite);
+            }
+
+            if (!hadTransparentKeyword)
+            {
+                Material.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            }
+
+            RestoreKeyword(Material, "_ALPHATEST_ON", hadAlphaTestKeyword);
+            RestoreKeyword(Material, "_ALPHABLEND_ON", hadAlphaBlendKeyword);
+            RestoreKeyword(Material, "_ALPHAPREMULTIPLY_ON", hadAlphaPremultiplyKeyword);
+            Material.SetOverrideTag("RenderType", renderTypeTag);
+            Material.renderQueue = renderQueue;
+
+            if (Renderer != null && hasPropertyBlockColors)
+            {
+                MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+                Renderer.GetPropertyBlock(propertyBlock);
+
+                if (hasBaseColor)
+                {
+                    propertyBlock.SetColor("_BaseColor", propertyBlockBaseColor);
+                }
+
+                if (hasColor)
+                {
+                    propertyBlock.SetColor("_Color", propertyBlockColor);
+                }
+
+                Renderer.SetPropertyBlock(propertyBlock);
+            }
+        }
+
+        private static void RestoreKeyword(Material material, string keyword, bool wasEnabled)
+        {
+            if (wasEnabled)
+            {
+                material.EnableKeyword(keyword);
+            }
+            else
+            {
+                material.DisableKeyword(keyword);
+            }
+        }
     }
 }

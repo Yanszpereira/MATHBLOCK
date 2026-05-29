@@ -128,4 +128,11 @@ public class PlayerMovement : MonoBehaviour
         availableBlockDuplications--;
         return true;
     }
+
+    public void ResetVerticalMovement()
+    {
+        verticalVelocity = 0f;
+        velocity = Vector3.zero;
+        jumpWasPressed = false;
+    }
 }
