@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{8aa3f8e1-6ea8-48f9-b90f-44d3c5cff0a4}">
+		<property name="assetPath">
+			<value>824137__its-slava__button_select1.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>1.8509523809523809</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{3cccca5d-055f-482e-895d-bcee7f75872c}</destination>
+		</relationship>
+	</object>
+</objects>

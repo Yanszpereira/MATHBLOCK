@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{60e18296-9126-41c8-ac5f-7f28d90295f5}">
+		<property name="assetPath">
+			<value>791967__zy7__player-death-via-endless-pit.mp3</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>2.0375510204081633</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{3cccca5d-055f-482e-895d-bcee7f75872c}</destination>
+		</relationship>
+	</object>
+</objects>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{f6abc321-6219-45ad-a323-42603cbd133d}">
+		<property name="assetPath">
+			<value>752059__etheraudio__pulse-slight-pwm-bass-error.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>87.9459991</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>0.16719350510540559</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{3cccca5d-055f-482e-895d-bcee7f75872c}</destination>
+		</relationship>
+	</object>
+</objects>

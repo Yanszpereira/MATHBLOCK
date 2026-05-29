@@ -117,3 +117,9 @@ Thumbs.db
 /Library/Artifacts/
 /Library/PackageCache/
 /Library/SourceAssetDB*
+
+# FMOD cache / logs
+**/.cache/
+**/[Cc]ache/
+**/fmod_editor.log
+**/FMODStudioCache.asset
