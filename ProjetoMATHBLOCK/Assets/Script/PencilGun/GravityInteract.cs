@@ -33,6 +33,10 @@ public class GravityInteract : MonoBehaviour
     [SerializeField] private float carriedBlockScrollSpeed = 0.45f;
     [SerializeField, Range(0f, 1f)] private float carriedBlockCollisionOpacity = 0.3f;
     [SerializeField] private float carriedBlockOpacityLerpSpeed = 8f;
+    [SerializeField] private float hammerApplySpeedThreshold = 10.14f;
+    [SerializeField, Range(0f, 360f)] private float hammerAllowedDirectionAngle = 230f;
+    [SerializeField] private string hammerImpactEffectObjectName = "efeitomarretada";
+    [SerializeField] private float hammerImpactEffectDuration = 1f;
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private Transform operatorAbsorbTarget;
     [SerializeField] private Vector3 operatorAbsorbTargetCameraLocalPosition = new Vector3(0f, -0.55f, 0.45f);
@@ -56,6 +60,8 @@ public class GravityInteract : MonoBehaviour
     private readonly List<CarriedRendererState> carriedRendererStates = new List<CarriedRendererState>();
     private float currentCarriedBlockOpacity = 1f;
     private float targetCarriedBlockOpacity = 1f;
+    private GameObject hammerImpactEffectObject;
+    private Coroutine hammerImpactDisableRoutine;
 
     public PencilOperator EquippedOperator => equippedOperator;
     public Transform OperatorAbsorbTarget => GetOrCreateOperatorAbsorbTarget();
@@ -206,6 +212,43 @@ public class GravityInteract : MonoBehaviour
         HandleOperatorApplication(hit);
     }
 
+    private bool TryHandleHammerApplication(MathBlockValue overlappedBlock)
+    {
+        if (isOnCooldown || !grabbed || grabbedObject == null || grabbedBlockValue == null || equippedOperator == PencilOperator.None)
+            return false;
+
+        if (overlappedBlock == null)
+            return false;
+
+        if (carriedVelocity.magnitude < hammerApplySpeedThreshold)
+            return false;
+
+        if (!IsHammerDirectionAllowed(carriedVelocity))
+            return false;
+
+        Vector3 impactPosition = grabbedObject.position;
+        Vector3 impactDirection = carriedVelocity.sqrMagnitude > Mathf.Epsilon ? carriedVelocity.normalized : Vector3.up;
+        Color impactColor = GetBlockVisualColor(overlappedBlock);
+        return ApplyOperatorToBlock(
+            overlappedBlock,
+            $"marretada em {overlappedBlock.name}",
+            true,
+            impactPosition,
+            impactColor,
+            impactDirection
+        );
+    }
+
+    private bool IsHammerDirectionAllowed(Vector3 velocity)
+    {
+        if (velocity.sqrMagnitude <= Mathf.Epsilon)
+            return false;
+
+        float halfAngle = hammerAllowedDirectionAngle * 0.5f;
+        float angleFromDown = Vector3.Angle(velocity, Vector3.down);
+        return angleFromDown <= halfAngle;
+    }
+
     private void TryHandleDuplicateBlock()
     {
         if (isOnCooldown || grabbed || playerMovement == null || playerMovement.AvailableBlockDuplications <= 0)
@@ -281,16 +324,35 @@ public class GravityInteract : MonoBehaviour
     private void HandleOperatorApplication(RaycastHit hit)
     {
         var targetBlock = hit.collider.GetComponent<MathBlockValue>();
-        var carriedBlock = grabbedObject.GetComponent<MathBlockValue>();
-        if (carriedBlock == null)
-        {
-            Debug.LogWarning($"Bloco carregado {grabbedObject.name} nao possui MathBlockValue.");
-            return;
-        }
-
         if (targetBlock == null)
         {
             targetBlock = hit.collider.gameObject.AddComponent<MathBlockValue>();
+        }
+
+        ApplyOperatorToBlock(targetBlock, hit.collider.name);
+    }
+
+    private bool ApplyOperatorToBlock(
+        MathBlockValue targetBlock,
+        string targetLabel,
+        bool spawnHammerImpactEffect = false,
+        Vector3 hammerImpactPosition = default,
+        Color hammerImpactColor = default(Color),
+        Vector3 hammerImpactDirection = default(Vector3))
+    {
+        if (targetBlock == null)
+            return false;
+
+        if (grabbedObject == null)
+            return false;
+
+        string blockName = targetBlock.name;
+        string contextLabel = string.IsNullOrWhiteSpace(targetLabel) ? blockName : targetLabel;
+        var carriedBlock = grabbedBlockValue != null ? grabbedBlockValue : grabbedObject.GetComponent<MathBlockValue>();
+        if (carriedBlock == null)
+        {
+            Debug.LogWarning($"Bloco carregado {grabbedObject.name} nao possui MathBlockValue.");
+            return false;
         }
 
         int targetValue = targetBlock.CurrentValue;
@@ -299,8 +361,13 @@ public class GravityInteract : MonoBehaviour
 
         if (targetBlock.TryApplyOperator(equippedOperator, carriedBlock))
         {
+            if (spawnHammerImpactEffect)
+            {
+                PlayHammerImpactEffect(hammerImpactPosition, hammerImpactColor, hammerImpactDirection);
+            }
+
             Debug.Log(
-                $"Operacao concluida: {targetValue} {equippedOperator} {carriedBlock.CurrentValue} = {targetBlock.CurrentValue}"
+                $"Operacao concluida ({contextLabel}): {targetValue} {equippedOperator} {carriedBlock.CurrentValue} = {targetBlock.CurrentValue}"
             );
 
             RestoreCarriedBlockCollisions();
@@ -311,13 +378,203 @@ public class GravityInteract : MonoBehaviour
             grabbedBlockValue = null;
             grabbed = false;
             canRaycast = true;
+            return true;
         }
-        else
+
+        Debug.LogWarning(
+            $"Operacao invalida ({contextLabel}): {targetValue} {equippedOperator} {carriedBlock.CurrentValue} no bloco {blockName}"
+        );
+        return false;
+    }
+
+    private void PlayHammerImpactEffect(Vector3 position, Color color, Vector3 direction)
+    {
+        if (!TryGetHammerImpactEffectObject(out GameObject effectObject))
         {
-            Debug.LogWarning(
-                $"Operacao invalida: {targetValue} {equippedOperator} {carriedBlock.CurrentValue} no bloco {hit.collider.name}"
-            );
+            Debug.LogWarning($"Nao foi possivel localizar o sistema de particulas '{hammerImpactEffectObjectName}'.");
+            return;
         }
+
+        if (hammerImpactDisableRoutine != null)
+        {
+            StopCoroutine(hammerImpactDisableRoutine);
+            hammerImpactDisableRoutine = null;
+        }
+
+        effectObject.SetActive(true);
+        effectObject.transform.SetPositionAndRotation(position, Quaternion.FromToRotation(Vector3.up, direction.sqrMagnitude > Mathf.Epsilon ? direction.normalized : Vector3.up));
+
+        if (!TryGetHammerImpactParticleSystem(effectObject, out ParticleSystem particles))
+        {
+            Debug.LogWarning($"O objeto '{hammerImpactEffectObjectName}' nao possui ParticleSystem.");
+            effectObject.SetActive(false);
+            return;
+        }
+
+        ConfigureHammerImpactParticleSystem(particles, color, direction);
+        particles.Clear(true);
+        particles.Play(true);
+        hammerImpactDisableRoutine = StartCoroutine(DisableHammerImpactEffectAfterDelay(effectObject, hammerImpactEffectDuration));
+    }
+
+    private Color GetBlockVisualColor(MathBlockValue blockValue)
+    {
+        if (blockValue == null)
+            return Color.white;
+
+        if (blockValue.TryGetVisualColor(out Color color))
+            return color;
+
+        return Color.white;
+    }
+
+    private IEnumerator DisableHammerImpactEffectAfterDelay(GameObject effectObject, float delay)
+    {
+        yield return new WaitForSeconds(Mathf.Max(0.01f, delay));
+
+        if (effectObject != null)
+        {
+            ParticleSystem particles = effectObject.GetComponentInChildren<ParticleSystem>(true);
+            if (particles != null)
+            {
+                particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
+
+            effectObject.SetActive(false);
+        }
+
+        hammerImpactDisableRoutine = null;
+    }
+
+    private bool TryGetHammerImpactEffectObject(out GameObject effectObject)
+    {
+        if (hammerImpactEffectObject != null)
+        {
+            effectObject = hammerImpactEffectObject;
+            return true;
+        }
+
+        GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        for (int i = 0; i < allObjects.Length; i++)
+        {
+            GameObject candidate = allObjects[i];
+            if (candidate == null || candidate.name != hammerImpactEffectObjectName)
+                continue;
+
+            if (!candidate.scene.IsValid() || !candidate.scene.isLoaded)
+                continue;
+
+            hammerImpactEffectObject = candidate;
+            effectObject = hammerImpactEffectObject;
+            return true;
+        }
+
+        effectObject = null;
+        return false;
+    }
+
+    private bool TryGetHammerImpactParticleSystem(GameObject effectObject, out ParticleSystem particles)
+    {
+        particles = null;
+        if (effectObject == null)
+            return false;
+
+        particles = effectObject.GetComponentInChildren<ParticleSystem>(true);
+        if (particles != null)
+            return true;
+
+        return false;
+    }
+
+    private void ConfigureHammerImpactParticleSystem(ParticleSystem particles, Color color, Vector3 direction)
+    {
+        if (particles == null)
+            return;
+
+        Color vividColor = GetHammerImpactColor(color);
+        Vector3 safeDirection = direction.sqrMagnitude > Mathf.Epsilon ? direction.normalized : Vector3.up;
+
+        ParticleSystem.MainModule main = particles.main;
+        main.duration = hammerImpactEffectDuration;
+        main.loop = false;
+        main.prewarm = false;
+        main.startLifetime = hammerImpactEffectDuration;
+        main.startSpeed = new ParticleSystem.MinMaxCurve(1.2f, 1.9f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.12f, 0.22f);
+        Color startColor = vividColor;
+        startColor.a = 0.35f;
+        main.startColor = startColor;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.scalingMode = ParticleSystemScalingMode.Hierarchy;
+        main.playOnAwake = false;
+
+        ParticleSystem.ShapeModule shape = particles.shape;
+        shape.enabled = true;
+        shape.shapeType = ParticleSystemShapeType.Cone;
+        shape.radius = 0.22f;
+        shape.radiusThickness = 1f;
+        shape.angle = 24f;
+        shape.rotation = Quaternion.FromToRotation(Vector3.up, safeDirection).eulerAngles;
+        shape.alignToDirection = true;
+
+        ParticleSystem.EmissionModule emission = particles.emission;
+        emission.enabled = true;
+        emission.rateOverTime = 0f;
+        emission.SetBursts(new[]
+        {
+            new ParticleSystem.Burst(0f, 220, 260, 1, 0.01f)
+        });
+
+        ParticleSystem.VelocityOverLifetimeModule velocity = particles.velocityOverLifetime;
+        velocity.enabled = true;
+        velocity.space = ParticleSystemSimulationSpace.World;
+        velocity.x = new ParticleSystem.MinMaxCurve(safeDirection.x * 1.1f);
+        velocity.y = new ParticleSystem.MinMaxCurve(safeDirection.y * 1.1f);
+        velocity.z = new ParticleSystem.MinMaxCurve(safeDirection.z * 1.1f);
+
+        ParticleSystem.ForceOverLifetimeModule force = particles.forceOverLifetime;
+        force.enabled = false;
+
+        ParticleSystem.NoiseModule noise = particles.noise;
+        noise.enabled = false;
+
+        ParticleSystem.ColorOverLifetimeModule colorOverLifetime = particles.colorOverLifetime;
+        colorOverLifetime.enabled = true;
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new[]
+            {
+                new GradientColorKey(vividColor, 0f),
+                new GradientColorKey(vividColor, 1f)
+            },
+            new[]
+            {
+                new GradientAlphaKey(0.35f, 0f),
+                new GradientAlphaKey(0.22f, 0.5f),
+                new GradientAlphaKey(0f, 1f)
+            }
+        );
+        colorOverLifetime.color = new ParticleSystem.MinMaxGradient(gradient);
+
+        ParticleSystem.SizeOverLifetimeModule sizeOverLifetime = particles.sizeOverLifetime;
+        sizeOverLifetime.enabled = true;
+        AnimationCurve sizeCurve = new AnimationCurve(
+            new Keyframe(0f, 0.35f),
+            new Keyframe(0.15f, 1f),
+            new Keyframe(0.65f, 0.85f),
+            new Keyframe(1f, 0f)
+        );
+        sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1f, sizeCurve);
+    }
+
+    private static Color GetHammerImpactColor(Color sourceColor)
+    {
+        Color.RGBToHSV(sourceColor, out float hue, out float saturation, out float value);
+        Color baseColor = Color.HSVToRGB(hue, Mathf.Clamp01(saturation * 1.55f), Mathf.Clamp01(value * 1.2f));
+        Color accentColor = Color.HSVToRGB(Mathf.Repeat(hue + 0.09f, 1f), 1f, 1f);
+        Color vividColor = Color.Lerp(baseColor, accentColor, 0.22f);
+        vividColor.a = sourceColor.a;
+        return vividColor;
     }
 
     private void DuplicateBlock(Transform sourceBlock)
@@ -581,6 +838,11 @@ public class GravityInteract : MonoBehaviour
     private void UpdateCarriedBlockCollisionOpacity(float deltaTime)
     {
         bool isOverlapping = TryGetCarriedBlockOverlap(out MathBlockValue overlappedBlock);
+        if (isOverlapping && TryHandleHammerApplication(overlappedBlock))
+        {
+            return;
+        }
+
         targetCarriedBlockOpacity = isOverlapping ? carriedBlockCollisionOpacity : 1f;
         UpdateCarriedOperationPreview(overlappedBlock);
         UpdateCarriedBlockOpacity(deltaTime);

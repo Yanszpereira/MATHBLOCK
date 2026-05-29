@@ -10,11 +10,12 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
     [SerializeField] private float duration = 0.7f;
     [SerializeField] private float startRadius = 0.12f;
     [SerializeField] private float outwardSpeed = 1.15f;
-    [SerializeField] private int particleCount = 96;
+    [SerializeField] private int particleCount = 144;
     [SerializeField] private float particleSize = 0.105f;
     [SerializeField] private Sprite particleSprite;
 
     private bool initialized;
+    private Vector3 impactDirection = Vector3.up;
 
     private void Awake()
     {
@@ -36,12 +37,23 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
 
     public void Init(Color color)
     {
-        Init(color, particleSprite);
+        Init(color, particleSprite, Vector3.up);
     }
 
     public void Init(Color color, Sprite sprite)
     {
+        Init(color, sprite, Vector3.up);
+    }
+
+    public void Init(Color color, Vector3 direction)
+    {
+        Init(color, particleSprite, direction);
+    }
+
+    public void Init(Color color, Sprite sprite, Vector3 direction)
+    {
         particleSprite = sprite;
+        impactDirection = direction.sqrMagnitude > Mathf.Epsilon ? direction.normalized : Vector3.up;
         Configure(color);
         initialized = true;
         particles.Play(true);
@@ -61,7 +73,7 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         main.startLifetime = duration;
         main.startSpeed = new ParticleSystem.MinMaxCurve(outwardSpeed * 0.75f, outwardSpeed);
         main.startSize = particleSize;
-        main.startColor = WithAlpha(color, 0.55f);
+        main.startColor = WithAlpha(color, 0.32f);
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.scalingMode = ParticleSystemScalingMode.Hierarchy;
         main.maxParticles = particleCount + 8;
@@ -78,13 +90,19 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled = true;
-        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.shapeType = ParticleSystemShapeType.Cone;
         shape.radius = startRadius;
         shape.radiusThickness = 1f;
-        shape.rotation = Vector3.zero;
+        shape.angle = 16f;
+        shape.rotation = Quaternion.FromToRotation(Vector3.up, impactDirection).eulerAngles;
+        shape.alignToDirection = true;
 
         ParticleSystem.VelocityOverLifetimeModule velocity = particles.velocityOverLifetime;
-        velocity.enabled = false;
+        velocity.enabled = true;
+        velocity.space = ParticleSystemSimulationSpace.World;
+        velocity.x = new ParticleSystem.MinMaxCurve(impactDirection.x * outwardSpeed * 0.45f);
+        velocity.y = new ParticleSystem.MinMaxCurve(impactDirection.y * outwardSpeed * 0.45f);
+        velocity.z = new ParticleSystem.MinMaxCurve(impactDirection.z * outwardSpeed * 0.45f);
 
         ParticleSystem.ForceOverLifetimeModule force = particles.forceOverLifetime;
         force.enabled = false;
@@ -95,7 +113,7 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         ConfigureColorOverLifetime(color);
         ConfigureSizeOverLifetime();
         ConfigureSpriteSheet();
-        ConfigureRenderer(WithAlpha(color, 0.55f));
+        ConfigureRenderer(WithAlpha(color, 0.32f));
     }
 
     private void ConfigureColorOverLifetime(Color color)
@@ -109,8 +127,8 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
             },
             new[]
             {
-                new GradientAlphaKey(0.55f, 0f),
-                new GradientAlphaKey(0.34f, 0.45f),
+                new GradientAlphaKey(0.32f, 0f),
+                new GradientAlphaKey(0.22f, 0.45f),
                 new GradientAlphaKey(0f, 1f)
             }
         );
@@ -123,9 +141,9 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
     private void ConfigureSizeOverLifetime()
     {
         AnimationCurve sizeCurve = new AnimationCurve(
-            new Keyframe(0f, 0.35f),
+            new Keyframe(0f, 0.3f),
             new Keyframe(0.18f, 1f),
-            new Keyframe(0.72f, 0.8f),
+            new Keyframe(0.72f, 0.7f),
             new Keyframe(1f, 0f)
         );
 
@@ -141,6 +159,7 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
             return;
 
         renderer.renderMode = ParticleSystemRenderMode.Billboard;
+        renderer.alignment = ParticleSystemRenderSpace.Velocity;
         renderer.sortingFudge = 1.2f;
         renderer.shadowCastingMode = ShadowCastingMode.Off;
         renderer.receiveShadows = false;
