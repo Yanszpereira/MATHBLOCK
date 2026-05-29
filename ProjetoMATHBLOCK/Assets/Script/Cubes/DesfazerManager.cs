@@ -24,6 +24,7 @@ public class DesfazerManager : MonoBehaviour
         public string consumedBlockName;
         public GravityInteract.PencilOperator operatorType;
         public GameObject consumedBlockSnapshot;
+        public MathBlockValue.RendererColorSnapshot[] consumedBlockRendererSnapshot;
         public Stack<Acao> consumedBlockStackSnapshot;
     }
 
@@ -138,6 +139,7 @@ public class DesfazerManager : MonoBehaviour
             consumedBlockName = consumedBlock.name,
             operatorType = operatorType,
             consumedBlockSnapshot = CreateConsumedBlockSnapshot(consumedBlock),
+            consumedBlockRendererSnapshot = consumedBlock.CaptureRendererColors(),
             consumedBlockStackSnapshot = CloneStack(consumedBlock.OperationStack)
         };
 
@@ -221,6 +223,12 @@ public class DesfazerManager : MonoBehaviour
         }
 
         restoredBlock.SetActive(true);
+
+        if (restoredValue != null)
+        {
+            restoredValue.ApplyRendererColors(action.consumedBlockRendererSnapshot);
+        }
+
         Destroy(action.consumedBlockSnapshot);
         action.consumedBlockSnapshot = null;
     }
