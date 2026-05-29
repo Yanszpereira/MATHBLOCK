@@ -169,8 +169,7 @@ public class MathBlockValue : MonoBehaviour
         RefreshLabels();
     }
 
-    [System.Obsolete]
-    public void ResetRotationToOriginal()
+    public void RestoreOriginalRotation()
     {
         transform.rotation = originalRotation;
 
@@ -180,9 +179,15 @@ public class MathBlockValue : MonoBehaviour
             if (!rigidbody.isKinematic)
             {
                 rigidbody.angularVelocity = Vector3.zero;
-                rigidbody.velocity = Vector3.zero;
+                rigidbody.linearVelocity = Vector3.zero;
             }
         }
+    }
+
+    [System.Obsolete("Use RestoreOriginalRotation instead.")]
+    public void ResetRotationToOriginal()
+    {
+        RestoreOriginalRotation();
     }
 
     public void SetBlockIdFromController(int newBlockId)
@@ -201,7 +206,7 @@ public class MathBlockValue : MonoBehaviour
         randomizeColorOnStart = false;
         operationStack = restoredStack ?? new Stack<DesfazerManager.Acao>();
         DesfazerManager.Instance.RestoreBlockId(this, restoredBlockId);
-        ResetRotationToOriginal();
+        RestoreOriginalRotation();
     }
 
     public void DetachFromUndoRuntime()

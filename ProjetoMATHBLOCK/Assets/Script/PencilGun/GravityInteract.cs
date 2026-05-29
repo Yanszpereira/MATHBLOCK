@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -19,7 +20,8 @@ public class GravityInteract : MonoBehaviour
     public float speed = 5f;
     public float grabCooldown = 0.3f; // tempo de espera após soltar
 
-    public Transform camera;
+    [FormerlySerializedAs("camera")]
+    public Transform interactionCamera;
     public Transform playerFront; // ponto na frente do player
 
     [SerializeField] private PencilOperator equippedOperator = PencilOperator.None;
@@ -60,6 +62,11 @@ public class GravityInteract : MonoBehaviour
 
     private void Awake()
     {
+        if (interactionCamera == null && Camera.main != null)
+        {
+            interactionCamera = Camera.main.transform;
+        }
+
         if (playerMovement == null)
         {
             playerMovement = GetComponentInParent<PlayerMovement>();
@@ -113,11 +120,14 @@ public class GravityInteract : MonoBehaviour
 
     void Update()
     {
-        Debug.DrawRay(
-            camera.position,
-            camera.forward * grabDistance,
-            Color.red
-        );
+        if (interactionCamera != null)
+        {
+            Debug.DrawRay(
+                interactionCamera.position,
+                interactionCamera.forward * grabDistance,
+                Color.red
+            );
+        }
 
         // se estiver segurando um objeto
         if (grabbed && grabbedObject != null)
@@ -166,6 +176,9 @@ public class GravityInteract : MonoBehaviour
 
         if (grabbed)
         {
+            if (TryGetMathBlockHit(out RaycastHit lookedBlockHit) && lookedBlockHit.transform != grabbedObject)
+                return;
+
             Soltar();
             return;
         }
@@ -227,10 +240,13 @@ public class GravityInteract : MonoBehaviour
 
     private bool TryGetMathBlockHit(out RaycastHit hit)
     {
-        RaycastHit[] hits = Physics.RaycastAll(camera.position, camera.forward, grabDistance);
+        hit = default;
+        if (interactionCamera == null)
+            return false;
+
+        RaycastHit[] hits = Physics.RaycastAll(interactionCamera.position, interactionCamera.forward, grabDistance);
         float nearestDistance = float.MaxValue;
         bool hasHit = false;
-        hit = default;
 
         for (int hitIndex = 0; hitIndex < hits.Length; hitIndex++)
         {
@@ -399,7 +415,7 @@ public class GravityInteract : MonoBehaviour
         if (operatorAbsorbTarget != null)
             return operatorAbsorbTarget;
 
-        Transform targetParent = camera != null ? camera : transform;
+        Transform targetParent = interactionCamera != null ? interactionCamera : transform;
         Transform existingTarget = targetParent.Find("OperatorAbsorbTarget");
         if (existingTarget != null)
         {
@@ -417,7 +433,7 @@ public class GravityInteract : MonoBehaviour
 
     private Vector3 GetOperatorAbsorbTargetLocalPosition(Transform targetParent)
     {
-        if (targetParent == camera)
+        if (targetParent == interactionCamera)
             return operatorAbsorbTargetCameraLocalPosition;
 
         return Vector3.forward * 0.9f;
@@ -445,7 +461,7 @@ public class GravityInteract : MonoBehaviour
         IgnoreCarriedBlockCollisions(grabbedObject);
         if (mathBlockValue != null)
         {
-            mathBlockValue.ResetRotationToOriginal();
+            mathBlockValue.RestoreOriginalRotation();
         }
 
         grabbed = true;
@@ -808,7 +824,7 @@ public class GravityInteract : MonoBehaviour
 
     private Vector3 GetCarriedTargetPosition()
     {
-        if (camera == null)
+        if (interactionCamera == null)
         {
             if (playerFront != null)
                 return playerFront.position;
@@ -816,7 +832,7 @@ public class GravityInteract : MonoBehaviour
             return grabbedObject.position;
         }
 
-        return camera.position + (camera.forward * currentCarriedBlockDistance);
+        return interactionCamera.position + (interactionCamera.forward * currentCarriedBlockDistance);
     }
 
     private void HandleCarriedBlockZoom()
@@ -840,8 +856,8 @@ public class GravityInteract : MonoBehaviour
 
     private float GetInitialCarriedBlockDistance()
     {
-        float initialDistance = playerFront != null && camera != null
-            ? Vector3.Distance(camera.position, playerFront.position)
+        float initialDistance = playerFront != null && interactionCamera != null
+            ? Vector3.Distance(interactionCamera.position, playerFront.position)
             : minCarriedBlockDistance;
 
         return Mathf.Clamp(initialDistance, minCarriedBlockDistance, maxCarriedBlockDistance);
