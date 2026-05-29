@@ -45,6 +45,7 @@ public class MathBlockValue : MonoBehaviour
     private Material labelMaterial;
     private Material[] runtimeColorMaterials;
     private TextMesh[] valueLabels;
+    private MaterialPropertyBlock propertyBlock;
     private Stack<DesfazerManager.Acao> operationStack = new Stack<DesfazerManager.Acao>();
 
     public int CurrentValue => currentValue;
@@ -79,10 +80,13 @@ public class MathBlockValue : MonoBehaviour
 
     private void Awake()
     {
+        propertyBlock = new MaterialPropertyBlock();
+
         RemoveLegacyGridChildren();
         baseScale = transform.localScale;
         originalRotation = transform.rotation;
         currentValue = Mathf.Max(0, currentValue);
+
         RandomizeCubeColor();
         EnsureLabels();
         RefreshLabels();
@@ -137,6 +141,7 @@ public class MathBlockValue : MonoBehaviour
         RefreshVisual();
     }
 
+    [System.Obsolete]
     public void ResetRotationToOriginal()
     {
         transform.rotation = originalRotation;
@@ -147,7 +152,7 @@ public class MathBlockValue : MonoBehaviour
             if (!rigidbody.isKinematic)
             {
                 rigidbody.angularVelocity = Vector3.zero;
-                rigidbody.linearVelocity = Vector3.zero;
+                rigidbody.velocity = Vector3.zero;
             }
         }
     }
@@ -438,39 +443,47 @@ public class MathBlockValue : MonoBehaviour
             return;
 
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
+
         if (renderers == null || renderers.Length == 0)
             return;
 
-        Color randomColor = VibrantBlockColors[Random.Range(0, VibrantBlockColors.Length)];
-
-        runtimeColorMaterials = new Material[renderers.Length];
-        int materialCount = 0;
+        Color randomColor =
+            VibrantBlockColors[Random.Range(0, VibrantBlockColors.Length)];
 
         for (int i = 0; i < renderers.Length; i++)
         {
             Renderer targetRenderer = renderers[i];
+
             if (targetRenderer == null || IsLabelRenderer(targetRenderer))
                 continue;
 
-            Material sourceMaterial = targetRenderer.sharedMaterial;
-            if (sourceMaterial == null)
-                continue;
-
-            Material runtimeMaterial = new Material(sourceMaterial)
-            {
-                name = $"{name}_RuntimeColorMaterial"
-            };
-
-            ApplyColor(runtimeMaterial, randomColor);
-            targetRenderer.material = runtimeMaterial;
-            runtimeColorMaterials[materialCount] = runtimeMaterial;
-            materialCount++;
+            ApplyPropertyBlockColor(targetRenderer, randomColor);
         }
+    }
 
-        if (materialCount != runtimeColorMaterials.Length)
+    private void ApplyPropertyBlockColor(Renderer renderer, Color color)
+    {
+        if (renderer == null)
+            return;
+
+        renderer.GetPropertyBlock(propertyBlock);
+
+        Material sharedMat = renderer.sharedMaterial;
+
+        if (sharedMat == null)
+            return;
+
+        if (sharedMat.HasProperty("_BaseColor"))
         {
-            System.Array.Resize(ref runtimeColorMaterials, materialCount);
+            propertyBlock.SetColor("_BaseColor", color);
         }
+
+        if (sharedMat.HasProperty("_Color"))
+        {
+            propertyBlock.SetColor("_Color", color);
+        }
+
+        renderer.SetPropertyBlock(propertyBlock);
     }
 
     public RendererColorSnapshot[] CaptureRendererColors()
