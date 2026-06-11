@@ -4,14 +4,18 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class PadMathBlockDetector : MonoBehaviour
 {
-    [SerializeField] private string mathBlockTag = "MathBlock";
+    private const string DefaultMathBlockTag = "MathBlock";
+
+    [SerializeField] private string mathBlockTag = DefaultMathBlockTag;
     [SerializeField] private bool acceptExistingProjectTag = true;
     [SerializeField] private GameObject connectedVerifierObject;
 
     private readonly Dictionary<Collider, int> detectedBlocks = new Dictionary<Collider, int>();
+    private DoorValueVerifier connectedVerifier;
 
     private void Reset()
     {
+        NormalizeMathBlockTag();
         Collider padCollider = GetComponent<Collider>();
         if (padCollider != null)
         {
@@ -19,13 +23,26 @@ public class PadMathBlockDetector : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        NormalizeMathBlockTag();
+        CacheConnectedVerifier();
+    }
+
     private void OnValidate()
     {
+        NormalizeMathBlockTag();
         Collider padCollider = GetComponent<Collider>();
         if (padCollider != null && padCollider.isTrigger)
         {
             padCollider.isTrigger = false;
         }
+    }
+
+    public void SetConnectedVerifier(DoorValueVerifier verifier)
+    {
+        connectedVerifier = verifier;
+        connectedVerifierObject = verifier != null ? verifier.gameObject : null;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -67,19 +84,14 @@ public class PadMathBlockDetector : MonoBehaviour
         detectedBlocks[other] = value;
         Debug.Log($"Pad {name} detectou bloco {blockValue.name} com valor {value}.");
 
-        if (connectedVerifierObject == null)
+        DoorValueVerifier verifier = GetConnectedVerifier();
+        if (verifier == null)
         {
+            Debug.LogWarning($"Pad {name} detectou valor {value}, mas nao possui DoorValueVerifier conectado.");
             return;
         }
 
-        DoorValueVerifier connectedVerifier = connectedVerifierObject.GetComponent<DoorValueVerifier>();
-        if (connectedVerifier == null)
-        {
-            Debug.LogWarning($"Pad {name} tem um verificador conectado, mas ele nao possui DoorValueVerifier.");
-            return;
-        }
-
-        connectedVerifier.ReceiveValueFromPad(gameObject, value, blockValue.gameObject);
+        verifier.ReceiveValueFromPad(gameObject, value, blockValue.gameObject);
     }
 
     private bool IsMathBlock(Collider other)
@@ -87,7 +99,9 @@ public class PadMathBlockDetector : MonoBehaviour
         if (HasTag(other, mathBlockTag))
             return true;
 
-        return acceptExistingProjectTag && HasTag(other, "MathBlock");
+        return acceptExistingProjectTag
+            && !string.Equals(mathBlockTag, DefaultMathBlockTag, System.StringComparison.Ordinal)
+            && HasTag(other, DefaultMathBlockTag);
     }
 
     private static bool HasTag(Collider other, string tagName)
@@ -102,6 +116,31 @@ public class PadMathBlockDetector : MonoBehaviour
         catch (UnityException)
         {
             return false;
+        }
+    }
+
+    private DoorValueVerifier GetConnectedVerifier()
+    {
+        if (connectedVerifier != null)
+            return connectedVerifier;
+
+        CacheConnectedVerifier();
+        return connectedVerifier;
+    }
+
+    private void CacheConnectedVerifier()
+    {
+        connectedVerifier = connectedVerifierObject != null
+            ? connectedVerifierObject.GetComponent<DoorValueVerifier>()
+            : null;
+    }
+
+    private void NormalizeMathBlockTag()
+    {
+        if (string.IsNullOrWhiteSpace(mathBlockTag)
+            || string.Equals(mathBlockTag, "Mathblock", System.StringComparison.OrdinalIgnoreCase))
+        {
+            mathBlockTag = DefaultMathBlockTag;
         }
     }
 }
