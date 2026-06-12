@@ -1,14 +1,30 @@
 using UnityEngine;
+using FMODUnity;
 
 public class DoorValueVerifier : MonoBehaviour
 {
+    [Header("Valor exigido")]
     [SerializeField] private int requiredValue = 1;
     [SerializeField, HideInInspector] private bool useRequiredRange;
     [SerializeField, HideInInspector] private int requiredMinValue = 1;
     [SerializeField, HideInInspector] private int requiredMaxValue = 1;
+
+    [Header("Referências")]
     [SerializeField] private GameObject acceptedPadObject;
     [SerializeField] private GameObject successParticleObject;
     [SerializeField] private DoorOpener doorOpener;
+
+    [Header("Sons FMOD")]
+    [SerializeField] private bool playSounds = true;
+    [SerializeField] private EventReference correctSound;
+    [SerializeField] private EventReference errorSound;
+
+    [Header("Controle de repetição")]
+    [SerializeField] private float correctSoundCooldown = 0.35f;
+    [SerializeField] private float errorSoundCooldown = 0.35f;
+
+    private float lastCorrectSoundTime = -999f;
+    private float lastErrorSoundTime = -999f;
 
     public int RequiredValue => requiredValue;
     public int RequiredMinValue => useRequiredRange ? requiredMinValue : requiredValue;
@@ -50,12 +66,18 @@ public class DoorValueVerifier : MonoBehaviour
         if (!IsPadAccepted(sourcePad))
         {
             Debug.LogWarning($"Verificador {name} ignorou valor {receivedValue} de {ObjectName(sourcePad)}, pois aceita apenas o Pad {ObjectName(acceptedPadObject)}.");
+
+            PlayErrorSound(sourcePad);
+
             return;
         }
 
         if (!IsValueAccepted(receivedValue))
         {
             LogWrongValue(receivedValue);
+
+            PlayErrorSound(sourcePad);
+
             return;
         }
 
@@ -80,9 +102,12 @@ public class DoorValueVerifier : MonoBehaviour
     private void HandleCorrectValue(GameObject sourcePad, int receivedValue, GameObject sourceBlock)
     {
         string blockName = sourceBlock != null ? sourceBlock.name : "bloco desconhecido";
+
         Debug.Log($"Verificador {name}: valor certo ({receivedValue}) recebido de {blockName}. Intervalo aceito: {RequiredMinValue} ate {RequiredMaxValue}.");
 
+        PlayCorrectSound(sourcePad);
         PlaySuccessParticles();
+
         GameManager.Instance?.RegisterCorrectDoorValue(sourcePad, receivedValue, sourceBlock, this);
 
         if (doorOpener == null)
@@ -94,6 +119,48 @@ public class DoorValueVerifier : MonoBehaviour
         doorOpener.OpenOnce();
     }
 
+    private void PlayCorrectSound(GameObject sourcePad)
+    {
+        if (!playSounds)
+            return;
+
+        if (correctSound.IsNull)
+        {
+            Debug.LogWarning($"Verificador {name}: som de acerto FMOD nao configurado.");
+            return;
+        }
+
+        if (Time.time < lastCorrectSoundTime + correctSoundCooldown)
+            return;
+
+        lastCorrectSoundTime = Time.time;
+
+        Vector3 soundPosition = sourcePad != null ? sourcePad.transform.position : transform.position;
+
+        RuntimeManager.PlayOneShot(correctSound, soundPosition);
+    }
+
+    private void PlayErrorSound(GameObject sourcePad)
+    {
+        if (!playSounds)
+            return;
+
+        if (errorSound.IsNull)
+        {
+            Debug.LogWarning($"Verificador {name}: som de erro FMOD nao configurado.");
+            return;
+        }
+
+        if (Time.time < lastErrorSoundTime + errorSoundCooldown)
+            return;
+
+        lastErrorSoundTime = Time.time;
+
+        Vector3 soundPosition = sourcePad != null ? sourcePad.transform.position : transform.position;
+
+        RuntimeManager.PlayOneShot(errorSound, soundPosition);
+    }
+
     private void PlaySuccessParticles()
     {
         if (successParticleObject == null)
@@ -102,6 +169,7 @@ public class DoorValueVerifier : MonoBehaviour
         successParticleObject.SetActive(true);
 
         ParticleSystem[] particleSystems = successParticleObject.GetComponentsInChildren<ParticleSystem>();
+
         foreach (ParticleSystem particleSystem in particleSystems)
         {
             particleSystem.Clear();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
+using FMODUnity;
 
 public class DoorOpener : MonoBehaviour
 {
@@ -13,6 +14,10 @@ public class DoorOpener : MonoBehaviour
     [Header("Left Door")]
     [SerializeField] private Animator leftDoorAnimator;
     [SerializeField] private AnimationClip leftDoorOpeningClip;
+
+    [Header("Som FMOD")]
+    [SerializeField] private EventReference doorOpenSound;
+    [SerializeField] private bool playDoorOpenSound = true;
 
     [Header("State")]
     [SerializeField] private bool hasOpened;
@@ -37,13 +42,33 @@ public class DoorOpener : MonoBehaviour
         }
 
         hasOpened = true;
+
         bool openedRight = PlayDoorClip(rightDoorAnimator, rightDoorOpeningClip, "direita");
         bool openedLeft = PlayDoorClip(leftDoorAnimator, leftDoorOpeningClip, "esquerda");
+
+        if (openedRight || openedLeft)
+        {
+            PlayOpenSound();
+        }
 
         if (!openedRight && !openedLeft)
         {
             Debug.LogWarning($"{name}: nenhuma animacao de porta foi iniciada. Verifique Animator e AnimationClip no Inspector.");
         }
+    }
+
+    private void PlayOpenSound()
+    {
+        if (!playDoorOpenSound)
+            return;
+
+        if (doorOpenSound.IsNull)
+        {
+            Debug.LogWarning($"{name}: som de abertura da porta nao configurado.");
+            return;
+        }
+
+        RuntimeManager.PlayOneShot(doorOpenSound, transform.position);
     }
 
     private bool PlayDoorClip(Animator animator, AnimationClip clip, string sideName)
@@ -61,12 +86,18 @@ public class DoorOpener : MonoBehaviour
         }
 
         PrepareDoorForManualPlayback(animator, sideName);
+
         animator.enabled = true;
+
         AnimationPlayableUtilities.PlayClip(animator, clip, out PlayableGraph graph);
+
         graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
         activeGraphs.Add(graph);
+
         StartCoroutine(HoldFinalPose(graph, clip.length));
+
         Debug.Log($"{name}: tocando animacao {clip.name} na porta {sideName}.");
+
         return true;
     }
 
@@ -92,6 +123,7 @@ public class DoorOpener : MonoBehaviour
             return;
 
         Animation[] legacyAnimations = root.GetComponentsInChildren<Animation>(true);
+
         foreach (Animation legacyAnimation in legacyAnimations)
         {
             legacyAnimation.playAutomatically = false;
@@ -108,6 +140,7 @@ public class DoorOpener : MonoBehaviour
             yield break;
 
         Playable rootPlayable = graph.GetRootPlayable(0);
+
         if (rootPlayable.IsValid())
         {
             rootPlayable.SetTime(duration);
@@ -120,6 +153,7 @@ public class DoorOpener : MonoBehaviour
         for (int i = 0; i < activeGraphs.Count; i++)
         {
             PlayableGraph graph = activeGraphs[i];
+
             if (graph.IsValid())
             {
                 graph.Destroy();
