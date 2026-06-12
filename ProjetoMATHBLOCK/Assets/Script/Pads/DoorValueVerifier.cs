@@ -1,5 +1,6 @@
 using UnityEngine;
 using FMODUnity;
+using TMPro;
 
 public class DoorValueVerifier : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class DoorValueVerifier : MonoBehaviour
     [SerializeField] private GameObject acceptedPadObject;
     [SerializeField] private GameObject successParticleObject;
     [SerializeField] private DoorOpener doorOpener;
+    public TMP_Text PortaText;
 
     [Header("Sons FMOD")]
     [SerializeField] private bool playSounds = true;
@@ -30,6 +32,15 @@ public class DoorValueVerifier : MonoBehaviour
     public int RequiredMinValue => useRequiredRange ? requiredMinValue : requiredValue;
     public int RequiredMaxValue => useRequiredRange ? requiredMaxValue : requiredValue;
 
+    private void Start()
+    {
+        Debug.Log($"{name} -> Texto: {PortaText?.name}");
+        Debug.Log($"{name} -> Valor: {requiredValue}");
+
+    if (PortaText != null)
+        PortaText.text = requiredValue.ToString();
+}
+
     private void OnValidate()
     {
         requiredValue = Mathf.Max(0, requiredValue);
@@ -40,6 +51,11 @@ public class DoorValueVerifier : MonoBehaviour
     public void SetRequiredValue(int value)
     {
         SetRequiredRange(value, value);
+
+        if(PortaText != null)
+        {
+            PortaText.text = value.ToString();
+        }
     }
 
     public void SetRequiredRange(int minValue, int maxValue)
@@ -49,15 +65,22 @@ public class DoorValueVerifier : MonoBehaviour
         requiredValue = requiredMinValue;
         useRequiredRange = true;
 
-        if (requiredMinValue == requiredMaxValue)
+
+
+        if(PortaText != null)
         {
-            Debug.Log($"Verificador {name}: valor exigido configurado para {requiredMinValue}.");
-            Debug.Log($"[TEMP] Valor da porta: {requiredMinValue}.");
-        }
-        else
-        {
-            Debug.Log($"Verificador {name}: intervalo exigido configurado para {requiredMinValue} ate {requiredMaxValue}.");
-            Debug.Log($"[TEMP] Valor da porta: {requiredMinValue} ate {requiredMaxValue}.");
+            if (requiredMinValue == requiredMaxValue)
+            {
+                Debug.Log($"Verificador {name}: valor exigido configurado para {requiredMinValue}.");
+                Debug.Log($"[TEMP] Valor da porta: {requiredMinValue}.");
+        
+    Debug.Log($"{name} atualizou texto para: {PortaText.text}");
+            }
+            else
+            {
+                Debug.Log($"Verificador {name}: intervalo exigido configurado para {requiredMinValue} ate {requiredMaxValue}.");
+                Debug.Log($"[TEMP] Valor da porta: {requiredMinValue} ate {requiredMaxValue}.");
+            }
         }
     }
 
