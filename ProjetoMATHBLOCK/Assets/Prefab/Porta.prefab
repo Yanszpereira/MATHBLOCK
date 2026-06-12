@@ -5283,6 +5283,23 @@ MonoBehaviour:
   acceptedPadObject: {fileID: 1041126881028247652}
   successParticleObject: {fileID: 964531904230186048}
   doorOpener: {fileID: 5874944105709180040}
+  playSounds: 1
+  correctSound:
+    Guid:
+      Data1: -291252969
+      Data2: 1154478309
+      Data3: -327878502
+      Data4: -51084846
+    Path: event:/Acertou
+  errorSound:
+    Guid:
+      Data1: 1317407701
+      Data2: 1126186320
+      Data3: 567300505
+      Data4: -42603114
+    Path: event:/Erro 2
+  correctSoundCooldown: 0.35
+  errorSoundCooldown: 0.35
 --- !u!114 &5874944105709180040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5299,6 +5316,14 @@ MonoBehaviour:
   rightDoorOpeningClip: {fileID: 7400000, guid: 411f47381cf9cbc4d84bee6581c1a288, type: 2}
   leftDoorAnimator: {fileID: 6505650256155037351}
   leftDoorOpeningClip: {fileID: 7400000, guid: 1a35a7680582c864e859d8cca688ad2d, type: 2}
+  doorOpenSound:
+    Guid:
+      Data1: 215736475
+      Data2: 1226829997
+      Data3: 831488165
+      Data4: 208379324
+    Path: event:/PortaAbre
+  playDoorOpenSound: 1
   hasOpened: 0
 --- !u!65 &4502209999455821255
 BoxCollider:
@@ -5687,3 +5712,13 @@ MonoBehaviour:
   mathBlockTag: MathBlock
   acceptExistingProjectTag: 1
   connectedVerifierObject: {fileID: 0}
+  expectedValue: 0
+  playErrorSoundWhenWrong: 1
+  errorSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  errorSoundCooldown: 0.35
