@@ -509,7 +509,7 @@ Transform:
   m_GameObject: {fileID: 283724575}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.19, y: -12.32, z: -0.76}
+  m_LocalPosition: {x: -1.19, y: -36.1, z: -0.76}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1133,6 +1133,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b9f3c2e7a0d4db89a4f620f35e7c911, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DesfazerManager
+  playSounds: 1
+  operationSound:
+    Guid:
+      Data1: 1850614151
+      Data2: 1239432887
+      Data3: 2016577706
+      Data4: -410968824
+    Path: event:/BlocoNooutro
+  undoSound:
+    Guid:
+      Data1: 1245919776
+      Data2: 1199105781
+      Data3: 218434474
+      Data4: -601011933
+    Path: event:/blockundo
+  operationSoundCooldown: 0.05
+  undoSoundCooldown: 0.15
 --- !u!114 &910730004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1320,6 +1337,16 @@ MonoBehaviour:
   mathBlockTag: MathBlock
   acceptExistingProjectTag: 1
   connectedVerifierObject: {fileID: 0}
+  expectedValue: 0
+  playErrorSoundWhenWrong: 1
+  errorSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  errorSoundCooldown: 0.35
 --- !u!65 &1125677230
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1579,6 +1606,23 @@ MonoBehaviour:
   acceptedPadObject: {fileID: 1125677228}
   successParticleObject: {fileID: 2130886946}
   doorOpener: {fileID: 919132147981798696}
+  playSounds: 1
+  correctSound:
+    Guid:
+      Data1: -291252969
+      Data2: 1154478309
+      Data3: -327878502
+      Data4: -51084846
+    Path: event:/Acertou
+  errorSound:
+    Guid:
+      Data1: 1317407701
+      Data2: 1126186320
+      Data3: 567300505
+      Data4: -42603114
+    Path: event:/Erro 2
+  correctSoundCooldown: 0.35
+  errorSoundCooldown: 0.35
 --- !u!1 &1583282593
 GameObject:
   m_ObjectHideFlags: 0
@@ -1734,6 +1778,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
   nonRigidbodyVelocity: 0
   attenuationObject: {fileID: 0}
+--- !u!114 &1872862827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1872862824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -621346085
+      Data2: 1340513864
+      Data3: 1231336880
+      Data4: -368745744
+    Path: event:/735157__rotlily__simple-music-loop-bass-keys-drums
+  Event: 
+  EventPlayTrigger: 1
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &1904946779
 GameObject:
   m_ObjectHideFlags: 0
@@ -1786,6 +1861,36 @@ MonoBehaviour:
   grabDistance: 10
   pencilGun: {fileID: 37903179}
   operatorAbsorbTarget: {fileID: 0}
+  playOperatorSelectionSounds: 1
+  additionSound:
+    Guid:
+      Data1: 572162393
+      Data2: 1120590415
+      Data3: 570623930
+      Data4: -1595123278
+    Path: event:/soma
+  subtractionSound:
+    Guid:
+      Data1: -1388758072
+      Data2: 1171891164
+      Data3: -1112782181
+      Data4: -521206757
+    Path: event:/subtracao
+  multiplicationSound:
+    Guid:
+      Data1: -1446870614
+      Data2: 1106767091
+      Data3: -974672228
+      Data4: 130327937
+    Path: event:/multiplication
+  divisionSound:
+    Guid:
+      Data1: 1424980227
+      Data2: 1123374774
+      Data3: 497699765
+      Data4: -2031556014
+    Path: event:/divisao
+  selectionSoundCooldown: 0.15
 --- !u!21 &1996815289
 Material:
   serializedVersion: 8
@@ -6991,6 +7096,14 @@ MonoBehaviour:
   rightDoorOpeningClip: {fileID: 7400000, guid: 411f47381cf9cbc4d84bee6581c1a288, type: 2}
   leftDoorAnimator: {fileID: 1490990558}
   leftDoorOpeningClip: {fileID: 7400000, guid: 1a35a7680582c864e859d8cca688ad2d, type: 2}
+  doorOpenSound:
+    Guid:
+      Data1: 215736475
+      Data2: 1226829997
+      Data3: 831488165
+      Data4: 208379324
+    Path: event:/PortaAbre
+  playDoorOpenSound: 1
   hasOpened: 0
 --- !u!65 &919132147981798697
 BoxCollider:
@@ -7650,6 +7763,74 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: jumpSound.Path
+      value: event:/jump
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: voidFallSoundY
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: footstepSound.Path
+      value: event:/Passos1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: voidFallSound.Path
+      value: event:/quedavoid
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: voidFallSoundDelay
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: jumpSound.Guid.Data1
+      value: -2106292020
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: jumpSound.Guid.Data2
+      value: 1307845520
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: jumpSound.Guid.Data3
+      value: 333586309
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: jumpSound.Guid.Data4
+      value: 71349222
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: footstepSound.Guid.Data1
+      value: -1295936815
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: footstepSound.Guid.Data2
+      value: 1164483670
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: footstepSound.Guid.Data3
+      value: -1023384910
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: footstepSound.Guid.Data4
+      value: 406801710
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: voidFallSound.Guid.Data1
+      value: 2041015133
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: voidFallSound.Guid.Data2
+      value: 1155526019
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: voidFallSound.Guid.Data3
+      value: 599173805
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613936909469487844, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      propertyPath: voidFallSound.Guid.Data4
+      value: 1987817330
+      objectReference: {fileID: 0}
     - target: {fileID: 6589263330123450542, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
       propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -7674,6 +7855,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6991185851744575973, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1872862825}
+    - targetCorrespondingSourceObject: {fileID: 6991185851744575973, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1872862827}
   m_SourcePrefab: {fileID: 100100000, guid: a9507afb5b98c0646b0803fb7d3fbd74, type: 3}
 --- !u!4 &5680519944262192699 stripped
 Transform:
