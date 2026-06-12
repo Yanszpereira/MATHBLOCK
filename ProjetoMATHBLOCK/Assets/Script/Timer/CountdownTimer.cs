@@ -1,12 +1,13 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class CountdownTimer : MonoBehaviour
 {
     [Header("Tempo Inicial")]
     public float tempoInicial = 300f; // 5 minutos
 
-    [Header("Referência do Texto")]
+    [Header("Referï¿½ncia do Texto")]
     public TMP_Text timerText;
 
     private float tempoAtual;
@@ -31,7 +32,8 @@ public class CountdownTimer : MonoBehaviour
             contando = false;
 
             Debug.Log("Tempo esgotado!");
-            // Aqui você pode chamar Game Over
+            // Aqui vocï¿½ pode chamar Game Over
+            SceneManager.LoadScene("Fase 1");
         }
 
         AtualizarTexto();

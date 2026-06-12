@@ -13,6 +13,10 @@ public class DoorValueVerifier : MonoBehaviour
     [Header("Referências")]
     [SerializeField] private GameObject acceptedPadObject;
     [SerializeField] private GameObject successParticleObject;
+
+    [SerializeField] private GameObject correctFeedbackObject;
+    [SerializeField] private GameObject wrongFeedbackObject;
+    [SerializeField] private float feedbackDuration = 2f;
     [SerializeField] private DoorOpener doorOpener;
     public TMP_Text PortaText;
 
@@ -39,6 +43,12 @@ public class DoorValueVerifier : MonoBehaviour
 
     if (PortaText != null)
         PortaText.text = requiredValue.ToString();
+
+    if (correctFeedbackObject != null)
+    correctFeedbackObject.SetActive(false);
+
+    if (wrongFeedbackObject != null)
+    wrongFeedbackObject.SetActive(false);
 }
 
     private void OnValidate()
@@ -100,6 +110,7 @@ public class DoorValueVerifier : MonoBehaviour
             LogWrongValue(receivedValue);
 
             PlayErrorSound(sourcePad);
+            ShowFeedback(wrongFeedbackObject);
 
             return;
         }
@@ -130,6 +141,7 @@ public class DoorValueVerifier : MonoBehaviour
 
         PlayCorrectSound(sourcePad);
         PlaySuccessParticles();
+        ShowFeedback(correctFeedbackObject);    
 
         GameManager.Instance?.RegisterCorrectDoorValue(sourcePad, receivedValue, sourceBlock, this);
 
@@ -203,5 +215,25 @@ public class DoorValueVerifier : MonoBehaviour
     private static string ObjectName(Object target)
     {
         return target != null ? target.name : "null";
+    }
+
+    private void ShowFeedback(GameObject feedbackObject)
+    {
+    if (feedbackObject == null)
+            return;
+
+        feedbackObject.SetActive(true);
+
+        CancelInvoke(nameof(HideFeedback));
+        Invoke(nameof(HideFeedback), feedbackDuration);
+    }
+
+private void HideFeedback()
+    {
+        if (correctFeedbackObject != null)
+            correctFeedbackObject.SetActive(false);
+
+        if (wrongFeedbackObject != null)
+            wrongFeedbackObject.SetActive(false);
     }
 }
