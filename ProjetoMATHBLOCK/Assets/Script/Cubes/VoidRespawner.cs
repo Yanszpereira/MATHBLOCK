@@ -9,7 +9,7 @@ public class VoidRespawner : MonoBehaviour
 
     [Header("Respawn")]
     [SerializeField] private Vector3 respawnCenter = Vector3.zero;
-    [SerializeField] private Vector3 playerRespawnOffset = new Vector3(0f, 10f, 0f);
+    [SerializeField] private Vector3 playerRespawnOffset = new Vector3(0f, 5f, 0f);
     [SerializeField] private Vector3 blockRespawnOffset = new Vector3(0f, 10f, 0f);
     [SerializeField] private bool resetBlockRotation = true;
     [SerializeField] private float respawnCooldown = 0.25f;
