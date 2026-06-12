@@ -22,15 +22,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f83c874bbd4558e489408e023d43f3c1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.58
+      value: 4.21314
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f83c874bbd4558e489408e023d43f3c1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.45
+      value: 2.3500001
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f83c874bbd4558e489408e023d43f3c1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.58
+      value: -6.1359196
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f83c874bbd4558e489408e023d43f3c1, type: 3}
       propertyPath: m_LocalRotation.w
@@ -38,15 +38,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f83c874bbd4558e489408e023d43f3c1, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f83c874bbd4558e489408e023d43f3c1, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f83c874bbd4558e489408e023d43f3c1, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f83c874bbd4558e489408e023d43f3c1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -126,7 +126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f2b7d5c9b6a4bce8b7f0ce0c8b8c7aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MathBlockValue
-  currentValue: 4
+  currentValue: 2
   updateScaleFromValue: 0
   scaleStep: 0.15
   minimumScaleMultiplier: 0.5
@@ -135,6 +135,7 @@ MonoBehaviour:
   labelFontSize: 120
   labelColor: {r: 1, g: 1, b: 1, a: 1}
   randomizeColorOnStart: 1
+  blockId: -1
 --- !u!65 &3628181407939994803
 BoxCollider:
   m_ObjectHideFlags: 0

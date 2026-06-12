@@ -45,7 +45,10 @@ public class MathBlockValue : MonoBehaviour
     private Material labelMaterial;
     private Material[] runtimeColorMaterials;
     private TextMesh[] valueLabels;
+    private MaterialPropertyBlock propertyBlock;
     private Stack<DesfazerManager.Acao> operationStack = new Stack<DesfazerManager.Acao>();
+    private bool hasPreviewValue;
+    private int previewValue;
 
     public int CurrentValue => currentValue;
     public int BlockId => blockId;
@@ -54,6 +57,11 @@ public class MathBlockValue : MonoBehaviour
     public struct RendererColorSnapshot
     {
         public MaterialColorSnapshot[] materialColors;
+        public bool hasPropertyBlock;
+        public bool propertyBlockHasBaseColor;
+        public Color propertyBlockBaseColor;
+        public bool propertyBlockHasColor;
+        public Color propertyBlockColor;
     }
 
     public struct MaterialColorSnapshot
@@ -79,10 +87,13 @@ public class MathBlockValue : MonoBehaviour
 
     private void Awake()
     {
+        propertyBlock = new MaterialPropertyBlock();
+
         RemoveLegacyGridChildren();
         baseScale = transform.localScale;
         originalRotation = transform.rotation;
         currentValue = Mathf.Max(0, currentValue);
+
         RandomizeCubeColor();
         EnsureLabels();
         RefreshLabels();
@@ -132,12 +143,33 @@ public class MathBlockValue : MonoBehaviour
 
     public void SetValue(int newValue)
     {
+        ClearPreviewValue();
         currentValue = Mathf.Max(0, newValue);
         RefreshLabels();
         RefreshVisual();
     }
 
-    public void ResetRotationToOriginal()
+    public void SetPreviewValue(int newPreviewValue)
+    {
+        int clampedPreviewValue = Mathf.Max(0, newPreviewValue);
+        if (hasPreviewValue && previewValue == clampedPreviewValue)
+            return;
+
+        previewValue = clampedPreviewValue;
+        hasPreviewValue = true;
+        RefreshLabels();
+    }
+
+    public void ClearPreviewValue()
+    {
+        if (!hasPreviewValue)
+            return;
+
+        hasPreviewValue = false;
+        RefreshLabels();
+    }
+
+    public void RestoreOriginalRotation()
     {
         transform.rotation = originalRotation;
 
@@ -150,6 +182,12 @@ public class MathBlockValue : MonoBehaviour
                 rigidbody.linearVelocity = Vector3.zero;
             }
         }
+    }
+
+    [System.Obsolete("Use RestoreOriginalRotation instead.")]
+    public void ResetRotationToOriginal()
+    {
+        RestoreOriginalRotation();
     }
 
     public void SetBlockIdFromController(int newBlockId)
@@ -168,7 +206,7 @@ public class MathBlockValue : MonoBehaviour
         randomizeColorOnStart = false;
         operationStack = restoredStack ?? new Stack<DesfazerManager.Acao>();
         DesfazerManager.Instance.RestoreBlockId(this, restoredBlockId);
-        ResetRotationToOriginal();
+        RestoreOriginalRotation();
     }
 
     public void DetachFromUndoRuntime()
@@ -219,6 +257,54 @@ public class MathBlockValue : MonoBehaviour
         SetValue(nextValue);
         Debug.Log($"Bloco {name} atualizado para {currentValue} usando {operatorType}");
         return true;
+    }
+
+    public bool TryGetVisualColor(out Color color)
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+        {
+            Renderer targetRenderer = renderers[rendererIndex];
+            if (targetRenderer == null || IsLabelRenderer(targetRenderer))
+                continue;
+
+            Material sharedMaterial = targetRenderer.sharedMaterial;
+            if (sharedMaterial == null)
+                continue;
+
+            MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+            targetRenderer.GetPropertyBlock(propertyBlock);
+
+            if (!propertyBlock.isEmpty)
+            {
+                if (sharedMaterial.HasProperty("_BaseColor"))
+                {
+                    color = propertyBlock.GetColor("_BaseColor");
+                    return true;
+                }
+
+                if (sharedMaterial.HasProperty("_Color"))
+                {
+                    color = propertyBlock.GetColor("_Color");
+                    return true;
+                }
+            }
+
+            if (sharedMaterial.HasProperty("_BaseColor"))
+            {
+                color = sharedMaterial.GetColor("_BaseColor");
+                return true;
+            }
+
+            if (sharedMaterial.HasProperty("_Color"))
+            {
+                color = sharedMaterial.GetColor("_Color");
+                return true;
+            }
+        }
+
+        color = Color.white;
+        return false;
     }
 
     public bool TryUndoLastOperation(float spawnHeight)
@@ -384,7 +470,7 @@ public class MathBlockValue : MonoBehaviour
         if (valueLabels == null)
             return;
 
-        string valueText = currentValue.ToString();
+        string valueText = (hasPreviewValue ? previewValue : currentValue).ToString();
         for (int i = 0; i < valueLabels.Length; i++)
         {
             TextMesh label = valueLabels[i];
@@ -438,39 +524,47 @@ public class MathBlockValue : MonoBehaviour
             return;
 
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
+
         if (renderers == null || renderers.Length == 0)
             return;
 
-        Color randomColor = VibrantBlockColors[Random.Range(0, VibrantBlockColors.Length)];
-
-        runtimeColorMaterials = new Material[renderers.Length];
-        int materialCount = 0;
+        Color randomColor =
+            VibrantBlockColors[Random.Range(0, VibrantBlockColors.Length)];
 
         for (int i = 0; i < renderers.Length; i++)
         {
             Renderer targetRenderer = renderers[i];
+
             if (targetRenderer == null || IsLabelRenderer(targetRenderer))
                 continue;
 
-            Material sourceMaterial = targetRenderer.sharedMaterial;
-            if (sourceMaterial == null)
-                continue;
-
-            Material runtimeMaterial = new Material(sourceMaterial)
-            {
-                name = $"{name}_RuntimeColorMaterial"
-            };
-
-            ApplyColor(runtimeMaterial, randomColor);
-            targetRenderer.material = runtimeMaterial;
-            runtimeColorMaterials[materialCount] = runtimeMaterial;
-            materialCount++;
+            ApplyPropertyBlockColor(targetRenderer, randomColor);
         }
+    }
 
-        if (materialCount != runtimeColorMaterials.Length)
+    private void ApplyPropertyBlockColor(Renderer renderer, Color color)
+    {
+        if (renderer == null)
+            return;
+
+        renderer.GetPropertyBlock(propertyBlock);
+
+        Material sharedMat = renderer.sharedMaterial;
+
+        if (sharedMat == null)
+            return;
+
+        if (sharedMat.HasProperty("_BaseColor"))
         {
-            System.Array.Resize(ref runtimeColorMaterials, materialCount);
+            propertyBlock.SetColor("_BaseColor", color);
         }
+
+        if (sharedMat.HasProperty("_Color"))
+        {
+            propertyBlock.SetColor("_Color", color);
+        }
+
+        renderer.SetPropertyBlock(propertyBlock);
     }
 
     public RendererColorSnapshot[] CaptureRendererColors()
@@ -483,6 +577,10 @@ public class MathBlockValue : MonoBehaviour
             Renderer targetRenderer = renderers[rendererIndex];
             if (targetRenderer == null || IsLabelRenderer(targetRenderer))
                 continue;
+
+            Material sharedMaterial = targetRenderer.sharedMaterial;
+            MaterialPropertyBlock rendererPropertyBlock = new MaterialPropertyBlock();
+            targetRenderer.GetPropertyBlock(rendererPropertyBlock);
 
             Material[] materials = targetRenderer.materials;
             MaterialColorSnapshot[] materialSnapshots = new MaterialColorSnapshot[materials.Length];
@@ -511,7 +609,16 @@ public class MathBlockValue : MonoBehaviour
 
             snapshots.Add(new RendererColorSnapshot
             {
-                materialColors = materialSnapshots
+                materialColors = materialSnapshots,
+                hasPropertyBlock = !rendererPropertyBlock.isEmpty,
+                propertyBlockHasBaseColor = sharedMaterial != null && sharedMaterial.HasProperty("_BaseColor") && !rendererPropertyBlock.isEmpty,
+                propertyBlockBaseColor = sharedMaterial != null && sharedMaterial.HasProperty("_BaseColor") && !rendererPropertyBlock.isEmpty
+                    ? rendererPropertyBlock.GetColor("_BaseColor")
+                    : Color.white,
+                propertyBlockHasColor = sharedMaterial != null && sharedMaterial.HasProperty("_Color") && !rendererPropertyBlock.isEmpty,
+                propertyBlockColor = sharedMaterial != null && sharedMaterial.HasProperty("_Color") && !rendererPropertyBlock.isEmpty
+                    ? rendererPropertyBlock.GetColor("_Color")
+                    : Color.white
             });
         }
 
@@ -542,6 +649,7 @@ public class MathBlockValue : MonoBehaviour
             }
 
             targetRenderer.materials = materials;
+            ApplyPropertyBlockSnapshot(targetRenderer, snapshots[snapshotIndex]);
             snapshotIndex++;
         }
     }
@@ -587,5 +695,32 @@ public class MathBlockValue : MonoBehaviour
         {
             material.SetColor("_Color", snapshot.color);
         }
+    }
+
+    private static void ApplyPropertyBlockSnapshot(Renderer targetRenderer, RendererColorSnapshot snapshot)
+    {
+        if (targetRenderer == null)
+            return;
+
+        if (!snapshot.hasPropertyBlock)
+        {
+            targetRenderer.SetPropertyBlock(null);
+            return;
+        }
+
+        MaterialPropertyBlock rendererPropertyBlock = new MaterialPropertyBlock();
+        targetRenderer.GetPropertyBlock(rendererPropertyBlock);
+
+        if (snapshot.propertyBlockHasBaseColor)
+        {
+            rendererPropertyBlock.SetColor("_BaseColor", snapshot.propertyBlockBaseColor);
+        }
+
+        if (snapshot.propertyBlockHasColor)
+        {
+            rendererPropertyBlock.SetColor("_Color", snapshot.propertyBlockColor);
+        }
+
+        targetRenderer.SetPropertyBlock(rendererPropertyBlock);
     }
 }

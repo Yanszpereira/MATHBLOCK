@@ -10,6 +10,8 @@ public class opItem : MonoBehaviour
     [Header("Absorb Effect")]
     [SerializeField] private OperatorAbsorbEffect absorbEffectPrefab;
     [SerializeField] private OperatorAbsorbWaveEffect absorbWaveEffectPrefab;
+    [SerializeField] private Sprite absorbParticleSprite;
+    [SerializeField] private Sprite absorbWaveSprite;
 
     [Header("Visual Wobble")]
     [SerializeField] private bool useWobble = true;
@@ -89,7 +91,7 @@ public class opItem : MonoBehaviour
             effect = effectObject.AddComponent<OperatorAbsorbEffect>();
         }
 
-        effect.Init(absorbTarget, effectColor);
+        effect.Init(absorbTarget, effectColor, absorbParticleSprite);
     }
 
     private void SpawnWaveEffect(Color effectColor)
@@ -107,7 +109,7 @@ public class opItem : MonoBehaviour
             waveEffect = waveObject.AddComponent<OperatorAbsorbWaveEffect>();
         }
 
-        waveEffect.Init(effectColor);
+        waveEffect.Init(effectColor, absorbWaveSprite);
     }
 
     private Color GetAbsorbEffectColor()

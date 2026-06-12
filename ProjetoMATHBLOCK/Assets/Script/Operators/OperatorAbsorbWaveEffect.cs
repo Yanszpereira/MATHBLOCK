@@ -10,10 +10,12 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
     [SerializeField] private float duration = 0.7f;
     [SerializeField] private float startRadius = 0.12f;
     [SerializeField] private float outwardSpeed = 1.15f;
-    [SerializeField] private int particleCount = 96;
+    [SerializeField] private int particleCount = 144;
     [SerializeField] private float particleSize = 0.105f;
+    [SerializeField] private Sprite particleSprite;
 
     private bool initialized;
+    private Vector3 impactDirection = Vector3.up;
 
     private void Awake()
     {
@@ -35,6 +37,23 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
 
     public void Init(Color color)
     {
+        Init(color, particleSprite, Vector3.up);
+    }
+
+    public void Init(Color color, Sprite sprite)
+    {
+        Init(color, sprite, Vector3.up);
+    }
+
+    public void Init(Color color, Vector3 direction)
+    {
+        Init(color, particleSprite, direction);
+    }
+
+    public void Init(Color color, Sprite sprite, Vector3 direction)
+    {
+        particleSprite = sprite;
+        impactDirection = direction.sqrMagnitude > Mathf.Epsilon ? direction.normalized : Vector3.up;
         Configure(color);
         initialized = true;
         particles.Play(true);
@@ -54,7 +73,7 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         main.startLifetime = duration;
         main.startSpeed = new ParticleSystem.MinMaxCurve(outwardSpeed * 0.75f, outwardSpeed);
         main.startSize = particleSize;
-        main.startColor = WithAlpha(color, 0.55f);
+        main.startColor = WithAlpha(color, 0.32f);
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.scalingMode = ParticleSystemScalingMode.Hierarchy;
         main.maxParticles = particleCount + 8;
@@ -71,13 +90,19 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled = true;
-        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.shapeType = ParticleSystemShapeType.Cone;
         shape.radius = startRadius;
         shape.radiusThickness = 1f;
-        shape.rotation = Vector3.zero;
+        shape.angle = 16f;
+        shape.rotation = Quaternion.FromToRotation(Vector3.up, impactDirection).eulerAngles;
+        shape.alignToDirection = true;
 
         ParticleSystem.VelocityOverLifetimeModule velocity = particles.velocityOverLifetime;
-        velocity.enabled = false;
+        velocity.enabled = true;
+        velocity.space = ParticleSystemSimulationSpace.World;
+        velocity.x = new ParticleSystem.MinMaxCurve(impactDirection.x * outwardSpeed * 0.45f);
+        velocity.y = new ParticleSystem.MinMaxCurve(impactDirection.y * outwardSpeed * 0.45f);
+        velocity.z = new ParticleSystem.MinMaxCurve(impactDirection.z * outwardSpeed * 0.45f);
 
         ParticleSystem.ForceOverLifetimeModule force = particles.forceOverLifetime;
         force.enabled = false;
@@ -87,7 +112,8 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
 
         ConfigureColorOverLifetime(color);
         ConfigureSizeOverLifetime();
-        ConfigureRenderer(WithAlpha(color, 0.55f));
+        ConfigureSpriteSheet();
+        ConfigureRenderer(WithAlpha(color, 0.32f));
     }
 
     private void ConfigureColorOverLifetime(Color color)
@@ -101,8 +127,8 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
             },
             new[]
             {
-                new GradientAlphaKey(0.55f, 0f),
-                new GradientAlphaKey(0.34f, 0.45f),
+                new GradientAlphaKey(0.32f, 0f),
+                new GradientAlphaKey(0.22f, 0.45f),
                 new GradientAlphaKey(0f, 1f)
             }
         );
@@ -115,9 +141,9 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
     private void ConfigureSizeOverLifetime()
     {
         AnimationCurve sizeCurve = new AnimationCurve(
-            new Keyframe(0f, 0.35f),
+            new Keyframe(0f, 0.3f),
             new Keyframe(0.18f, 1f),
-            new Keyframe(0.72f, 0.8f),
+            new Keyframe(0.72f, 0.7f),
             new Keyframe(1f, 0f)
         );
 
@@ -133,11 +159,12 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
             return;
 
         renderer.renderMode = ParticleSystemRenderMode.Billboard;
+        renderer.alignment = ParticleSystemRenderSpace.Velocity;
         renderer.sortingFudge = 1.2f;
         renderer.shadowCastingMode = ShadowCastingMode.Off;
         renderer.receiveShadows = false;
 
-        renderer.sharedMaterial = CreateCircleMaterial(color);
+        renderer.sharedMaterial = CreateParticleMaterial(color, particleSprite);
 
         if (renderer.sharedMaterial == null)
             return;
@@ -153,12 +180,34 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         }
     }
 
-    private static Material CreateCircleMaterial(Color color)
+    private void ConfigureSpriteSheet()
     {
-        Shader shader = Shader.Find("Particles/Standard Unlit");
+        ParticleSystem.TextureSheetAnimationModule textureSheet = particles.textureSheetAnimation;
+        if (particleSprite == null)
+        {
+            textureSheet.enabled = false;
+            return;
+        }
+
+        textureSheet.enabled = true;
+        textureSheet.mode = ParticleSystemAnimationMode.Sprites;
+        textureSheet.timeMode = ParticleSystemAnimationTimeMode.Lifetime;
+        textureSheet.frameOverTime = new ParticleSystem.MinMaxCurve(0f);
+
+        while (textureSheet.spriteCount > 0)
+        {
+            textureSheet.RemoveSprite(0);
+        }
+
+        textureSheet.AddSprite(particleSprite);
+    }
+
+    private static Material CreateParticleMaterial(Color color, Sprite sprite)
+    {
+        Shader shader = Shader.Find("Sprites/Default");
         if (shader == null)
         {
-            shader = Shader.Find("Sprites/Default");
+            shader = Shader.Find("Particles/Standard Unlit");
         }
 
         if (shader == null)
@@ -167,10 +216,15 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         Material material = new Material(shader)
         {
             name = "OperatorAbsorbWaveCircleMaterial",
-            hideFlags = HideFlags.HideAndDontSave
+            hideFlags = HideFlags.HideAndDontSave,
+            renderQueue = (int)RenderQueue.Transparent
         };
 
-        Texture2D texture = GetCircleTexture();
+        ConfigureTransparentBlend(material);
+
+        Texture2D texture = sprite != null && sprite.texture != null
+            ? sprite.texture
+            : GetCircleTexture();
         if (texture != null)
         {
             if (material.HasProperty("_BaseMap"))
@@ -195,6 +249,38 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         }
 
         return material;
+    }
+
+    private static void ConfigureTransparentBlend(Material material)
+    {
+        material.SetOverrideTag("RenderType", "Transparent");
+
+        if (material.HasProperty("_Surface"))
+        {
+            material.SetFloat("_Surface", 1f);
+        }
+
+        if (material.HasProperty("_Mode"))
+        {
+            material.SetFloat("_Mode", 2f);
+        }
+
+        if (material.HasProperty("_SrcBlend"))
+        {
+            material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+        }
+
+        if (material.HasProperty("_DstBlend"))
+        {
+            material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+        }
+
+        if (material.HasProperty("_ZWrite"))
+        {
+            material.SetFloat("_ZWrite", 0f);
+        }
+
+        material.EnableKeyword("_ALPHABLEND_ON");
     }
 
     private static Color WithAlpha(Color color, float alpha)
