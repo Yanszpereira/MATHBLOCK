@@ -25,6 +25,11 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
 
     private readonly List<GameObject> spawnedBlocks = new List<GameObject>();
 
+    private void Awake()
+    {
+        ConnectPadToDoorVerifier();
+    }
+
     private void Reset()
     {
         ConfigureSpawnCollider();
@@ -59,7 +64,9 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
         ClearSpawnedBlocks();
 
         int finalDoorValue = DrawFinalDoorValue();
-        doorVerifier.SetRequiredRange(finalDoorValue, finalDoorValue);
+        ConnectPadToDoorVerifier();
+
+        doorVerifier.SetRequiredValue(finalDoorValue);
 
         GenerationSettings settings = GetGenerationSettings(finalDoorValue);
         int solutionTarget = finalDoorValue;
@@ -121,6 +128,14 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
         }
 
         return true;
+    }
+
+    private void ConnectPadToDoorVerifier()
+    {
+        if (padVerifier != null && doorVerifier != null)
+        {
+            padVerifier.SetConnectedVerifier(doorVerifier);
+        }
     }
 
     private int DrawFinalDoorValue()

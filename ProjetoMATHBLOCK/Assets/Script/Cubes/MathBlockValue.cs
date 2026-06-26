@@ -169,8 +169,7 @@ public class MathBlockValue : MonoBehaviour
         RefreshLabels();
     }
 
-    [System.Obsolete]
-    public void ResetRotationToOriginal()
+    public void RestoreOriginalRotation()
     {
         transform.rotation = originalRotation;
 
@@ -180,9 +179,15 @@ public class MathBlockValue : MonoBehaviour
             if (!rigidbody.isKinematic)
             {
                 rigidbody.angularVelocity = Vector3.zero;
-                rigidbody.velocity = Vector3.zero;
+                rigidbody.linearVelocity = Vector3.zero;
             }
         }
+    }
+
+    [System.Obsolete("Use RestoreOriginalRotation instead.")]
+    public void ResetRotationToOriginal()
+    {
+        RestoreOriginalRotation();
     }
 
     public void SetBlockIdFromController(int newBlockId)
@@ -201,7 +206,7 @@ public class MathBlockValue : MonoBehaviour
         randomizeColorOnStart = false;
         operationStack = restoredStack ?? new Stack<DesfazerManager.Acao>();
         DesfazerManager.Instance.RestoreBlockId(this, restoredBlockId);
-        ResetRotationToOriginal();
+        RestoreOriginalRotation();
     }
 
     public void DetachFromUndoRuntime()
@@ -252,6 +257,54 @@ public class MathBlockValue : MonoBehaviour
         SetValue(nextValue);
         Debug.Log($"Bloco {name} atualizado para {currentValue} usando {operatorType}");
         return true;
+    }
+
+    public bool TryGetVisualColor(out Color color)
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+        {
+            Renderer targetRenderer = renderers[rendererIndex];
+            if (targetRenderer == null || IsLabelRenderer(targetRenderer))
+                continue;
+
+            Material sharedMaterial = targetRenderer.sharedMaterial;
+            if (sharedMaterial == null)
+                continue;
+
+            MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+            targetRenderer.GetPropertyBlock(propertyBlock);
+
+            if (!propertyBlock.isEmpty)
+            {
+                if (sharedMaterial.HasProperty("_BaseColor"))
+                {
+                    color = propertyBlock.GetColor("_BaseColor");
+                    return true;
+                }
+
+                if (sharedMaterial.HasProperty("_Color"))
+                {
+                    color = propertyBlock.GetColor("_Color");
+                    return true;
+                }
+            }
+
+            if (sharedMaterial.HasProperty("_BaseColor"))
+            {
+                color = sharedMaterial.GetColor("_BaseColor");
+                return true;
+            }
+
+            if (sharedMaterial.HasProperty("_Color"))
+            {
+                color = sharedMaterial.GetColor("_Color");
+                return true;
+            }
+        }
+
+        color = Color.white;
+        return false;
     }
 
     public bool TryUndoLastOperation(float spawnHeight)

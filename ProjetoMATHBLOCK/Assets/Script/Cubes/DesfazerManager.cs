@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using FMODUnity;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(MathBlockIdController))]
@@ -13,6 +14,18 @@ public class DesfazerManager : MonoBehaviour
     private readonly Dictionary<int, Stack<Acao>> operationStacksByBlockId = new Dictionary<int, Stack<Acao>>();
     private MathBlockIdController idController;
     private Transform snapshotRoot;
+
+    [Header("Sons FMOD")]
+    [SerializeField] private bool playSounds = true;
+    [SerializeField] private EventReference operationSound;
+    [SerializeField] private EventReference undoSound;
+
+    [Header("Controle de repetição")]
+    [SerializeField] private float operationSoundCooldown = 0.05f;
+    [SerializeField] private float undoSoundCooldown = 0.15f;
+
+    private float lastOperationSoundTime = -999f;
+    private float lastUndoSoundTime = -999f;
 
     public MathBlockIdController IdController => GetIdController();
 
@@ -36,16 +49,19 @@ public class DesfazerManager : MonoBehaviour
                 return instance;
 
             instance = FindFirstObjectByType<DesfazerManager>();
+
             if (instance != null)
                 return instance;
 
             GameObject managerObject = GameObject.Find(ManagerObjectName);
+
             if (managerObject == null)
             {
                 managerObject = new GameObject(ManagerObjectName);
             }
 
             instance = managerObject.GetComponent<DesfazerManager>();
+
             if (instance == null)
             {
                 instance = managerObject.AddComponent<DesfazerManager>();
@@ -58,10 +74,12 @@ public class DesfazerManager : MonoBehaviour
     public static bool TryGetExistingInstance(out DesfazerManager existingInstance)
     {
         existingInstance = instance;
+
         if (existingInstance != null)
             return true;
 
         existingInstance = FindFirstObjectByType<DesfazerManager>();
+
         if (existingInstance != null)
         {
             instance = existingInstance;
@@ -145,6 +163,9 @@ public class DesfazerManager : MonoBehaviour
 
         targetBlock.OperationStack.Push(action);
         operationStacksByBlockId[targetBlock.BlockId] = targetBlock.OperationStack;
+
+        PlayOperationSound(targetBlock, consumedBlock);
+
         return true;
     }
 
@@ -156,15 +177,75 @@ public class DesfazerManager : MonoBehaviour
         RegisterBlock(targetBlock);
 
         Stack<Acao> targetStack;
+
         if (!operationStacksByBlockId.TryGetValue(targetBlock.BlockId, out targetStack) || targetStack == null || targetStack.Count == 0)
             return false;
 
         Acao action = targetStack.Pop();
+
         targetBlock.SetValue(action.previousTargetValue);
         RestoreConsumedBlock(targetBlock, action, spawnHeight);
 
+        PlayUndoSound(targetBlock);
+
         Debug.Log($"Bloco {targetBlock.name} desfez {action.operatorType} e voltou para {targetBlock.CurrentValue}.");
+
         return true;
+    }
+
+    private void PlayOperationSound(MathBlockValue targetBlock, MathBlockValue consumedBlock)
+    {
+        if (!playSounds)
+            return;
+
+        if (operationSound.IsNull)
+        {
+            Debug.LogWarning($"{name}: som de operacao FMOD nao configurado.");
+            return;
+        }
+
+        if (Time.time < lastOperationSoundTime + operationSoundCooldown)
+            return;
+
+        lastOperationSoundTime = Time.time;
+
+        Vector3 soundPosition = transform.position;
+
+        if (targetBlock != null && consumedBlock != null)
+        {
+            soundPosition = (targetBlock.transform.position + consumedBlock.transform.position) * 0.5f;
+        }
+        else if (targetBlock != null)
+        {
+            soundPosition = targetBlock.transform.position;
+        }
+        else if (consumedBlock != null)
+        {
+            soundPosition = consumedBlock.transform.position;
+        }
+
+        RuntimeManager.PlayOneShot(operationSound, soundPosition);
+    }
+
+    private void PlayUndoSound(MathBlockValue targetBlock)
+    {
+        if (!playSounds)
+            return;
+
+        if (undoSound.IsNull)
+        {
+            Debug.LogWarning($"{name}: som de desfazer FMOD nao configurado.");
+            return;
+        }
+
+        if (Time.time < lastUndoSoundTime + undoSoundCooldown)
+            return;
+
+        lastUndoSoundTime = Time.time;
+
+        Vector3 soundPosition = targetBlock != null ? targetBlock.transform.position : transform.position;
+
+        RuntimeManager.PlayOneShot(undoSound, soundPosition);
     }
 
     public Stack<Acao> CloneStack(Stack<Acao> sourceStack)
@@ -174,17 +255,21 @@ public class DesfazerManager : MonoBehaviour
 
         Acao[] actions = sourceStack.ToArray();
         System.Array.Reverse(actions);
+
         return new Stack<Acao>(actions);
     }
 
     private GameObject CreateConsumedBlockSnapshot(MathBlockValue consumedBlock)
     {
         Transform root = GetSnapshotRoot();
+
         MathBlockValue.RendererColorSnapshot[] originalColors = consumedBlock.CaptureRendererColors();
+
         GameObject snapshot = Instantiate(consumedBlock.gameObject, root);
         snapshot.name = $"{consumedBlock.name}_UndoSnapshot";
 
         MathBlockValue snapshotValue = snapshot.GetComponent<MathBlockValue>();
+
         if (snapshotValue != null)
         {
             snapshotValue.ApplyRendererColors(originalColors);
@@ -192,6 +277,7 @@ public class DesfazerManager : MonoBehaviour
         }
 
         snapshot.SetActive(false);
+
         return snapshot;
     }
 
@@ -204,16 +290,19 @@ public class DesfazerManager : MonoBehaviour
         }
 
         Vector3 spawnPosition = targetBlock.transform.position + Vector3.up * spawnHeight;
+
         GameObject restoredBlock = Instantiate(action.consumedBlockSnapshot, spawnPosition, targetBlock.transform.rotation);
         restoredBlock.name = $"{action.consumedBlockName}_Restored";
 
         MathBlockValue restoredValue = restoredBlock.GetComponent<MathBlockValue>();
+
         if (restoredValue != null)
         {
             restoredValue.InitializeRestoredFromUndo(action.consumedBlockId, CloneStack(action.consumedBlockStackSnapshot));
         }
 
         Rigidbody restoredRigidbody = restoredBlock.GetComponent<Rigidbody>();
+
         if (restoredRigidbody != null)
         {
             restoredRigidbody.isKinematic = false;
@@ -239,6 +328,7 @@ public class DesfazerManager : MonoBehaviour
             return idController;
 
         idController = GetComponent<MathBlockIdController>();
+
         if (idController == null)
         {
             idController = gameObject.AddComponent<MathBlockIdController>();
@@ -253,6 +343,7 @@ public class DesfazerManager : MonoBehaviour
             return snapshotRoot;
 
         Transform existingRoot = transform.Find(SnapshotRootName);
+
         if (existingRoot != null)
         {
             snapshotRoot = existingRoot;
@@ -261,7 +352,9 @@ public class DesfazerManager : MonoBehaviour
 
         GameObject rootObject = new GameObject(SnapshotRootName);
         rootObject.transform.SetParent(transform, false);
+
         snapshotRoot = rootObject.transform;
+
         return snapshotRoot;
     }
 }

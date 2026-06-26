@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using FMODUnity;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -16,6 +17,21 @@ public class PlayerMovement : MonoBehaviour
     [Header("Block Duplication")]
     [SerializeField] private int availableBlockDuplications = 5;
 
+    [Header("Sons FMOD")]
+    [SerializeField] private bool playMovementSounds = true;
+    [SerializeField] private EventReference footstepSound;
+    [SerializeField] private EventReference jumpSound;
+    [SerializeField] private EventReference voidFallSound;
+
+    [Header("Som de passos")]
+    [SerializeField] private float footstepInterval = 0.42f;
+    [SerializeField] private float minMoveInputForFootsteps = 0.1f;
+
+    [Header("Som de queda no void")]
+    [SerializeField] private float voidFallSoundDelay = 0.2f;
+    [SerializeField] private float voidFallSoundY = -5f;
+    [SerializeField] private bool requireVoidHeightToPlayFallSound = true;
+
     private InputAction jumpAction;
     private float horizontalInput;
     private float verticalInput;
@@ -24,12 +40,17 @@ public class PlayerMovement : MonoBehaviour
     private readonly RaycastHit[] groundHits = new RaycastHit[8];
     private Vector3 velocity;
 
+    private float footstepTimer;
+    private float voidFallTimer;
+    private bool hasPlayedVoidFallSound;
+
     public bool IsTryingToMove => new Vector2(horizontalInput, verticalInput).sqrMagnitude > 0.01f;
     public int AvailableBlockDuplications => availableBlockDuplications;
 
     private void Awake()
     {
         PlayerInput playerInput = GetComponent<PlayerInput>();
+
         if (playerInput != null)
         {
             jumpAction = playerInput.actions.FindAction("Jump", throwIfNotFound: false);
@@ -40,25 +61,27 @@ public class PlayerMovement : MonoBehaviour
     {
         bool isGrounded = IsGrounded();
 
-        // Movimento no plano horizontal
         Vector3 move = transform.right * horizontalInput + transform.forward * verticalInput;
         controller.Move(move * speed * Time.deltaTime);
 
         if (isGrounded && verticalVelocity < 0)
         {
-            verticalVelocity = -2f; // pequena força para manter no chão
+            verticalVelocity = -2f;
         }
 
         bool jumpPressed = IsJumpPressed();
+
         if (isGrounded && jumpPressed && !jumpWasPressed)
         {
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
             isGrounded = false;
+
+            PlayJumpSound();
+            ResetFootstepTimer();
         }
 
         jumpWasPressed = jumpPressed;
 
-        // Aplica gravidade
         if (!isGrounded || verticalVelocity > 0)
         {
             verticalVelocity += gravity * Time.deltaTime;
@@ -70,6 +93,97 @@ public class PlayerMovement : MonoBehaviour
 
         velocity.y = verticalVelocity;
         controller.Move(velocity * Time.deltaTime);
+
+        HandleFootstepSound(isGrounded);
+        HandleVoidFallSound(isGrounded);
+    }
+
+    private void HandleFootstepSound(bool isGrounded)
+    {
+        if (!playMovementSounds)
+            return;
+
+        if (!isGrounded)
+        {
+            ResetFootstepTimer();
+            return;
+        }
+
+        Vector2 moveInput = new Vector2(horizontalInput, verticalInput);
+
+        if (moveInput.sqrMagnitude < minMoveInputForFootsteps * minMoveInputForFootsteps)
+        {
+            ResetFootstepTimer();
+            return;
+        }
+
+        if (footstepSound.IsNull)
+            return;
+
+        footstepTimer -= Time.deltaTime;
+
+        if (footstepTimer > 0f)
+            return;
+
+        RuntimeManager.PlayOneShot(footstepSound, transform.position);
+        footstepTimer = footstepInterval;
+    }
+
+    private void PlayJumpSound()
+    {
+        if (!playMovementSounds)
+            return;
+
+        if (jumpSound.IsNull)
+            return;
+
+        RuntimeManager.PlayOneShot(jumpSound, transform.position);
+    }
+
+    private void HandleVoidFallSound(bool isGrounded)
+    {
+        if (!playMovementSounds)
+            return;
+
+        if (isGrounded)
+        {
+            ResetVoidFallSoundState();
+            return;
+        }
+
+        if (hasPlayedVoidFallSound)
+            return;
+
+        bool isFalling = verticalVelocity < 0f;
+        bool isBelowVoidHeight = !requireVoidHeightToPlayFallSound || transform.position.y <= voidFallSoundY;
+
+        if (!isFalling || !isBelowVoidHeight)
+        {
+            voidFallTimer = 0f;
+            return;
+        }
+
+        voidFallTimer += Time.deltaTime;
+
+        if (voidFallTimer < voidFallSoundDelay)
+            return;
+
+        if (voidFallSound.IsNull)
+            return;
+
+        hasPlayedVoidFallSound = true;
+        RuntimeManager.PlayOneShot(voidFallSound, transform.position);
+    }
+
+    private void ResetFootstepTimer()
+    {
+        footstepTimer = 0f;
+    }
+
+    private void ResetVoidFallSoundState()
+    {
+        voidFallTimer = 0f;
+        hasPlayedVoidFallSound = false;
     }
 
     private bool IsJumpPressed()
@@ -102,6 +216,7 @@ public class PlayerMovement : MonoBehaviour
         {
             RaycastHit hit = groundHits[hitIndex];
             Collider hitCollider = hit.collider;
+
             if (hitCollider == null || hitCollider == controller || hitCollider.transform == transform || hitCollider.transform.IsChildOf(transform))
                 continue;
 
@@ -117,7 +232,6 @@ public class PlayerMovement : MonoBehaviour
         Vector2 input = context.ReadValue<Vector2>();
         horizontalInput = input.x;
         verticalInput = input.y;
-
     }
 
     public bool TryConsumeBlockDuplication()
@@ -134,5 +248,7 @@ public class PlayerMovement : MonoBehaviour
         verticalVelocity = 0f;
         velocity = Vector3.zero;
         jumpWasPressed = false;
+        ResetFootstepTimer();
+        ResetVoidFallSoundState();
     }
 }

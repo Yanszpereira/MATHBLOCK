@@ -456,7 +456,7 @@ MonoBehaviour:
   sourceProjectPath: ../FMOD/Sons_Mathblocks/Sons_Mathblocks.fspro
   sourceBankPath: ../FMOD/Sons_Mathblocks/Build
   sourceBankPathUnformatted: 
-  BankRefreshCooldown: 5
+  BankRefreshCooldown: 1
   ShowBankRefreshWindow: 1
   AutomaticEventLoading: 1
   BankLoadType: 0
@@ -478,7 +478,8 @@ MonoBehaviour:
   Plugins: []
   MasterBanks:
   - Master
-  Banks: []
+  Banks:
+  - Musica
   BanksToLoad: []
   LiveUpdatePort: 9264
   EnableMemoryTracking: 0
@@ -491,7 +492,7 @@ MonoBehaviour:
   SharedLibraryUpdateStage: 0
   SharedLibraryTimeSinceStart: 0
   CurrentVersion: 131859
-  HideSetupWizard: 0
+  HideSetupWizard: 1
   LastEventReferenceScanVersion: 131859
   Platforms:
   - {fileID: -8344122962569438278}
