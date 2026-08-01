@@ -34,7 +34,12 @@ public sealed class BlockResizeController : MonoBehaviour
     [SerializeField] private float dragDeadZone = 0.5f;
     [SerializeField] private bool restoreCapturedVelocity;
 
+    [Header("Particles")]
+    [SerializeField] private Texture2D resizeParticleTexture;
+    [SerializeField] private Color resizeParticleColor = new Color(1f, 0.82f, 0.12f, 1f);
+
     private BlockResizeGizmo resizeGizmo;
+    private BlockResizeParticleEffect resizeParticleEffect;
     private BlockResizeInteractionState state;
     private ResizableBlock selectedBlock;
     private ResizeFace selectedFace;
@@ -69,6 +74,7 @@ public sealed class BlockResizeController : MonoBehaviour
     public ResizableBlock SelectedBlock => selectedBlock;
     public ResizeFace SelectedFace => selectedFace;
     public BlockResizeGizmo ActiveGizmo => resizeGizmo;
+    public BlockResizeParticleEffect ActiveParticleEffect => resizeParticleEffect;
     public float InteractionDistance => gravityInteract != null
         ? gravityInteract.GrabDistance * GrabDistanceFraction
         : interactionDistance;
@@ -94,6 +100,7 @@ public sealed class BlockResizeController : MonoBehaviour
 
     private void OnDestroy()
     {
+        StopResizeParticles();
         if (resizeGizmo != null)
             Destroy(resizeGizmo.gameObject);
     }
@@ -174,6 +181,7 @@ public sealed class BlockResizeController : MonoBehaviour
         try
         {
             resizeGizmo.Show(block, playerCamera, face);
+            StartResizeParticles(block);
             state = BlockResizeInteractionState.ResizeMode;
             return true;
         }
@@ -237,7 +245,10 @@ public sealed class BlockResizeController : MonoBehaviour
         );
         draggedHandle.SetVisualState(applied ? ResizeHandleVisualState.Allowed : ResizeHandleVisualState.Blocked);
         if (applied)
+        {
             resizeGizmo.UpdateLayout();
+            resizeParticleEffect?.RefreshBounds();
+        }
         return applied;
     }
 
@@ -340,6 +351,28 @@ public sealed class BlockResizeController : MonoBehaviour
         resizeGizmo.name = resizeGizmoPrefab.name;
         resizeGizmo.Hide();
         return true;
+    }
+
+    private void StartResizeParticles(ResizableBlock block)
+    {
+        StopResizeParticles();
+        if (resizeParticleTexture == null)
+            return;
+
+        resizeParticleEffect = BlockResizeParticleEffect.Create(
+            block,
+            resizeParticleTexture,
+            resizeParticleColor
+        );
+    }
+
+    private void StopResizeParticles()
+    {
+        if (resizeParticleEffect == null)
+            return;
+
+        resizeParticleEffect.StopAndFadeOut();
+        resizeParticleEffect = null;
     }
 
     private bool CaptureAndDisablePlayerControls()
@@ -470,6 +503,7 @@ public sealed class BlockResizeController : MonoBehaviour
 
         if (resizeGizmo != null)
             resizeGizmo.Hide();
+        StopResizeParticles();
         hoveredHandle = null;
         draggedHandle = null;
         RestoreRigidbody();

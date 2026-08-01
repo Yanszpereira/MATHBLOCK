@@ -123,6 +123,51 @@ public class BlockResizeInteractionTests
     }
 
     [UnityTest]
+    public IEnumerator ResizeMode_CreatesFadingStarParticlesAndTracksBlockSize()
+    {
+        Harness h = CreateHarness(9);
+        Texture2D starTexture = Track(new Texture2D(4, 4, TextureFormat.RGBA32, false));
+        Color[] pixels = new Color[16];
+        for (int i = 0; i < pixels.Length; i++)
+            pixels[i] = Color.white;
+        starTexture.SetPixels(pixels);
+        starTexture.Apply();
+
+        Color expectedTint = new Color(1f, 0.82f, 0.12f, 1f);
+        SetField(h.Controller, "resizeParticleTexture", starTexture);
+        SetField(h.Controller, "resizeParticleColor", expectedTint);
+        yield return null;
+
+        Assert.That(h.BeginFromFace("PositiveZ"), Is.True);
+        Component effect = (Component)GetProperty(h.Controller, "ActiveParticleEffect");
+        Assert.That(effect, Is.Not.Null);
+        createdObjects.Add(effect.gameObject);
+
+        ParticleSystem particles = (ParticleSystem)GetProperty(effect, "Particles");
+        Assert.That(particles, Is.Not.Null);
+        Assert.That(particles.main.simulationSpace, Is.EqualTo(ParticleSystemSimulationSpace.World));
+        Assert.That(particles.main.startColor.color, Is.EqualTo(expectedTint));
+        Assert.That(particles.colorOverLifetime.enabled, Is.True);
+        Assert.That(particles.rotationOverLifetime.enabled, Is.True);
+        Assert.That(particles.GetComponent<ParticleSystemRenderer>().sharedMaterial.mainTexture, Is.EqualTo(starTexture));
+
+        Vector3 initialEmissionSize = (Vector3)GetProperty(effect, "EmissionSize");
+        Assert.That(Vector3.Distance(initialEmissionSize, Vector3.one * 1.16f), Is.LessThan(0.001f));
+        Assert.That(h.Drag("Right", 1.1f), Is.True);
+        Vector3 resizedEmissionSize = (Vector3)GetProperty(effect, "EmissionSize");
+        Assert.That(resizedEmissionSize.x, Is.EqualTo(initialEmissionSize.x + 1f).Within(0.001f));
+        Assert.That(resizedEmissionSize.y, Is.EqualTo(initialEmissionSize.y).Within(0.001f));
+        Assert.That(resizedEmissionSize.z, Is.EqualTo(initialEmissionSize.z).Within(0.001f));
+
+        yield return new WaitForSeconds(0.5f);
+        Assert.That(particles.particleCount, Is.GreaterThan(0));
+        Invoke(h.Controller, "ConfirmResizeSession");
+        Assert.That(GetProperty(h.Controller, "ActiveParticleEffect"), Is.Null);
+        Assert.That(particles.isEmitting, Is.False);
+        Assert.That(GetProperty(effect, "TargetBlock"), Is.Null);
+    }
+
+    [UnityTest]
     public IEnumerator ChangingFaces_CannotExceedGlobalVolume()
     {
         Harness h = CreateHarness(4); yield return null;

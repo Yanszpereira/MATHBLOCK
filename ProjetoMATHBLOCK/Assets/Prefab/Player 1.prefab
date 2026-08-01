@@ -467,6 +467,8 @@ MonoBehaviour:
     m_Bits: 256
   dragDeadZone: 0.5
   restoreCapturedVelocity: 0
+  resizeParticleTexture: {fileID: 2800000, guid: 099bd7b207f488741a376836e9f625b9, type: 3}
+  resizeParticleColor: {r: 1, g: 0.82, b: 0.12, a: 1}
 --- !u!1 &3515600641973011663
 GameObject:
   m_ObjectHideFlags: 0
