@@ -3,7 +3,27 @@ guid: 8fb67de7dd6ad284d9755377f4ca115b
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: MetalGalvanizedSteelWorn001_2K
+    second: {fileID: 2100000, guid: c626de0bc19460c45892ecb220c7fa4f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Poliigon_MetalGoldPaint_7253_2K
+    second: {fileID: 2100000, guid: 7c0021f04e357c149901c11984486a53, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Poliigon_MetalPaintedMatte_7037_2K
+    second: {fileID: 2100000, guid: c4e17118221e8e847affb45f19121e7d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Poliigon_MetalSteelBrushed_7174_2K
+    second: {fileID: 2100000, guid: 3b241103684466e499def594211821ef, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

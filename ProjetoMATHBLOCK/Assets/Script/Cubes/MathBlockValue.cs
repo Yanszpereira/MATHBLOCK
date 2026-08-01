@@ -465,6 +465,21 @@ public class MathBlockValue : MonoBehaviour
         return Vector3.one * 0.5f;
     }
 
+    public void RefreshVisualLayout()
+    {
+        if (valueLabels == null)
+            return;
+
+        for (int i = 0; i < valueLabels.Length && i < FaceLabels.Length; i++)
+        {
+            TextMesh label = valueLabels[i];
+            if (label != null)
+            {
+                UpdateLabelTransform(label.transform, FaceLabels[i].direction);
+            }
+        }
+    }
+
     private void RefreshLabels()
     {
         if (valueLabels == null)
