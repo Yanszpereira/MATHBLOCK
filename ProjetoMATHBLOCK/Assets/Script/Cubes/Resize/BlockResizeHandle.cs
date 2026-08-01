@@ -5,8 +5,7 @@ public enum ResizeHandlePosition
     Top,
     Bottom,
     Left,
-    Right,
-    Center
+    Right
 }
 
 public enum ResizeHandleVisualState

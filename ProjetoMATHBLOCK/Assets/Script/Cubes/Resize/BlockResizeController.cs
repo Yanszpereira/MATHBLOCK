@@ -15,6 +15,7 @@ public sealed class BlockResizeController : MonoBehaviour
 {
     private const string PlayerMapName = "Player";
     private const string ResizeMapName = "Resize";
+    private const float GrabDistanceFraction = 2f / 3f;
 
     [Header("Player References")]
     [SerializeField] private Camera playerCamera;
@@ -36,6 +37,7 @@ public sealed class BlockResizeController : MonoBehaviour
     private BlockResizeGizmo resizeGizmo;
     private BlockResizeInteractionState state;
     private ResizableBlock selectedBlock;
+    private ResizeFace selectedFace;
     private ResizableBlockState sessionStartState;
     private ResizableBlockState dragStartState;
     private Rigidbody selectedRigidbody;
@@ -65,7 +67,11 @@ public sealed class BlockResizeController : MonoBehaviour
 
     public BlockResizeInteractionState State => state;
     public ResizableBlock SelectedBlock => selectedBlock;
+    public ResizeFace SelectedFace => selectedFace;
     public BlockResizeGizmo ActiveGizmo => resizeGizmo;
+    public float InteractionDistance => gravityInteract != null
+        ? gravityInteract.GrabDistance * GrabDistanceFraction
+        : interactionDistance;
 
     private void Awake()
     {
@@ -135,17 +141,23 @@ public sealed class BlockResizeController : MonoBehaviour
         if (gravityInteract != null && gravityInteract.IsHoldingBlock)
             return false;
 
-        if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance, targetingMask, QueryTriggerInteraction.Ignore))
+        if (!Physics.Raycast(ray, out RaycastHit hit, InteractionDistance, targetingMask, QueryTriggerInteraction.Ignore))
             return false;
 
         ResizableBlock block = hit.collider != null ? hit.collider.GetComponentInParent<ResizableBlock>() : null;
         if (block == null || !block.CanResize())
             return false;
 
-        return TryBeginResize(block, hit.normal, true);
+        ResizeFace face = BlockResizeGizmo.SelectFace(
+            block,
+            hit.normal,
+            true,
+            playerCamera.transform.position
+        );
+        return TryBeginResize(block, face);
     }
 
-    public bool TryBeginResize(ResizableBlock block, Vector3 hitNormal, bool hasHitNormal)
+    public bool TryBeginResize(ResizableBlock block, ResizeFace face)
     {
         if (state != BlockResizeInteractionState.Idle || block == null || !block.CanResize())
             return false;
@@ -155,12 +167,13 @@ public sealed class BlockResizeController : MonoBehaviour
             return false;
 
         selectedBlock = block;
+        selectedFace = face;
         sessionStartState = block.CaptureState();
         CaptureAndFreezeRigidbody(block.GetComponent<Rigidbody>());
 
         try
         {
-            resizeGizmo.Show(block, playerCamera, hitNormal, hasHitNormal);
+            resizeGizmo.Show(block, playerCamera, face);
             state = BlockResizeInteractionState.ResizeMode;
             return true;
         }
@@ -205,15 +218,23 @@ public sealed class BlockResizeController : MonoBehaviour
 
         Vector3 currentPoint = pointerRay.GetPoint(enter);
         Vector3 deltaWorld = currentPoint - dragStartPoint;
-        int steps = draggedHandle.Position == ResizeHandlePosition.Center
-            ? CalculateRadialSteps(deltaWorld.magnitude, dragUnitWorldSize, dragDeadZone)
-            : CalculateLinearSteps(Vector3.Dot(deltaWorld, dragAxisWorld), dragUnitWorldSize, dragDeadZone);
+        int steps = CalculateLinearSteps(
+            Vector3.Dot(deltaWorld, dragAxisWorld),
+            dragUnitWorldSize,
+            dragDeadZone
+        );
 
         if (steps == lastEvaluatedSteps)
             return true;
 
         lastEvaluatedSteps = steps;
-        bool applied = selectedBlock.TryApplyResizeFromState(dragStartState, draggedDirection, steps, out _);
+        bool applied = selectedBlock.TryApplyResizeFromState(
+            dragStartState,
+            selectedFace,
+            draggedDirection,
+            steps,
+            out _
+        );
         draggedHandle.SetVisualState(applied ? ResizeHandleVisualState.Allowed : ResizeHandleVisualState.Blocked);
         if (applied)
             resizeGizmo.UpdateLayout();
@@ -254,17 +275,6 @@ public sealed class BlockResizeController : MonoBehaviour
         if (Mathf.Abs(units) < Mathf.Clamp01(deadZone))
             return 0;
         return Mathf.RoundToInt(units);
-    }
-
-    public static int CalculateRadialSteps(float radialDistance, float unitWorldSize, float deadZone = 0.5f)
-    {
-        if (unitWorldSize <= 0.0001f || radialDistance <= 0f)
-            return 0;
-
-        float units = radialDistance / unitWorldSize;
-        if (units < Mathf.Clamp01(deadZone))
-            return 0;
-        return Mathf.Max(0, Mathf.RoundToInt(units));
     }
 
     private void OnEnterResizePerformed(InputAction.CallbackContext context)
@@ -313,11 +323,7 @@ public sealed class BlockResizeController : MonoBehaviour
 
     private float GetDragUnitSize(ResizeHandlePosition position)
     {
-        if (position == ResizeHandlePosition.Center)
-            return Mathf.Min(selectedBlock.HorizontalUnitWorldSize, selectedBlock.VerticalUnitWorldSize);
-        if (position == ResizeHandlePosition.Left || position == ResizeHandlePosition.Right)
-            return selectedBlock.HorizontalUnitWorldSize;
-        return selectedBlock.VerticalUnitWorldSize;
+        return selectedBlock.GetWorldUnitSize(resizeGizmo.GetResizeDirection(position));
     }
 
     private bool EnsureGizmo()

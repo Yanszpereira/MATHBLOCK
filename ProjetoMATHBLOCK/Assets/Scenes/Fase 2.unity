@@ -175,6 +175,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ResizableBlock_Value_6
       objectReference: {fileID: 0}
+    - target: {fileID: 9117700650143390635, guid: 815a62e72f780f547aac631718636ab3, type: 3}
+      propertyPath: obstacleMask.m_Bits
+      value: 55
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -381,6 +385,67 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 815a62e72f780f547aac631718636ab3, type: 3}
+--- !u!1001 &735044544
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 773854038520820487, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: m_Name
+      value: MathBlockSpawner
+      objectReference: {fileID: 0}
+    - target: {fileID: 2862294720460524906, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: requireDoorVerifier
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 6.0885267
+      objectReference: {fileID: 0}
+    - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.00000013668955
+      objectReference: {fileID: 0}
+    - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 5.1051784
+      objectReference: {fileID: 0}
+    - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
 --- !u!1 &832536087
 GameObject:
   m_ObjectHideFlags: 0
@@ -875,6 +940,14 @@ PrefabInstance:
     - target: {fileID: 4669273299126122582, guid: 3236cc2463053184e9fb62d15c1b7b9f, type: 3}
       propertyPath: m_Name
       value: ResizableMathBlockSpawner
+      objectReference: {fileID: 0}
+    - target: {fileID: 7910914231148381755, guid: 3236cc2463053184e9fb62d15c1b7b9f, type: 3}
+      propertyPath: possibleDoorMaxValue
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 7910914231148381755, guid: 3236cc2463053184e9fb62d15c1b7b9f, type: 3}
+      propertyPath: possibleDoorMinValue
+      value: 50
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1879,3 +1952,4 @@ SceneRoots:
   - {fileID: 967464846}
   - {fileID: 158088182}
   - {fileID: 693496075}
+  - {fileID: 735044544}

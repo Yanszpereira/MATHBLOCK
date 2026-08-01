@@ -1,19 +1,23 @@
 using UnityEngine;
 
-public enum ResizePlane
+public enum ResizeFace
 {
-    XY,
-    XZ,
-    YZ
+    PositiveX,
+    NegativeX,
+    PositiveY,
+    NegativeY,
+    PositiveZ,
+    NegativeZ
 }
 
 public enum ResizeDirection
 {
-    PositiveHorizontal,
-    NegativeHorizontal,
-    PositiveVertical,
-    NegativeVertical,
-    Center
+    PositiveX,
+    NegativeX,
+    PositiveY,
+    NegativeY,
+    PositiveZ,
+    NegativeZ
 }
 
 public enum ResizeValidationFailure
@@ -21,7 +25,7 @@ public enum ResizeValidationFailure
     None,
     InvalidValue,
     DimensionBelowMinimum,
-    AreaLimitExceeded,
+    VolumeLimitExceeded,
     FixedDimensionChanged,
     SpaceBlocked,
     MissingReference
@@ -81,7 +85,6 @@ public class ResizableBlock : MonoBehaviour
     [SerializeField] private Rigidbody blockRigidbody;
 
     [Header("Logical Dimensions")]
-    [SerializeField] private ResizePlane resizePlane = ResizePlane.XY;
     [SerializeField, Min(MinimumDimension)] private int width = MinimumDimension;
     [SerializeField, Min(MinimumDimension)] private int height = MinimumDimension;
     [SerializeField, Min(MinimumDimension)] private int depth = MinimumDimension;
@@ -95,18 +98,11 @@ public class ResizableBlock : MonoBehaviour
     public int Height => height;
     public int Depth => depth;
     public Vector3Int Dimensions => new Vector3Int(width, height, depth);
-    public ResizePlane Plane => resizePlane;
-    public int MaximumArea => mathBlockValue != null ? mathBlockValue.CurrentValue : 0;
-    public int CurrentArea => GetPlaneArea(Dimensions);
+    public int MaximumVolume => mathBlockValue != null ? mathBlockValue.CurrentValue : 0;
+    public long CurrentVolume => CalculateVolume(Dimensions);
     public Vector3 UnitSize => unitSize;
-    public Vector3 WorldCenter => blockCollider != null ? blockCollider.bounds.center : transform.position;
+    public Vector3 WorldCenter => blockCollider != null ? blockCollider.transform.TransformPoint(blockCollider.center) : transform.position;
     public Bounds WorldBounds => blockCollider != null ? blockCollider.bounds : new Bounds(transform.position, Vector3.zero);
-    public Vector3 HorizontalAxisWorld => GetWorldAxis(GetPlaneAxes().HorizontalAxis);
-    public Vector3 VerticalAxisWorld => GetWorldAxis(GetPlaneAxes().VerticalAxis);
-    public Vector3 FaceNormalWorld => GetWorldAxis(GetPlaneAxes().FixedAxis);
-    public float HorizontalUnitWorldSize => GetWorldUnitSize(GetPlaneAxes().HorizontalAxis);
-    public float VerticalUnitWorldSize => GetWorldUnitSize(GetPlaneAxes().VerticalAxis);
-    public float FixedUnitWorldSize => GetWorldUnitSize(GetPlaneAxes().FixedAxis);
 
     private void Reset()
     {
@@ -127,24 +123,7 @@ public class ResizableBlock : MonoBehaviour
         NormalizeSerializedValues();
 
         if (!Application.isPlaying)
-        {
             ApplyCurrentDimensions();
-        }
-    }
-
-    public void GetActivePlaneDimensions(out int horizontal, out int vertical, out int fixedDimension)
-    {
-        PlaneAxes axes = GetPlaneAxes();
-        Vector3Int dimensions = Dimensions;
-        horizontal = GetAxis(dimensions, axes.HorizontalAxis);
-        vertical = GetAxis(dimensions, axes.VerticalAxis);
-        fixedDimension = GetAxis(dimensions, axes.FixedAxis);
-    }
-
-    public void GetValidFaceNormals(out Vector3 positiveNormal, out Vector3 negativeNormal)
-    {
-        positiveNormal = FaceNormalWorld;
-        negativeNormal = -positiveNormal;
     }
 
     public bool CanResize()
@@ -172,25 +151,16 @@ public class ResizableBlock : MonoBehaviour
             return false;
         }
 
-        Vector3Int proposedDimensions = new Vector3Int(proposedWidth, proposedHeight, proposedDepth);
         if (proposedWidth < MinimumDimension || proposedHeight < MinimumDimension || proposedDepth < MinimumDimension)
         {
             failure = ResizeValidationFailure.DimensionBelowMinimum;
             return false;
         }
 
-        PlaneAxes axes = GetPlaneAxes();
-        if (GetAxis(proposedDimensions, axes.FixedAxis) != GetAxis(Dimensions, axes.FixedAxis))
+        long proposedVolume = (long)proposedWidth * proposedHeight * proposedDepth;
+        if (proposedVolume > mathBlockValue.CurrentValue)
         {
-            failure = ResizeValidationFailure.FixedDimensionChanged;
-            return false;
-        }
-
-        long proposedArea = (long)GetAxis(proposedDimensions, axes.HorizontalAxis)
-            * GetAxis(proposedDimensions, axes.VerticalAxis);
-        if (proposedArea > mathBlockValue.CurrentValue)
-        {
-            failure = ResizeValidationFailure.AreaLimitExceeded;
+            failure = ResizeValidationFailure.VolumeLimitExceeded;
             return false;
         }
 
@@ -199,16 +169,18 @@ public class ResizableBlock : MonoBehaviour
     }
 
     public bool TryCreateResizeProposal(
+        ResizeFace face,
         ResizeDirection direction,
         int deltaUnits,
         out BlockResizeProposal proposal,
         out ResizeValidationFailure failure)
     {
-        return TryCreateResizeProposal(CaptureState(), direction, deltaUnits, out proposal, out failure);
+        return TryCreateResizeProposal(CaptureState(), face, direction, deltaUnits, out proposal, out failure);
     }
 
     public bool TryCreateResizeProposal(
         ResizableBlockState baseState,
+        ResizeFace face,
         ResizeDirection direction,
         int deltaUnits,
         out BlockResizeProposal proposal,
@@ -223,41 +195,15 @@ public class ResizableBlock : MonoBehaviour
             return false;
         }
 
-        PlaneAxes axes = GetPlaneAxes();
-        Vector3Int proposedDimensions = baseState.Dimensions;
-        Vector3 centerOffset = Vector3.zero;
-
-        switch (direction)
+        int resizedAxis = GetDirectionAxis(direction);
+        if (resizedAxis == GetFaceNormalAxis(face))
         {
-            case ResizeDirection.PositiveHorizontal:
-                AddToAxis(ref proposedDimensions, axes.HorizontalAxis, deltaUnits);
-                centerOffset = GetAxisOffset(axes.HorizontalAxis, deltaUnits, 1f);
-                break;
-
-            case ResizeDirection.NegativeHorizontal:
-                AddToAxis(ref proposedDimensions, axes.HorizontalAxis, deltaUnits);
-                centerOffset = GetAxisOffset(axes.HorizontalAxis, deltaUnits, -1f);
-                break;
-
-            case ResizeDirection.PositiveVertical:
-                AddToAxis(ref proposedDimensions, axes.VerticalAxis, deltaUnits);
-                centerOffset = GetAxisOffset(axes.VerticalAxis, deltaUnits, 1f);
-                break;
-
-            case ResizeDirection.NegativeVertical:
-                AddToAxis(ref proposedDimensions, axes.VerticalAxis, deltaUnits);
-                centerOffset = GetAxisOffset(axes.VerticalAxis, deltaUnits, -1f);
-                break;
-
-            case ResizeDirection.Center:
-                AddToAxis(ref proposedDimensions, axes.HorizontalAxis, deltaUnits);
-                AddToAxis(ref proposedDimensions, axes.VerticalAxis, deltaUnits);
-                break;
-
-            default:
-                failure = ResizeValidationFailure.MissingReference;
-                return false;
+            failure = ResizeValidationFailure.FixedDimensionChanged;
+            return false;
         }
+
+        Vector3Int proposedDimensions = baseState.Dimensions;
+        AddToAxis(ref proposedDimensions, resizedAxis, deltaUnits);
 
         if (!IsDimensionProposalValid(
             proposedDimensions.x,
@@ -268,6 +214,8 @@ public class ResizableBlock : MonoBehaviour
             return false;
         }
 
+        float directionSign = IsPositiveDirection(direction) ? 1f : -1f;
+        Vector3 centerOffset = GetAxisOffset(resizedAxis, deltaUnits, directionSign);
         Vector3 rootPosition = baseState.Position + centerOffset;
         Vector3 localSize = CalculateLocalSize(proposedDimensions);
         Vector3 colliderCenterOffset = baseState.Rotation * Vector3.Scale(blockCollider.center, Abs(transform.lossyScale));
@@ -299,20 +247,25 @@ public class ResizableBlock : MonoBehaviour
         return IsSpaceAvailable(proposal, out failure);
     }
 
-    public bool CanResize(ResizeDirection direction, int deltaUnits, out ResizeValidationFailure failure)
+    public bool CanResize(
+        ResizeFace face,
+        ResizeDirection direction,
+        int deltaUnits,
+        out ResizeValidationFailure failure)
     {
-        if (!TryCreateResizeProposal(direction, deltaUnits, out BlockResizeProposal proposal, out failure))
+        if (!TryCreateResizeProposal(face, direction, deltaUnits, out BlockResizeProposal proposal, out failure))
             return false;
 
         return IsProposalValid(proposal, out failure);
     }
 
     public bool TryApplyResize(
+        ResizeFace face,
         ResizeDirection direction,
         int deltaUnits,
         out ResizeValidationFailure failure)
     {
-        if (!TryCreateResizeProposal(direction, deltaUnits, out BlockResizeProposal proposal, out failure))
+        if (!TryCreateResizeProposal(face, direction, deltaUnits, out BlockResizeProposal proposal, out failure))
             return false;
 
         if (!IsProposalValid(proposal, out failure))
@@ -325,11 +278,12 @@ public class ResizableBlock : MonoBehaviour
 
     public bool TryApplyResizeFromState(
         ResizableBlockState baseState,
+        ResizeFace face,
         ResizeDirection direction,
         int deltaUnits,
         out ResizeValidationFailure failure)
     {
-        if (!TryCreateResizeProposal(baseState, direction, deltaUnits, out BlockResizeProposal proposal, out failure))
+        if (!TryCreateResizeProposal(baseState, face, direction, deltaUnits, out BlockResizeProposal proposal, out failure))
             return false;
 
         if (!IsProposalValid(proposal, out failure))
@@ -363,8 +317,126 @@ public class ResizableBlock : MonoBehaviour
             return;
         }
 
-        BlockResizeProposal proposal = CreateDirectProposal(stateDimensions, state.Position, state.Rotation);
-        ApplyProposal(proposal);
+        ApplyProposal(CreateDirectProposal(stateDimensions, state.Position, state.Rotation));
+    }
+
+    public Vector3 GetFaceNormalWorld(ResizeFace face)
+    {
+        int axis = GetFaceNormalAxis(face);
+        float sign = IsPositiveFace(face) ? 1f : -1f;
+        return GetWorldAxis(axis) * sign;
+    }
+
+    public Vector3 GetFaceCenterWorld(ResizeFace face)
+    {
+        int axis = GetFaceNormalAxis(face);
+        float halfSize = GetWorldSize(axis) * 0.5f;
+        return WorldCenter + GetFaceNormalWorld(face) * halfSize;
+    }
+
+    public void GetFacePlaneAxes(ResizeFace face, out int firstAxis, out int secondAxis, out int normalAxis)
+    {
+        normalAxis = GetFaceNormalAxis(face);
+        switch (normalAxis)
+        {
+            case 0:
+                firstAxis = 1;
+                secondAxis = 2;
+                break;
+            case 1:
+                firstAxis = 0;
+                secondAxis = 2;
+                break;
+            default:
+                firstAxis = 0;
+                secondAxis = 1;
+                break;
+        }
+    }
+
+    public Vector3 GetWorldAxis(int axis)
+    {
+        Vector3 worldAxis = transform.TransformDirection(GetLocalAxis(axis));
+        return worldAxis.sqrMagnitude > 0f ? worldAxis.normalized : Vector3.zero;
+    }
+
+    public float GetWorldUnitSize(int axis)
+    {
+        Vector3 worldUnit = transform.TransformVector(GetLocalAxis(axis) * GetAxis(unitSize, axis));
+        return worldUnit.magnitude;
+    }
+
+    public float GetWorldSize(int axis)
+    {
+        return GetAxis(Dimensions, axis) * GetWorldUnitSize(axis);
+    }
+
+    public float GetWorldUnitSize(ResizeDirection direction)
+    {
+        return GetWorldUnitSize(GetDirectionAxis(direction));
+    }
+
+    public ResizeDirection GetResizeDirectionForWorldAxis(Vector3 worldAxis)
+    {
+        Vector3 normalized = worldAxis.sqrMagnitude > MinimumUnitSize ? worldAxis.normalized : GetWorldAxis(0);
+        int bestAxis = 0;
+        float bestDot = Vector3.Dot(normalized, GetWorldAxis(0));
+        float bestAlignment = Mathf.Abs(bestDot);
+
+        for (int axis = 1; axis < 3; axis++)
+        {
+            float dot = Vector3.Dot(normalized, GetWorldAxis(axis));
+            if (Mathf.Abs(dot) > bestAlignment)
+            {
+                bestAxis = axis;
+                bestDot = dot;
+                bestAlignment = Mathf.Abs(dot);
+            }
+        }
+
+        return GetDirection(bestAxis, bestDot >= 0f);
+    }
+
+    public static bool TryGetFaceFromLocalNormal(
+        Vector3 localNormal,
+        out ResizeFace face,
+        float minimumAxisAlignment = 0.75f)
+    {
+        face = ResizeFace.PositiveZ;
+        if (localNormal.sqrMagnitude <= MinimumUnitSize)
+            return false;
+
+        Vector3 normalized = localNormal.normalized;
+        float absX = Mathf.Abs(normalized.x);
+        float absY = Mathf.Abs(normalized.y);
+        float absZ = Mathf.Abs(normalized.z);
+        float dominant = Mathf.Max(absX, Mathf.Max(absY, absZ));
+        if (dominant < Mathf.Clamp01(minimumAxisAlignment))
+            return false;
+
+        if (absX >= absY && absX >= absZ)
+            face = normalized.x >= 0f ? ResizeFace.PositiveX : ResizeFace.NegativeX;
+        else if (absY >= absZ)
+            face = normalized.y >= 0f ? ResizeFace.PositiveY : ResizeFace.NegativeY;
+        else
+            face = normalized.z >= 0f ? ResizeFace.PositiveZ : ResizeFace.NegativeZ;
+
+        return true;
+    }
+
+    public static int GetFaceNormalAxis(ResizeFace face)
+    {
+        switch (face)
+        {
+            case ResizeFace.PositiveX:
+            case ResizeFace.NegativeX:
+                return 0;
+            case ResizeFace.PositiveY:
+            case ResizeFace.NegativeY:
+                return 1;
+            default:
+                return 2;
+        }
     }
 
     private bool IsSpaceAvailable(BlockResizeProposal proposal, out ResizeValidationFailure failure)
@@ -460,10 +532,7 @@ public class ResizableBlock : MonoBehaviour
         mathBlockValue.RefreshVisualLayout();
     }
 
-    private BlockResizeProposal CreateDirectProposal(
-        Vector3Int dimensions,
-        Vector3 rootPosition,
-        Quaternion rotation)
+    private BlockResizeProposal CreateDirectProposal(Vector3Int dimensions, Vector3 rootPosition, Quaternion rotation)
     {
         Vector3 localSize = CalculateLocalSize(dimensions);
         Vector3 colliderCenterOffset = rotation * Vector3.Scale(blockCollider.center, Abs(transform.lossyScale));
@@ -477,12 +546,6 @@ public class ResizableBlock : MonoBehaviour
         );
     }
 
-    private int GetPlaneArea(Vector3Int dimensions)
-    {
-        PlaneAxes axes = GetPlaneAxes();
-        return GetAxis(dimensions, axes.HorizontalAxis) * GetAxis(dimensions, axes.VerticalAxis);
-    }
-
     private Vector3 CalculateLocalSize(Vector3Int dimensions)
     {
         return Vector3.Scale(unitSize, new Vector3(dimensions.x, dimensions.y, dimensions.z));
@@ -490,22 +553,8 @@ public class ResizableBlock : MonoBehaviour
 
     private Vector3 GetAxisOffset(int axis, int deltaUnits, float directionSign)
     {
-        Vector3 localAxis = GetLocalAxis(axis);
-        float localUnitLength = GetAxis(unitSize, axis);
-        Vector3 worldUnit = transform.TransformVector(localAxis * localUnitLength);
-        return worldUnit * (deltaUnits * directionSign * 0.5f);
-    }
-
-    private Vector3 GetWorldAxis(int axis)
-    {
-        Vector3 worldAxis = transform.TransformDirection(GetLocalAxis(axis));
-        return worldAxis.sqrMagnitude > 0f ? worldAxis.normalized : Vector3.zero;
-    }
-
-    private float GetWorldUnitSize(int axis)
-    {
         Vector3 worldUnit = transform.TransformVector(GetLocalAxis(axis) * GetAxis(unitSize, axis));
-        return worldUnit.magnitude;
+        return worldUnit * (deltaUnits * directionSign * 0.5f);
     }
 
     private bool IsGrowth(Vector3Int proposedDimensions)
@@ -523,19 +572,15 @@ public class ResizableBlock : MonoBehaviour
 
     private bool HasRequiredReferences()
     {
-        return mathBlockValue != null
-            && visualRoot != null
-            && blockCollider != null;
+        return mathBlockValue != null && visualRoot != null && blockCollider != null;
     }
 
     private void ResolveReferences()
     {
         if (mathBlockValue == null)
             mathBlockValue = GetComponent<MathBlockValue>();
-
         if (blockCollider == null)
             blockCollider = GetComponent<BoxCollider>();
-
         if (blockRigidbody == null)
             blockRigidbody = GetComponent<Rigidbody>();
 
@@ -560,18 +605,45 @@ public class ResizableBlock : MonoBehaviour
         collisionSkin = Mathf.Max(0f, collisionSkin);
     }
 
-    private PlaneAxes GetPlaneAxes()
+    private static long CalculateVolume(Vector3Int dimensions)
     {
-        switch (resizePlane)
+        return (long)dimensions.x * dimensions.y * dimensions.z;
+    }
+
+    private static int GetDirectionAxis(ResizeDirection direction)
+    {
+        switch (direction)
         {
-            case ResizePlane.XZ:
-                return new PlaneAxes(0, 2, 1);
-
-            case ResizePlane.YZ:
-                return new PlaneAxes(1, 2, 0);
-
+            case ResizeDirection.PositiveX:
+            case ResizeDirection.NegativeX:
+                return 0;
+            case ResizeDirection.PositiveY:
+            case ResizeDirection.NegativeY:
+                return 1;
             default:
-                return new PlaneAxes(0, 1, 2);
+                return 2;
+        }
+    }
+
+    private static bool IsPositiveDirection(ResizeDirection direction)
+    {
+        return direction == ResizeDirection.PositiveX
+            || direction == ResizeDirection.PositiveY
+            || direction == ResizeDirection.PositiveZ;
+    }
+
+    private static bool IsPositiveFace(ResizeFace face)
+    {
+        return face == ResizeFace.PositiveX || face == ResizeFace.PositiveY || face == ResizeFace.PositiveZ;
+    }
+
+    private static ResizeDirection GetDirection(int axis, bool positive)
+    {
+        switch (axis)
+        {
+            case 0: return positive ? ResizeDirection.PositiveX : ResizeDirection.NegativeX;
+            case 1: return positive ? ResizeDirection.PositiveY : ResizeDirection.NegativeY;
+            default: return positive ? ResizeDirection.PositiveZ : ResizeDirection.NegativeZ;
         }
     }
 
@@ -599,17 +671,9 @@ public class ResizableBlock : MonoBehaviour
     {
         switch (axis)
         {
-            case 0:
-                vector.x += amount;
-                break;
-
-            case 1:
-                vector.y += amount;
-                break;
-
-            default:
-                vector.z += amount;
-                break;
+            case 0: vector.x += amount; break;
+            case 1: vector.y += amount; break;
+            default: vector.z += amount; break;
         }
     }
 
@@ -626,19 +690,5 @@ public class ResizableBlock : MonoBehaviour
     private static Vector3 Abs(Vector3 vector)
     {
         return new Vector3(Mathf.Abs(vector.x), Mathf.Abs(vector.y), Mathf.Abs(vector.z));
-    }
-
-    private readonly struct PlaneAxes
-    {
-        public int HorizontalAxis { get; }
-        public int VerticalAxis { get; }
-        public int FixedAxis { get; }
-
-        public PlaneAxes(int horizontalAxis, int verticalAxis, int fixedAxis)
-        {
-            HorizontalAxis = horizontalAxis;
-            VerticalAxis = verticalAxis;
-            FixedAxis = fixedAxis;
-        }
     }
 }
