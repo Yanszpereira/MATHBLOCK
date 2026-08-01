@@ -146,6 +146,7 @@ GameObject:
   - component: {fileID: 9052448177645741932}
   - component: {fileID: 8851233623974187797}
   - component: {fileID: 4012670796347429066}
+  - component: {fileID: 6187131241017548303}
   m_Layer: 0
   m_Name: Player 1
   m_TagString: Untagged
@@ -331,7 +332,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
   m_Actions: {fileID: -944628639613478452, guid: 289c1b55c9541489481df5cc06664110, type: 3}
   m_NotificationBehavior: 2
@@ -439,6 +440,33 @@ MonoBehaviour:
   m_DefaultActionMap: 
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &6187131241017548303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2498392517500646027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08c407b47c8a67f4085e0201289e93a1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BlockResizeController
+  playerCamera: {fileID: 318798714629143770}
+  playerInput: {fileID: 4012670796347429066}
+  playerLook: {fileID: 6165121843102162986}
+  playerMovement: {fileID: 9052448177645741932}
+  gravityInteract: {fileID: 7984520937954020408}
+  interactionDistance: 4
+  targetingMask:
+    serializedVersion: 2
+    m_Bits: 4294967039
+  resizeGizmoPrefab: {fileID: 2260200028215030336, guid: 540399880ddd6124695321772deb1a0a, type: 3}
+  resizeHandleMask:
+    serializedVersion: 2
+    m_Bits: 256
+  dragDeadZone: 0.5
+  restoreCapturedVelocity: 0
 --- !u!1 &3515600641973011663
 GameObject:
   m_ObjectHideFlags: 0

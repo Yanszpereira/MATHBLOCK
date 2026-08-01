@@ -104,6 +104,9 @@ public class ResizableBlock : MonoBehaviour
     public Vector3 HorizontalAxisWorld => GetWorldAxis(GetPlaneAxes().HorizontalAxis);
     public Vector3 VerticalAxisWorld => GetWorldAxis(GetPlaneAxes().VerticalAxis);
     public Vector3 FaceNormalWorld => GetWorldAxis(GetPlaneAxes().FixedAxis);
+    public float HorizontalUnitWorldSize => GetWorldUnitSize(GetPlaneAxes().HorizontalAxis);
+    public float VerticalUnitWorldSize => GetWorldUnitSize(GetPlaneAxes().VerticalAxis);
+    public float FixedUnitWorldSize => GetWorldUnitSize(GetPlaneAxes().FixedAxis);
 
     private void Reset()
     {
@@ -142,6 +145,11 @@ public class ResizableBlock : MonoBehaviour
     {
         positiveNormal = FaceNormalWorld;
         negativeNormal = -positiveNormal;
+    }
+
+    public bool CanResize()
+    {
+        return IsDimensionProposalValid(width, height, depth, out _);
     }
 
     public bool IsDimensionProposalValid(
@@ -196,6 +204,16 @@ public class ResizableBlock : MonoBehaviour
         out BlockResizeProposal proposal,
         out ResizeValidationFailure failure)
     {
+        return TryCreateResizeProposal(CaptureState(), direction, deltaUnits, out proposal, out failure);
+    }
+
+    public bool TryCreateResizeProposal(
+        ResizableBlockState baseState,
+        ResizeDirection direction,
+        int deltaUnits,
+        out BlockResizeProposal proposal,
+        out ResizeValidationFailure failure)
+    {
         ResolveReferences();
         proposal = default;
 
@@ -206,7 +224,7 @@ public class ResizableBlock : MonoBehaviour
         }
 
         PlaneAxes axes = GetPlaneAxes();
-        Vector3Int proposedDimensions = Dimensions;
+        Vector3Int proposedDimensions = baseState.Dimensions;
         Vector3 centerOffset = Vector3.zero;
 
         switch (direction)
@@ -250,16 +268,16 @@ public class ResizableBlock : MonoBehaviour
             return false;
         }
 
-        Vector3 rootPosition = transform.position + centerOffset;
+        Vector3 rootPosition = baseState.Position + centerOffset;
         Vector3 localSize = CalculateLocalSize(proposedDimensions);
-        Vector3 colliderCenterOffset = transform.TransformVector(blockCollider.center);
+        Vector3 colliderCenterOffset = baseState.Rotation * Vector3.Scale(blockCollider.center, Abs(transform.lossyScale));
         Vector3 worldCenter = rootPosition + colliderCenterOffset;
 
         proposal = new BlockResizeProposal(
             proposedDimensions,
             rootPosition,
             worldCenter,
-            transform.rotation,
+            baseState.Rotation,
             localSize,
             localSize
         );
@@ -295,6 +313,23 @@ public class ResizableBlock : MonoBehaviour
         out ResizeValidationFailure failure)
     {
         if (!TryCreateResizeProposal(direction, deltaUnits, out BlockResizeProposal proposal, out failure))
+            return false;
+
+        if (!IsProposalValid(proposal, out failure))
+            return false;
+
+        ApplyProposal(proposal);
+        failure = ResizeValidationFailure.None;
+        return true;
+    }
+
+    public bool TryApplyResizeFromState(
+        ResizableBlockState baseState,
+        ResizeDirection direction,
+        int deltaUnits,
+        out ResizeValidationFailure failure)
+    {
+        if (!TryCreateResizeProposal(baseState, direction, deltaUnits, out BlockResizeProposal proposal, out failure))
             return false;
 
         if (!IsProposalValid(proposal, out failure))
@@ -366,7 +401,7 @@ public class ResizableBlock : MonoBehaviour
         for (int i = 0; i < overlaps.Length; i++)
         {
             Collider overlap = overlaps[i];
-            if (overlap == null || IsOwnCollider(overlap))
+            if (overlap == null || IsOwnCollider(overlap) || overlap.gameObject.layer == LayerMask.NameToLayer("ResizeHandle"))
                 continue;
 
             failure = ResizeValidationFailure.SpaceBlocked;
@@ -465,6 +500,12 @@ public class ResizableBlock : MonoBehaviour
     {
         Vector3 worldAxis = transform.TransformDirection(GetLocalAxis(axis));
         return worldAxis.sqrMagnitude > 0f ? worldAxis.normalized : Vector3.zero;
+    }
+
+    private float GetWorldUnitSize(int axis)
+    {
+        Vector3 worldUnit = transform.TransformVector(GetLocalAxis(axis) * GetAxis(unitSize, axis));
+        return worldUnit.magnitude;
     }
 
     private bool IsGrowth(Vector3Int proposedDimensions)

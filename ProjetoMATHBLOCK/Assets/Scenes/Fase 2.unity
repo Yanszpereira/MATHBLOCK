@@ -618,7 +618,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4902709724738648759, guid: 815a62e72f780f547aac631718636ab3, type: 3}
       propertyPath: currentValue
-      value: 4
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6836993851161907893, guid: 815a62e72f780f547aac631718636ab3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -663,6 +663,10 @@ PrefabInstance:
     - target: {fileID: 8741138211544578396, guid: 815a62e72f780f547aac631718636ab3, type: 3}
       propertyPath: m_Name
       value: ResizableBlock_Value_4
+      objectReference: {fileID: 0}
+    - target: {fileID: 9117700650143390635, guid: 815a62e72f780f547aac631718636ab3, type: 3}
+      propertyPath: obstacleMask.m_Bits
+      value: 55
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

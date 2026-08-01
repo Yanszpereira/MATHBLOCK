@@ -219,5 +219,5 @@ MonoBehaviour:
   unitSize: {x: 1, y: 1, z: 1}
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 4294967039
   collisionSkin: 0.01

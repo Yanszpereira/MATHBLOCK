@@ -65,6 +65,7 @@ public class GravityInteract : MonoBehaviour
 
     public PencilOperator EquippedOperator => equippedOperator;
     public Transform OperatorAbsorbTarget => GetOrCreateOperatorAbsorbTarget();
+    public bool IsHoldingBlock => grabbed && grabbedObject != null;
 
     private void Awake()
     {

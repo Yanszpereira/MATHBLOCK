@@ -6,4 +6,5 @@
   <Project Path="FMODUnityHaptics.csproj" />
   <Project Path="MathBlock.Resize.EditModeTests.csproj" />
   <Project Path="FMODUnityResonance.csproj" />
+  <Project Path="MathBlock.Resize.PlayModeTests.csproj" />
 </Solution>
