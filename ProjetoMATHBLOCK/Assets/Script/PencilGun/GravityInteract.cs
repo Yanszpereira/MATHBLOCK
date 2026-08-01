@@ -66,6 +66,7 @@ public class GravityInteract : MonoBehaviour
     public PencilOperator EquippedOperator => equippedOperator;
     public Transform OperatorAbsorbTarget => GetOrCreateOperatorAbsorbTarget();
     public bool IsHoldingBlock => grabbed && grabbedObject != null;
+    public Transform HeldBlock => IsHoldingBlock ? grabbedObject : null;
     public float GrabDistance => Mathf.Max(0f, grabDistance);
 
     private void Awake()
@@ -702,9 +703,16 @@ public class GravityInteract : MonoBehaviour
     {
         RestoreCarriedBlockCollisions();
 
-        grabbedRb = hit.transform.GetComponent<Rigidbody>();
-        grabbedObject = hit.transform;
-        MathBlockValue mathBlockValue = hit.transform.GetComponent<MathBlockValue>();
+        ResizableBlockAirAnchor airAnchor = hit.collider != null
+            ? hit.collider.GetComponentInParent<ResizableBlockAirAnchor>()
+            : null;
+        if (airAnchor != null && airAnchor.IsAnchored)
+            airAnchor.ReleaseForGrab();
+
+        Transform targetTransform = airAnchor != null ? airAnchor.transform : hit.transform;
+        grabbedRb = targetTransform.GetComponent<Rigidbody>();
+        grabbedObject = targetTransform;
+        MathBlockValue mathBlockValue = targetTransform.GetComponent<MathBlockValue>();
         grabbedBlockValue = mathBlockValue;
 
         if (grabbedRb == null)
@@ -730,6 +738,32 @@ public class GravityInteract : MonoBehaviour
         lastCarriedPosition = grabbedObject.position;
         hasLastCarriedPosition = true;
         Debug.Log($"Bloco segurado: {grabbedObject.name}");
+    }
+
+    public bool TryAnchorHeldResizableBlock(Texture2D particleTexture, Color particleColor)
+    {
+        if (isOnCooldown || !IsHoldingBlock)
+            return false;
+
+        ResizableBlockAirAnchor airAnchor = grabbedObject.GetComponent<ResizableBlockAirAnchor>();
+        if (airAnchor == null || !airAnchor.AnchorFromHeldState(particleTexture, particleColor))
+            return false;
+
+        string anchoredBlockName = grabbedObject.name;
+        ClearCarriedOperationPreview();
+        RestoreCarriedBlockCollisions();
+        RestoreCarriedBlockOpacity();
+
+        grabbedRb = null;
+        grabbedObject = null;
+        grabbedBlockValue = null;
+        grabbed = false;
+        carriedVelocity = Vector3.zero;
+        hasLastCarriedPosition = false;
+        canRaycast = true;
+
+        Debug.Log($"Bloco escalavel fixado no ar: {anchoredBlockName}");
+        return true;
     }
 
     public void Soltar()

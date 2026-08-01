@@ -168,6 +168,46 @@ public class BlockResizeInteractionTests
     }
 
     [UnityTest]
+    public IEnumerator AnchoredBlock_FEntersResizeWithoutReleasingAnchorOrDuplicatingParticles()
+    {
+        Harness h = CreateHarness(9);
+        Texture2D starTexture = Track(new Texture2D(4, 4, TextureFormat.RGBA32, false));
+        Color[] pixels = new Color[16];
+        for (int i = 0; i < pixels.Length; i++)
+            pixels[i] = Color.white;
+        starTexture.SetPixels(pixels);
+        starTexture.Apply();
+        SetField(h.Controller, "resizeParticleTexture", starTexture);
+
+        Component airAnchor = h.Block.gameObject.AddComponent(RequireType("ResizableBlockAirAnchor"));
+        Assert.That((bool)Invoke(airAnchor, "AnchorFromHeldState", starTexture, Color.yellow), Is.True);
+        Component anchorEffect = (Component)GetProperty(airAnchor, "ActiveParticleEffect");
+        Assert.That(anchorEffect, Is.Not.Null);
+        createdObjects.Add(anchorEffect.gameObject);
+        yield return null;
+
+        h.PositionCameraForFace("PositiveZ");
+        Assert.That((bool)Invoke(h.Controller, "TryHandleResizeKey"), Is.True);
+        Assert.That(GetProperty(h.Controller, "State").ToString(), Is.EqualTo("ResizeMode"));
+        Assert.That(GetProperty(h.Controller, "SelectedBlock"), Is.EqualTo(h.Block));
+        Assert.That(GetProperty(airAnchor, "IsAnchored"), Is.True);
+        Assert.That(GetProperty(h.Controller, "ActiveParticleEffect"), Is.Null);
+        Assert.That(GetProperty(airAnchor, "ActiveParticleEffect"), Is.SameAs(anchorEffect));
+
+        Vector3 initialEmissionSize = (Vector3)GetProperty(anchorEffect, "EmissionSize");
+        Assert.That(h.Drag("Right", 1.1f), Is.True);
+        Vector3 resizedEmissionSize = (Vector3)GetProperty(anchorEffect, "EmissionSize");
+        Assert.That(resizedEmissionSize.x, Is.EqualTo(initialEmissionSize.x + 1f).Within(0.001f));
+
+        Invoke(h.Controller, "ConfirmResizeSession");
+        Assert.That(GetProperty(h.Controller, "State").ToString(), Is.EqualTo("Idle"));
+        Assert.That(GetProperty(airAnchor, "IsAnchored"), Is.True);
+        Assert.That(h.Rigidbody.isKinematic, Is.True);
+        Assert.That(h.Rigidbody.useGravity, Is.False);
+        Assert.That(GetProperty(airAnchor, "ActiveParticleEffect"), Is.SameAs(anchorEffect));
+    }
+
+    [UnityTest]
     public IEnumerator ChangingFaces_CannotExceedGlobalVolume()
     {
         Harness h = CreateHarness(4); yield return null;

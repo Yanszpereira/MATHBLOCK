@@ -181,7 +181,8 @@ public sealed class BlockResizeController : MonoBehaviour
         try
         {
             resizeGizmo.Show(block, playerCamera, face);
-            StartResizeParticles(block);
+            if (!IsAirAnchored(block))
+                StartResizeParticles(block);
             state = BlockResizeInteractionState.ResizeMode;
             return true;
         }
@@ -247,7 +248,7 @@ public sealed class BlockResizeController : MonoBehaviour
         if (applied)
         {
             resizeGizmo.UpdateLayout();
-            resizeParticleEffect?.RefreshBounds();
+            RefreshSelectedBlockParticles();
         }
         return applied;
     }
@@ -291,7 +292,21 @@ public sealed class BlockResizeController : MonoBehaviour
     private void OnEnterResizePerformed(InputAction.CallbackContext context)
     {
         if (context.performed)
-            TryBeginResizeAtCameraCenter();
+            TryHandleResizeKey();
+    }
+
+    public bool TryHandleResizeKey()
+    {
+        if (state != BlockResizeInteractionState.Idle)
+            return false;
+
+        if (gravityInteract != null
+            && gravityInteract.TryAnchorHeldResizableBlock(resizeParticleTexture, resizeParticleColor))
+        {
+            return true;
+        }
+
+        return TryBeginResizeAtCameraCenter();
     }
 
     private void OnExitResizePerformed(InputAction.CallbackContext context)
@@ -373,6 +388,16 @@ public sealed class BlockResizeController : MonoBehaviour
 
         resizeParticleEffect.StopAndFadeOut();
         resizeParticleEffect = null;
+    }
+
+    private void RefreshSelectedBlockParticles()
+    {
+        resizeParticleEffect?.RefreshBounds();
+        if (selectedBlock == null)
+            return;
+
+        ResizableBlockAirAnchor airAnchor = selectedBlock.GetComponent<ResizableBlockAirAnchor>();
+        airAnchor?.ActiveParticleEffect?.RefreshBounds();
     }
 
     private bool CaptureAndDisablePlayerControls()
@@ -499,7 +524,10 @@ public sealed class BlockResizeController : MonoBehaviour
     private void ExitResizeMode(bool restoreSessionState)
     {
         if (restoreSessionState && selectedBlock != null)
+        {
             selectedBlock.RestoreState(sessionStartState);
+            RefreshSelectedBlockParticles();
+        }
 
         if (resizeGizmo != null)
             resizeGizmo.Hide();
@@ -570,6 +598,15 @@ public sealed class BlockResizeController : MonoBehaviour
             targetingMask &= ~(1 << resizeLayer);
         interactionDistance = Mathf.Max(0.1f, interactionDistance);
         dragDeadZone = Mathf.Clamp01(dragDeadZone);
+    }
+
+    private static bool IsAirAnchored(ResizableBlock block)
+    {
+        if (block == null)
+            return false;
+
+        ResizableBlockAirAnchor airAnchor = block.GetComponent<ResizableBlockAirAnchor>();
+        return airAnchor != null && airAnchor.IsAnchored;
     }
 
     private readonly struct RigidbodySessionState
