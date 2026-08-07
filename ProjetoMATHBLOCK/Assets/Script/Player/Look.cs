@@ -1,9 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class Look : MonoBehaviour
 {
     public float mouseSensitivity = 30f;
+    public float touchLookSensitivity = 0.08f;
+    public bool enableTouchSplitLook = true;
     public Transform cameraTransform;
 
     [Header("Camera Walk Bob")]
@@ -54,8 +58,21 @@ public class Look : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        EnhancedTouchSupport.Enable();
+    }
+
+    private void OnDisable()
+    {
+        EnhancedTouchSupport.Disable();
+    }
+
     private void Update()
     {
+        if (enableTouchSplitLook)
+            HandleTouchLook();
+
         RotateMouse();
     }
 
@@ -66,7 +83,10 @@ public class Look : MonoBehaviour
 
     public void OnLookEvent(InputAction.CallbackContext context)
     {
-        mouseInput = context.ReadValue<Vector2>();
+        if (Touchscreen.current == null)
+        {
+            mouseInput = context.ReadValue<Vector2>();
+        }
     }
 
     private void RotateMouse()
@@ -167,5 +187,33 @@ public class Look : MonoBehaviour
             defaultPencilLocalRotation,
             bobReturnSpeed * Time.deltaTime
         );
+    }
+
+    private void HandleTouchLook()
+    {
+        if (TryGetTouchDelta(true, out Vector2 touchDelta))
+        {
+            mouseInput = touchDelta * touchLookSensitivity;
+        }
+    }
+
+    private bool TryGetTouchDelta(bool rightHalf, out Vector2 delta)
+    {
+        delta = Vector2.zero;
+
+        foreach (var touch in Touch.activeTouches)
+        {
+            if (touch.phase != TouchPhase.Moved)
+                continue;
+
+            bool isRightSide = touch.screenPosition.x > Screen.width * 0.5f;
+            if (isRightSide != rightHalf)
+                continue;
+
+            delta = touch.delta;
+            return true;
+        }
+
+        return false;
     }
 }

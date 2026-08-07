@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
 using FMODUnity;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -8,6 +10,10 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 12f;
     public float gravity = -9.81f;
     public float jumpHeight = 1.6f;
+    public float touchMoveSensitivity = 0.015f;
+    public bool enableTouchSplitMove = true;
+
+    [Header("Ground Check")]
 
     [Header("Ground Check")]
     [SerializeField] private LayerMask groundLayers = ~0;
@@ -49,6 +55,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake()
     {
+        EnhancedTouchSupport.Enable();
+
         PlayerInput playerInput = GetComponent<PlayerInput>();
 
         if (playerInput != null)
@@ -57,8 +65,16 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        EnhancedTouchSupport.Disable();
+    }
+
     void Update()
     {
+        if (enableTouchSplitMove)
+            HandleTouchMovement();
+
         bool isGrounded = IsGrounded();
 
         Vector3 move = transform.right * horizontalInput + transform.forward * verticalInput;
@@ -232,6 +248,35 @@ public class PlayerMovement : MonoBehaviour
         Vector2 input = context.ReadValue<Vector2>();
         horizontalInput = input.x;
         verticalInput = input.y;
+    }
+
+    private void HandleTouchMovement()
+    {
+        if (TryGetTouchOffset(false, out Vector2 touchDelta))
+        {
+            horizontalInput = touchDelta.x * touchMoveSensitivity;
+            verticalInput = touchDelta.y * touchMoveSensitivity;
+        }
+    }
+
+    private bool TryGetTouchOffset(bool leftHalf, out Vector2 offset)
+    {
+        offset = Vector2.zero;
+
+        foreach (var touch in Touch.activeTouches)
+        {
+            if (touch.phase != TouchPhase.Moved)
+                continue;
+
+            bool isLeftSide = touch.screenPosition.x <= Screen.width * 0.5f;
+            if (isLeftSide != leftHalf)
+                continue;
+
+            offset = touch.delta;
+            return true;
+        }
+
+        return false;
     }
 
     public bool TryConsumeBlockDuplication()
