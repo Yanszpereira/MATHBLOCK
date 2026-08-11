@@ -53,6 +53,7 @@ public class MathBlockValue : MonoBehaviour
     public int CurrentValue => currentValue;
     public int BlockId => blockId;
     public Stack<DesfazerManager.Acao> OperationStack => operationStack;
+    public bool HasOperationsToUndo => operationStack != null && operationStack.Count > 0;
 
     public struct RendererColorSnapshot
     {

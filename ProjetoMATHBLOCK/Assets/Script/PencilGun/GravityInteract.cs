@@ -268,7 +268,7 @@ public class GravityInteract : MonoBehaviour
         if (isOnCooldown || grabbed)
             return;
 
-        if (!TryGetMathBlockHit(out RaycastHit hit))
+        if (!TryGetUndoMathBlockHit(out RaycastHit hit))
             return;
 
         MathBlockValue targetBlock = hit.collider.GetComponent<MathBlockValue>();
@@ -278,10 +278,65 @@ public class GravityInteract : MonoBehaviour
             return;
         }
 
-        if (!targetBlock.TryUndoLastOperation(duplicateSpawnHeight))
+        bool hadOperationsToUndo = targetBlock.HasOperationsToUndo;
+        if (!targetBlock.TryUndoLastOperation(duplicateSpawnHeight) && !hadOperationsToUndo)
         {
             Debug.Log($"Bloco {targetBlock.name} nao possui operacoes para desfazer.");
         }
+    }
+
+    private bool TryGetUndoMathBlockHit(out RaycastHit hit)
+    {
+        hit = default;
+        if (interactionCamera == null)
+            return false;
+
+        RaycastHit[] hits = Physics.RaycastAll(interactionCamera.position, interactionCamera.forward, grabDistance);
+        RaycastHit nearestMathBlockHit = default;
+        RaycastHit nearestUndoableHit = default;
+        float nearestMathBlockDistance = float.MaxValue;
+        float nearestUndoableDistance = float.MaxValue;
+        bool hasMathBlockHit = false;
+        bool hasUndoableHit = false;
+
+        for (int hitIndex = 0; hitIndex < hits.Length; hitIndex++)
+        {
+            RaycastHit candidateHit = hits[hitIndex];
+            Collider candidateCollider = candidateHit.collider;
+            if (candidateCollider == null || !candidateCollider.CompareTag("MathBlock"))
+                continue;
+
+            if (IsColliderFromGrabbedObject(candidateCollider))
+                continue;
+
+            if (candidateHit.distance < nearestMathBlockDistance)
+            {
+                nearestMathBlockDistance = candidateHit.distance;
+                nearestMathBlockHit = candidateHit;
+                hasMathBlockHit = true;
+            }
+
+            MathBlockValue candidateBlock = candidateCollider.GetComponent<MathBlockValue>();
+            if (candidateBlock == null
+                || !candidateBlock.HasOperationsToUndo
+                || candidateHit.distance >= nearestUndoableDistance)
+            {
+                continue;
+            }
+
+            nearestUndoableDistance = candidateHit.distance;
+            nearestUndoableHit = candidateHit;
+            hasUndoableHit = true;
+        }
+
+        if (hasUndoableHit)
+        {
+            hit = nearestUndoableHit;
+            return true;
+        }
+
+        hit = nearestMathBlockHit;
+        return hasMathBlockHit;
     }
 
     private bool TryGetMathBlockHit(out RaycastHit hit)

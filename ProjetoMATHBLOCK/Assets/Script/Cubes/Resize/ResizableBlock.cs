@@ -319,7 +319,179 @@ public class ResizableBlock : MonoBehaviour
 
         ApplyProposal(CreateDirectProposal(stateDimensions, state.Position, state.Rotation));
     }
+    public bool TryCalculateFittedDimensions(
+        int maximumVolume,
+        out Vector3Int fittedDimensions,
+        out ResizeValidationFailure failure)
+    {
+        ResolveReferences();
+        fittedDimensions = Dimensions;
 
+        if (!HasRequiredReferences())
+        {
+            failure = ResizeValidationFailure.MissingReference;
+            return false;
+        }
+
+        if (maximumVolume <= 0)
+        {
+            failure = ResizeValidationFailure.InvalidValue;
+            return false;
+        }
+
+        if (CurrentVolume <= maximumVolume)
+        {
+            failure = ResizeValidationFailure.None;
+            return true;
+        }
+
+        if (!TryFindBestFittedDimensions(maximumVolume, out fittedDimensions))
+        {
+            failure = ResizeValidationFailure.VolumeLimitExceeded;
+            return false;
+        }
+
+        failure = ResizeValidationFailure.None;
+        return true;
+    }
+
+    public bool TryFitToValue(int maximumVolume, out ResizeValidationFailure failure)
+    {
+        if (!TryCalculateFittedDimensions(maximumVolume, out Vector3Int fittedDimensions, out failure))
+            return false;
+
+        if (fittedDimensions == Dimensions)
+        {
+            failure = ResizeValidationFailure.None;
+            return true;
+        }
+
+        BlockResizeProposal proposal = CreateDirectProposal(
+            fittedDimensions,
+            transform.position,
+            transform.rotation
+        );
+
+        if (blockRigidbody != null && !blockRigidbody.isKinematic)
+            proposal = PreserveWorldBottom(proposal, WorldBounds.min.y);
+
+        ApplyProposal(proposal);
+
+        ResizableBlockAirAnchor airAnchor = GetComponent<ResizableBlockAirAnchor>();
+        airAnchor?.ActiveParticleEffect?.RefreshBounds();
+
+        failure = ResizeValidationFailure.None;
+        return true;
+    }
+
+    private bool TryFindBestFittedDimensions(int maximumVolume, out Vector3Int fittedDimensions)
+    {
+        fittedDimensions = default;
+        if (maximumVolume <= 0 || CurrentVolume <= 0)
+            return false;
+
+        float uniformScale = Mathf.Pow(
+            Mathf.Clamp01(maximumVolume / (float)CurrentVolume),
+            1f / 3f
+        );
+
+        float bestScore = float.PositiveInfinity;
+        long bestVolume = -1;
+        int bestBalance = int.MaxValue;
+        bool found = false;
+        const float ScoreEpsilon = 0.000001f;
+
+        for (int candidateWidth = MinimumDimension; candidateWidth <= width; candidateWidth++)
+        {
+            for (int candidateHeight = MinimumDimension; candidateHeight <= height; candidateHeight++)
+            {
+                for (int candidateDepth = MinimumDimension; candidateDepth <= depth; candidateDepth++)
+                {
+                    long candidateVolume = (long)candidateWidth * candidateHeight * candidateDepth;
+                    if (candidateVolume > maximumVolume)
+                        continue;
+
+                    float widthRatio = candidateWidth / (float)width;
+                    float heightRatio = candidateHeight / (float)height;
+                    float depthRatio = candidateDepth / (float)depth;
+                    float proportionalScore =
+                        Mathf.Pow(widthRatio - uniformScale, 2f)
+                        + Mathf.Pow(heightRatio - uniformScale, 2f)
+                        + Mathf.Pow(depthRatio - uniformScale, 2f);
+
+                    int largestDimension = Mathf.Max(candidateWidth, Mathf.Max(candidateHeight, candidateDepth));
+                    int smallestDimension = Mathf.Min(candidateWidth, Mathf.Min(candidateHeight, candidateDepth));
+                    int balance = largestDimension - smallestDimension;
+
+                    bool betterScore = proportionalScore < bestScore - ScoreEpsilon;
+                    bool equalScore = Mathf.Abs(proportionalScore - bestScore) <= ScoreEpsilon;
+                    bool betterTieBreak =
+                        candidateVolume > bestVolume
+                        || (candidateVolume == bestVolume && balance < bestBalance)
+                        || (candidateVolume == bestVolume
+                            && balance == bestBalance
+                            && IsLexicographicallyLarger(
+                                candidateWidth,
+                                candidateHeight,
+                                candidateDepth,
+                                fittedDimensions
+                            ));
+
+                    if (!found || betterScore || (equalScore && betterTieBreak))
+                    {
+                        fittedDimensions = new Vector3Int(candidateWidth, candidateHeight, candidateDepth);
+                        bestScore = proportionalScore;
+                        bestVolume = candidateVolume;
+                        bestBalance = balance;
+                        found = true;
+                    }
+                }
+            }
+        }
+
+        return found;
+    }
+
+    private static bool IsLexicographicallyLarger(
+        int candidateWidth,
+        int candidateHeight,
+        int candidateDepth,
+        Vector3Int currentBest)
+    {
+        if (candidateWidth != currentBest.x)
+            return candidateWidth > currentBest.x;
+        if (candidateHeight != currentBest.y)
+            return candidateHeight > currentBest.y;
+        return candidateDepth > currentBest.z;
+    }
+
+    private BlockResizeProposal PreserveWorldBottom(BlockResizeProposal proposal, float originalWorldBottom)
+    {
+        Vector3 worldHalfSize = Vector3.Scale(
+            proposal.ColliderSize,
+            Abs(transform.lossyScale)
+        ) * 0.5f;
+
+        Vector3 worldRight = proposal.Rotation * Vector3.right;
+        Vector3 worldUp = proposal.Rotation * Vector3.up;
+        Vector3 worldForward = proposal.Rotation * Vector3.forward;
+        float verticalHalfExtent =
+            Mathf.Abs(Vector3.Dot(worldRight, Vector3.up)) * worldHalfSize.x
+            + Mathf.Abs(Vector3.Dot(worldUp, Vector3.up)) * worldHalfSize.y
+            + Mathf.Abs(Vector3.Dot(worldForward, Vector3.up)) * worldHalfSize.z;
+
+        float proposedWorldBottom = proposal.WorldCenter.y - verticalHalfExtent;
+        Vector3 correction = Vector3.up * (originalWorldBottom - proposedWorldBottom);
+
+        return new BlockResizeProposal(
+            proposal.Dimensions,
+            proposal.RootPosition + correction,
+            proposal.WorldCenter + correction,
+            proposal.Rotation,
+            proposal.ColliderSize,
+            proposal.VisualScale
+        );
+    }
     public Vector3 GetFaceNormalWorld(ResizeFace face)
     {
         int axis = GetFaceNormalAxis(face);
