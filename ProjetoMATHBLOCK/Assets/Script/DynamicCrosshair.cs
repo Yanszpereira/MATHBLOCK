@@ -18,6 +18,7 @@ public class DynamicCrosshair : MonoBehaviour
 
     private GameObject crosshairCanvasObject;
     private CircleCrosshairGraphic circleGraphic;
+    private Material invertOverlayMaterial;
     private float interactionProgress;
 
     private void Awake()
@@ -102,7 +103,20 @@ public class DynamicCrosshair : MonoBehaviour
 
         circleGraphic = circleObject.GetComponent<CircleCrosshairGraphic>();
         circleGraphic.raycastTarget = false;
-        circleGraphic.color = crosshairColor;
+
+        Shader invertShader = Shader.Find("UI/MathBlock Invert Overlay");
+        if (invertShader != null && invertShader.isSupported)
+        {
+            invertOverlayMaterial = new Material(invertShader)
+            {
+                name = "Crosshair Invert Overlay (Runtime)",
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            circleGraphic.material = invertOverlayMaterial;
+        }
+
+        // O alpha controla a cobertura; o RGB é calculado pelo blend invertido.
+        circleGraphic.color = new Color(1f, 1f, 1f, crosshairColor.a);
     }
 
     private void OnEnable()
@@ -121,5 +135,8 @@ public class DynamicCrosshair : MonoBehaviour
     {
         if (crosshairCanvasObject != null)
             Destroy(crosshairCanvasObject);
+
+        if (invertOverlayMaterial != null)
+            Destroy(invertOverlayMaterial);
     }
 }
