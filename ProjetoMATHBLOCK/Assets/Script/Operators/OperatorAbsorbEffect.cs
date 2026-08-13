@@ -4,6 +4,7 @@ using UnityEngine.Rendering;
 [RequireComponent(typeof(ParticleSystem))]
 public class OperatorAbsorbEffect : MonoBehaviour
 {
+    private static Texture2D glowTexture;
     [SerializeField] private ParticleSystem particles;
     [SerializeField] private Transform target;
     [SerializeField] private float startingAttractionStrength = 3.5f;
@@ -136,9 +137,9 @@ public class OperatorAbsorbEffect : MonoBehaviour
         main.duration = emissionDuration;
         main.loop = false;
         main.prewarm = false;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(0.75f, 1.05f);
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.65f, 0.95f);
         main.startSpeed = new ParticleSystem.MinMaxCurve(0f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.045f, 0.12f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.07f, 0.13f);
         main.startRotation = new ParticleSystem.MinMaxCurve(0f, 360f * Mathf.Deg2Rad);
         main.startColor = baseColor;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
@@ -152,13 +153,13 @@ public class OperatorAbsorbEffect : MonoBehaviour
         emission.rateOverTime = new ParticleSystem.MinMaxCurve(0f);
         emission.SetBursts(new[]
         {
-            new ParticleSystem.Burst(0f, 12, 16, 6, emissionDuration / 6f)
+            new ParticleSystem.Burst(0f, 7, 10, 5, emissionDuration / 5f)
         });
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled = true;
         shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius = 0.35f;
+        shape.radius = 0.28f;
         shape.radiusThickness = 1f;
         shape.position = Vector3.zero;
         shape.rotation = Vector3.zero;
@@ -171,10 +172,15 @@ public class OperatorAbsorbEffect : MonoBehaviour
 
         ParticleSystem.NoiseModule noise = particles.noise;
         noise.enabled = true;
-        noise.strength = new ParticleSystem.MinMaxCurve(0.18f);
-        noise.frequency = 1.8f;
-        noise.scrollSpeed = new ParticleSystem.MinMaxCurve(0.4f);
+        noise.strength = new ParticleSystem.MinMaxCurve(0.1f);
+        noise.frequency = 1.25f;
+        noise.scrollSpeed = new ParticleSystem.MinMaxCurve(0.3f);
         noise.damping = true;
+
+        ParticleSystem.LimitVelocityOverLifetimeModule limitVelocity = particles.limitVelocityOverLifetime;
+        limitVelocity.enabled = true;
+        limitVelocity.limit = new ParticleSystem.MinMaxCurve(2.8f);
+        limitVelocity.dampen = 0.22f;
 
         ConfigureColorOverLifetime(baseColor);
         ConfigureSizeOverLifetime();
@@ -189,13 +195,16 @@ public class OperatorAbsorbEffect : MonoBehaviour
         gradient.SetKeys(
             new[]
             {
-                new GradientColorKey(baseColor, 0f),
+                new GradientColorKey(Color.white, 0f),
+                new GradientColorKey(Color.Lerp(baseColor, Color.white, 0.58f), 0.18f),
+                new GradientColorKey(Color.Lerp(baseColor, Color.white, 0.25f), 0.72f),
                 new GradientColorKey(baseColor, 1f)
             },
             new[]
             {
-                new GradientAlphaKey(1f, 0f),
-                new GradientAlphaKey(0.85f, 0.75f),
+                new GradientAlphaKey(0f, 0f),
+                new GradientAlphaKey(1f, 0.08f),
+                new GradientAlphaKey(0.72f, 0.72f),
                 new GradientAlphaKey(0f, 1f)
             }
         );
@@ -208,8 +217,11 @@ public class OperatorAbsorbEffect : MonoBehaviour
     private void ConfigureSizeOverLifetime()
     {
         AnimationCurve sizeCurve = new AnimationCurve(
-            new Keyframe(0f, 1f),
-            new Keyframe(0.35f, 1f),
+            new Keyframe(0f, 0.2f),
+            new Keyframe(0.14f, 1f),
+            new Keyframe(0.42f, 0.78f),
+            new Keyframe(0.62f, 0.94f),
+            new Keyframe(0.78f, 0.68f),
             new Keyframe(1f, 0f)
         );
 
@@ -222,12 +234,12 @@ public class OperatorAbsorbEffect : MonoBehaviour
     {
         ParticleSystem.TrailModule trails = particles.trails;
         trails.enabled = true;
-        trails.ratio = 0.65f;
-        trails.lifetime = new ParticleSystem.MinMaxCurve(0.32f);
-        trails.minVertexDistance = 0.05f;
+        trails.ratio = 0.35f;
+        trails.lifetime = new ParticleSystem.MinMaxCurve(0.2f);
+        trails.minVertexDistance = 0.025f;
         trails.widthOverTrail = new ParticleSystem.MinMaxCurve(
             1f,
-            new AnimationCurve(new Keyframe(0f, 0.05f), new Keyframe(1f, 0f))
+            new AnimationCurve(new Keyframe(0f, 0.025f), new Keyframe(1f, 0f))
         );
 
         Gradient trailGradient = new Gradient();
@@ -239,7 +251,7 @@ public class OperatorAbsorbEffect : MonoBehaviour
             },
             new[]
             {
-                new GradientAlphaKey(0.55f, 0f),
+                new GradientAlphaKey(0.38f, 0f),
                 new GradientAlphaKey(0f, 1f)
             }
         );
@@ -257,20 +269,15 @@ public class OperatorAbsorbEffect : MonoBehaviour
         particleRenderer.shadowCastingMode = ShadowCastingMode.Off;
         particleRenderer.receiveShadows = false;
 
-        if (particleSprite != null || particleRenderer.sharedMaterial == null)
+        Material material = CreateTransparentParticleMaterial("OperatorAbsorbParticleMaterial", baseColor);
+        if (material != null)
         {
-            Material material = CreateTransparentParticleMaterial("OperatorAbsorbParticleMaterial", particleSprite, baseColor);
-            if (material != null)
-            {
-                particleRenderer.sharedMaterial = material;
-                particleRenderer.trailMaterial = material;
-            }
+            particleRenderer.sharedMaterial = material;
+            particleRenderer.trailMaterial = material;
         }
 
         if (particleRenderer.sharedMaterial != null)
         {
-            ApplySpriteToMaterial(particleRenderer.sharedMaterial, particleSprite);
-
             if (particleRenderer.sharedMaterial.HasProperty("_BaseColor"))
             {
                 particleRenderer.sharedMaterial.SetColor("_BaseColor", baseColor);
@@ -286,23 +293,7 @@ public class OperatorAbsorbEffect : MonoBehaviour
     private void ConfigureSpriteSheet()
     {
         ParticleSystem.TextureSheetAnimationModule textureSheet = particles.textureSheetAnimation;
-        if (particleSprite == null)
-        {
-            textureSheet.enabled = false;
-            return;
-        }
-
-        textureSheet.enabled = true;
-        textureSheet.mode = ParticleSystemAnimationMode.Sprites;
-        textureSheet.timeMode = ParticleSystemAnimationTimeMode.Lifetime;
-        textureSheet.frameOverTime = new ParticleSystem.MinMaxCurve(0f);
-
-        while (textureSheet.spriteCount > 0)
-        {
-            textureSheet.RemoveSprite(0);
-        }
-
-        textureSheet.AddSprite(particleSprite);
+        textureSheet.enabled = false;
     }
 
     private static void ApplySpriteToMaterial(Material material, Sprite sprite)
@@ -321,7 +312,7 @@ public class OperatorAbsorbEffect : MonoBehaviour
         }
     }
 
-    private static Material CreateTransparentParticleMaterial(string materialName, Sprite sprite, Color color)
+    private static Material CreateTransparentParticleMaterial(string materialName, Color color)
     {
         Shader shader = Shader.Find("Sprites/Default");
         if (shader == null)
@@ -339,7 +330,7 @@ public class OperatorAbsorbEffect : MonoBehaviour
             renderQueue = (int)RenderQueue.Transparent
         };
 
-        ApplySpriteToMaterial(material, sprite);
+        ApplyTextureToMaterial(material, GetGlowTexture());
         ConfigureTransparentBlend(material);
 
         if (material.HasProperty("_BaseColor"))
@@ -376,7 +367,7 @@ public class OperatorAbsorbEffect : MonoBehaviour
 
         if (material.HasProperty("_DstBlend"))
         {
-            material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+            material.SetFloat("_DstBlend", (float)BlendMode.One);
         }
 
         if (material.HasProperty("_ZWrite"))
@@ -385,6 +376,47 @@ public class OperatorAbsorbEffect : MonoBehaviour
         }
 
         material.EnableKeyword("_ALPHABLEND_ON");
+    }
+
+    private static void ApplyTextureToMaterial(Material material, Texture texture)
+    {
+        if (material.HasProperty("_BaseMap"))
+            material.SetTexture("_BaseMap", texture);
+
+        if (material.HasProperty("_MainTex"))
+            material.SetTexture("_MainTex", texture);
+    }
+
+    private static Texture2D GetGlowTexture()
+    {
+        if (glowTexture != null)
+            return glowTexture;
+
+        const int size = 128;
+        glowTexture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+        {
+            name = "OperatorSoftGlow",
+            hideFlags = HideFlags.HideAndDontSave,
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp
+        };
+
+        Color[] pixels = new Color[size * size];
+        Vector2 center = Vector2.one * ((size - 1) * 0.5f);
+        float radius = size * 0.5f;
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float normalizedDistance = Vector2.Distance(new Vector2(x, y), center) / radius;
+                float alpha = Mathf.Pow(Mathf.Clamp01(1f - normalizedDistance), 2.2f);
+                pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
+            }
+        }
+
+        glowTexture.SetPixels(pixels);
+        glowTexture.Apply(false, true);
+        return glowTexture;
     }
 
     private Transform ResolveFallbackTarget()

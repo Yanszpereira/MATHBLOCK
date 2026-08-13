@@ -2,13 +2,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(LineRenderer))]
-public class DynamicCrosshair : MonoBehaviour
+public class CrosshairController : MonoBehaviour
 {
     [Header("Raycast")]
     public Camera playerCamera;
     public float rayDistance = 100f;
 
-    [Header("Dynamic Dot")]
+    [Header("Crosshair")]
     [SerializeField] private float dotRadius = 3.25f;
     [SerializeField] private float expandedRadius = 9f;
     [SerializeField] private float ringThickness = 1.4f;
@@ -22,24 +22,20 @@ public class DynamicCrosshair : MonoBehaviour
 
     private void Awake()
     {
-        LineRenderer legacyLineRenderer = GetComponent<LineRenderer>();
-        if (legacyLineRenderer != null)
-            legacyLineRenderer.enabled = false;
+        LineRenderer lr = GetComponent<LineRenderer>();
+        if (lr != null) lr.enabled = false;
     }
 
     private void Start()
     {
-        if (playerCamera == null)
-            playerCamera = Camera.main;
-
+        if (playerCamera == null) playerCamera = Camera.main;
         CreateCrosshair();
         UpdateCrosshairShape();
     }
 
     private void Update()
     {
-        if (playerCamera == null)
-            playerCamera = Camera.main;
+        if (playerCamera == null) playerCamera = Camera.main;
 
         bool isTargeting = playerCamera != null && IsLookingAtInteractable();
         float targetProgress = isTargeting ? 1f : 0f;
@@ -50,16 +46,14 @@ public class DynamicCrosshair : MonoBehaviour
 
     private void UpdateCrosshairShape()
     {
-        if (circleGraphic == null)
-            return;
+        if (circleGraphic == null) return;
 
-        float easedProgress = Mathf.SmoothStep(0f, 1f, interactionProgress);
-        float radius = Mathf.Lerp(dotRadius, expandedRadius, easedProgress);
+        float eased = Mathf.SmoothStep(0f, 1f, interactionProgress);
+        float radius = Mathf.Lerp(dotRadius, expandedRadius, eased);
 
-        // The dot expands first; its center then opens until only a thin ring remains.
         float openingProgress = Mathf.SmoothStep(0.18f, 1f, interactionProgress);
-        float finalHoleRadius = Mathf.Max(0f, expandedRadius - ringThickness);
-        float holeRadius = Mathf.Lerp(0f, finalHoleRadius, openingProgress);
+        float finalHole = Mathf.Max(0f, expandedRadius - ringThickness);
+        float holeRadius = Mathf.Lerp(0f, finalHole, openingProgress);
 
         circleGraphic.SetShape(radius, holeRadius, crosshairColor);
     }
@@ -90,7 +84,7 @@ public class DynamicCrosshair : MonoBehaviour
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         scaler.matchWidthOrHeight = 0.5f;
 
-        GameObject circleObject = new GameObject("DynamicCircle", typeof(RectTransform), typeof(CircleCrosshairGraphic));
+        GameObject circleObject = new GameObject("CrosshairCircle", typeof(RectTransform), typeof(CircleCrosshairGraphic));
         circleObject.transform.SetParent(crosshairCanvasObject.transform, false);
 
         RectTransform rect = circleObject.GetComponent<RectTransform>();
@@ -98,7 +92,6 @@ public class DynamicCrosshair : MonoBehaviour
         rect.anchoredPosition = Vector2.zero;
         rect.localPosition = Vector3.zero;
         rect.localScale = Vector3.one;
-        rect.sizeDelta = new Vector2(expandedRadius * 2f, expandedRadius * 2f);
 
         circleGraphic = circleObject.GetComponent<CircleCrosshairGraphic>();
         circleGraphic.raycastTarget = false;
@@ -107,19 +100,16 @@ public class DynamicCrosshair : MonoBehaviour
 
     private void OnEnable()
     {
-        if (crosshairCanvasObject != null)
-            crosshairCanvasObject.SetActive(true);
+        if (crosshairCanvasObject != null) crosshairCanvasObject.SetActive(true);
     }
 
     private void OnDisable()
     {
-        if (crosshairCanvasObject != null)
-            crosshairCanvasObject.SetActive(false);
+        if (crosshairCanvasObject != null) crosshairCanvasObject.SetActive(false);
     }
 
     private void OnDestroy()
     {
-        if (crosshairCanvasObject != null)
-            Destroy(crosshairCanvasObject);
+        if (crosshairCanvasObject != null) Destroy(crosshairCanvasObject);
     }
 }
