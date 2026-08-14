@@ -37,7 +37,7 @@ public class Look : MonoBehaviour
 
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.None;
+        LockCursor();
         controller = GetComponent<CharacterController>();
         playerMovement = GetComponent<PlayerMovement>();
 
@@ -57,6 +57,21 @@ public class Look : MonoBehaviour
             defaultPencilLocalPosition = pencilTransform.localPosition;
             defaultPencilLocalRotation = pencilTransform.localRotation;
         }
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus)
+            LockCursor();
+    }
+
+    private static void LockCursor()
+    {
+        if (Application.isMobilePlatform)
+            return;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     private void OnEnable()
