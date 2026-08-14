@@ -88,4 +88,20 @@ public class MenuController : MonoBehaviour
         Application.Quit();
 #endif
     }
+
+    public void VoltarJogo()
+    {
+        StartCoroutine(FecharStart());
+    }
+
+    private IEnumerator FecharStart()
+    {
+        if (startPaper != null)
+            startPaper.Play("ClosePaper");
+
+        yield return new WaitForSeconds(tempoAnimacao);
+
+        if (blocker != null)
+            blocker.SetActive(false);
+    }
 }

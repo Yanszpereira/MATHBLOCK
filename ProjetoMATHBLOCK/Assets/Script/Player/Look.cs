@@ -37,7 +37,7 @@ public class Look : MonoBehaviour
 
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.None;
         controller = GetComponent<CharacterController>();
         playerMovement = GetComponent<PlayerMovement>();
 
