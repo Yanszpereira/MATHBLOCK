@@ -28,6 +28,7 @@ public sealed class DistanceFogBlur : MonoBehaviour
     private Camera targetCamera;
     private GravityInteract gravityInteract;
     private ParticleSystemRenderer[] particleRenderers;
+    private Renderer[] taggedCloudRenderers;
     private float nextParticleRefreshTime;
     private readonly HashSet<Renderer> exclusionRenderers = new HashSet<Renderer>();
 
@@ -142,6 +143,23 @@ public sealed class DistanceFogBlur : MonoBehaviour
                     exclusionRenderers.Add(particleRenderer);
         }
 
+        if (taggedCloudRenderers != null)
+        {
+            foreach (Renderer cloudRenderer in taggedCloudRenderers)
+                if (cloudRenderer != null && cloudRenderer.enabled && cloudRenderer.gameObject.activeInHierarchy)
+                    exclusionRenderers.Add(cloudRenderer);
+        }
+
+        foreach (DistanceFogBlurExclude exclusion in DistanceFogBlurExclude.ActiveExclusions)
+        {
+            if (exclusion == null || !exclusion.isActiveAndEnabled)
+                continue;
+
+            foreach (Renderer targetRenderer in exclusion.Renderers)
+                if (targetRenderer != null && targetRenderer.enabled && targetRenderer.gameObject.activeInHierarchy)
+                    exclusionRenderers.Add(targetRenderer);
+        }
+
         if (gravityInteract == null)
             gravityInteract = FindFirstObjectByType<GravityInteract>();
 
@@ -176,6 +194,11 @@ public sealed class DistanceFogBlur : MonoBehaviour
     private void RefreshParticleRenderers()
     {
         particleRenderers = FindObjectsByType<ParticleSystemRenderer>(FindObjectsSortMode.None);
+        List<Renderer> cloudRenderers = new List<Renderer>();
+        GameObject[] taggedClouds = GameObject.FindGameObjectsWithTag("Cloud");
+        foreach (GameObject cloud in taggedClouds)
+            cloudRenderers.AddRange(cloud.GetComponentsInChildren<Renderer>(true));
+        taggedCloudRenderers = cloudRenderers.ToArray();
         nextParticleRefreshTime = Time.unscaledTime + 2f;
     }
 
