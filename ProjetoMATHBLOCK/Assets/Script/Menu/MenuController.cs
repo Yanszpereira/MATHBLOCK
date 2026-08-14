@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
@@ -8,6 +9,7 @@ public class MenuController : MonoBehaviour
     [SerializeField] private Animation startPaper;
 
     [Header("Menus")]
+    [SerializeField] private GameObject menuInicial;
     [SerializeField] private GameObject menuCreditos;
     [SerializeField] private GameObject menuOpcoes;
     [SerializeField] private GameObject menuSair;
@@ -16,10 +18,15 @@ public class MenuController : MonoBehaviour
     [SerializeField] private GameObject blocker;
 
     [Header("Configuração")]
-    [SerializeField] private float tempoAnimacao = 1f;
+    [SerializeField] private float tempoAnimacao = 0f;
 
     [Header("Cena do Jogo")]
     [SerializeField] private string nomeCenaJogo = "Game";
+
+    public void AbrirInicial()
+    {
+        StartCoroutine(AbrirMenu(menuInicial));
+    }
 
     public void AbrirCreditos()
     {
@@ -34,6 +41,11 @@ public class MenuController : MonoBehaviour
     public void AbrirSair()
     {
         StartCoroutine(AbrirMenu(menuSair));
+    }
+
+    public void FecharInicial()
+    {
+        StartCoroutine(FecharMenu(menuInicial));
     }
 
     public void FecharCreditos()

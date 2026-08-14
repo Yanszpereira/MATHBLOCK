@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using FMODUnity;
 
 public class OperatorsScript : MonoBehaviour
@@ -11,6 +12,15 @@ public class OperatorsScript : MonoBehaviour
     public GravityInteract pencilGun;
 
     [SerializeField] private Transform operatorAbsorbTarget;
+
+    [Header("HUD Icons")]
+    public Image additionIcon;
+    public Image subtractionIcon;
+    public Image multiplicationIcon;
+    public Image divisionIcon;
+
+    private const float equippedAlpha = 1f;
+    private const float unequippedAlpha = 0.7f;
 
     [Header("Sons FMOD dos operadores")]
     [SerializeField] private bool playOperatorSelectionSounds = true;
@@ -32,6 +42,7 @@ public class OperatorsScript : MonoBehaviour
     {
         ResolveReferences();
         ResolveInputAction();
+        SetAllIconsAlpha(unequippedAlpha);
     }
 
     private void OnEnable()
@@ -104,6 +115,7 @@ public class OperatorsScript : MonoBehaviour
         item.ConsumeFromScene(GetAbsorbTarget());
 
         equippedSceneOperator = item;
+        UpdateHudIcons(item.operatorType);
     }
 
     private void ResolveReferences()
@@ -318,6 +330,48 @@ public class OperatorsScript : MonoBehaviour
 
             default:
                 return default;
+        }
+    }
+
+    private void SetIconAlpha(Image img, float alpha)
+    {
+        if (img == null)
+            return;
+
+        Color c = img.color;
+        c.a = Mathf.Clamp01(alpha);
+        img.color = c;
+    }
+
+    private void SetAllIconsAlpha(float alpha)
+    {
+        SetIconAlpha(additionIcon, alpha);
+        SetIconAlpha(subtractionIcon, alpha);
+        SetIconAlpha(multiplicationIcon, alpha);
+        SetIconAlpha(divisionIcon, alpha);
+    }
+
+    private void UpdateHudIcons(GravityInteract.PencilOperator equipped)
+    {
+        SetAllIconsAlpha(unequippedAlpha);
+
+        switch (equipped)
+        {
+            case GravityInteract.PencilOperator.Addition:
+                SetIconAlpha(additionIcon, equippedAlpha);
+                break;
+
+            case GravityInteract.PencilOperator.Subtraction:
+                SetIconAlpha(subtractionIcon, equippedAlpha);
+                break;
+
+            case GravityInteract.PencilOperator.Multiplication:
+                SetIconAlpha(multiplicationIcon, equippedAlpha);
+                break;
+
+            case GravityInteract.PencilOperator.Division:
+                SetIconAlpha(divisionIcon, equippedAlpha);
+                break;
         }
     }
 
