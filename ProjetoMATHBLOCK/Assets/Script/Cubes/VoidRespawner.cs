@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [DisallowMultipleComponent]
 public class VoidRespawner : MonoBehaviour
@@ -20,6 +21,13 @@ public class VoidRespawner : MonoBehaviour
     [SerializeField] private Vector3 fallbackTriggerSize = new Vector3(120f, 8f, 120f);
 
     private readonly Dictionary<int, float> lastRespawnTimes = new Dictionary<int, float>();
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneLoadedHandler()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void InstallOnTaggedVoids()
@@ -42,6 +50,11 @@ public class VoidRespawner : MonoBehaviour
                 voidObject.AddComponent<VoidRespawner>();
             }
         }
+    }
+
+    private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        InstallOnTaggedVoids();
     }
 
     private void Awake()
