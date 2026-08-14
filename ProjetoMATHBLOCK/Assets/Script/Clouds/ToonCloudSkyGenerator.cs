@@ -167,14 +167,22 @@ public sealed class ToonCloudSkyGenerator : MonoBehaviour
 
         foreach (ParticleSystem particles in FindObjectsByType<ParticleSystem>(FindObjectsSortMode.None))
         {
-            string objectName = particles.gameObject.name.ToLowerInvariant();
-            string parentName = particles.transform.parent != null
-                ? particles.transform.parent.name.ToLowerInvariant()
-                : string.Empty;
-            if (objectName.Contains("cloud") || objectName.Contains("nuvem") ||
-                parentName.Contains("cloud") || parentName.Contains("nuvem"))
+            if (BelongsToLegacyCloud(particles.transform))
                 Destroy(particles.gameObject);
         }
+    }
+
+    private static bool BelongsToLegacyCloud(Transform target)
+    {
+        Transform current = target;
+        while (current != null)
+        {
+            string lowerName = current.name.ToLowerInvariant();
+            if (lowerName.Contains("cloud") || lowerName.Contains("nuvem") || current.GetComponent<CloudMover>() != null)
+                return true;
+            current = current.parent;
+        }
+        return false;
     }
 
     private void SetColor(string propertyName, Color value)

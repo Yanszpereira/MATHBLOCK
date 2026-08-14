@@ -194,6 +194,21 @@ public class GravityInteract : MonoBehaviour
         }
     }
 
+    public void InteractFromUI()
+    {
+        TryHandleGrabOrDrop();
+    }
+
+    public void DuplicateFromUI()
+    {
+        TryHandleDuplicateBlock();
+    }
+
+    public void UndoFromUI()
+    {
+        TryHandleUndoBlockOperation();
+    }
+
     private void TryHandleGrabOrDrop()
     {
         if (isOnCooldown)

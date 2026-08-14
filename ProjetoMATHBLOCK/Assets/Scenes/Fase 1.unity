@@ -22590,7 +22590,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4012670796347429066, guid: 5b144e6e2233c4b41a10234964cf49c4, type: 3}
       propertyPath: m_ActionEvents.Array.data[12].m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4012670796347429066, guid: 5b144e6e2233c4b41a10234964cf49c4, type: 3}
       propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -25394,6 +25394,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.8
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!222 &285500561647573820
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -25877,6 +25878,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.8
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!1 &632177027358682597
 GameObject:
   m_ObjectHideFlags: 0
@@ -26824,6 +26826,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.6
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!114 &1377183298106240316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27427,6 +27430,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.8
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!222 &2179817830924568422
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -28039,6 +28043,30 @@ MonoBehaviour:
   menuSair: {fileID: 1640122548642745105}
   blocker: {fileID: 1872916969761793560}
   tempoAnimacao: 0
+  curvaFade:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   nomeCenaJogo: Fase 1
 --- !u!224 &2833749381689645169
 RectTransform:
@@ -28521,6 +28549,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.8
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!224 &3497693061409666892
 RectTransform:
   m_ObjectHideFlags: 0
@@ -29191,6 +29220,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.8
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!224 &3985713647868950314
 RectTransform:
   m_ObjectHideFlags: 0
@@ -31111,6 +31141,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 3
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!114 &5931442729183992033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32086,6 +32117,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.8
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!222 &7317392042077997142
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -33364,6 +33396,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.8
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!222 &8841042277629340427
 CanvasRenderer:
   m_ObjectHideFlags: 0

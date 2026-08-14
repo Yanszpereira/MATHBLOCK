@@ -9,6 +9,15 @@ public class SensitivitySlider : MonoBehaviour
 
     private void Start()
     {
+        if (slider == null)
+            slider = GetComponentInChildren<Slider>(true);
+
+        if (slider == null)
+        {
+            Debug.LogWarning("SensitivitySlider nao encontrou um Slider para configurar.", this);
+            return;
+        }
+
         float sensibilidade = PlayerPrefs.GetFloat("MouseSensitivity", 100f);
 
         slider.value = sensibilidade;

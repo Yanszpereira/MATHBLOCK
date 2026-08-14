@@ -6,6 +6,8 @@ using UnityEngine.Rendering;
 [DisallowMultipleComponent]
 public sealed class DistanceFogBlur : MonoBehaviour
 {
+    public const string PreferenceKey = "visual.distanceBlur.enabled";
+    public static bool UserEnabled => PlayerPrefs.GetInt(PreferenceKey, 1) != 0;
     [Header("Distance fog")]
     [SerializeField, Min(0f)] private float startDistance = 24f;
     [SerializeField, Min(0.1f)] private float fullBlurDistance = 85f;
@@ -45,6 +47,8 @@ public sealed class DistanceFogBlur : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void InstallOnWorldCamera()
     {
+        if (!UserEnabled)
+            return;
         Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
         Camera worldCamera = null;
         foreach (Camera candidate in cameras)
@@ -56,6 +60,32 @@ public sealed class DistanceFogBlur : MonoBehaviour
         }
 
         if (worldCamera != null && worldCamera.GetComponent<DistanceFogBlur>() == null)
+            worldCamera.gameObject.AddComponent<DistanceFogBlur>();
+    }
+
+    public static void SetUserEnabled(bool value)
+    {
+        PlayerPrefs.SetInt(PreferenceKey, value ? 1 : 0);
+        PlayerPrefs.Save();
+
+        DistanceFogBlur[] effects = FindObjectsByType<DistanceFogBlur>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (DistanceFogBlur effect in effects)
+            if (effect != null)
+                effect.enabled = value;
+
+        if (!value || effects.Length > 0)
+            return;
+
+        Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
+        Camera worldCamera = null;
+        foreach (Camera candidate in cameras)
+        {
+            if (candidate == null || !candidate.enabled || candidate.cullingMask == 0)
+                continue;
+            if (worldCamera == null || candidate.depth < worldCamera.depth)
+                worldCamera = candidate;
+        }
+        if (worldCamera != null)
             worldCamera.gameObject.AddComponent<DistanceFogBlur>();
     }
 
@@ -171,7 +201,14 @@ public sealed class DistanceFogBlur : MonoBehaviour
                     exclusionRenderers.Add(heldRenderer);
         }
 
-        RenderTexture mask = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.R8);
+        // R8 pode ser convertido pela Unity para R8_SRGB, formato ausente em algumas GPUs/Android.
+        // ARGB32 Linear é amplamente suportado e evita o fallback (e o warning) a cada frame.
+        RenderTexture mask = RenderTexture.GetTemporary(
+            width,
+            height,
+            0,
+            RenderTextureFormat.ARGB32,
+            RenderTextureReadWrite.Linear);
         mask.filterMode = FilterMode.Bilinear;
 
         CommandBuffer commands = CommandBufferPool.Get("MathBlock Blur Exclusions");

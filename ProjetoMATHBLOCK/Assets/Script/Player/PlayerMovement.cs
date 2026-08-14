@@ -51,6 +51,7 @@ public class PlayerMovement : MonoBehaviour
     private float footstepTimer;
     private float voidFallTimer;
     private bool hasPlayedVoidFallSound;
+    private bool uiJumpRequested;
     private int maximumBlockDuplications;
 
     public bool IsTryingToMove => new Vector2(horizontalInput, verticalInput).sqrMagnitude > 0.01f;
@@ -216,7 +217,14 @@ public class PlayerMovement : MonoBehaviour
 
     private bool IsJumpPressed()
     {
-        return jumpAction != null && jumpAction.ReadValue<float>() > 0.5f;
+        bool pressed = uiJumpRequested || (jumpAction != null && jumpAction.ReadValue<float>() > 0.5f);
+        uiJumpRequested = false;
+        return pressed;
+    }
+
+    public void RequestJumpFromUI()
+    {
+        uiJumpRequested = true;
     }
 
     private bool IsGrounded()

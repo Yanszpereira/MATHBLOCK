@@ -1,11 +1,20 @@
-
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
+/// <summary>
+/// Controla o menu principal e os menus das fases com fade em tempo real.
+/// </summary>
 public class MenuController : MonoBehaviour
 {
-    [Header("Folha Inicial")]
+    private bool gameplayPaused;
+    private bool IsMainMenu => SceneManager.GetActiveScene().name == "MainMenu";
+
+    [Header("Folha inicial")]
     [SerializeField] private Animation startPaper;
 
     [Header("Menus")]
@@ -17,79 +26,349 @@ public class MenuController : MonoBehaviour
     [Header("Blocker")]
     [SerializeField] private GameObject blocker;
 
-    [Header("Configuração")]
-    [SerializeField] private float tempoAnimacao = 0f;
+    [Header("Transicao")]
+    [SerializeField, Min(0f)] private float tempoAnimacao = 0.25f;
+    [SerializeField] private AnimationCurve curvaFade =
+        AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
-    [Header("Cena do Jogo")]
-    [SerializeField] private string nomeCenaJogo = "Game";
+    [Header("Cena do jogo")]
+    [SerializeField] private string nomeCenaJogo = "Fase 1";
 
-    public void AbrirInicial()
+    private readonly Dictionary<GameObject, Coroutine> rotinasAtivas = new();
+    private readonly Dictionary<GameObject, CanvasGroup> canvasGroups = new();
+    private InputActionAsset runtimeUiActions;
+    private InputAction menuBackAction;
+
+    private void Awake()
     {
-        StartCoroutine(AbrirMenu(menuInicial));
+        PrepararAcaoDeVoltar();
+        RepararEventSystem();
+        PrepararMenus();
+
+        if (IsMainMenu)
+        {
+            Time.timeScale = 1f;
+            DefinirCursor(true, false);
+        }
     }
 
-    public void AbrirCreditos()
+    private void PrepararAcaoDeVoltar()
     {
-        StartCoroutine(AbrirMenu(menuCreditos));
+        if (IsMainMenu)
+            return;
+
+        // Uma acao propria continua recebendo o Esc mesmo quando o gameplay
+        // esta pausado e nao depende do estado do mapa de acoes do Player/UI.
+        menuBackAction = new InputAction("Pause Menu", InputActionType.Button);
+        menuBackAction.AddBinding("<Keyboard>/escape");
+        menuBackAction.AddBinding("<Gamepad>/start");
+        menuBackAction.performed += AoPressionarVoltar;
+        menuBackAction.Enable();
     }
 
-    public void AbrirOpcoes()
+    private void AoPressionarVoltar(InputAction.CallbackContext context)
     {
-        StartCoroutine(AbrirMenu(menuOpcoes));
+        OnBackButtonPressed();
+    }
+    private void RepararEventSystem()
+    {
+        InputSystemUIInputModule module =
+            FindFirstObjectByType<InputSystemUIInputModule>(FindObjectsInactive.Include);
+
+        if (module == null)
+        {
+            Debug.LogError("A cena nao possui InputSystemUIInputModule para controlar o menu.", this);
+            return;
+        }
+
+        // O asset que estava serializado na Fase 1 nao existe mais no projeto.
+        // Reiniciamos o modulo para que ele registre os callbacks das novas acoes.
+        module.enabled = false;
+
+        runtimeUiActions = ScriptableObject.CreateInstance<InputActionAsset>();
+        runtimeUiActions.name = "Runtime Menu UI Actions";
+        InputActionMap ui = runtimeUiActions.AddActionMap("UI");
+
+        InputAction point = ui.AddAction("Point", InputActionType.PassThrough, expectedControlLayout: "Vector2");
+        point.AddBinding("<Mouse>/position");
+        point.AddBinding("<Pen>/position");
+        point.AddBinding("<Touchscreen>/primaryTouch/position");
+
+        InputAction click = ui.AddAction("Click", InputActionType.PassThrough, expectedControlLayout: "Button");
+        click.AddBinding("<Mouse>/leftButton");
+        click.AddBinding("<Pen>/tip");
+        click.AddBinding("<Touchscreen>/primaryTouch/press");
+
+        InputAction rightClick = ui.AddAction("RightClick", InputActionType.PassThrough, "<Mouse>/rightButton");
+        InputAction middleClick = ui.AddAction("MiddleClick", InputActionType.PassThrough, "<Mouse>/middleButton");
+        InputAction scroll = ui.AddAction("ScrollWheel", InputActionType.PassThrough, "<Mouse>/scroll", expectedControlLayout: "Vector2");
+
+        InputAction move = ui.AddAction("Move", InputActionType.PassThrough, expectedControlLayout: "Vector2");
+        move.AddCompositeBinding("2DVector")
+            .With("Up", "<Keyboard>/upArrow")
+            .With("Down", "<Keyboard>/downArrow")
+            .With("Left", "<Keyboard>/leftArrow")
+            .With("Right", "<Keyboard>/rightArrow");
+        move.AddBinding("<Gamepad>/leftStick");
+        move.AddBinding("<Gamepad>/dpad");
+
+        InputAction submit = ui.AddAction("Submit", InputActionType.Button);
+        submit.AddBinding("<Keyboard>/enter");
+        submit.AddBinding("<Gamepad>/buttonSouth");
+
+        InputAction cancel = ui.AddAction("Cancel", InputActionType.Button);
+        cancel.AddBinding("<Gamepad>/buttonEast");
+
+        module.actionsAsset = runtimeUiActions;
+        module.point = InputActionReference.Create(point);
+        module.leftClick = InputActionReference.Create(click);
+        module.rightClick = InputActionReference.Create(rightClick);
+        module.middleClick = InputActionReference.Create(middleClick);
+        module.scrollWheel = InputActionReference.Create(scroll);
+        module.move = InputActionReference.Create(move);
+        module.submit = InputActionReference.Create(submit);
+        module.cancel = InputActionReference.Create(cancel);
+
+        runtimeUiActions.Enable();
+        module.enabled = true;
     }
 
-    public void AbrirSair()
+    private void PrepararMenus()
     {
-        StartCoroutine(AbrirMenu(menuSair));
-    }
+        int sortingOrder = 2000;
+        foreach (GameObject menu in TodosOsMenus())
+        {
+            if (menu == null)
+                continue;
 
-    public void FecharInicial()
-    {
-        StartCoroutine(FecharMenu(menuInicial));
-    }
+            bool manterAberto = IsMainMenu && menu == menuInicial && menu.activeSelf;
 
-    public void FecharCreditos()
-    {
-        StartCoroutine(FecharMenu(menuCreditos));
-    }
+            if (!menu.TryGetComponent(out CanvasGroup group))
+                group = menu.AddComponent<CanvasGroup>();
 
-    public void FecharOpcoes()
-    {
-        StartCoroutine(FecharMenu(menuOpcoes));
-    }
+            group.alpha = manterAberto ? 1f : 0f;
+            group.interactable = manterAberto;
+            group.blocksRaycasts = manterAberto;
+            canvasGroups[menu] = group;
 
-    public void FecharSair()
-    {
-        StartCoroutine(FecharMenu(menuSair));
-    }
-
-    private IEnumerator AbrirMenu(GameObject menu)
-    {
-        menu.SetActive(true);
+            PrepararCamadaInterativa(menu, sortingOrder++);
+            PrepararBotoes(menu);
+            menu.SetActive(manterAberto);
+        }
 
         if (blocker != null)
-            blocker.SetActive(true);
+        {
+            blocker.SetActive(IsMainMenu && EstaAberto(menuInicial));
 
-        startPaper.Play("OpenPaper");
-
-        yield return new WaitForSeconds(tempoAnimacao);
+            // O blocker serve para esconder/bloquear a HUD de gameplay, mas nao
+            // pode ficar por cima dos botoes e capturar o ponteiro do menu.
+            foreach (Graphic graphic in blocker.GetComponentsInChildren<Graphic>(true))
+                graphic.raycastTarget = false;
+        }
     }
 
-    private IEnumerator FecharMenu(GameObject menu)
+    private static void PrepararCamadaInterativa(GameObject menu, int sortingOrder)
     {
-        startPaper.Play("ClosePaper");
+        Canvas canvas = menu.GetComponent<Canvas>();
+        if (canvas == null)
+            canvas = menu.AddComponent<Canvas>();
 
-        yield return new WaitForSeconds(tempoAnimacao);
+        // Canvas filho herda o modo de renderizacao, mas recebe prioridade sobre
+        // HUD, mira, efeitos e imagens transparentes que estavam acima do menu.
+        canvas.overrideSorting = true;
+        canvas.sortingOrder = sortingOrder;
 
-        menu.SetActive(false);
+        if (menu.GetComponent<GraphicRaycaster>() == null)
+            menu.AddComponent<GraphicRaycaster>();
+    }
 
-        if (blocker != null)
-            blocker.SetActive(false);
+    private static void PrepararBotoes(GameObject menu)
+    {
+        foreach (Button button in menu.GetComponentsInChildren<Button>(true))
+        {
+            button.interactable = true;
+
+            // Os pais dos botoes usam RectTransform esticado. A hitbox deve ser
+            // apenas o texto/icone visivel, senao todas as opcoes se sobrepoem.
+            Graphic hitGraphic = null;
+            foreach (Graphic graphic in button.GetComponentsInChildren<Graphic>(true))
+            {
+                graphic.raycastTarget = false;
+                if (hitGraphic == null && graphic.transform != button.transform)
+                    hitGraphic = graphic;
+            }
+
+            if (hitGraphic == null)
+                hitGraphic = button.GetComponent<Graphic>();
+
+            if (hitGraphic != null)
+            {
+                hitGraphic.raycastTarget = true;
+                button.targetGraphic = hitGraphic;
+            }
+
+            foreach (HoverScale childHover in button.GetComponentsInChildren<HoverScale>(true))
+                if (childHover.gameObject != button.gameObject)
+                    childHover.enabled = false;
+
+            if (button.GetComponent<HoverScale>() == null)
+                button.gameObject.AddComponent<HoverScale>();
+        }
+    }
+
+    private IEnumerable<GameObject> TodosOsMenus()
+    {
+        yield return menuInicial;
+        yield return menuCreditos;
+        yield return menuOpcoes;
+        yield return menuSair;
+    }
+
+    private void LateUpdate()
+    {
+        // Outros componentes do player podem tentar travar o cursor no mesmo
+        // frame. Enquanto o menu estiver aberto, o menu sempre tem prioridade.
+        if (gameplayPaused && !Application.isMobilePlatform)
+            DefinirCursor(true, false);
+    }
+
+    public void OnBackButtonPressed()
+    {
+        if (!AlgumMenuAberto())
+        {
+            AbrirInicial();
+            return;
+        }
+
+        if (EstaAberto(menuCreditos) || EstaAberto(menuOpcoes) || EstaAberto(menuSair))
+        {
+            FecharTodosOsSubmenus();
+            AbrirInicial();
+            return;
+        }
+
+        FecharInicial();
+    }
+
+    public void AbrirInicial() => AbrirMenu(menuInicial);
+    public void AbrirCreditos() => AbrirMenu(menuCreditos);
+    public void AbrirOpcoes() => AbrirMenu(menuOpcoes);
+    public void AbrirSair() => AbrirMenu(menuSair);
+
+    public void FecharInicial() => FecharMenu(menuInicial);
+    public void FecharCreditos() => FecharMenu(menuCreditos);
+    public void FecharOpcoes() => FecharMenu(menuOpcoes);
+    public void FecharSair() => FecharMenu(menuSair);
+
+    private void AbrirMenu(GameObject menu)
+    {
+        if (menu == null)
+            return;
+
+        PausarJogo();
+        IniciarRotina(menu, Fade(menu, true));
+    }
+
+    private void FecharMenu(GameObject menu)
+    {
+        if (menu == null || !canvasGroups.ContainsKey(menu))
+            return;
+
+        IniciarRotina(menu, Fade(menu, false));
+    }
+
+    private void IniciarRotina(GameObject menu, IEnumerator rotina)
+    {
+        if (rotinasAtivas.TryGetValue(menu, out Coroutine atual) && atual != null)
+            StopCoroutine(atual);
+
+        rotinasAtivas[menu] = StartCoroutine(rotina);
+    }
+
+    private IEnumerator Fade(GameObject menu, bool abrir)
+    {
+        CanvasGroup group = canvasGroups[menu];
+
+        if (abrir)
+        {
+            menu.SetActive(true);
+            menu.transform.SetAsLastSibling();
+            TocarPapel("OpenPaper");
+            if (blocker != null)
+                blocker.SetActive(true);
+        }
+        else
+        {
+            TocarPapel("ClosePaper");
+        }
+
+        group.interactable = false;
+        group.blocksRaycasts = abrir;
+
+        float inicio = group.alpha;
+        float fim = abrir ? 1f : 0f;
+        // Cenas antigas serializaram zero; ainda fazemos um fade curto e estavel.
+        float duracao = tempoAnimacao > 0f ? tempoAnimacao : 0.18f;
+        float elapsed = 0f;
+
+        while (elapsed < duracao)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float normalized = Mathf.Clamp01(elapsed / duracao);
+            group.alpha = Mathf.Lerp(inicio, fim, curvaFade.Evaluate(normalized));
+            yield return null;
+        }
+
+        group.alpha = fim;
+        group.interactable = abrir;
+        group.blocksRaycasts = abrir;
+
+        if (!abrir)
+            menu.SetActive(false);
+
+        rotinasAtivas[menu] = null;
+        AtualizarEstadoDoMenu();
+    }
+
+    private void TocarPapel(string clipName)
+    {
+        if (!IsMainMenu || startPaper == null)
+            return;
+
+        AnimationClip clip = startPaper.GetClip(clipName);
+        if (clip == null)
+            return;
+
+        startPaper[clip.name].time = 0f;
+        startPaper.Play(clip.name);
+        startPaper.Sample();
+    }
+
+    public void VoltarJogo()
+    {
+        FecharTodosOsMenusImediatamente();
+        RetomarJogo();
     }
 
     public void IniciarJogo()
     {
-        SceneManager.LoadScene(nomeCenaJogo);
+        Time.timeScale = 1f;
+        if (Application.CanStreamedLevelBeLoaded(nomeCenaJogo))
+            SceneManager.LoadScene(nomeCenaJogo);
+        else
+            Debug.LogError($"Cena '{nomeCenaJogo}' nao foi adicionada ao Build Settings.", this);
+    }
+
+    public void ReiniciarFase()
+    {
+        RetomarJogo();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void VoltarMenuPrincipal()
+    {
+        RetomarJogo();
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void FecharJogo()
@@ -101,19 +380,88 @@ public class MenuController : MonoBehaviour
 #endif
     }
 
-    public void VoltarJogo()
+    private void PausarJogo()
     {
-        StartCoroutine(FecharStart());
+        if (IsMainMenu)
+            return;
+
+        gameplayPaused = true;
+        Time.timeScale = 0f;
+        DefinirCursor(true, false);
     }
 
-    private IEnumerator FecharStart()
+    private void RetomarJogo()
     {
-        if (startPaper != null)
-            startPaper.Play("ClosePaper");
+        if (IsMainMenu)
+            return;
 
-        yield return new WaitForSeconds(tempoAnimacao);
+        gameplayPaused = false;
+        Time.timeScale = 1f;
+        if (!Application.isMobilePlatform)
+            DefinirCursor(false, true);
+    }
+
+    private static void DefinirCursor(bool visivel, bool travado)
+    {
+        if (Application.isMobilePlatform)
+            return;
+
+        Cursor.visible = visivel;
+        Cursor.lockState = travado ? CursorLockMode.Locked : CursorLockMode.None;
+    }
+
+    private static bool EstaAberto(GameObject menu) => menu != null && menu.activeSelf;
+
+    private bool AlgumMenuAberto() =>
+        EstaAberto(menuInicial) || EstaAberto(menuCreditos) ||
+        EstaAberto(menuOpcoes) || EstaAberto(menuSair);
+
+    private void AtualizarEstadoDoMenu()
+    {
+        bool aberto = AlgumMenuAberto();
+        if (blocker != null)
+            blocker.SetActive(aberto);
+        if (!aberto)
+            RetomarJogo();
+    }
+
+    private void FecharTodosOsSubmenus()
+    {
+        FecharMenu(menuCreditos);
+        FecharMenu(menuOpcoes);
+        FecharMenu(menuSair);
+    }
+
+    private void FecharTodosOsMenusImediatamente()
+    {
+        foreach (GameObject menu in TodosOsMenus())
+        {
+            if (menu == null)
+                continue;
+            if (rotinasAtivas.TryGetValue(menu, out Coroutine rotina) && rotina != null)
+                StopCoroutine(rotina);
+            menu.SetActive(false);
+        }
 
         if (blocker != null)
             blocker.SetActive(false);
+    }
+
+    private void OnDestroy()
+    {
+        if (gameplayPaused)
+            Time.timeScale = 1f;
+
+        if (menuBackAction != null)
+        {
+            menuBackAction.performed -= AoPressionarVoltar;
+            menuBackAction.Disable();
+            menuBackAction.Dispose();
+        }
+        if (runtimeUiActions != null)
+        {
+            runtimeUiActions.Disable();
+            Destroy(runtimeUiActions);
+        }
     }
 }

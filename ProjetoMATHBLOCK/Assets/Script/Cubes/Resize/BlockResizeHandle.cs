@@ -20,6 +20,11 @@ public enum ResizeHandleVisualState
 [DisallowMultipleComponent]
 public sealed class BlockResizeHandle : MonoBehaviour
 {
+    private const int ArrowTextureWidth = 64;
+    private const int ArrowTextureHeight = 96;
+    private const float PixelsPerUnit = 96f;
+    private static Sprite dottedArrowSprite;
+
     [SerializeField] private ResizeHandlePosition position;
     [SerializeField] private Collider interactionCollider;
     [SerializeField] private Transform visualRoot;
@@ -33,6 +38,7 @@ public sealed class BlockResizeHandle : MonoBehaviour
     [SerializeField] private Color blockedColor = Color.red;
 
     private MaterialPropertyBlock propertyBlock;
+    private SpriteRenderer spriteRenderer;
 
     public ResizeHandlePosition Position => position;
     public Collider InteractionCollider => interactionCollider;
@@ -41,6 +47,7 @@ public sealed class BlockResizeHandle : MonoBehaviour
     private void Awake()
     {
         ResolveReferences();
+        ReplaceModelWithDottedSprite();
         SetVisualState(ResizeHandleVisualState.Normal);
     }
 
@@ -60,6 +67,9 @@ public sealed class BlockResizeHandle : MonoBehaviour
         propertyBlock ??= new MaterialPropertyBlock();
         Color color = GetColor(state);
 
+        if (spriteRenderer != null)
+            spriteRenderer.color = color;
+
         for (int i = 0; i < visualRenderers.Length; i++)
         {
             Renderer targetRenderer = visualRenderers[i];
@@ -74,6 +84,86 @@ public sealed class BlockResizeHandle : MonoBehaviour
                 propertyBlock.SetColor("_Color", color);
             targetRenderer.SetPropertyBlock(propertyBlock);
         }
+    }
+
+    private void ReplaceModelWithDottedSprite()
+    {
+        if (visualRoot == null)
+            visualRoot = transform;
+
+        Renderer[] oldRenderers = visualRoot.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < oldRenderers.Length; i++)
+        {
+            if (oldRenderers[i] != null)
+                oldRenderers[i].enabled = false;
+        }
+
+        GameObject spriteObject = new GameObject("Dotted 2D Arrow");
+        spriteObject.layer = gameObject.layer;
+        spriteObject.transform.SetParent(visualRoot, false);
+        spriteObject.transform.localPosition = new Vector3(0f, 0f, -0.025f);
+        spriteObject.transform.localRotation = Quaternion.identity;
+        spriteObject.transform.localScale = Vector3.one * 1.15f;
+
+        spriteRenderer = spriteObject.AddComponent<SpriteRenderer>();
+        spriteRenderer.sprite = GetOrCreateDottedArrowSprite();
+        spriteRenderer.sortingOrder = 250;
+        spriteRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        spriteRenderer.receiveShadows = false;
+        visualRenderers = new Renderer[] { spriteRenderer };
+    }
+
+    private static Sprite GetOrCreateDottedArrowSprite()
+    {
+        if (dottedArrowSprite != null)
+            return dottedArrowSprite;
+
+        Texture2D texture = new Texture2D(
+            ArrowTextureWidth,
+            ArrowTextureHeight,
+            TextureFormat.RGBA32,
+            false)
+        {
+            name = "MathBlock Dotted Resize Arrow",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp,
+            hideFlags = HideFlags.HideAndDontSave
+        };
+
+        Color[] pixels = new Color[ArrowTextureWidth * ArrowTextureHeight];
+        Color solid = Color.white;
+        Color transparent = new Color(1f, 1f, 1f, 0f);
+
+        for (int y = 0; y < ArrowTextureHeight; y++)
+        {
+            for (int x = 0; x < ArrowTextureWidth; x++)
+            {
+                float normalizedX = ((x + 0.5f) / ArrowTextureWidth) - 0.5f;
+                float normalizedY = ((y + 0.5f) / ArrowTextureHeight) - 0.5f;
+                bool shaft = Mathf.Abs(normalizedX) <= 0.115f && normalizedY >= -0.46f && normalizedY <= 0.12f;
+                float headHalfWidth = Mathf.Max(0f, (0.48f - normalizedY) * 0.92f);
+                bool head = normalizedY >= -0.02f && normalizedY <= 0.48f && Mathf.Abs(normalizedX) <= headHalfWidth;
+                bool insideArrow = shaft || head;
+
+                int dotX = Mathf.Abs((x + 2) % 11 - 5);
+                int dotY = Mathf.Abs((y + 1) % 11 - 5);
+                bool dottedHole = (dotX * dotX) + (dotY * dotY) <= 5;
+                pixels[(y * ArrowTextureWidth) + x] = insideArrow && !dottedHole ? solid : transparent;
+            }
+        }
+
+        texture.SetPixels(pixels);
+        texture.Apply(false, true);
+        dottedArrowSprite = Sprite.Create(
+            texture,
+            new Rect(0f, 0f, ArrowTextureWidth, ArrowTextureHeight),
+            new Vector2(0.5f, 0.12f),
+            PixelsPerUnit,
+            0,
+            SpriteMeshType.FullRect);
+        dottedArrowSprite.name = "MathBlock Dotted Resize Arrow";
+        dottedArrowSprite.hideFlags = HideFlags.HideAndDontSave;
+        return dottedArrowSprite;
     }
 
     private Color GetColor(ResizeHandleVisualState state)

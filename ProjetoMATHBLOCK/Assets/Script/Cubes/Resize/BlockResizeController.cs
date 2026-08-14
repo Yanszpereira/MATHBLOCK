@@ -78,10 +78,13 @@ public sealed class BlockResizeController : MonoBehaviour
     public float InteractionDistance => gravityInteract != null
         ? gravityInteract.GrabDistance * GrabDistanceFraction
         : interactionDistance;
+    public event Action<bool> ResizeModeChanged;
 
     private void Awake()
     {
         ResolveReferences();
+        if (GetComponent<BlockResizeTouchUI>() == null)
+            gameObject.AddComponent<BlockResizeTouchUI>();
     }
 
     private void OnEnable()
@@ -118,7 +121,9 @@ public sealed class BlockResizeController : MonoBehaviour
 
         if (state == BlockResizeInteractionState.ResizeMode)
         {
-            UpdateHoveredHandle();
+            UpdateHoveredHandle(GetActivePointerRay());
+            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame && hoveredHandle != null)
+                BeginHandleDrag(hoveredHandle, GetTouchRay());
             if (clickAction != null && clickAction.WasPressedThisFrame() && hoveredHandle != null)
                 BeginHandleDrag(hoveredHandle, GetPointerRay());
             return;
@@ -126,8 +131,10 @@ public sealed class BlockResizeController : MonoBehaviour
 
         if (state == BlockResizeInteractionState.DraggingHandle)
         {
-            UpdateHandleDrag(GetPointerRay());
-            if (clickAction == null || clickAction.WasReleasedThisFrame())
+            Ray pointerRay = GetActivePointerRay();
+            UpdateHandleDrag(pointerRay);
+            bool touchReleased = Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasReleasedThisFrame;
+            if (touchReleased || (Touchscreen.current == null && (clickAction == null || clickAction.WasReleasedThisFrame())))
                 EndHandleDrag();
         }
     }
@@ -184,6 +191,7 @@ public sealed class BlockResizeController : MonoBehaviour
             if (!IsAirAnchored(block))
                 StartResizeParticles(block);
             state = BlockResizeInteractionState.ResizeMode;
+            ResizeModeChanged?.Invoke(true);
             return true;
         }
         catch (Exception exception)
@@ -263,7 +271,7 @@ public sealed class BlockResizeController : MonoBehaviour
         draggedHandle = null;
         lastEvaluatedSteps = int.MinValue;
         state = BlockResizeInteractionState.ResizeMode;
-        UpdateHoveredHandle();
+        UpdateHoveredHandle(GetActivePointerRay());
     }
 
     public void ConfirmResizeSession()
@@ -309,6 +317,48 @@ public sealed class BlockResizeController : MonoBehaviour
         return TryBeginResizeAtCameraCenter();
     }
 
+    public bool TryHandleResizeTouchButton()
+    {
+        if (state != BlockResizeInteractionState.Idle)
+            return false;
+
+        if (gravityInteract != null && gravityInteract.IsHoldingBlock)
+        {
+            ResizableBlock heldBlock = gravityInteract.HeldBlock != null
+                ? gravityInteract.HeldBlock.GetComponent<ResizableBlock>()
+                : null;
+            if (heldBlock == null || !heldBlock.CanResize())
+                return false;
+
+            if (!gravityInteract.TryAnchorHeldResizableBlock(resizeParticleTexture, resizeParticleColor))
+                return false;
+        }
+
+        return TryBeginResizeAtCameraCenter();
+    }
+
+    public bool HasAvailableResizeTarget()
+    {
+        if (state != BlockResizeInteractionState.Idle)
+            return false;
+
+        if (gravityInteract != null && gravityInteract.IsHoldingBlock)
+        {
+            ResizableBlock heldBlock = gravityInteract.HeldBlock != null
+                ? gravityInteract.HeldBlock.GetComponent<ResizableBlock>()
+                : null;
+            return heldBlock != null && heldBlock.CanResize();
+        }
+
+        if (playerCamera == null)
+            return false;
+        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        if (!Physics.Raycast(ray, out RaycastHit hit, InteractionDistance, targetingMask, QueryTriggerInteraction.Ignore))
+            return false;
+        ResizableBlock targetBlock = hit.collider != null ? hit.collider.GetComponentInParent<ResizableBlock>() : null;
+        return targetBlock != null && targetBlock.CanResize();
+    }
+
     private void OnExitResizePerformed(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -321,10 +371,9 @@ public sealed class BlockResizeController : MonoBehaviour
             CancelResizeSession();
     }
 
-    private void UpdateHoveredHandle()
+    private void UpdateHoveredHandle(Ray ray)
     {
         BlockResizeHandle nextHandle = null;
-        Ray ray = GetPointerRay();
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, resizeHandleMask, QueryTriggerInteraction.Collide))
             nextHandle = hit.collider != null ? hit.collider.GetComponentInParent<BlockResizeHandle>() : null;
         if (resizeGizmo != null && !resizeGizmo.ContainsHandle(nextHandle))
@@ -337,6 +386,21 @@ public sealed class BlockResizeController : MonoBehaviour
         hoveredHandle = nextHandle;
         if (hoveredHandle != null)
             hoveredHandle.SetVisualState(ResizeHandleVisualState.Hover);
+    }
+
+    private Ray GetActivePointerRay()
+    {
+        return Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed
+            ? GetTouchRay()
+            : GetPointerRay();
+    }
+
+    private Ray GetTouchRay()
+    {
+        Vector2 point = Touchscreen.current != null
+            ? Touchscreen.current.primaryTouch.position.ReadValue()
+            : Vector2.zero;
+        return playerCamera.ScreenPointToRay(point);
     }
 
     private Ray GetPointerRay()
@@ -538,6 +602,7 @@ public sealed class BlockResizeController : MonoBehaviour
         RestorePlayerControls();
         selectedBlock = null;
         state = BlockResizeInteractionState.Idle;
+        ResizeModeChanged?.Invoke(false);
     }
 
     private void BindInputActions()
