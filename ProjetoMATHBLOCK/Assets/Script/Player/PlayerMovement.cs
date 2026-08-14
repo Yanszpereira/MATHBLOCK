@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -50,12 +51,22 @@ public class PlayerMovement : MonoBehaviour
     private float footstepTimer;
     private float voidFallTimer;
     private bool hasPlayedVoidFallSound;
+    private int maximumBlockDuplications;
 
     public bool IsTryingToMove => new Vector2(horizontalInput, verticalInput).sqrMagnitude > 0.01f;
     public int AvailableBlockDuplications => availableBlockDuplications;
+    public int MaximumBlockDuplications => maximumBlockDuplications;
+    public event Action<int, int> BlockDuplicationsChanged;
+    public event Action BlockDuplicationRequested;
 
     private void Awake()
     {
+        availableBlockDuplications = Mathf.Max(0, availableBlockDuplications);
+        maximumBlockDuplications = availableBlockDuplications;
+
+        if (GetComponent<BlockDuplicationCounter>() == null)
+            gameObject.AddComponent<BlockDuplicationCounter>();
+
         EnhancedTouchSupport.Enable();
 
         PlayerInput playerInput = GetComponent<PlayerInput>();
@@ -286,7 +297,13 @@ public class PlayerMovement : MonoBehaviour
             return false;
 
         availableBlockDuplications--;
+        BlockDuplicationsChanged?.Invoke(availableBlockDuplications, maximumBlockDuplications);
         return true;
+    }
+
+    public void NotifyBlockDuplicationRequested()
+    {
+        BlockDuplicationRequested?.Invoke();
     }
 
     public void ResetVerticalMovement()
