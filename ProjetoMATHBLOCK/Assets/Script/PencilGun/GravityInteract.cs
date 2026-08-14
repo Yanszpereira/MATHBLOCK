@@ -69,6 +69,9 @@ public class GravityInteract : MonoBehaviour
     public Transform OperatorAbsorbTarget => GetOrCreateOperatorAbsorbTarget();
     public bool IsHoldingObject => grabbed && grabbedObject != null;
     public Transform GrabbedObject => grabbedObject;
+    public bool IsHoldingBlock => IsHoldingObject;
+    public Transform HeldBlock => IsHoldingBlock ? grabbedObject : null;
+    public float GrabDistance => Mathf.Max(0f, grabDistance);
 
     private void Awake()
     {
@@ -284,7 +287,7 @@ public class GravityInteract : MonoBehaviour
         if (isOnCooldown || grabbed)
             return;
 
-        if (!TryGetMathBlockHit(out RaycastHit hit))
+        if (!TryGetUndoMathBlockHit(out RaycastHit hit))
             return;
 
         MathBlockValue targetBlock = hit.collider.GetComponent<MathBlockValue>();
@@ -294,10 +297,65 @@ public class GravityInteract : MonoBehaviour
             return;
         }
 
-        if (!targetBlock.TryUndoLastOperation(duplicateSpawnHeight))
+        bool hadOperationsToUndo = targetBlock.HasOperationsToUndo;
+        if (!targetBlock.TryUndoLastOperation(duplicateSpawnHeight) && !hadOperationsToUndo)
         {
             Debug.Log($"Bloco {targetBlock.name} nao possui operacoes para desfazer.");
         }
+    }
+
+    private bool TryGetUndoMathBlockHit(out RaycastHit hit)
+    {
+        hit = default;
+        if (interactionCamera == null)
+            return false;
+
+        RaycastHit[] hits = Physics.RaycastAll(interactionCamera.position, interactionCamera.forward, grabDistance);
+        RaycastHit nearestMathBlockHit = default;
+        RaycastHit nearestUndoableHit = default;
+        float nearestMathBlockDistance = float.MaxValue;
+        float nearestUndoableDistance = float.MaxValue;
+        bool hasMathBlockHit = false;
+        bool hasUndoableHit = false;
+
+        for (int hitIndex = 0; hitIndex < hits.Length; hitIndex++)
+        {
+            RaycastHit candidateHit = hits[hitIndex];
+            Collider candidateCollider = candidateHit.collider;
+            if (candidateCollider == null || !candidateCollider.CompareTag("MathBlock"))
+                continue;
+
+            if (IsColliderFromGrabbedObject(candidateCollider))
+                continue;
+
+            if (candidateHit.distance < nearestMathBlockDistance)
+            {
+                nearestMathBlockDistance = candidateHit.distance;
+                nearestMathBlockHit = candidateHit;
+                hasMathBlockHit = true;
+            }
+
+            MathBlockValue candidateBlock = candidateCollider.GetComponent<MathBlockValue>();
+            if (candidateBlock == null
+                || !candidateBlock.HasOperationsToUndo
+                || candidateHit.distance >= nearestUndoableDistance)
+            {
+                continue;
+            }
+
+            nearestUndoableDistance = candidateHit.distance;
+            nearestUndoableHit = candidateHit;
+            hasUndoableHit = true;
+        }
+
+        if (hasUndoableHit)
+        {
+            hit = nearestUndoableHit;
+            return true;
+        }
+
+        hit = nearestMathBlockHit;
+        return hasMathBlockHit;
     }
 
     private bool TryGetMathBlockHit(out RaycastHit hit)
@@ -690,9 +748,16 @@ public class GravityInteract : MonoBehaviour
     {
         RestoreCarriedBlockCollisions();
 
-        grabbedRb = hit.transform.GetComponent<Rigidbody>();
-        grabbedObject = hit.transform;
-        MathBlockValue mathBlockValue = hit.transform.GetComponent<MathBlockValue>();
+        ResizableBlockAirAnchor airAnchor = hit.collider != null
+            ? hit.collider.GetComponentInParent<ResizableBlockAirAnchor>()
+            : null;
+        if (airAnchor != null && airAnchor.IsAnchored)
+            airAnchor.ReleaseForGrab();
+
+        Transform targetTransform = airAnchor != null ? airAnchor.transform : hit.transform;
+        grabbedRb = targetTransform.GetComponent<Rigidbody>();
+        grabbedObject = targetTransform;
+        MathBlockValue mathBlockValue = targetTransform.GetComponent<MathBlockValue>();
         grabbedBlockValue = mathBlockValue;
 
         if (grabbedRb == null)
@@ -721,6 +786,32 @@ public class GravityInteract : MonoBehaviour
         lastCarriedPosition = grabbedObject.position;
         hasLastCarriedPosition = true;
         Debug.Log($"Bloco segurado: {grabbedObject.name}");
+    }
+
+    public bool TryAnchorHeldResizableBlock(Texture2D particleTexture, Color particleColor)
+    {
+        if (isOnCooldown || !IsHoldingBlock)
+            return false;
+
+        ResizableBlockAirAnchor airAnchor = grabbedObject.GetComponent<ResizableBlockAirAnchor>();
+        if (airAnchor == null || !airAnchor.AnchorFromHeldState(particleTexture, particleColor))
+            return false;
+
+        string anchoredBlockName = grabbedObject.name;
+        ClearCarriedOperationPreview();
+        RestoreCarriedBlockCollisions();
+        RestoreCarriedBlockOpacity();
+
+        grabbedRb = null;
+        grabbedObject = null;
+        grabbedBlockValue = null;
+        grabbed = false;
+        carriedVelocity = Vector3.zero;
+        hasLastCarriedPosition = false;
+        canRaycast = true;
+
+        Debug.Log($"Bloco escalavel fixado no ar: {anchoredBlockName}");
+        return true;
     }
 
     public void Soltar()

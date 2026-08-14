@@ -181,11 +181,70 @@ public class DesfazerManager : MonoBehaviour
         if (!operationStacksByBlockId.TryGetValue(targetBlock.BlockId, out targetStack) || targetStack == null || targetStack.Count == 0)
             return false;
 
-        Acao action = targetStack.Pop();
+        Acao action = targetStack.Peek();
+        ResizableBlock resizableBlock = targetBlock.GetComponent<ResizableBlock>();
+        ResizableBlockState previousResizeState = default;
+        bool requiresAutomaticFit =
+            resizableBlock != null
+            && resizableBlock.CurrentVolume > action.previousTargetValue;
+
+        if (requiresAutomaticFit)
+        {
+            if (!resizableBlock.TryCalculateFittedDimensions(
+                action.previousTargetValue,
+                out _,
+                out ResizeValidationFailure fitFailure))
+            {
+                Debug.LogWarning(
+                    $"Bloco {targetBlock.name} nao pode desfazer {action.operatorType}: "
+                    + $"o valor {action.previousTargetValue} nao comporta suas dimensoes atuais "
+                    + $"({resizableBlock.Width}x{resizableBlock.Height}x{resizableBlock.Depth}). "
+                    + $"Motivo: {fitFailure}.",
+                    targetBlock
+                );
+                return false;
+            }
+
+            previousResizeState = resizableBlock.CaptureState();
+        }
+
+        if (action.consumedBlockSnapshot == null)
+        {
+            Debug.LogWarning(
+                $"Nao foi possivel desfazer {action.operatorType} em {targetBlock.name}: "
+                + $"snapshot de {action.consumedBlockName} ausente.",
+                targetBlock
+            );
+            return false;
+        }
+
+        int valueBeforeUndo = targetBlock.CurrentValue;
+
+        if (requiresAutomaticFit
+            && !resizableBlock.TryFitToValue(
+                action.previousTargetValue,
+                out ResizeValidationFailure applyFailure))
+        {
+            Debug.LogWarning(
+                $"Nao foi possivel ajustar {targetBlock.name} antes do undo. Motivo: {applyFailure}.",
+                targetBlock
+            );
+            return false;
+        }
 
         targetBlock.SetValue(action.previousTargetValue);
-        RestoreConsumedBlock(targetBlock, action, spawnHeight);
 
+        if (!TryRestoreConsumedBlock(targetBlock, action, spawnHeight))
+        {
+            targetBlock.SetValue(valueBeforeUndo);
+
+            if (requiresAutomaticFit)
+                resizableBlock.RestoreState(previousResizeState);
+
+            return false;
+        }
+
+        targetStack.Pop();
         PlayUndoSound(targetBlock);
 
         Debug.Log($"Bloco {targetBlock.name} desfez {action.operatorType} e voltou para {targetBlock.CurrentValue}.");
@@ -281,45 +340,80 @@ public class DesfazerManager : MonoBehaviour
         return snapshot;
     }
 
-    private void RestoreConsumedBlock(MathBlockValue targetBlock, Acao action, float spawnHeight)
+    private bool TryRestoreConsumedBlock(MathBlockValue targetBlock, Acao action, float spawnHeight)
     {
         if (action.consumedBlockSnapshot == null)
         {
             Debug.LogWarning($"Nao foi possivel restaurar {action.consumedBlockName}: snapshot ausente.");
-            return;
+            return false;
         }
 
         Vector3 spawnPosition = targetBlock.transform.position + Vector3.up * spawnHeight;
+        GameObject restoredBlock = null;
 
-        GameObject restoredBlock = Instantiate(action.consumedBlockSnapshot, spawnPosition, targetBlock.transform.rotation);
-        restoredBlock.name = $"{action.consumedBlockName}_Restored";
-
-        MathBlockValue restoredValue = restoredBlock.GetComponent<MathBlockValue>();
-
-        if (restoredValue != null)
+        try
         {
-            restoredValue.InitializeRestoredFromUndo(action.consumedBlockId, CloneStack(action.consumedBlockStackSnapshot));
-        }
+            restoredBlock = Instantiate(
+                action.consumedBlockSnapshot,
+                spawnPosition,
+                targetBlock.transform.rotation
+            );
+            restoredBlock.name = $"{action.consumedBlockName}_Restored";
 
-        Rigidbody restoredRigidbody = restoredBlock.GetComponent<Rigidbody>();
+            MathBlockValue restoredValue = restoredBlock.GetComponent<MathBlockValue>();
+            if (restoredValue == null)
+            {
+                Debug.LogError(
+                    $"Nao foi possivel restaurar {action.consumedBlockName}: MathBlockValue ausente no snapshot."
+                );
+                DestroyUndoObject(restoredBlock);
+                return false;
+            }
 
-        if (restoredRigidbody != null)
-        {
-            restoredRigidbody.isKinematic = false;
-            restoredRigidbody.useGravity = true;
-            restoredRigidbody.linearVelocity = Vector3.zero;
-            restoredRigidbody.angularVelocity = Vector3.zero;
-        }
+            restoredValue.InitializeRestoredFromUndo(
+                action.consumedBlockId,
+                CloneStack(action.consumedBlockStackSnapshot)
+            );
 
-        restoredBlock.SetActive(true);
+            Rigidbody restoredRigidbody = restoredBlock.GetComponent<Rigidbody>();
 
-        if (restoredValue != null)
-        {
+            if (restoredRigidbody != null)
+            {
+                restoredRigidbody.isKinematic = false;
+                restoredRigidbody.useGravity = true;
+                restoredRigidbody.linearVelocity = Vector3.zero;
+                restoredRigidbody.angularVelocity = Vector3.zero;
+            }
+
+            restoredBlock.SetActive(true);
             restoredValue.ApplyRendererColors(action.consumedBlockRendererSnapshot);
-        }
 
-        Destroy(action.consumedBlockSnapshot);
-        action.consumedBlockSnapshot = null;
+            DestroyUndoObject(action.consumedBlockSnapshot);
+            action.consumedBlockSnapshot = null;
+            return true;
+        }
+        catch (System.Exception exception)
+        {
+            if (restoredBlock != null)
+                DestroyUndoObject(restoredBlock);
+
+            Debug.LogError(
+                $"Falha ao restaurar {action.consumedBlockName} durante o undo: {exception.Message}",
+                targetBlock
+            );
+            return false;
+        }
+    }
+
+    private static void DestroyUndoObject(Object target)
+    {
+        if (target == null)
+            return;
+
+        if (Application.isPlaying)
+            Destroy(target);
+        else
+            DestroyImmediate(target);
     }
 
     private MathBlockIdController GetIdController()

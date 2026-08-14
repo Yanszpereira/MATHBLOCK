@@ -18,6 +18,10 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
     [SerializeField] private PadMathBlockDetector padVerifier;
     [SerializeField] private bool generateOnStart = true;
 
+    [Header("Requirements")]
+    [SerializeField] private bool requireDoorVerifier = true;
+    [SerializeField] private bool requireResizableBlockComponent;
+
     [Header("Spawn Area")]
     [SerializeField] private Vector3 spawnAreaSize = new Vector3(6f, 0f, 6f);
     [SerializeField] private float spawnHeightOffset = 0.75f;
@@ -37,7 +41,8 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
 
     private void OnValidate()
     {
-        possibleDoorMinValue = Mathf.Max(0, possibleDoorMinValue);
+        int minimumAllowedValue = requireResizableBlockComponent ? 1 : 0;
+        possibleDoorMinValue = Mathf.Max(minimumAllowedValue, possibleDoorMinValue);
         possibleDoorMaxValue = Mathf.Max(possibleDoorMinValue, possibleDoorMaxValue);
         generationMode = Mathf.Clamp(generationMode, 1, 3);
         spawnAreaSize.x = Mathf.Max(0.1f, spawnAreaSize.x);
@@ -45,6 +50,13 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
         spawnAreaSize.z = Mathf.Max(0.1f, spawnAreaSize.z);
         spawnHeightOffset = Mathf.Max(0f, spawnHeightOffset);
         ConfigureSpawnCollider();
+
+        if (requireResizableBlockComponent
+            && blockPrefab != null
+            && blockPrefab.GetComponent<ResizableBlock>() == null)
+        {
+            Debug.LogError($"{name}: prefab do bloco precisa ter ResizableBlock quando essa exigencia esta habilitada.", this);
+        }
     }
 
     private void Start()
@@ -66,7 +78,10 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
         int finalDoorValue = DrawFinalDoorValue();
         ConnectPadToDoorVerifier();
 
-        doorVerifier.SetRequiredValue(finalDoorValue);
+        if (doorVerifier != null)
+        {
+            doorVerifier.SetRequiredValue(finalDoorValue);
+        }
 
         GenerationSettings settings = GetGenerationSettings(finalDoorValue);
         int solutionTarget = finalDoorValue;
@@ -115,7 +130,7 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
             return false;
         }
 
-        if (doorVerifier == null)
+        if (requireDoorVerifier && doorVerifier == null)
         {
             Debug.LogError($"{name}: referencia para DoorValueVerifier nao foi configurada.");
             return false;
@@ -124,6 +139,12 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
         if (blockPrefab.GetComponent<MathBlockValue>() == null)
         {
             Debug.LogError($"{name}: prefab do bloco precisa ter MathBlockValue.");
+            return false;
+        }
+
+        if (requireResizableBlockComponent && blockPrefab.GetComponent<ResizableBlock>() == null)
+        {
+            Debug.LogError($"{name}: prefab do bloco precisa ter ResizableBlock quando essa exigencia esta habilitada.");
             return false;
         }
 
