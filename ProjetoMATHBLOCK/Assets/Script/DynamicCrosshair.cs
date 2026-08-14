@@ -8,187 +8,135 @@ public class DynamicCrosshair : MonoBehaviour
     public Camera playerCamera;
     public float rayDistance = 100f;
 
-    [Header("Circle")]
-    public int segments = 64;
-    public float normalRadius = 0.015f;
-    public float targetRadius = 0.04f;
-    public float lerpSpeed = 12f;
-    [Header("UI")]
-    public bool useUI = true;
-    public float normalRadiusPixels = 10f;
-    public float targetRadiusPixels = 40f;
-    public float uiLerpSpeed = 12f;
-    [Range(0f, 0.9f)]
-    public float ringInnerFraction = 0.55f;
+    [Header("Dynamic Dot")]
+    [SerializeField] private float dotRadius = 3.25f;
+    [SerializeField] private float expandedRadius = 9f;
+    [SerializeField] private float ringThickness = 1.4f;
+    [SerializeField] private float animationSpeed = 14f;
+    [SerializeField] private Color crosshairColor = Color.white;
+    [SerializeField] private Vector2 referenceResolution = new Vector2(1920f, 1080f);
 
-    private LineRenderer lineRenderer;
-    private float currentRadius;
-    // UI runtime
-    private UnityEngine.UI.RawImage uiRawImage;
-    private RectTransform uiParent;
-    private Texture2D uiTexture;
-    private float currentOuterPixels;
-    private float currentInnerPixels;
-    void Awake()
+    private GameObject crosshairCanvasObject;
+    private CircleCrosshairGraphic circleGraphic;
+    private Material invertOverlayMaterial;
+    private float interactionProgress;
+
+    private void Awake()
     {
-        lineRenderer = GetComponent<LineRenderer>();
-        if (lineRenderer == null)
-            lineRenderer = gameObject.AddComponent<LineRenderer>();
-
-        lineRenderer.useWorldSpace = false;
-        lineRenderer.loop = false;
-        lineRenderer.startWidth = 0.003f;
-        lineRenderer.endWidth = 0.003f;
-        if (lineRenderer.sharedMaterial == null)
-            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        LineRenderer legacyLineRenderer = GetComponent<LineRenderer>();
+        if (legacyLineRenderer != null)
+            legacyLineRenderer.enabled = false;
     }
 
-    void Start()
+    private void Start()
     {
         if (playerCamera == null)
             playerCamera = Camera.main;
 
-        segments = Mathf.Max(3, segments);
-        lineRenderer.positionCount = segments + 1;
-
-        currentRadius = normalRadius;
-
-        DrawCircle(currentRadius);
-
-        if (useUI)
-            CreateUICrosshair();
+        CreateCrosshair();
+        UpdateCrosshairShape();
     }
 
-    void Update()
+    private void Update()
     {
         if (playerCamera == null)
+            playerCamera = Camera.main;
+
+        bool isTargeting = playerCamera != null && IsLookingAtInteractable();
+        float targetProgress = isTargeting ? 1f : 0f;
+        float smoothing = 1f - Mathf.Exp(-animationSpeed * Time.unscaledDeltaTime);
+        interactionProgress = Mathf.Lerp(interactionProgress, targetProgress, smoothing);
+        UpdateCrosshairShape();
+    }
+
+    private void UpdateCrosshairShape()
+    {
+        if (circleGraphic == null)
             return;
 
-        bool lookingAtInteractable = false;
+        float easedProgress = Mathf.SmoothStep(0f, 1f, interactionProgress);
+        float radius = Mathf.Lerp(dotRadius, expandedRadius, easedProgress);
 
+        // The dot expands first; its center then opens until only a thin ring remains.
+        float openingProgress = Mathf.SmoothStep(0.18f, 1f, interactionProgress);
+        float finalHoleRadius = Mathf.Max(0f, expandedRadius - ringThickness);
+        float holeRadius = Mathf.Lerp(0f, finalHoleRadius, openingProgress);
+
+        circleGraphic.SetShape(radius, holeRadius, crosshairColor);
+    }
+
+    private bool IsLookingAtInteractable()
+    {
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
+        if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide))
+            return false;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, rayDistance))
+        return hit.collider.GetComponentInParent<MathBlockValue>() != null
+            || hit.collider.GetComponentInParent<opItem>() != null;
+    }
+
+    private void CreateCrosshair()
+    {
+        crosshairCanvasObject = new GameObject("CrosshairCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
+
+        Canvas canvas = crosshairCanvasObject.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.overrideSorting = true;
+        canvas.sortingOrder = 32000;
+        canvas.pixelPerfect = false;
+
+        CanvasScaler scaler = crosshairCanvasObject.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = referenceResolution;
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
+
+        GameObject circleObject = new GameObject("DynamicCircle", typeof(RectTransform), typeof(CircleCrosshairGraphic));
+        circleObject.transform.SetParent(crosshairCanvasObject.transform, false);
+
+        RectTransform rect = circleObject.GetComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = Vector2.zero;
+        rect.localPosition = Vector3.zero;
+        rect.localScale = Vector3.one;
+        rect.sizeDelta = new Vector2(expandedRadius * 2f, expandedRadius * 2f);
+
+        circleGraphic = circleObject.GetComponent<CircleCrosshairGraphic>();
+        circleGraphic.raycastTarget = false;
+
+        Shader invertShader = Shader.Find("UI/MathBlock Invert Overlay");
+        if (invertShader != null && invertShader.isSupported)
         {
-            if (hit.collider.CompareTag("MathBlock") || hit.collider.CompareTag("Operator"))
+            invertOverlayMaterial = new Material(invertShader)
             {
-                lookingAtInteractable = true;
-            }
+                name = "Crosshair Invert Overlay (Runtime)",
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            circleGraphic.material = invertOverlayMaterial;
         }
 
-        float targetRadiusValue = lookingAtInteractable ? targetRadius : normalRadius;
-
-        currentRadius = Mathf.Lerp(currentRadius, targetRadiusValue, Time.deltaTime * lerpSpeed);
-
-        DrawCircle(currentRadius);
+        // O alpha controla a cobertura; o RGB é calculado pelo blend invertido.
+        circleGraphic.color = new Color(1f, 1f, 1f, crosshairColor.a);
     }
 
-    void DrawCircle(float radius)
+    private void OnEnable()
     {
-        int count = Mathf.Max(3, segments);
-        for (int i = 0; i <= count; i++)
-        {
-            float angle = (float)i / count * Mathf.PI * 2f;
-            float x = Mathf.Cos(angle) * radius;
-            float y = Mathf.Sin(angle) * radius;
-            lineRenderer.SetPosition(i, new Vector3(x, y, 0f));
-        }
+        if (crosshairCanvasObject != null)
+            crosshairCanvasObject.SetActive(true);
     }
 
-    void CreateUICrosshair()
+    private void OnDisable()
     {
-        Canvas canvas = FindObjectOfType<Canvas>();
-        if (canvas == null)
-        {
-            Debug.LogWarning("No Canvas found in scene - UI crosshair won't be created.");
-            useUI = false;
-            return;
-        }
-
-        GameObject parent = new GameObject("CrosshairUI", typeof(RectTransform));
-        parent.transform.SetParent(canvas.transform, false);
-        uiParent = parent.GetComponent<RectTransform>();
-        uiParent.anchorMin = uiParent.anchorMax = new Vector2(0.5f, 0.5f);
-        uiParent.anchoredPosition = Vector2.zero;
-
-        int texSize = Mathf.Max(64, Mathf.CeilToInt(targetRadiusPixels * 2f));
-        uiParent.sizeDelta = new Vector2(texSize, texSize);
-
-        GameObject rawGO = new GameObject("CrosshairRaw", typeof(RectTransform), typeof(UnityEngine.UI.RawImage));
-        rawGO.transform.SetParent(parent.transform, false);
-        RectTransform rt = rawGO.GetComponent<RectTransform>();
-        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
-        rt.anchoredPosition = Vector2.zero;
-        rt.sizeDelta = uiParent.sizeDelta;
-
-        uiRawImage = rawGO.GetComponent<UnityEngine.UI.RawImage>();
-        uiTexture = new Texture2D(texSize, texSize, TextureFormat.RGBA32, false);
-        uiTexture.filterMode = FilterMode.Bilinear;
-        ClearTexture(uiTexture);
-        uiTexture.Apply();
-        uiRawImage.texture = uiTexture;
-        uiRawImage.color = Color.white;
-
-        currentOuterPixels = normalRadiusPixels;
-        currentInnerPixels = 0f;
-        UpdateUITexture();
+        if (crosshairCanvasObject != null)
+            crosshairCanvasObject.SetActive(false);
     }
 
-    void ClearTexture(Texture2D tex)
+    private void OnDestroy()
     {
-        Color32[] cols = new Color32[tex.width * tex.height];
-        for (int i = 0; i < cols.Length; i++) cols[i] = new Color32(0, 0, 0, 0);
-        tex.SetPixels32(cols);
-    }
+        if (crosshairCanvasObject != null)
+            Destroy(crosshairCanvasObject);
 
-    void UpdateUITexture()
-    {
-        if (uiTexture == null) return;
-        int w = uiTexture.width;
-        int h = uiTexture.height;
-        float cx = (w - 1) / 2f;
-        float cy = (h - 1) / 2f;
-
-        float outer = Mathf.Clamp(currentOuterPixels, 0f, Mathf.Min(w, h) / 2f);
-        float inner = Mathf.Clamp(currentInnerPixels, 0f, outer);
-
-        for (int y = 0; y < h; y++)
-        {
-            for (int x = 0; x < w; x++)
-            {
-                float dx = x - cx;
-                float dy = y - cy;
-                float dist = Mathf.Sqrt(dx * dx + dy * dy);
-                if (dist <= outer && dist >= inner)
-                    uiTexture.SetPixel(x, y, Color.white);
-                else
-                    uiTexture.SetPixel(x, y, new Color(0, 0, 0, 0));
-            }
-        }
-        uiTexture.Apply();
-    }
-
-    void LateUpdate()
-    {
-        if (!useUI || uiTexture == null || uiRawImage == null) return;
-
-        bool looking = false;
-        if (playerCamera != null)
-        {
-            Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
-            if (Physics.Raycast(ray, out RaycastHit hit, rayDistance))
-            {
-                if (hit.collider.CompareTag("MathBlock") || hit.collider.CompareTag("Operator"))
-                    looking = true;
-            }
-        }
-
-        float targetOuter = looking ? targetRadiusPixels : normalRadiusPixels;
-        float targetInner = looking ? targetOuter * ringInnerFraction : 0f;
-
-        currentOuterPixels = Mathf.Lerp(currentOuterPixels, targetOuter, Time.deltaTime * uiLerpSpeed);
-        currentInnerPixels = Mathf.Lerp(currentInnerPixels, targetInner, Time.deltaTime * uiLerpSpeed);
-
-        UpdateUITexture();
+        if (invertOverlayMaterial != null)
+            Destroy(invertOverlayMaterial);
     }
 }

@@ -8,6 +8,7 @@ public class MathBlockValue : MonoBehaviour
     private static Font cachedBuiltinFont;
     private const string LabelRootName = "ValueLabels";
     private const string LabelShaderName = "MathBlock/LabelOverlay";
+    private const string ToonShaderName = "Custom/URPToonShader";
 
     private static readonly (string name, Vector3 direction)[] FaceLabels =
     {
@@ -94,6 +95,7 @@ public class MathBlockValue : MonoBehaviour
         originalRotation = transform.rotation;
         currentValue = Mathf.Max(0, currentValue);
 
+        ConfigureToonMaterials();
         RandomizeCubeColor();
         EnsureLabels();
         RefreshLabels();
@@ -542,6 +544,62 @@ public class MathBlockValue : MonoBehaviour
         }
     }
 
+    private void ConfigureToonMaterials()
+    {
+        Shader toonShader = Shader.Find(ToonShaderName);
+        if (toonShader == null)
+        {
+            Debug.LogWarning($"Shader toon '{ToonShaderName}' não encontrado para {name}.", this);
+            return;
+        }
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+        List<Material> createdMaterials = new List<Material>();
+
+        for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+        {
+            Renderer targetRenderer = renderers[rendererIndex];
+            if (targetRenderer == null || IsLabelRenderer(targetRenderer))
+                continue;
+
+            Material[] sourceMaterials = targetRenderer.sharedMaterials;
+            Material[] toonMaterials = new Material[sourceMaterials.Length];
+
+            for (int materialIndex = 0; materialIndex < sourceMaterials.Length; materialIndex++)
+            {
+                Material source = sourceMaterials[materialIndex];
+                if (source == null)
+                    continue;
+
+                Color sourceColor = source.HasProperty("_BaseColor")
+                    ? source.GetColor("_BaseColor")
+                    : source.HasProperty("_Color") ? source.GetColor("_Color") : Color.white;
+                Texture sourceTexture = source.HasProperty("_MainTex") ? source.GetTexture("_MainTex") : null;
+
+                Material toon = new Material(toonShader) { name = source.name + " (MathBlock Toon)" };
+                toon.SetColor("_BaseColor", sourceColor);
+                if (sourceTexture != null)
+                    toon.SetTexture("_MainTex", sourceTexture);
+
+                toon.SetFloat("_ShadeSteps", 3f);
+                toon.SetFloat("_ShadeSmoothness", 0.08f);
+                toon.SetFloat("_MinBrightness", 0.38f);
+                toon.SetFloat("_AmbientStrength", 0.42f);
+                toon.SetFloat("_OutlineWidth", 0.006f);
+                toon.EnableKeyword("_OUTLINE_ON");
+                toon.EnableKeyword("_RIM_ON");
+                toon.EnableKeyword("_SPECULAR_ON");
+
+                toonMaterials[materialIndex] = toon;
+                createdMaterials.Add(toon);
+            }
+
+            targetRenderer.sharedMaterials = toonMaterials;
+        }
+
+        runtimeColorMaterials = createdMaterials.ToArray();
+    }
+
     private void ApplyPropertyBlockColor(Renderer renderer, Color color)
     {
         if (renderer == null)
@@ -582,7 +640,8 @@ public class MathBlockValue : MonoBehaviour
             MaterialPropertyBlock rendererPropertyBlock = new MaterialPropertyBlock();
             targetRenderer.GetPropertyBlock(rendererPropertyBlock);
 
-            Material[] materials = targetRenderer.materials;
+            // sharedMaterials evita criar uma nova instância para cada captura/duplicação.
+            Material[] materials = targetRenderer.sharedMaterials;
             MaterialColorSnapshot[] materialSnapshots = new MaterialColorSnapshot[materials.Length];
 
             for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
@@ -639,7 +698,7 @@ public class MathBlockValue : MonoBehaviour
             if (targetRenderer == null || IsLabelRenderer(targetRenderer))
                 continue;
 
-            Material[] materials = targetRenderer.materials;
+            Material[] materials = targetRenderer.sharedMaterials;
             MaterialColorSnapshot[] materialSnapshots = snapshots[snapshotIndex].materialColors;
             int materialCount = Mathf.Min(materials.Length, materialSnapshots.Length);
 
@@ -648,7 +707,7 @@ public class MathBlockValue : MonoBehaviour
                 ApplyColorSnapshot(materials[materialIndex], materialSnapshots[materialIndex]);
             }
 
-            targetRenderer.materials = materials;
+            targetRenderer.sharedMaterials = materials;
             ApplyPropertyBlockSnapshot(targetRenderer, snapshots[snapshotIndex]);
             snapshotIndex++;
         }

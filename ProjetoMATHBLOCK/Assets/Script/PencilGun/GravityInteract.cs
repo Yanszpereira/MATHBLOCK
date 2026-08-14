@@ -38,6 +38,7 @@ public class GravityInteract : MonoBehaviour
     [SerializeField] private string hammerImpactEffectObjectName = "efeitomarretada";
     [SerializeField] private float hammerImpactEffectDuration = 1f;
     [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private InvalidOperationFeedback invalidOperationFeedback;
     [SerializeField] private Transform operatorAbsorbTarget;
     [SerializeField] private Vector3 operatorAbsorbTargetCameraLocalPosition = new Vector3(0f, -0.55f, 0.45f);
 
@@ -60,11 +61,14 @@ public class GravityInteract : MonoBehaviour
     private readonly List<CarriedRendererState> carriedRendererStates = new List<CarriedRendererState>();
     private float currentCarriedBlockOpacity = 1f;
     private float targetCarriedBlockOpacity = 1f;
+    private MathBlockDitherController carriedDitherController;
     private GameObject hammerImpactEffectObject;
     private Coroutine hammerImpactDisableRoutine;
 
     public PencilOperator EquippedOperator => equippedOperator;
     public Transform OperatorAbsorbTarget => GetOrCreateOperatorAbsorbTarget();
+    public bool IsHoldingObject => grabbed && grabbedObject != null;
+    public Transform GrabbedObject => grabbedObject;
 
     private void Awake()
     {
@@ -76,6 +80,13 @@ public class GravityInteract : MonoBehaviour
         if (playerMovement == null)
         {
             playerMovement = GetComponentInParent<PlayerMovement>();
+        }
+
+        if (invalidOperationFeedback == null)
+        {
+            invalidOperationFeedback = GetComponent<InvalidOperationFeedback>();
+            if (invalidOperationFeedback == null)
+                invalidOperationFeedback = gameObject.AddComponent<InvalidOperationFeedback>();
         }
 
         playerInput = GetComponentInParent<PlayerInput>();
@@ -99,6 +110,11 @@ public class GravityInteract : MonoBehaviour
             {
                 undoBlockOperationAction.performed += OnUndoBlockOperationInput;
             }
+        }
+
+        if (FindFirstObjectByType<OperatorsScript>() == null)
+        {
+            gameObject.AddComponent<OperatorsScript>();
         }
     }
 
@@ -251,6 +267,9 @@ public class GravityInteract : MonoBehaviour
 
     private void TryHandleDuplicateBlock()
     {
+        if (playerMovement != null)
+            playerMovement.NotifyBlockDuplicationRequested();
+
         if (isOnCooldown || grabbed || playerMovement == null || playerMovement.AvailableBlockDuplications <= 0)
             return;
 
@@ -380,6 +399,9 @@ public class GravityInteract : MonoBehaviour
             canRaycast = true;
             return true;
         }
+
+        if (invalidOperationFeedback != null)
+            invalidOperationFeedback.Play(grabbedObject, interactionCamera);
 
         Debug.LogWarning(
             $"Operacao invalida ({contextLabel}): {targetValue} {equippedOperator} {carriedBlock.CurrentValue} no bloco {blockName}"
@@ -579,18 +601,27 @@ public class GravityInteract : MonoBehaviour
 
     private void DuplicateBlock(Transform sourceBlock)
     {
-        if (sourceBlock == null)
+        if (sourceBlock == null || playerMovement == null)
+            return;
+
+        MathBlockValue sourceValue = sourceBlock.GetComponent<MathBlockValue>();
+        MathBlockValue.RendererColorSnapshot[] colorSnapshot = sourceValue != null
+            ? sourceValue.CaptureRendererColors()
+            : null;
+
+        // Consome primeiro para impedir que dois comandos no mesmo frame ultrapassem o limite.
+        if (!playerMovement.TryConsumeBlockDuplication())
             return;
 
         Vector3 spawnPosition = sourceBlock.position + Vector3.up * duplicateSpawnHeight;
         GameObject duplicatedBlock = Instantiate(sourceBlock.gameObject, spawnPosition, sourceBlock.rotation);
         duplicatedBlock.name = $"{sourceBlock.name}_Clone";
-        CopyRendererColors(sourceBlock, duplicatedBlock.transform);
 
         MathBlockValue duplicatedValue = duplicatedBlock.GetComponent<MathBlockValue>();
         if (duplicatedValue != null)
         {
             duplicatedValue.InitializeDuplicatedBlock();
+            duplicatedValue.ApplyRendererColors(colorSnapshot);
         }
 
         Rigidbody duplicatedRigidbody = duplicatedBlock.GetComponent<Rigidbody>();
@@ -602,48 +633,7 @@ public class GravityInteract : MonoBehaviour
             duplicatedRigidbody.angularVelocity = Vector3.zero;
         }
 
-        if (!playerMovement.TryConsumeBlockDuplication())
-        {
-            Destroy(duplicatedBlock);
-            return;
-        }
-
         Debug.Log($"Bloco duplicado: {sourceBlock.name}. Duplicacoes restantes: {playerMovement.AvailableBlockDuplications}");
-    }
-
-    private void CopyRendererColors(Transform sourceBlock, Transform duplicatedBlock)
-    {
-        Renderer[] sourceRenderers = sourceBlock.GetComponentsInChildren<Renderer>();
-        Renderer[] duplicatedRenderers = duplicatedBlock.GetComponentsInChildren<Renderer>();
-        int rendererCount = Mathf.Min(sourceRenderers.Length, duplicatedRenderers.Length);
-
-        for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++)
-        {
-            Material[] sourceMaterials = sourceRenderers[rendererIndex].materials;
-            Material[] duplicatedMaterials = duplicatedRenderers[rendererIndex].materials;
-            int materialCount = Mathf.Min(sourceMaterials.Length, duplicatedMaterials.Length);
-
-            for (int materialIndex = 0; materialIndex < materialCount; materialIndex++)
-            {
-                CopyMaterialColor(sourceMaterials[materialIndex], duplicatedMaterials[materialIndex]);
-            }
-        }
-    }
-
-    private static void CopyMaterialColor(Material sourceMaterial, Material duplicatedMaterial)
-    {
-        if (sourceMaterial == null || duplicatedMaterial == null)
-            return;
-
-        if (sourceMaterial.HasProperty("_BaseColor") && duplicatedMaterial.HasProperty("_BaseColor"))
-        {
-            duplicatedMaterial.SetColor("_BaseColor", sourceMaterial.GetColor("_BaseColor"));
-        }
-
-        if (sourceMaterial.HasProperty("_Color") && duplicatedMaterial.HasProperty("_Color"))
-        {
-            duplicatedMaterial.SetColor("_Color", sourceMaterial.GetColor("_Color"));
-        }
     }
 
     public void SetEquippedOperator(PencilOperator newOperator)
@@ -715,6 +705,9 @@ public class GravityInteract : MonoBehaviour
         grabbedRb.isKinematic = true;
         grabbedRb.useGravity = false;
         CacheCarriedBlockRenderers(grabbedObject);
+        carriedDitherController = grabbedObject.GetComponent<MathBlockDitherController>();
+        if (carriedDitherController == null)
+            carriedDitherController = grabbedObject.gameObject.AddComponent<MathBlockDitherController>();
         IgnoreCarriedBlockCollisions(grabbedObject);
         if (mathBlockValue != null)
         {
@@ -844,8 +837,9 @@ public class GravityInteract : MonoBehaviour
         }
 
         targetCarriedBlockOpacity = isOverlapping ? carriedBlockCollisionOpacity : 1f;
+        if (carriedDitherController != null)
+            carriedDitherController.SetOverlapping(isOverlapping);
         UpdateCarriedOperationPreview(overlappedBlock);
-        UpdateCarriedBlockOpacity(deltaTime);
     }
 
     private bool TryGetCarriedBlockOverlap(out MathBlockValue overlappedBlock)
@@ -966,7 +960,6 @@ public class GravityInteract : MonoBehaviour
         if (carriedRendererStates.Count == 0)
             return;
 
-        float previousOpacity = currentCarriedBlockOpacity;
         float lerpFactor = 1f - Mathf.Exp(-Mathf.Max(0.01f, carriedBlockOpacityLerpSpeed) * deltaTime);
         currentCarriedBlockOpacity = Mathf.Lerp(currentCarriedBlockOpacity, targetCarriedBlockOpacity, lerpFactor);
         if (Mathf.Abs(currentCarriedBlockOpacity - targetCarriedBlockOpacity) < 0.01f)
@@ -974,30 +967,23 @@ public class GravityInteract : MonoBehaviour
             currentCarriedBlockOpacity = targetCarriedBlockOpacity;
         }
 
-        bool shouldUseTransparentMaterial = currentCarriedBlockOpacity < 0.999f || targetCarriedBlockOpacity < 0.999f;
-        bool reachedOpaque = previousOpacity < 0.999f && currentCarriedBlockOpacity >= 0.999f && targetCarriedBlockOpacity >= 0.999f;
-
         for (int stateIndex = 0; stateIndex < carriedRendererStates.Count; stateIndex++)
         {
             CarriedRendererState state = carriedRendererStates[stateIndex];
             if (state.Renderer == null || state.Material == null)
                 continue;
 
-            if (shouldUseTransparentMaterial)
-            {
-                ConfigureTransparentMaterial(state.Material);
-                state.ApplyAlpha(currentCarriedBlockOpacity);
-            }
-            else if (reachedOpaque)
-            {
-                state.RestoreMaterialState();
-                state.ApplyAlpha(1f);
-            }
+            state.ApplyDither(1f - currentCarriedBlockOpacity);
         }
     }
 
     private void RestoreCarriedBlockOpacity()
     {
+        if (carriedDitherController != null)
+        {
+            carriedDitherController.ForceRestore();
+            carriedDitherController = null;
+        }
         for (int stateIndex = 0; stateIndex < carriedRendererStates.Count; stateIndex++)
         {
             CarriedRendererState state = carriedRendererStates[stateIndex];
@@ -1172,11 +1158,15 @@ public class GravityInteract : MonoBehaviour
         private readonly bool hasPropertyBlockColors;
         private readonly Color propertyBlockBaseColor;
         private readonly Color propertyBlockColor;
+        private readonly Shader originalShader;
+        private readonly Texture originalBaseMap;
 
         public CarriedRendererState(Renderer targetRenderer, Material material)
         {
             Renderer = targetRenderer;
             Material = material;
+            originalShader = material.shader;
+            originalBaseMap = material.HasProperty("_BaseMap") ? material.GetTexture("_BaseMap") : null;
             hasBaseColor = material.HasProperty("_BaseColor");
             baseColor = hasBaseColor ? material.GetColor("_BaseColor") : Color.white;
             hasColor = material.HasProperty("_Color");
@@ -1207,6 +1197,30 @@ public class GravityInteract : MonoBehaviour
             propertyBlockColor = hasPropertyBlockColors && hasColor
                 ? propertyBlock.GetColor("_Color")
                 : Color.white;
+        }
+
+        public void ApplyDither(float amount)
+        {
+            if (Material == null)
+                return;
+
+            amount = Mathf.Clamp01(amount);
+            if (amount <= 0.001f)
+            {
+                RestoreMaterialState();
+                return;
+            }
+
+            Shader ditherShader = Shader.Find("MathBlock/DitheredOpacity");
+            if (ditherShader == null)
+                return;
+
+            Material.shader = ditherShader;
+            if (originalBaseMap != null)
+                Material.SetTexture("_BaseMap", originalBaseMap);
+            Material.SetColor("_BaseColor", hasBaseColor ? baseColor : hasColor ? color : Color.white);
+            Material.SetFloat("_DitherAmount", amount);
+            Material.SetFloat("_DotScale", 7f);
         }
 
         public void ApplyAlpha(float alpha)
@@ -1255,6 +1269,9 @@ public class GravityInteract : MonoBehaviour
         {
             if (Material == null)
                 return;
+
+            if (originalShader != null && Material.shader != originalShader)
+                Material.shader = originalShader;
 
             if (hasBaseColor)
             {
