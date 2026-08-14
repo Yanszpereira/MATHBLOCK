@@ -254,6 +254,9 @@ public class GravityInteract : MonoBehaviour
 
     private void TryHandleDuplicateBlock()
     {
+        if (playerMovement != null)
+            playerMovement.NotifyBlockDuplicationRequested();
+
         if (isOnCooldown || grabbed || playerMovement == null || playerMovement.AvailableBlockDuplications <= 0)
             return;
 
@@ -637,18 +640,27 @@ public class GravityInteract : MonoBehaviour
 
     private void DuplicateBlock(Transform sourceBlock)
     {
-        if (sourceBlock == null)
+        if (sourceBlock == null || playerMovement == null)
+            return;
+
+        MathBlockValue sourceValue = sourceBlock.GetComponent<MathBlockValue>();
+        MathBlockValue.RendererColorSnapshot[] colorSnapshot = sourceValue != null
+            ? sourceValue.CaptureRendererColors()
+            : null;
+
+        // Consome primeiro para impedir que dois comandos no mesmo frame ultrapassem o limite.
+        if (!playerMovement.TryConsumeBlockDuplication())
             return;
 
         Vector3 spawnPosition = sourceBlock.position + Vector3.up * duplicateSpawnHeight;
         GameObject duplicatedBlock = Instantiate(sourceBlock.gameObject, spawnPosition, sourceBlock.rotation);
         duplicatedBlock.name = $"{sourceBlock.name}_Clone";
-        CopyRendererColors(sourceBlock, duplicatedBlock.transform);
 
         MathBlockValue duplicatedValue = duplicatedBlock.GetComponent<MathBlockValue>();
         if (duplicatedValue != null)
         {
             duplicatedValue.InitializeDuplicatedBlock();
+            duplicatedValue.ApplyRendererColors(colorSnapshot);
         }
 
         Rigidbody duplicatedRigidbody = duplicatedBlock.GetComponent<Rigidbody>();
@@ -660,48 +672,7 @@ public class GravityInteract : MonoBehaviour
             duplicatedRigidbody.angularVelocity = Vector3.zero;
         }
 
-        if (!playerMovement.TryConsumeBlockDuplication())
-        {
-            Destroy(duplicatedBlock);
-            return;
-        }
-
         Debug.Log($"Bloco duplicado: {sourceBlock.name}. Duplicacoes restantes: {playerMovement.AvailableBlockDuplications}");
-    }
-
-    private void CopyRendererColors(Transform sourceBlock, Transform duplicatedBlock)
-    {
-        Renderer[] sourceRenderers = sourceBlock.GetComponentsInChildren<Renderer>();
-        Renderer[] duplicatedRenderers = duplicatedBlock.GetComponentsInChildren<Renderer>();
-        int rendererCount = Mathf.Min(sourceRenderers.Length, duplicatedRenderers.Length);
-
-        for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++)
-        {
-            Material[] sourceMaterials = sourceRenderers[rendererIndex].materials;
-            Material[] duplicatedMaterials = duplicatedRenderers[rendererIndex].materials;
-            int materialCount = Mathf.Min(sourceMaterials.Length, duplicatedMaterials.Length);
-
-            for (int materialIndex = 0; materialIndex < materialCount; materialIndex++)
-            {
-                CopyMaterialColor(sourceMaterials[materialIndex], duplicatedMaterials[materialIndex]);
-            }
-        }
-    }
-
-    private static void CopyMaterialColor(Material sourceMaterial, Material duplicatedMaterial)
-    {
-        if (sourceMaterial == null || duplicatedMaterial == null)
-            return;
-
-        if (sourceMaterial.HasProperty("_BaseColor") && duplicatedMaterial.HasProperty("_BaseColor"))
-        {
-            duplicatedMaterial.SetColor("_BaseColor", sourceMaterial.GetColor("_BaseColor"));
-        }
-
-        if (sourceMaterial.HasProperty("_Color") && duplicatedMaterial.HasProperty("_Color"))
-        {
-            duplicatedMaterial.SetColor("_Color", sourceMaterial.GetColor("_Color"));
-        }
     }
 
     public void SetEquippedOperator(PencilOperator newOperator)

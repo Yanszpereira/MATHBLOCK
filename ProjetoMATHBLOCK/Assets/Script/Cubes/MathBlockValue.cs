@@ -656,7 +656,8 @@ public class MathBlockValue : MonoBehaviour
             MaterialPropertyBlock rendererPropertyBlock = new MaterialPropertyBlock();
             targetRenderer.GetPropertyBlock(rendererPropertyBlock);
 
-            Material[] materials = targetRenderer.materials;
+            // sharedMaterials evita criar uma nova instância para cada captura/duplicação.
+            Material[] materials = targetRenderer.sharedMaterials;
             MaterialColorSnapshot[] materialSnapshots = new MaterialColorSnapshot[materials.Length];
 
             for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
@@ -713,7 +714,7 @@ public class MathBlockValue : MonoBehaviour
             if (targetRenderer == null || IsLabelRenderer(targetRenderer))
                 continue;
 
-            Material[] materials = targetRenderer.materials;
+            Material[] materials = targetRenderer.sharedMaterials;
             MaterialColorSnapshot[] materialSnapshots = snapshots[snapshotIndex].materialColors;
             int materialCount = Mathf.Min(materials.Length, materialSnapshots.Length);
 
@@ -722,7 +723,7 @@ public class MathBlockValue : MonoBehaviour
                 ApplyColorSnapshot(materials[materialIndex], materialSnapshots[materialIndex]);
             }
 
-            targetRenderer.materials = materials;
+            targetRenderer.sharedMaterials = materials;
             ApplyPropertyBlockSnapshot(targetRenderer, snapshots[snapshotIndex]);
             snapshotIndex++;
         }
