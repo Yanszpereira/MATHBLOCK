@@ -258,6 +258,8 @@ public class MathBlockValue : MonoBehaviour
             return false;
 
         SetValue(nextValue);
+        if (operatorType == GravityInteract.PencilOperator.Addition)
+            AdditionCelebrationEffect.Play(this);
         Debug.Log($"Bloco {name} atualizado para {currentValue} usando {operatorType}");
         return true;
     }

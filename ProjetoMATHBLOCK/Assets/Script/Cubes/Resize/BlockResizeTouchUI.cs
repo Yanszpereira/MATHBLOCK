@@ -15,6 +15,12 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
 
     private void Awake()
     {
+        if (Application.platform != RuntimePlatform.Android)
+        {
+            enabled = false;
+            return;
+        }
+
         controller = GetComponent<BlockResizeController>();
         CreateInterface();
     }
@@ -67,20 +73,20 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
         scaler.referenceResolution = new Vector2(1920f, 1080f);
         scaler.matchWidthOrHeight = 0.5f;
 
-        stretchButton = CreateButton("ESTICAR", new Vector2(1f, 0.5f), new Vector2(-150f, -120f), new Vector2(240f, 82f), new Color(0.08f, 0.58f, 0.70f, 0.94f));
+        stretchButton = CreateButton("ESTICAR", new Vector2(1f, 0.5f), new Vector2(-150f, -120f), new Vector2(224f, 76f));
         stretchButton.onClick.AddListener(() => controller.TryHandleResizeTouchButton());
         stretchButton.gameObject.SetActive(false);
 
-        confirmButton = CreateButton("CONFIRMAR", new Vector2(1f, 0f), new Vector2(-160f, 52f), new Vector2(260f, 76f), new Color(0.14f, 0.72f, 0.42f, 0.95f));
+        confirmButton = CreateButton("CONFIRMAR", new Vector2(1f, 0f), new Vector2(-150f, 46f), new Vector2(238f, 72f));
         confirmButton.onClick.AddListener(controller.ConfirmResizeSession);
         confirmButton.gameObject.SetActive(false);
 
-        cancelButton = CreateButton("CANCELAR", new Vector2(0f, 0f), new Vector2(160f, 52f), new Vector2(240f, 76f), new Color(0.83f, 0.20f, 0.22f, 0.95f));
+        cancelButton = CreateButton("CANCELAR", new Vector2(0f, 0f), new Vector2(150f, 46f), new Vector2(224f, 72f));
         cancelButton.onClick.AddListener(controller.CancelResizeSession);
         cancelButton.gameObject.SetActive(false);
     }
 
-    private Button CreateButton(string label, Vector2 anchor, Vector2 position, Vector2 size, Color color)
+    private Button CreateButton(string label, Vector2 anchor, Vector2 position, Vector2 size)
     {
         GameObject buttonObject = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button));
         buttonObject.transform.SetParent(canvas.transform, false);
@@ -92,12 +98,9 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
         rect.sizeDelta = size;
 
         Image image = buttonObject.GetComponent<Image>();
-        image.color = color;
+        image.color = Color.white;
         Button button = buttonObject.GetComponent<Button>();
-        ColorBlock colors = button.colors;
-        colors.highlightedColor = Color.Lerp(color, Color.white, 0.2f);
-        colors.pressedColor = Color.Lerp(color, Color.black, 0.2f);
-        button.colors = colors;
+        HudToonStyler.ApplyButtonStyle(button);
 
         GameObject textObject = new GameObject("Label", typeof(RectTransform), typeof(Text));
         textObject.transform.SetParent(buttonObject.transform, false);

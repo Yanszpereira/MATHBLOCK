@@ -23,28 +23,36 @@ public sealed class HudToonStyler : MonoBehaviour
             if (button == null || !IsInsideHud(button.transform))
                 continue;
 
-            Image image = button.targetGraphic as Image ?? button.GetComponent<Image>();
-            if (image == null)
-                continue;
-            image.sprite = GetButtonSprite();
-            image.type = Image.Type.Sliced;
-            image.color = Color.white;
-
-            Outline outline = button.GetComponent<Outline>();
-            if (outline == null)
-                outline = button.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(0.025f, 0.18f, 0.23f, 0.95f);
-            outline.effectDistance = new Vector2(4f, -4f);
-
-            ColorBlock colors = button.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(1.08f, 1.08f, 1.08f, 1f);
-            colors.pressedColor = new Color(0.72f, 0.88f, 0.90f, 1f);
-            colors.selectedColor = colors.highlightedColor;
-            colors.disabledColor = new Color(0.55f, 0.62f, 0.64f, 0.55f);
-            colors.fadeDuration = 0.08f;
-            button.colors = colors;
+            ApplyButtonStyle(button);
         }
+    }
+
+    public static void ApplyButtonStyle(Button button)
+    {
+        if (button == null)
+            return;
+
+        Image image = button.targetGraphic as Image ?? button.GetComponent<Image>();
+        if (image == null)
+            return;
+        image.sprite = GetButtonSprite();
+        image.type = Image.Type.Sliced;
+        image.color = Color.white;
+
+        Outline outline = button.GetComponent<Outline>();
+        if (outline == null)
+            outline = button.gameObject.AddComponent<Outline>();
+        outline.effectColor = new Color(0.025f, 0.18f, 0.23f, 0.95f);
+        outline.effectDistance = new Vector2(4f, -4f);
+
+        ColorBlock colors = button.colors;
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(1f, 1f, 1f, 1f);
+        colors.pressedColor = new Color(0.72f, 0.88f, 0.90f, 1f);
+        colors.selectedColor = colors.highlightedColor;
+        colors.disabledColor = new Color(0.55f, 0.62f, 0.64f, 0.55f);
+        colors.fadeDuration = 0.08f;
+        button.colors = colors;
     }
 
     private static bool IsInsideHud(Transform target)
@@ -53,7 +61,8 @@ public sealed class HudToonStyler : MonoBehaviour
         while (current != null)
         {
             if (current.name.Equals("Hud", System.StringComparison.OrdinalIgnoreCase) ||
-                current.name.Equals("HUD", System.StringComparison.OrdinalIgnoreCase))
+                current.name.Equals("HUD", System.StringComparison.OrdinalIgnoreCase) ||
+                current.name.Equals("Special Block Touch Controls", System.StringComparison.OrdinalIgnoreCase))
                 return true;
             current = current.parent;
         }

@@ -19,10 +19,28 @@ public sealed class GameplayButtonBinder : MonoBehaviour
 
     private void Start()
     {
+        ConfigureAndroidButtonGroups();
         movement = FindFirstObjectByType<PlayerMovement>();
         gravityInteract = FindFirstObjectByType<GravityInteract>();
         menuController = FindFirstObjectByType<MenuController>(FindObjectsInactive.Include);
         BindButtons();
+    }
+
+    private static void ConfigureAndroidButtonGroups()
+    {
+        bool showOnAndroid = Application.platform == RuntimePlatform.Android;
+        Transform[] transforms = FindObjectsByType<Transform>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+
+        foreach (Transform candidate in transforms)
+        {
+            if (candidate != null
+                && candidate.name.Equals("BotoesMobile", System.StringComparison.OrdinalIgnoreCase))
+            {
+                candidate.gameObject.SetActive(showOnAndroid);
+            }
+        }
     }
 
     private void BindButtons()

@@ -259,7 +259,7 @@ public class DesfazerManager : MonoBehaviour
 
         if (operationSound.IsNull)
         {
-            Debug.LogWarning($"{name}: som de operacao FMOD nao configurado.");
+            PlayFallbackSound("event:/blocoNooutro", GetOperationSoundPosition(targetBlock, consumedBlock));
             return;
         }
 
@@ -268,20 +268,7 @@ public class DesfazerManager : MonoBehaviour
 
         lastOperationSoundTime = Time.time;
 
-        Vector3 soundPosition = transform.position;
-
-        if (targetBlock != null && consumedBlock != null)
-        {
-            soundPosition = (targetBlock.transform.position + consumedBlock.transform.position) * 0.5f;
-        }
-        else if (targetBlock != null)
-        {
-            soundPosition = targetBlock.transform.position;
-        }
-        else if (consumedBlock != null)
-        {
-            soundPosition = consumedBlock.transform.position;
-        }
+        Vector3 soundPosition = GetOperationSoundPosition(targetBlock, consumedBlock);
 
         RuntimeManager.PlayOneShot(operationSound, soundPosition);
     }
@@ -293,7 +280,7 @@ public class DesfazerManager : MonoBehaviour
 
         if (undoSound.IsNull)
         {
-            Debug.LogWarning($"{name}: som de desfazer FMOD nao configurado.");
+            PlayFallbackSound("event:/blockundo", targetBlock != null ? targetBlock.transform.position : transform.position);
             return;
         }
 
@@ -305,6 +292,21 @@ public class DesfazerManager : MonoBehaviour
         Vector3 soundPosition = targetBlock != null ? targetBlock.transform.position : transform.position;
 
         RuntimeManager.PlayOneShot(undoSound, soundPosition);
+    }
+
+    private Vector3 GetOperationSoundPosition(MathBlockValue targetBlock, MathBlockValue consumedBlock)
+    {
+        if (targetBlock != null && consumedBlock != null)
+            return (targetBlock.transform.position + consumedBlock.transform.position) * 0.5f;
+        if (targetBlock != null) return targetBlock.transform.position;
+        if (consumedBlock != null) return consumedBlock.transform.position;
+        return transform.position;
+    }
+
+    private void PlayFallbackSound(string eventPath, Vector3 position)
+    {
+        if (string.IsNullOrEmpty(eventPath)) return;
+        RuntimeManager.PlayOneShot(eventPath, position);
     }
 
     public Stack<Acao> CloneStack(Stack<Acao> sourceStack)

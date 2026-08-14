@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -8,7 +9,7 @@ public class OperatorsScript : MonoBehaviour
 {
     [Header("Interação")]
     public Transform playerVision;
-    public float grabDistance = 3f;
+    public float grabDistance = 10f;
     public GravityInteract pencilGun;
 
     [SerializeField] private Transform operatorAbsorbTarget;
@@ -137,6 +138,48 @@ public class OperatorsScript : MonoBehaviour
         {
             playerVision = Camera.main.transform;
         }
+
+        ResolveHudIcons();
+    }
+
+    // Na Fase 2 este componente é adicionado em runtime e não recebe as
+    // referências do Inspector. Localiza os indicadores no Canvas da cena.
+    private void ResolveHudIcons()
+    {
+        if (additionIcon != null
+            && subtractionIcon != null
+            && multiplicationIcon != null
+            && divisionIcon != null)
+        {
+            return;
+        }
+
+        Image[] sceneImages = FindObjectsByType<Image>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+        Dictionary<string, Image> iconsByName = new Dictionary<string, Image>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (Image image in sceneImages)
+        {
+            if (image != null && !iconsByName.ContainsKey(image.name))
+                iconsByName.Add(image.name, image);
+        }
+
+        additionIcon ??= FindIcon(iconsByName, "Soma", "Adicao", "Adição");
+        subtractionIcon ??= FindIcon(iconsByName, "Subtracao", "Subtração");
+        multiplicationIcon ??= FindIcon(iconsByName, "Multiplicacao", "Multiplicação");
+        divisionIcon ??= FindIcon(iconsByName, "Divisao", "Divisão");
+    }
+
+    private static Image FindIcon(Dictionary<string, Image> iconsByName, params string[] names)
+    {
+        foreach (string iconName in names)
+        {
+            if (iconsByName.TryGetValue(iconName, out Image icon))
+                return icon;
+        }
+
+        return null;
     }
 
     private void ResolveInputAction()

@@ -12,12 +12,14 @@ public class OperatorAbsorbEffect : MonoBehaviour
     [SerializeField] private float closeDistance = 0.12f;
     [SerializeField] private float maxLifetimeAfterReach = 0.08f;
     [SerializeField] private float emissionDuration = 0.6f;
+    [SerializeField] private float spiralStrength = 2.4f;
     [SerializeField] private bool playOnInit = true;
     [SerializeField] private Sprite particleSprite;
 
     private ParticleSystem.Particle[] particleBuffer;
     private bool initialized;
     private float startedAt;
+    private Material runtimeMaterial;
 
     private void Awake()
     {
@@ -119,8 +121,21 @@ public class OperatorAbsorbEffect : MonoBehaviour
                 continue;
             }
 
+            Vector3 radial = toTarget / Mathf.Max(distance, 0.001f);
+            Vector3 tangent = Vector3.Cross(radial, Vector3.up);
+            if (tangent.sqrMagnitude < 0.01f)
+                tangent = Vector3.Cross(radial, Vector3.right);
+            tangent.Normalize();
+
+            // Cada partícula recebe fase e sentido próprios, formando uma espiral
+            // que se fecha e acelera ao chegar no lápis.
+            float phase = (i * 2.39996f) + effectAge * (5.2f + (i % 3));
+            float direction = (i & 1) == 0 ? 1f : -1f;
+            float orbit = Mathf.Clamp01(distance / 0.75f) * spiralStrength;
+            Vector3 spiralOffset = tangent * (Mathf.Sin(phase) * direction * orbit * Time.deltaTime);
+            spiralOffset += Vector3.Cross(radial, tangent) * (Mathf.Cos(phase) * orbit * 0.35f * Time.deltaTime);
             float lerpAmount = Mathf.Clamp01(attractionStep / Mathf.Max(distance, 0.001f));
-            particleBuffer[i].position = Vector3.Lerp(particlePosition, targetPosition, lerpAmount);
+            particleBuffer[i].position = Vector3.Lerp(particlePosition + spiralOffset, targetPosition, lerpAmount);
         }
 
         particles.SetParticles(particleBuffer, particleCount);
@@ -144,17 +159,16 @@ public class OperatorAbsorbEffect : MonoBehaviour
         main.startColor = baseColor;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.scalingMode = ParticleSystemScalingMode.Hierarchy;
-        main.maxParticles = 110;
+        main.maxParticles = Application.platform == RuntimePlatform.Android ? 72 : 120;
         main.playOnAwake = false;
         main.stopAction = ParticleSystemStopAction.Destroy;
 
         ParticleSystem.EmissionModule emission = particles.emission;
         emission.enabled = true;
         emission.rateOverTime = new ParticleSystem.MinMaxCurve(0f);
-        emission.SetBursts(new[]
-        {
-            new ParticleSystem.Burst(0f, 7, 10, 5, emissionDuration / 5f)
-        });
+        short burstCount = (short)(Application.platform == RuntimePlatform.Android ? 6 : 9);
+        short cycles = (short)(Application.platform == RuntimePlatform.Android ? 4 : 6);
+        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, burstCount, burstCount, cycles, emissionDuration / cycles) });
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled = true;
@@ -234,8 +248,8 @@ public class OperatorAbsorbEffect : MonoBehaviour
     {
         ParticleSystem.TrailModule trails = particles.trails;
         trails.enabled = true;
-        trails.ratio = 0.35f;
-        trails.lifetime = new ParticleSystem.MinMaxCurve(0.2f);
+        trails.ratio = Application.platform == RuntimePlatform.Android ? 0.24f : 0.48f;
+        trails.lifetime = new ParticleSystem.MinMaxCurve(0.16f, 0.28f);
         trails.minVertexDistance = 0.025f;
         trails.widthOverTrail = new ParticleSystem.MinMaxCurve(
             1f,
@@ -272,6 +286,7 @@ public class OperatorAbsorbEffect : MonoBehaviour
         Material material = CreateTransparentParticleMaterial("OperatorAbsorbParticleMaterial", baseColor);
         if (material != null)
         {
+            runtimeMaterial = material;
             particleRenderer.sharedMaterial = material;
             particleRenderer.trailMaterial = material;
         }
@@ -288,6 +303,12 @@ public class OperatorAbsorbEffect : MonoBehaviour
                 particleRenderer.sharedMaterial.SetColor("_Color", baseColor);
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (runtimeMaterial != null)
+            Destroy(runtimeMaterial);
     }
 
     private void ConfigureSpriteSheet()

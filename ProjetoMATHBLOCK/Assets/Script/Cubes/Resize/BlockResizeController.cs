@@ -83,7 +83,8 @@ public sealed class BlockResizeController : MonoBehaviour
     private void Awake()
     {
         ResolveReferences();
-        if (GetComponent<BlockResizeTouchUI>() == null)
+        if (Application.platform == RuntimePlatform.Android
+            && GetComponent<BlockResizeTouchUI>() == null)
             gameObject.AddComponent<BlockResizeTouchUI>();
     }
 

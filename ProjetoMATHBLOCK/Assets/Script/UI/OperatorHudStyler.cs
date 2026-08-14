@@ -8,6 +8,9 @@ using UnityEngine.UI;
 public sealed class OperatorHudStyler : MonoBehaviour
 {
     private static readonly string[] Names = { "Soma", "Subtracao", "Multiplicacao", "Divisao" };
+    // Escapes Unicode mantêm os símbolos corretos em qualquer Editor ou build,
+    // independentemente da codificação usada para salvar este arquivo.
+    private static readonly string[] SafeSymbols = { "+", "\u2212", "\u00D7", "\u00F7" };
     private static readonly string[] Symbols = { "+", "−", "×", "÷" };
     private static readonly Color[] Accents =
     {
@@ -40,7 +43,7 @@ public sealed class OperatorHudStyler : MonoBehaviour
 
             if (image != null)
             {
-                ApplyStyle(image, Symbols[i], Accents[i]);
+                ApplyStyle(image, SafeSymbols[i], Accents[i]);
                 operatorRects.Add(image.rectTransform);
             }
         }

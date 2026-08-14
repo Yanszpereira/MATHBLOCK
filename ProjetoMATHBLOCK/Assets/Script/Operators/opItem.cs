@@ -76,7 +76,10 @@ public class opItem : MonoBehaviour
     private void SpawnAbsorbEffect(Transform absorbTarget)
     {
         Color effectColor = GetAbsorbEffectColor();
-        SpawnWaveEffect(effectColor);
+        Vector3 absorbDirection = absorbTarget != null
+            ? absorbTarget.position - transform.position
+            : Vector3.up;
+        SpawnWaveEffect(effectColor, absorbDirection);
 
         OperatorAbsorbEffect effect = null;
         if (absorbEffectPrefab != null)
@@ -94,7 +97,7 @@ public class opItem : MonoBehaviour
         effect.Init(absorbTarget, effectColor, absorbParticleSprite);
     }
 
-    private void SpawnWaveEffect(Color effectColor)
+    private void SpawnWaveEffect(Color effectColor, Vector3 direction)
     {
         OperatorAbsorbWaveEffect waveEffect = null;
         if (absorbWaveEffectPrefab != null)
@@ -109,7 +112,7 @@ public class opItem : MonoBehaviour
             waveEffect = waveObject.AddComponent<OperatorAbsorbWaveEffect>();
         }
 
-        waveEffect.Init(effectColor, absorbWaveSprite);
+        waveEffect.Init(effectColor, absorbWaveSprite, direction);
     }
 
     private Color GetAbsorbEffectColor()

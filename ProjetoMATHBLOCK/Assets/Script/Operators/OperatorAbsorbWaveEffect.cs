@@ -16,6 +16,7 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
 
     private bool initialized;
     private Vector3 impactDirection = Vector3.up;
+    private Material runtimeMaterial;
 
     private void Awake()
     {
@@ -54,6 +55,7 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
     {
         particleSprite = sprite;
         impactDirection = direction.sqrMagnitude > Mathf.Epsilon ? direction.normalized : Vector3.up;
+        transform.rotation = Quaternion.FromToRotation(Vector3.forward, impactDirection);
         Configure(color);
         initialized = true;
         particles.Play(true);
@@ -76,7 +78,10 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         main.startColor = WithAlpha(Color.Lerp(color, Color.white, 0.3f), 0.55f);
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.scalingMode = ParticleSystemScalingMode.Hierarchy;
-        main.maxParticles = particleCount + 8;
+        int effectiveCount = Application.platform == RuntimePlatform.Android
+            ? Mathf.Min(particleCount, 30)
+            : particleCount;
+        main.maxParticles = effectiveCount + 8;
         main.playOnAwake = false;
         main.stopAction = ParticleSystemStopAction.Destroy;
 
@@ -85,15 +90,16 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         emission.rateOverTime = 0f;
         emission.SetBursts(new[]
         {
-            new ParticleSystem.Burst(0f, (short)particleCount)
+            new ParticleSystem.Burst(0f, (short)effectiveCount)
         });
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled = true;
-        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.shapeType = ParticleSystemShapeType.Circle;
         shape.radius = startRadius;
-        shape.radiusThickness = 1f;
-        shape.alignToDirection = false;
+        shape.radiusThickness = 0f;
+        shape.arcMode = ParticleSystemShapeMultiModeValue.Random;
+        shape.alignToDirection = true;
 
         ParticleSystem.VelocityOverLifetimeModule velocity = particles.velocityOverLifetime;
         velocity.enabled = true;
@@ -106,7 +112,10 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         force.enabled = false;
 
         ParticleSystem.NoiseModule noise = particles.noise;
-        noise.enabled = false;
+        noise.enabled = true;
+        noise.strength = 0.08f;
+        noise.frequency = 2.2f;
+        noise.scrollSpeed = 0.5f;
 
         ParticleSystem.LimitVelocityOverLifetimeModule limitVelocity = particles.limitVelocityOverLifetime;
         limitVelocity.enabled = true;
@@ -172,7 +181,8 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         renderer.shadowCastingMode = ShadowCastingMode.Off;
         renderer.receiveShadows = false;
 
-        renderer.sharedMaterial = CreateParticleMaterial(color, particleSprite);
+        runtimeMaterial = CreateParticleMaterial(color, particleSprite);
+        renderer.sharedMaterial = runtimeMaterial;
 
         if (renderer.sharedMaterial == null)
             return;
@@ -186,6 +196,12 @@ public class OperatorAbsorbWaveEffect : MonoBehaviour
         {
             renderer.sharedMaterial.SetColor("_Color", color);
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (runtimeMaterial != null)
+            Destroy(runtimeMaterial);
     }
 
     private void ConfigureSpriteSheet()
