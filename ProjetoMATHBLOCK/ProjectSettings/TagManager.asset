@@ -8,7 +8,6 @@ TagManager:
   - Operator
   - Void
   - Ground
-  - Cloud
   layers:
   - Default
   - TransparentFX

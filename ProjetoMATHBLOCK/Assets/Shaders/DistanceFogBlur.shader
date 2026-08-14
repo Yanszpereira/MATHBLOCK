@@ -25,15 +25,7 @@ Shader "Hidden/MathBlock/DistanceFogBlur"
                 float rawDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, input.uv);
                 float distanceFromCamera = LinearEyeDepth(rawDepth);
                 float fog = smoothstep(_StartDistance, _FullDistance, distanceFromCamera);
-                // Expande levemente a máscara para o blur não vazar pelas bordas da nuvem.
-                float2 maskPixel = _MainTex_TexelSize.xy * 3.0;
                 float exclusion = tex2D(_ExclusionMask, input.uv).r;
-                exclusion = max(exclusion, tex2D(_ExclusionMask, input.uv + float2(maskPixel.x, 0)).r);
-                exclusion = max(exclusion, tex2D(_ExclusionMask, input.uv - float2(maskPixel.x, 0)).r);
-                exclusion = max(exclusion, tex2D(_ExclusionMask, input.uv + float2(0, maskPixel.y)).r);
-                exclusion = max(exclusion, tex2D(_ExclusionMask, input.uv - float2(0, maskPixel.y)).r);
-                exclusion = max(exclusion, tex2D(_ExclusionMask, input.uv + maskPixel).r);
-                exclusion = max(exclusion, tex2D(_ExclusionMask, input.uv - maskPixel).r);
                 fog *= 1.0 - saturate(exclusion);
                 float2 offset = _MainTex_TexelSize.xy * _BlurRadius * fog;
 

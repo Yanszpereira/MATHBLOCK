@@ -22,75 +22,11 @@ public class CloudMover : MonoBehaviour
 
     private void Awake()
     {
-        ConfigureCleanToonClouds();
         RandomizeParticleShapeScale();
         CacheFadeTargets();
         CacheParticleFadeTargets();
         SetFadeAlpha(0f);
         fadeCoroutine = StartCoroutine(FadeToAlpha(1f));
-    }
-
-    private void ConfigureCleanToonClouds()
-    {
-        ParticleSystem[] particleSystems = GetComponentsInChildren<ParticleSystem>(true);
-
-        foreach (ParticleSystem particles in particleSystems)
-        {
-            ParticleSystem.MainModule main = particles.main;
-            main.maxParticles = Application.isMobilePlatform ? 34 : 52;
-            main.startLifetime = new ParticleSystem.MinMaxCurve(16f, 28f);
-            main.startSpeed = new ParticleSystem.MinMaxCurve(0.03f, 0.12f);
-            main.startSize = new ParticleSystem.MinMaxCurve(2.8f, 5.8f);
-            main.startColor = new ParticleSystem.MinMaxGradient(
-                new Color(0.76f, 0.96f, 0.90f, 0.34f),
-                new Color(0.94f, 1f, 0.98f, 0.58f));
-
-            ParticleSystem.EmissionModule emission = particles.emission;
-            emission.rateOverTime = new ParticleSystem.MinMaxCurve(Application.isMobilePlatform ? 0.55f : 0.85f);
-
-            ParticleSystem.NoiseModule noise = particles.noise;
-            noise.enabled = true;
-            noise.strength = new ParticleSystem.MinMaxCurve(0.06f, 0.14f);
-            noise.frequency = 0.18f;
-            noise.scrollSpeed = new ParticleSystem.MinMaxCurve(0.05f);
-
-            ParticleSystem.ColorOverLifetimeModule color = particles.colorOverLifetime;
-            color.enabled = true;
-            Gradient cloudGradient = new Gradient();
-            cloudGradient.SetKeys(
-                new[]
-                {
-                    new GradientColorKey(new Color(0.76f, 0.96f, 0.90f), 0f),
-                    new GradientColorKey(new Color(0.95f, 1f, 0.98f), 0.5f),
-                    new GradientColorKey(new Color(0.64f, 0.88f, 0.91f), 1f)
-                },
-                new[]
-                {
-                    new GradientAlphaKey(0f, 0f),
-                    new GradientAlphaKey(0.56f, 0.18f),
-                    new GradientAlphaKey(0.56f, 0.78f),
-                    new GradientAlphaKey(0f, 1f)
-                });
-            color.color = new ParticleSystem.MinMaxGradient(cloudGradient);
-
-            ParticleSystem.SizeOverLifetimeModule size = particles.sizeOverLifetime;
-            size.enabled = true;
-            size.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(
-                new Keyframe(0f, 0.72f),
-                new Keyframe(0.25f, 1f),
-                new Keyframe(0.8f, 0.94f),
-                new Keyframe(1f, 0.70f)));
-
-            ParticleSystemRenderer cloudRenderer = particles.GetComponent<ParticleSystemRenderer>();
-            if (cloudRenderer != null)
-            {
-                cloudRenderer.renderMode = ParticleSystemRenderMode.Billboard;
-                cloudRenderer.alignment = ParticleSystemRenderSpace.View;
-                cloudRenderer.sortMode = ParticleSystemSortMode.Distance;
-                cloudRenderer.maxParticleSize = 0.18f;
-                cloudRenderer.enableGPUInstancing = true;
-            }
-        }
     }
 
     private void Update()
