@@ -228,9 +228,12 @@ public sealed class DistanceFogBlur : MonoBehaviour
         return mask;
     }
 
-    private void RefreshParticleRenderers()
+private void RefreshParticleRenderers()
     {
-        particleRenderers = FindObjectsByType<ParticleSystemRenderer>(FindObjectsSortMode.None);
+        // Particulas transparentes devem receber o fog do pos-processamento.
+        // Exclusoes continuam sendo opt-in via DistanceFogBlurExclude.
+        particleRenderers = null;
+
         List<Renderer> cloudRenderers = new List<Renderer>();
         GameObject[] taggedClouds = GameObject.FindGameObjectsWithTag("Cloud");
         foreach (GameObject cloud in taggedClouds)

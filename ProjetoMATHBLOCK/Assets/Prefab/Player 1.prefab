@@ -264,6 +264,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Look
   mouseSensitivity: 30
+  touchLookSensitivity: 0.08
+  enableTouchSplitLook: 1
   cameraTransform: {fileID: 6061439391114845259}
   enableWalkBob: 1
   bobFrequency: 8
@@ -291,12 +293,41 @@ MonoBehaviour:
   speed: 8
   gravity: -25
   jumpHeight: 1.6
+  touchMoveSensitivity: 0.015
+  enableTouchSplitMove: 1
   groundLayers:
     serializedVersion: 2
     m_Bits: 4294967295
   groundCheckRadius: 0.38
   groundCheckDistance: 0.18
   availableBlockDuplications: 5
+  playMovementSounds: 1
+  footstepSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  jumpSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  voidFallSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  footstepInterval: 0.42
+  minMoveInputForFootsteps: 0.1
+  voidFallSoundDelay: 0.2
+  voidFallSoundY: -5
+  requireVoidHeightToPlayFallSound: 1
 --- !u!143 &8851233623974187797
 CharacterController:
   m_ObjectHideFlags: 0
@@ -332,7 +363,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
   m_Actions: {fileID: -944628639613478452, guid: 289c1b55c9541489481df5cc06664110, type: 3}
   m_NotificationBehavior: 2
@@ -450,7 +481,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 08c407b47c8a67f4085e0201289e93a1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlockResizeController
   playerCamera: {fileID: 318798714629143770}
   playerInput: {fileID: 4012670796347429066}
@@ -467,7 +498,7 @@ MonoBehaviour:
     m_Bits: 256
   dragDeadZone: 0.5
   restoreCapturedVelocity: 0
-  resizeParticleTexture: {fileID: 2800000, guid: 099bd7b207f488741a376836e9f625b9, type: 3}
+  resizeParticleTexture: {fileID: 0}
   resizeParticleColor: {r: 1, g: 0.82, b: 0.12, a: 1}
 --- !u!1 &3515600641973011663
 GameObject:
@@ -592,6 +623,7 @@ MonoBehaviour:
   hammerImpactEffectObjectName: efeitomarretada
   hammerImpactEffectDuration: 1
   playerMovement: {fileID: 0}
+  invalidOperationFeedback: {fileID: 0}
   operatorAbsorbTarget: {fileID: 0}
   operatorAbsorbTargetCameraLocalPosition: {x: 0, y: -0.55, z: 0.45}
 --- !u!1 &7244764327956436578

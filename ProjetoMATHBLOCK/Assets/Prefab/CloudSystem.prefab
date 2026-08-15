@@ -673,7 +673,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 1.9740319, y: 1.1185781, z: 1.1499466}
+    m_Scale: {x: 1.4736891, y: 1.5201011, z: 1.9955301}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0

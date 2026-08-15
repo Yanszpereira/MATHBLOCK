@@ -23,6 +23,13 @@ public class PadMathBlockDetector : MonoBehaviour
     private readonly Dictionary<Collider, int> detectedBlocks = new Dictionary<Collider, int>();
     private DoorValueVerifier connectedVerifier;
 
+    /// <summary>
+    /// Raised after a MathBlock value is read. Door pads keep using their
+    /// DoorValueVerifier, while other systems (such as elevator totems) can
+    /// listen without pretending to be a door.
+    /// </summary>
+    public event System.Action<GameObject, int, GameObject> ValueDetected;
+
     private float lastErrorSoundTime = -999f;
 
     private void Reset()
@@ -106,11 +113,16 @@ public class PadMathBlockDetector : MonoBehaviour
             PlayErrorSound();
         }
 
+        ValueDetected?.Invoke(gameObject, value, blockValue.gameObject);
+
         DoorValueVerifier verifier = GetConnectedVerifier();
 
         if (verifier == null)
         {
-            Debug.LogWarning($"Pad {name} detectou valor {value}, mas nao possui DoorValueVerifier conectado.");
+            if (ValueDetected == null)
+            {
+                Debug.LogWarning($"Pad {name} detectou valor {value}, mas nao possui DoorValueVerifier conectado.");
+            }
             return;
         }
 

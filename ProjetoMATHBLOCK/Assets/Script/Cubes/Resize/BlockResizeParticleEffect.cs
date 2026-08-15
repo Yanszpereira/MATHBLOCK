@@ -17,12 +17,18 @@ public sealed class BlockResizeParticleEffect : MonoBehaviour
     public ResizableBlock TargetBlock => targetBlock;
     public Vector3 EmissionSize => lastEmissionSize;
 
-    public static BlockResizeParticleEffect Create(
+public static BlockResizeParticleEffect Create(
         ResizableBlock target,
         Texture2D starTexture,
-        Color tint)
+        Color tint
+    )
     {
-        if (target == null || starTexture == null)
+        if (target == null)
+            return null;
+
+        if (starTexture == null)
+            starTexture = CreateFallbackStarTexture();
+        if (starTexture == null)
             return null;
 
         GameObject effectObject = new GameObject("BlockResizeParticles");
@@ -35,10 +41,15 @@ public sealed class BlockResizeParticleEffect : MonoBehaviour
         return null;
     }
 
-    public bool Initialize(ResizableBlock target, Texture2D starTexture, Color tint)
+public bool Initialize(ResizableBlock target, Texture2D starTexture, Color tint)
     {
         ResolveReferences();
-        if (target == null || starTexture == null || particles == null || particleRenderer == null)
+        if (target == null || particles == null || particleRenderer == null)
+            return false;
+
+        if (starTexture == null)
+            starTexture = CreateFallbackStarTexture();
+        if (starTexture == null)
             return false;
 
         targetBlock = target;
@@ -96,10 +107,15 @@ public sealed class BlockResizeParticleEffect : MonoBehaviour
             RefreshBounds();
     }
 
-    private void OnDestroy()
+private void OnDestroy()
     {
-        if (runtimeMaterial != null)
-            Destroy(runtimeMaterial);
+        if (runtimeMaterial == null)
+            return;
+
+        Texture runtimeTexture = runtimeMaterial.mainTexture;
+        Destroy(runtimeMaterial);
+        if (runtimeTexture != null && runtimeTexture.name == "RuntimeResizeStarTexture")
+            Destroy(runtimeTexture);
     }
 
     private void ResolveReferences()
@@ -201,5 +217,39 @@ public sealed class BlockResizeParticleEffect : MonoBehaviour
             hideFlags = HideFlags.DontSave
         };
         return material;
+    }
+
+
+private static Texture2D CreateFallbackStarTexture()
+    {
+        const int size = 32;
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+        {
+            name = "RuntimeResizeStarTexture",
+            hideFlags = HideFlags.HideAndDontSave,
+            wrapMode = TextureWrapMode.Clamp,
+            filterMode = FilterMode.Bilinear
+        };
+        Color[] pixels = new Color[size * size];
+        Vector2 center = new Vector2((size - 1) * 0.5f, (size - 1) * 0.5f);
+        float halfSize = size * 0.5f;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                Vector2 offset = new Vector2(x, y) - center;
+                float distance = offset.magnitude / halfSize;
+                float angle = Mathf.Atan2(offset.y, offset.x);
+                float spike = 0.5f + 0.5f * Mathf.Cos(angle * 4f);
+                float outerRadius = Mathf.Lerp(0.28f, 0.5f, Mathf.Pow(spike, 8f));
+                float alpha = Mathf.Clamp01((outerRadius - distance) * 32f);
+                pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
+            }
+        }
+
+        texture.SetPixels(pixels);
+        texture.Apply(false, true);
+        return texture;
     }
 }
