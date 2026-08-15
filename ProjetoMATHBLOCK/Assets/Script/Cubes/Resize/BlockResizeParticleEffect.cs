@@ -10,6 +10,7 @@ public sealed class BlockResizeParticleEffect : MonoBehaviour
     private ParticleSystem particles;
     private ParticleSystemRenderer particleRenderer;
     private ResizableBlock targetBlock;
+    private Transform targetTransform;
     private Material runtimeMaterial;
     private Vector3 lastEmissionSize = Vector3.zero;
 
@@ -41,6 +42,30 @@ public static BlockResizeParticleEffect Create(
         return null;
     }
 
+    public static BlockResizeParticleEffect CreateForTransform(
+        Transform target,
+        Texture2D starTexture,
+        Color tint
+    )
+    {
+        if (target == null)
+            return null;
+
+        if (starTexture == null)
+            starTexture = CreateFallbackStarTexture();
+        if (starTexture == null)
+            return null;
+
+        GameObject effectObject = new GameObject("BlockResizeParticles");
+        effectObject.AddComponent<ParticleSystem>();
+        BlockResizeParticleEffect effect = effectObject.AddComponent<BlockResizeParticleEffect>();
+        if (effect.InitializeForTransform(target, starTexture, tint))
+            return effect;
+
+        Destroy(effectObject);
+        return null;
+    }
+
 public bool Initialize(ResizableBlock target, Texture2D starTexture, Color tint)
     {
         ResolveReferences();
@@ -53,6 +78,31 @@ public bool Initialize(ResizableBlock target, Texture2D starTexture, Color tint)
             return false;
 
         targetBlock = target;
+        targetTransform = target.transform;
+        particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        ConfigureParticles(tint);
+
+        runtimeMaterial = CreateParticleMaterial(starTexture);
+        if (runtimeMaterial == null)
+        {
+            Debug.LogError("Nao foi encontrado um shader transparente para as particulas do resize.", this);
+            return false;
+        }
+
+        particleRenderer.sharedMaterial = runtimeMaterial;
+        RefreshBounds();
+        particles.Play(true);
+        return true;
+    }
+
+    private bool InitializeForTransform(Transform target, Texture2D starTexture, Color tint)
+    {
+        ResolveReferences();
+        if (target == null || particles == null || particleRenderer == null)
+            return false;
+
+        targetBlock = null;
+        targetTransform = target;
         particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         ConfigureParticles(tint);
 
@@ -71,17 +121,45 @@ public bool Initialize(ResizableBlock target, Texture2D starTexture, Color tint)
 
     public void RefreshBounds()
     {
-        if (targetBlock == null)
+        if (targetTransform == null)
             return;
 
-        transform.SetPositionAndRotation(targetBlock.WorldCenter, targetBlock.transform.rotation);
+        transform.SetPositionAndRotation(targetTransform.position, targetTransform.rotation);
         transform.localScale = Vector3.one;
 
-        lastEmissionSize = new Vector3(
-            targetBlock.GetWorldSize(0) + BoundsPadding,
-            targetBlock.GetWorldSize(1) + BoundsPadding,
-            targetBlock.GetWorldSize(2) + BoundsPadding
-        );
+        if (targetBlock != null)
+        {
+            lastEmissionSize = new Vector3(
+                targetBlock.GetWorldSize(0) + BoundsPadding,
+                targetBlock.GetWorldSize(1) + BoundsPadding,
+                targetBlock.GetWorldSize(2) + BoundsPadding
+            );
+        }
+        else
+        {
+            Renderer[] renderers = targetTransform.GetComponentsInChildren<Renderer>(true);
+            Bounds bounds = new Bounds(targetTransform.position, Vector3.zero);
+            bool hasBounds = false;
+
+            for (int index = 0; index < renderers.Length; index++)
+            {
+                Renderer renderer = renderers[index];
+                if (renderer == null)
+                    continue;
+
+                if (hasBounds)
+                    bounds.Encapsulate(renderer.bounds);
+                else
+                {
+                    bounds = renderer.bounds;
+                    hasBounds = true;
+                }
+            }
+
+            lastEmissionSize = hasBounds
+                ? bounds.size + Vector3.one * BoundsPadding
+                : Vector3.one * (1f + BoundsPadding);
+        }
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.scale = lastEmissionSize;
@@ -90,6 +168,7 @@ public bool Initialize(ResizableBlock target, Texture2D starTexture, Color tint)
     public void StopAndFadeOut()
     {
         targetBlock = null;
+        targetTransform = null;
         if (particles == null)
         {
             Destroy(gameObject);
@@ -103,7 +182,7 @@ public bool Initialize(ResizableBlock target, Texture2D starTexture, Color tint)
 
     private void LateUpdate()
     {
-        if (targetBlock != null)
+        if (targetTransform != null)
             RefreshBounds();
     }
 

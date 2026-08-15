@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 /// <summary>
@@ -16,7 +17,16 @@ public sealed class ElevatorTotemController : MonoBehaviour
     }
 
     [Header("Totem")]
+    [InspectorName("Required Value")]
+    [SerializeField] private string requiredValueInput = "0";
+    [InspectorName("É expressão")]
+    [SerializeField] private bool isExpression;
+    // Kept hidden so existing scenes serialized with the old integer field
+    // remain compatible after Required Value becomes a text input.
+    [HideInInspector]
     [SerializeField] private int requiredValue;
+    [Tooltip("Texto que exibe no totem o valor requerido.")]
+    [SerializeField] private TMP_Text requiredValueText;
     [SerializeField] private PadMathBlockDetector verificationPad;
 
     [Header("Plataforma")]
@@ -42,6 +52,7 @@ public sealed class ElevatorTotemController : MonoBehaviour
     private GameObject finalCallButtonInstance;
     private bool hasCapturedInitialPosition;
     private bool buttonsUnlocked;
+    private bool requiredValueIsValid = true;
 
     public bool IsUnlocked => buttonsUnlocked;
     public bool IsMoving => state == ElevatorState.MovingToInitial || state == ElevatorState.MovingToFinal;
@@ -50,6 +61,9 @@ public sealed class ElevatorTotemController : MonoBehaviour
 
     private void Awake()
     {
+        ResolveRequiredValue();
+        RefreshRequiredValueText();
+
         if (platform == null)
         {
             Debug.LogError($"Totem {name} nao possui uma plataforma atribuida.");
@@ -67,6 +81,9 @@ public sealed class ElevatorTotemController : MonoBehaviour
 
     private void OnEnable()
     {
+        ResolveRequiredValue();
+        RefreshRequiredValueText();
+
         if (verificationPad != null)
             verificationPad.ValueDetected += OnVerificationValueDetected;
     }
@@ -128,7 +145,7 @@ public sealed class ElevatorTotemController : MonoBehaviour
         if (verificationPad == null || padObject != verificationPad.gameObject || buttonsUnlocked)
             return;
 
-        if (value != requiredValue)
+        if (!requiredValueIsValid || value != requiredValue)
             return;
 
         buttonsUnlocked = true;
@@ -260,8 +277,19 @@ public sealed class ElevatorTotemController : MonoBehaviour
 
     private void SetButtonActive(GameObject button, bool active)
     {
-        if (button != null)
-            button.SetActive(active);
+        if (button == null)
+            return;
+
+        ElevatorButton elevatorButton = button.GetComponent<ElevatorButton>();
+        if (!active)
+        {
+            elevatorButton?.StopAppearAnimation();
+            button.SetActive(false);
+            return;
+        }
+
+        button.SetActive(true);
+        elevatorButton?.PlayAppearAnimation();
     }
 
     private bool IsAtInitial(Vector3 position)
@@ -312,7 +340,102 @@ public sealed class ElevatorTotemController : MonoBehaviour
 
     private void OnValidate()
     {
+        if (string.IsNullOrWhiteSpace(requiredValueInput))
+            requiredValueInput = requiredValue.ToString();
+
+        requiredValueInput = requiredValueInput.Trim();
+        ResolveRequiredValue();
         moveSpeed = Mathf.Max(0.01f, moveSpeed);
         endpointButtonOffset.y = Mathf.Max(0f, endpointButtonOffset.y);
+        RefreshRequiredValueText();
+    }
+
+    private void ResolveRequiredValue()
+    {
+        string input = string.IsNullOrEmpty(requiredValueInput)
+            ? requiredValue.ToString()
+            : requiredValueInput;
+
+        bool parsed = isExpression
+            ? TryEvaluateExpression(input, out int expressionResult)
+            : int.TryParse(input, out expressionResult);
+
+        requiredValueIsValid = parsed;
+        if (parsed)
+        {
+            requiredValue = isExpression ? expressionResult : Mathf.Max(0, expressionResult);
+            return;
+        }
+
+        if (Application.isPlaying)
+        {
+            string mode = isExpression ? "expressao" : "valor inteiro";
+            Debug.LogError(
+                $"Totem {name} possui um Required Value invalido para o modo {mode}: '{input}'.",
+                this);
+        }
+    }
+
+    private static bool TryEvaluateExpression(string input, out int result)
+    {
+        result = 0;
+        if (string.IsNullOrEmpty(input))
+            return false;
+
+        long total = 0;
+        int sign = 1;
+        int index = 0;
+
+        while (index < input.Length)
+        {
+            if (input[index] < '0' || input[index] > '9')
+                return false;
+
+            long number = 0;
+            while (index < input.Length && input[index] >= '0' && input[index] <= '9')
+            {
+                number = number * 10 + (input[index] - '0');
+                if (number > int.MaxValue)
+                    return false;
+                index++;
+            }
+
+            total += sign * number;
+            if (total < int.MinValue || total > int.MaxValue)
+                return false;
+
+            if (index == input.Length)
+                break;
+
+            char operation = input[index];
+            if (operation != '+' && operation != '-')
+                return false;
+
+            sign = operation == '+' ? 1 : -1;
+            index++;
+            if (index == input.Length)
+                return false;
+        }
+
+        result = (int)total;
+        return true;
+    }
+
+    private void RefreshRequiredValueText()
+    {
+        if (requiredValueText == null)
+            return;
+
+        string valueText = isExpression && !string.IsNullOrEmpty(requiredValueInput)
+            ? requiredValueInput
+            : requiredValue.ToString();
+
+        // The digital font is dynamically populated. Ensure every digit in
+        // the required value has a real glyph before rebuilding the label.
+        if (requiredValueText.font != null)
+            requiredValueText.font.TryAddCharacters(valueText);
+
+        requiredValueText.SetText(valueText);
+        requiredValueText.ForceMeshUpdate(true, true);
     }
 }

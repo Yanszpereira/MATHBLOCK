@@ -21,6 +21,9 @@ public class VoidRespawner : MonoBehaviour
     [SerializeField] private Vector3 fallbackTriggerSize = new Vector3(120f, 8f, 120f);
 
     private readonly Dictionary<int, float> lastRespawnTimes = new Dictionary<int, float>();
+    private Vector3 initialPlayerPosition;
+    private Quaternion initialPlayerRotation;
+    private bool hasCapturedPlayerSpawn;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneLoadedHandler()
@@ -60,6 +63,11 @@ public class VoidRespawner : MonoBehaviour
     private void Awake()
     {
         ConfigureTrigger();
+    }
+
+    private void Start()
+    {
+        CaptureInitialPlayerSpawn();
     }
 
     private void Reset()
@@ -146,7 +154,12 @@ public class VoidRespawner : MonoBehaviour
         if (!CanRespawn(instanceId))
             return;
 
-        Vector3 targetPosition = GetRespawnPosition(playerRespawnOffset);
+        if (!hasCapturedPlayerSpawn)
+            CaptureInitialPlayerSpawn(player);
+
+        Vector3 targetPosition = hasCapturedPlayerSpawn
+            ? initialPlayerPosition
+            : GetRespawnPosition(playerRespawnOffset);
         CharacterController controller = player.controller != null
             ? player.controller
             : player.GetComponent<CharacterController>();
@@ -156,12 +169,12 @@ public class VoidRespawner : MonoBehaviour
         if (controller != null)
         {
             controller.enabled = false;
-            controller.transform.position = targetPosition;
+            controller.transform.SetPositionAndRotation(targetPosition, initialPlayerRotation);
             controller.enabled = true;
         }
         else
         {
-            player.transform.position = targetPosition;
+            player.transform.SetPositionAndRotation(targetPosition, initialPlayerRotation);
         }
 
         if (player.TryGetComponent(out Rigidbody rb))
@@ -213,7 +226,25 @@ public class VoidRespawner : MonoBehaviour
             return groundPoint + offset;
         }
 
-        return respawnCenter + offset;
+        Vector3 fallbackCenter = hasCapturedPlayerSpawn ? initialPlayerPosition : respawnCenter;
+        return fallbackCenter + offset;
+    }
+
+    private void CaptureInitialPlayerSpawn()
+    {
+        PlayerMovement player = FindFirstObjectByType<PlayerMovement>();
+        if (player != null)
+            CaptureInitialPlayerSpawn(player);
+    }
+
+    private void CaptureInitialPlayerSpawn(PlayerMovement player)
+    {
+        if (player == null || hasCapturedPlayerSpawn)
+            return;
+
+        initialPlayerPosition = player.transform.position;
+        initialPlayerRotation = player.transform.rotation;
+        hasCapturedPlayerSpawn = true;
     }
 
     private bool TryGetRandomGroundPoint(out Vector3 point)
