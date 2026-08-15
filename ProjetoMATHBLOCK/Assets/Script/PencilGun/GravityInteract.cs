@@ -33,6 +33,7 @@ public class GravityInteract : MonoBehaviour
     [SerializeField] private float carriedBlockScrollSpeed = 0.45f;
     [SerializeField, Range(0f, 1f)] private float carriedBlockCollisionOpacity = 0.3f;
     [SerializeField] private float carriedBlockOpacityLerpSpeed = 8f;
+    [SerializeField, Min(0.01f)] private float carriedBlockCameraContactRadius = 0.16f;
     [SerializeField] private float hammerApplySpeedThreshold = 10.14f;
     [SerializeField, Range(0f, 360f)] private float hammerAllowedDirectionAngle = 230f;
     [SerializeField] private string hammerImpactEffectObjectName = "efeitomarretada";
@@ -888,6 +889,22 @@ public class GravityInteract : MonoBehaviour
                     ignoredCarriedBlockCollisions.Add(new CollisionIgnorePair(carriedCollider, targetCollider));
                 }
             }
+
+            // O bloco carregado acompanha a câmera e não deve empurrar, prender ou
+            // lançar o jogador enquanto atravessa o seu capsule/character collider.
+            Transform playerRoot = playerMovement != null
+                ? playerMovement.transform.root
+                : transform.root;
+            Collider[] playerColliders = playerRoot.GetComponentsInChildren<Collider>(true);
+            foreach (Collider playerCollider in playerColliders)
+            {
+                if (playerCollider == null || playerCollider == carriedCollider ||
+                    playerCollider.transform.IsChildOf(carriedBlock))
+                    continue;
+
+                Physics.IgnoreCollision(carriedCollider, playerCollider, true);
+                ignoredCarriedBlockCollisions.Add(new CollisionIgnorePair(carriedCollider, playerCollider));
+            }
         }
     }
 
@@ -959,46 +976,60 @@ public class GravityInteract : MonoBehaviour
         if (carriedColliders == null || carriedColliders.Length == 0)
             return false;
 
-        GameObject[] mathBlocks = GameObject.FindGameObjectsWithTag("MathBlock");
         foreach (Collider carriedCollider in carriedColliders)
         {
             if (carriedCollider == null || !carriedCollider.enabled)
                 continue;
 
-            foreach (GameObject mathBlock in mathBlocks)
+            if (IsCameraTouchingCollider(carriedCollider))
+                return true;
+
+            Bounds carriedBounds = carriedCollider.bounds;
+            Collider[] nearbyColliders = Physics.OverlapBox(
+                carriedBounds.center,
+                carriedBounds.extents + (Vector3.one * Physics.defaultContactOffset),
+                Quaternion.identity,
+                ~0,
+                QueryTriggerInteraction.Ignore
+            );
+
+            foreach (Collider targetCollider in nearbyColliders)
             {
-                if (mathBlock == null || mathBlock.transform == grabbedObject || mathBlock.transform.IsChildOf(grabbedObject))
+                if (targetCollider == null || !targetCollider.enabled || targetCollider == carriedCollider)
                     continue;
 
-                Collider[] targetColliders = mathBlock.GetComponentsInChildren<Collider>();
-                foreach (Collider targetCollider in targetColliders)
+                Transform targetTransform = targetCollider.transform;
+                if (targetTransform == grabbedObject || targetTransform.IsChildOf(grabbedObject))
+                    continue;
+
+                if (Physics.ComputePenetration(
+                    carriedCollider,
+                    carriedCollider.transform.position,
+                    carriedCollider.transform.rotation,
+                    targetCollider,
+                    targetCollider.transform.position,
+                    targetCollider.transform.rotation,
+                    out _,
+                    out _))
                 {
-                    if (targetCollider == null || !targetCollider.enabled || targetCollider == carriedCollider)
-                        continue;
-
-                    if (Physics.ComputePenetration(
-                        carriedCollider,
-                        carriedCollider.transform.position,
-                        carriedCollider.transform.rotation,
-                        targetCollider,
-                        targetCollider.transform.position,
-                        targetCollider.transform.rotation,
-                        out _,
-                        out _))
-                    {
-                        overlappedBlock = mathBlock.GetComponent<MathBlockValue>();
-                        if (overlappedBlock == null)
-                        {
-                            overlappedBlock = mathBlock.GetComponentInParent<MathBlockValue>();
-                        }
-
-                        return true;
-                    }
+                    overlappedBlock = targetCollider.GetComponentInParent<MathBlockValue>();
+                    return true;
                 }
             }
         }
 
         return false;
+    }
+
+    private bool IsCameraTouchingCollider(Collider carriedCollider)
+    {
+        if (interactionCamera == null || carriedCollider == null)
+            return false;
+
+        Vector3 cameraPosition = interactionCamera.position;
+        Vector3 closestPoint = carriedCollider.ClosestPoint(cameraPosition);
+        float radius = Mathf.Max(0.01f, carriedBlockCameraContactRadius);
+        return (closestPoint - cameraPosition).sqrMagnitude <= radius * radius;
     }
 
     private void UpdateCarriedOperationPreview(MathBlockValue targetBlock)

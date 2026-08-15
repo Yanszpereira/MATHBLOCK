@@ -9,26 +9,46 @@ public sealed class AdditionCelebrationEffect : MonoBehaviour
     private Transform target;
     private Material particleMaterial;
 
-    public static void Play(MathBlockValue block)
+    public static void Play(MathBlockValue block, GravityInteract.PencilOperator operatorType)
     {
         if (block == null) return;
         GameObject effectObject = new GameObject("Addition Glow Celebration");
         effectObject.transform.position = block.transform.position;
         AdditionCelebrationEffect effect = effectObject.AddComponent<AdditionCelebrationEffect>();
         effect.target = block.transform;
-        effect.Build(block);
+        effect.Build(block, operatorType);
     }
 
-    private void Build(MathBlockValue block)
+    private void Build(MathBlockValue block, GravityInteract.PencilOperator operatorType)
     {
         Color blockColor = new Color(0.2f, 0.65f, 1f, 1f);
         block.TryGetVisualColor(out blockColor);
         Color glowColor = Color.Lerp(blockColor, Color.white, 0.30f);
         particleMaterial = CreateGlowMaterial();
 
-        CreateBurst("Addition Sparks", glowColor, 42, 0.075f, 0.85f, 2.4f, ParticleSystemShapeType.Sphere);
-        CreateBurst("Addition Halo", Color.Lerp(glowColor, Color.cyan, 0.35f), 18, 0.13f, 1.15f, 1.25f, ParticleSystemShapeType.Circle);
-        CreateRisingSymbols(glowColor);
+        switch (operatorType)
+        {
+            case GravityInteract.PencilOperator.Subtraction:
+                Color subtractionColor = Color.Lerp(glowColor, new Color(0.15f, 0.55f, 1f), 0.55f);
+                CreateBurst("Subtraction Shards", subtractionColor, 34, 0.065f, 0.75f, 2.8f, ParticleSystemShapeType.Sphere);
+                CreateBurst("Subtraction Cool Ring", Color.Lerp(subtractionColor, Color.white, 0.35f), 16, 0.11f, 1f, 1.15f, ParticleSystemShapeType.Circle);
+                break;
+            case GravityInteract.PencilOperator.Multiplication:
+                Color multiplicationColor = Color.Lerp(glowColor, new Color(0.85f, 0.2f, 1f), 0.5f);
+                CreateBurst("Multiplication Starburst", multiplicationColor, 56, 0.07f, 0.95f, 3.1f, ParticleSystemShapeType.Sphere);
+                CreateBurst("Multiplication Ring", Color.Lerp(multiplicationColor, new Color(1f, 0.75f, 0.1f), 0.45f), 28, 0.105f, 1.2f, 1.5f, ParticleSystemShapeType.Circle);
+                break;
+            case GravityInteract.PencilOperator.Division:
+                Color divisionColor = Color.Lerp(glowColor, new Color(0.1f, 0.95f, 0.9f), 0.58f);
+                CreateBurst("Division Split Ring", divisionColor, 36, 0.075f, 1.1f, 1.8f, ParticleSystemShapeType.Circle);
+                CreateBurst("Division Fragments", Color.Lerp(divisionColor, Color.white, 0.5f), 22, 0.055f, 0.8f, 2.35f, ParticleSystemShapeType.Sphere);
+                break;
+            default:
+                CreateBurst("Addition Sparks", glowColor, 42, 0.075f, 0.85f, 2.4f, ParticleSystemShapeType.Sphere);
+                CreateBurst("Addition Halo", Color.Lerp(glowColor, Color.cyan, 0.35f), 18, 0.13f, 1.15f, 1.25f, ParticleSystemShapeType.Circle);
+                CreateRisingSymbols(glowColor);
+                break;
+        }
         StartCoroutine(Animate());
     }
 
@@ -37,6 +57,7 @@ public sealed class AdditionCelebrationEffect : MonoBehaviour
         GameObject child = new GameObject(objectName);
         child.transform.SetParent(transform, false);
         ParticleSystem particles = child.AddComponent<ParticleSystem>();
+        particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         ParticleSystem.MainModule main = particles.main;
         main.loop = false;
         main.playOnAwake = false;
@@ -86,6 +107,7 @@ public sealed class AdditionCelebrationEffect : MonoBehaviour
         GameObject child = new GameObject("Rising Plus Symbols");
         child.transform.SetParent(transform, false);
         ParticleSystem particles = child.AddComponent<ParticleSystem>();
+        particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         ParticleSystem.MainModule main = particles.main;
         main.loop = false;
         main.playOnAwake = false;
@@ -104,8 +126,15 @@ public sealed class AdditionCelebrationEffect : MonoBehaviour
         shape.scale = Vector3.one * 0.7f;
         ParticleSystem.VelocityOverLifetimeModule velocity = particles.velocityOverLifetime;
         velocity.enabled = true;
-        velocity.y = new ParticleSystem.MinMaxCurve(0.35f, 0.8f);
-        velocity.orbitalZ = new ParticleSystem.MinMaxCurve(-1.4f, 1.4f);
+        // Unity 6 exige o mesmo modo de curva em todos os eixos lineares e
+        // orbitais. Valores constantes preservam a subida e o giro sem gerar
+        // "Particle Velocity curves must all be in the same mode".
+        velocity.x = new ParticleSystem.MinMaxCurve(0f);
+        velocity.y = new ParticleSystem.MinMaxCurve(0.575f);
+        velocity.z = new ParticleSystem.MinMaxCurve(0f);
+        velocity.orbitalX = new ParticleSystem.MinMaxCurve(0f);
+        velocity.orbitalY = new ParticleSystem.MinMaxCurve(0f);
+        velocity.orbitalZ = new ParticleSystem.MinMaxCurve(1.1f);
         ParticleSystemRenderer renderer = particles.GetComponent<ParticleSystemRenderer>();
         renderer.material = particleMaterial;
         renderer.shadowCastingMode = ShadowCastingMode.Off;

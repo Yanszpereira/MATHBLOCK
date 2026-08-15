@@ -35,6 +35,7 @@ public class DoorValueVerifier : MonoBehaviour
     public int RequiredValue => requiredValue;
     public int RequiredMinValue => useRequiredRange ? requiredMinValue : requiredValue;
     public int RequiredMaxValue => useRequiredRange ? requiredMaxValue : requiredValue;
+    public DoorOpener DoorOpener => doorOpener;
 
     private void Start()
     {
