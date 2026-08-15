@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -34,6 +35,9 @@ public sealed class ElevatorTotemController : MonoBehaviour
     [SerializeField] private float moveSpeed = 3f;
     [Tooltip("Destino mundial editavel pelo gizmo PFinal.")]
     [SerializeField] private Vector3 finalDestination;
+    [Header("Objetos sobre a plataforma")]
+    [SerializeField, Min(0.02f)] private float passengerDetectionHeight = 0.3f;
+    [SerializeField, Min(0f)] private float passengerDetectionMargin = 0.08f;
 
     [Header("Botoes")]
     [SerializeField] private GameObject platformButtonPrefab;
@@ -53,6 +57,20 @@ public sealed class ElevatorTotemController : MonoBehaviour
     private bool hasCapturedInitialPosition;
     private bool buttonsUnlocked;
     private bool requiredValueIsValid = true;
+    private readonly Dictionary<Transform, PlatformPassengerState> platformPassengers =
+        new Dictionary<Transform, PlatformPassengerState>();
+    private readonly HashSet<Transform> detectedPassengers = new HashSet<Transform>();
+    private readonly List<Transform> passengersToDetach = new List<Transform>();
+    private Collider[] platformColliders;
+    private Collider[] passengerOverlapBuffer = new Collider[64];
+
+    private sealed class PlatformPassengerState
+    {
+        public Transform previousParent;
+        public Rigidbody rigidbody;
+        public bool wasKinematic;
+        public bool usedGravity;
+    }
 
     public bool IsUnlocked => buttonsUnlocked;
     public bool IsMoving => state == ElevatorState.MovingToInitial || state == ElevatorState.MovingToFinal;
@@ -77,6 +95,12 @@ public sealed class ElevatorTotemController : MonoBehaviour
         state = ElevatorState.Locked;
 
         CreateButtonInstances();
+        CachePlatformColliders();
+    }
+
+    private void Start()
+    {
+        RefreshPlatformPassengers();
     }
 
     private void OnEnable()
@@ -92,6 +116,8 @@ public sealed class ElevatorTotemController : MonoBehaviour
     {
         if (verificationPad != null)
             verificationPad.ValueDetected -= OnVerificationValueDetected;
+
+        DetachAllPassengers();
     }
 
     private void Update()
@@ -107,16 +133,19 @@ public sealed class ElevatorTotemController : MonoBehaviour
         {
             platform.position = targetPosition;
             state = IsAtInitial(targetPosition) ? ElevatorState.IdleAtInitial : ElevatorState.IdleAtFinal;
+            SetAttachedPassengerPhysics(false);
         }
     }
 
     private void LateUpdate()
     {
-        if (pendingPlatformDelta.sqrMagnitude < 0.0000001f)
-            return;
+        if (pendingPlatformDelta.sqrMagnitude >= 0.0000001f)
+        {
+            CarryPlayer(pendingPlatformDelta);
+            pendingPlatformDelta = Vector3.zero;
+        }
 
-        CarryPlayer(pendingPlatformDelta);
-        pendingPlatformDelta = Vector3.zero;
+        RefreshPlatformPassengers();
     }
 
     public void HandleButtonPress(ElevatorButtonRole role)
@@ -188,10 +217,12 @@ public sealed class ElevatorTotemController : MonoBehaviour
         {
             platform.position = destination;
             state = IsAtInitial(destination) ? ElevatorState.IdleAtInitial : ElevatorState.IdleAtFinal;
+            SetAttachedPassengerPhysics(false);
             return;
         }
 
         state = IsAtInitial(destination) ? ElevatorState.MovingToInitial : ElevatorState.MovingToFinal;
+        SetAttachedPassengerPhysics(true);
     }
 
     private void CreateButtonInstances()
@@ -308,6 +339,12 @@ public sealed class ElevatorTotemController : MonoBehaviour
         if (player == null || platform == null)
             return;
 
+        // Once the player jumps, CharacterController.isGrounded becomes false.
+        // Do not keep carrying the player in the air, otherwise the moving
+        // platform behaves like a parent and the player cannot jump away.
+        if (!player.isGrounded)
+            return;
+
         Vector3 rayOrigin = player.transform.position + Vector3.up * 0.2f;
         float rayDistance = Mathf.Max(1f, player.height * 0.5f + 0.5f);
 
@@ -318,6 +355,285 @@ public sealed class ElevatorTotemController : MonoBehaviour
             return;
 
         player.Move(delta);
+    }
+
+    private void CachePlatformColliders()
+    {
+        if (platform == null)
+            return;
+
+        Collider[] allColliders = platform.GetComponentsInChildren<Collider>(true);
+        List<Collider> validColliders = new List<Collider>(allColliders.Length);
+
+        for (int index = 0; index < allColliders.Length; index++)
+        {
+            Collider collider = allColliders[index];
+            if (collider == null || collider.isTrigger)
+                continue;
+
+            // The platform button is already a child of the platform, but its
+            // collider must not enlarge the surface detection volume.
+            if (collider.GetComponentInParent<ElevatorButton>() != null)
+                continue;
+
+            validColliders.Add(collider);
+        }
+
+        platformColliders = validColliders.ToArray();
+    }
+
+    private void RefreshPlatformPassengers()
+    {
+        if (platform == null || platformColliders == null || platformColliders.Length == 0)
+            return;
+
+        Physics.SyncTransforms();
+
+        if (!TryGetPlatformSurfaceBounds(out Bounds platformBounds))
+            return;
+
+        float detectionHeight = Mathf.Max(0.02f, passengerDetectionHeight);
+        float detectionMargin = Mathf.Max(0f, passengerDetectionMargin);
+        Vector3 detectionSize = new Vector3(
+            Mathf.Max(0.05f, platformBounds.size.x + detectionMargin * 2f),
+            detectionHeight,
+            Mathf.Max(0.05f, platformBounds.size.z + detectionMargin * 2f));
+        Vector3 detectionCenter = new Vector3(
+            platformBounds.center.x,
+            platformBounds.max.y + detectionHeight * 0.5f - detectionMargin,
+            platformBounds.center.z);
+
+        int hitCount = Physics.OverlapBoxNonAlloc(
+            detectionCenter,
+            detectionSize * 0.5f,
+            passengerOverlapBuffer,
+            Quaternion.identity,
+            ~0,
+            QueryTriggerInteraction.Ignore);
+
+        detectedPassengers.Clear();
+        for (int index = 0; index < hitCount; index++)
+        {
+            Collider passengerCollider = passengerOverlapBuffer[index];
+            if (!IsDirectlyTouchingPlatform(passengerCollider))
+                continue;
+
+            Transform passenger = ResolvePassengerRoot(passengerCollider);
+            if (passenger == null)
+                continue;
+
+            detectedPassengers.Add(passenger);
+            if (!platformPassengers.ContainsKey(passenger))
+                AttachPassenger(passenger);
+        }
+
+        passengersToDetach.Clear();
+        foreach (KeyValuePair<Transform, PlatformPassengerState> passenger in platformPassengers)
+        {
+            if (!detectedPassengers.Contains(passenger.Key))
+                passengersToDetach.Add(passenger.Key);
+        }
+
+        for (int index = 0; index < passengersToDetach.Count; index++)
+            DetachPassenger(passengersToDetach[index]);
+    }
+
+    private bool TryGetPlatformSurfaceBounds(out Bounds bounds)
+    {
+        bounds = default;
+        bool hasBounds = false;
+
+        for (int index = 0; index < platformColliders.Length; index++)
+        {
+            Collider collider = platformColliders[index];
+            if (collider == null || !collider.enabled)
+                continue;
+
+            if (hasBounds)
+                bounds.Encapsulate(collider.bounds);
+            else
+            {
+                bounds = collider.bounds;
+                hasBounds = true;
+            }
+        }
+
+        return hasBounds;
+    }
+
+    private bool IsDirectlyTouchingPlatform(Collider passengerCollider)
+    {
+        if (passengerCollider == null || !passengerCollider.enabled)
+            return false;
+
+        for (int index = 0; index < platformColliders.Length; index++)
+        {
+            Collider platformCollider = platformColliders[index];
+            if (platformCollider == null || !platformCollider.enabled || passengerCollider == platformCollider)
+                continue;
+
+            if (AreCollidersInDirectContact(passengerCollider, platformCollider))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool AreCollidersInDirectContact(Collider first, Collider second)
+    {
+        // Detect actual overlap/contact when Unity has enough information for
+        // the collider types involved.
+        if (Physics.ComputePenetration(
+            first,
+            first.transform.position,
+            first.transform.rotation,
+            second,
+            second.transform.position,
+            second.transform.rotation,
+            out _,
+            out _))
+        {
+            return true;
+        }
+
+        // Rigidbody contacts can have a tiny separation equal to the physics
+        // contact offset. Bounds provide a compatible fallback for that case.
+        float tolerance = Mathf.Max(0.02f, Physics.defaultContactOffset * 2f);
+        Bounds firstBounds = first.bounds;
+        Bounds secondBounds = second.bounds;
+
+        return GetAxisGap(firstBounds.min.x, firstBounds.max.x, secondBounds.min.x, secondBounds.max.x) <= tolerance
+            && GetAxisGap(firstBounds.min.y, firstBounds.max.y, secondBounds.min.y, secondBounds.max.y) <= tolerance
+            && GetAxisGap(firstBounds.min.z, firstBounds.max.z, secondBounds.min.z, secondBounds.max.z) <= tolerance;
+    }
+
+    private static float GetAxisGap(float firstMin, float firstMax, float secondMin, float secondMax)
+    {
+        if (firstMax < secondMin)
+            return secondMin - firstMax;
+        if (secondMax < firstMin)
+            return firstMin - secondMax;
+        return 0f;
+    }
+
+    private Transform ResolvePassengerRoot(Collider collider)
+    {
+        if (collider == null)
+            return null;
+
+        if (collider.GetComponentInParent<PlayerMovement>() != null
+            || collider.GetComponentInParent<CharacterController>() != null
+            || collider.GetComponentInParent<ElevatorButton>() != null)
+        {
+            return null;
+        }
+
+        ResizableBlock block = collider.GetComponentInParent<ResizableBlock>();
+        Transform passenger = block != null ? block.transform : null;
+
+        if (passenger == null)
+        {
+            MathBlockValue blockValue = collider.GetComponentInParent<MathBlockValue>();
+            passenger = blockValue != null ? blockValue.transform : null;
+        }
+
+        Rigidbody rigidbody = collider.GetComponentInParent<Rigidbody>();
+        if (passenger == null && rigidbody != null && !rigidbody.isKinematic)
+            passenger = rigidbody.transform;
+
+        if (passenger == null || passenger == platform)
+            return null;
+
+        // Keep already attached passengers eligible even though their
+        // transforms are now children of the platform.
+        if (!platformPassengers.ContainsKey(passenger) && passenger.IsChildOf(platform))
+            return null;
+
+        return passenger;
+    }
+
+    private void AttachPassenger(Transform passenger)
+    {
+        if (passenger == null || passenger == platform)
+            return;
+
+        Rigidbody rigidbody = passenger.GetComponent<Rigidbody>();
+        PlatformPassengerState state = new PlatformPassengerState
+        {
+            previousParent = passenger.parent,
+            rigidbody = rigidbody,
+            wasKinematic = rigidbody != null && rigidbody.isKinematic,
+            usedGravity = rigidbody != null && rigidbody.useGravity
+        };
+
+        platformPassengers.Add(passenger, state);
+        passenger.SetParent(platform, true);
+        ApplyPassengerPhysics(state, IsMoving);
+    }
+
+    private void DetachPassenger(Transform passenger)
+    {
+        if (!platformPassengers.TryGetValue(passenger, out PlatformPassengerState state))
+            return;
+
+        platformPassengers.Remove(passenger);
+        if (passenger != null)
+            passenger.SetParent(state.previousParent, true);
+
+        if (state.rigidbody != null && !IsHeldByPlayer(passenger))
+        {
+            state.rigidbody.isKinematic = state.wasKinematic;
+            state.rigidbody.useGravity = state.usedGravity;
+            state.rigidbody.WakeUp();
+        }
+    }
+
+    private static bool IsHeldByPlayer(Transform passenger)
+    {
+        if (passenger == null)
+            return false;
+
+        GravityInteract gravityInteract = Object.FindFirstObjectByType<GravityInteract>();
+        Transform heldBlock = gravityInteract != null ? gravityInteract.HeldBlock : null;
+        return gravityInteract != null
+            && gravityInteract.IsHoldingObject
+            && heldBlock != null
+            && (heldBlock == passenger || heldBlock.IsChildOf(passenger));
+    }
+
+    private void SetAttachedPassengerPhysics(bool suspendPhysics)
+    {
+        foreach (KeyValuePair<Transform, PlatformPassengerState> passenger in platformPassengers)
+            ApplyPassengerPhysics(passenger.Value, suspendPhysics);
+    }
+
+    private static void ApplyPassengerPhysics(PlatformPassengerState state, bool suspendPhysics)
+    {
+        if (state == null || state.rigidbody == null)
+            return;
+
+        if (suspendPhysics)
+        {
+            state.rigidbody.linearVelocity = Vector3.zero;
+            state.rigidbody.angularVelocity = Vector3.zero;
+            state.rigidbody.useGravity = false;
+            state.rigidbody.isKinematic = true;
+            return;
+        }
+
+        state.rigidbody.isKinematic = state.wasKinematic;
+        state.rigidbody.useGravity = state.usedGravity;
+        state.rigidbody.WakeUp();
+    }
+
+    private void DetachAllPassengers()
+    {
+        passengersToDetach.Clear();
+        foreach (Transform passenger in platformPassengers.Keys)
+            passengersToDetach.Add(passenger);
+
+        for (int index = 0; index < passengersToDetach.Count; index++)
+            DetachPassenger(passengersToDetach[index]);
     }
 
     private void OnDrawGizmosSelected()
@@ -346,6 +662,8 @@ public sealed class ElevatorTotemController : MonoBehaviour
         requiredValueInput = requiredValueInput.Trim();
         ResolveRequiredValue();
         moveSpeed = Mathf.Max(0.01f, moveSpeed);
+        passengerDetectionHeight = Mathf.Max(0.02f, passengerDetectionHeight);
+        passengerDetectionMargin = Mathf.Max(0f, passengerDetectionMargin);
         endpointButtonOffset.y = Mathf.Max(0f, endpointButtonOffset.y);
         RefreshRequiredValueText();
     }
