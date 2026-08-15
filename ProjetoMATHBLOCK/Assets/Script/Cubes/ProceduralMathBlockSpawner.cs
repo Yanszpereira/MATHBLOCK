@@ -22,12 +22,18 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
     [SerializeField] private bool requireDoorVerifier = true;
     [SerializeField] private bool requireResizableBlockComponent;
 
+    [Header("Progression Cleanup")]
+    [SerializeField] private bool clearBlocksAfterPassingDoor = true;
+    [SerializeField, Min(0.05f)] private float doorPassageClearance = 0.45f;
+
     [Header("Spawn Area")]
     [SerializeField] private Vector3 spawnAreaSize = new Vector3(6f, 0f, 6f);
     [SerializeField] private float spawnHeightOffset = 0.75f;
     [SerializeField] private Color gizmoColor = new Color(0.1f, 0.8f, 1f, 0.25f);
 
     private readonly List<GameObject> spawnedBlocks = new List<GameObject>();
+    private PlayerMovement progressionPlayer;
+    private bool progressionCleanupComplete;
 
     private void Awake()
     {
@@ -65,6 +71,40 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
         {
             Generate();
         }
+    }
+
+    private void Update()
+    {
+        if (!clearBlocksAfterPassingDoor || progressionCleanupComplete ||
+            doorVerifier == null || doorVerifier.DoorOpener == null ||
+            !doorVerifier.DoorOpener.HasOpened)
+            return;
+
+        if (progressionPlayer == null)
+            progressionPlayer = FindFirstObjectByType<PlayerMovement>();
+        if (progressionPlayer == null)
+            return;
+
+        Transform door = doorVerifier.DoorOpener.transform;
+        Vector3 passageDirection = door.position - transform.position;
+        passageDirection.y = 0f;
+        if (passageDirection.sqrMagnitude < 0.01f)
+        {
+            passageDirection = door.forward;
+            passageDirection.y = 0f;
+        }
+        passageDirection.Normalize();
+
+        float signedDistance = Vector3.Dot(
+            progressionPlayer.transform.position - door.position,
+            passageDirection);
+        if (signedDistance < Mathf.Max(0.05f, doorPassageClearance))
+            return;
+
+        ClearOwnedBlocks();
+        progressionCleanupComplete = true;
+        DoorHintPresenter.NotifyDoorPassed();
+        Debug.Log($"{name}: jogador atravessou {door.name}; blocos deste desafio foram removidos.", this);
     }
 
     [ContextMenu("Generate Math Blocks")]
@@ -487,6 +527,11 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
             GameObject block = Instantiate(blockPrefab, GetRandomSpawnPosition(), Quaternion.identity);
             block.name = $"{blockPrefab.name}_Generated_{i + 1}_{values[i]}";
 
+            SpawnerOwnedMathBlock ownership = block.GetComponent<SpawnerOwnedMathBlock>();
+            if (ownership == null)
+                ownership = block.AddComponent<SpawnerOwnedMathBlock>();
+            ownership.Initialize(this);
+
             MathBlockValue blockValue = block.GetComponent<MathBlockValue>();
             if (blockValue != null)
             {
@@ -534,6 +579,31 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
             {
                 DestroyImmediate(block);
             }
+        }
+
+        spawnedBlocks.Clear();
+    }
+
+    public void ClearOwnedBlocks()
+    {
+        SpawnerOwnedMathBlock[] ownedBlocks = FindObjectsByType<SpawnerOwnedMathBlock>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+
+        GravityInteract gravityInteract = FindFirstObjectByType<GravityInteract>();
+        if (gravityInteract != null && gravityInteract.IsHoldingObject)
+        {
+            SpawnerOwnedMathBlock heldOwnership = gravityInteract.GrabbedObject != null
+                ? gravityInteract.GrabbedObject.GetComponent<SpawnerOwnedMathBlock>()
+                : null;
+            if (heldOwnership != null && heldOwnership.Owner == this)
+                gravityInteract.Soltar();
+        }
+
+        foreach (SpawnerOwnedMathBlock ownership in ownedBlocks)
+        {
+            if (ownership != null && ownership.Owner == this)
+                Destroy(ownership.gameObject);
         }
 
         spawnedBlocks.Clear();

@@ -29,7 +29,6 @@ public sealed class DistanceFogBlur : MonoBehaviour
     private Material exclusionMaskMaterial;
     private Camera targetCamera;
     private GravityInteract gravityInteract;
-    private ParticleSystemRenderer[] particleRenderers;
     private Renderer[] taggedCloudRenderers;
     private float nextParticleRefreshTime;
     private readonly HashSet<Renderer> exclusionRenderers = new HashSet<Renderer>();
@@ -112,7 +111,7 @@ public sealed class DistanceFogBlur : MonoBehaviour
             exclusionMaskMaterial = new Material(maskShader) { hideFlags = HideFlags.HideAndDontSave };
 
         gravityInteract = FindFirstObjectByType<GravityInteract>();
-        RefreshParticleRenderers();
+        RefreshDynamicExclusions();
     }
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
@@ -163,16 +162,9 @@ public sealed class DistanceFogBlur : MonoBehaviour
             return null;
 
         if (Time.unscaledTime >= nextParticleRefreshTime)
-            RefreshParticleRenderers();
+            RefreshDynamicExclusions();
 
         exclusionRenderers.Clear();
-        if (particleRenderers != null)
-        {
-            foreach (ParticleSystemRenderer particleRenderer in particleRenderers)
-                if (particleRenderer != null && particleRenderer.enabled && particleRenderer.gameObject.activeInHierarchy)
-                    exclusionRenderers.Add(particleRenderer);
-        }
-
         if (taggedCloudRenderers != null)
         {
             foreach (Renderer cloudRenderer in taggedCloudRenderers)
@@ -228,9 +220,12 @@ public sealed class DistanceFogBlur : MonoBehaviour
         return mask;
     }
 
-    private void RefreshParticleRenderers()
+    private void RefreshDynamicExclusions()
     {
-        particleRenderers = FindObjectsByType<ParticleSystemRenderer>(FindObjectsSortMode.None);
+        // Partículas transparentes não entram automaticamente na máscara. A máscara
+        // de substituição não conhece o alfa da textura original e transformava cada
+        // billboard em um retângulo nítido sobre o blur. Efeitos que precisarem ser
+        // sempre nítidos devem usar DistanceFogBlurExclude explicitamente.
         List<Renderer> cloudRenderers = new List<Renderer>();
         GameObject[] taggedClouds = GameObject.FindGameObjectsWithTag("Cloud");
         foreach (GameObject cloud in taggedClouds)

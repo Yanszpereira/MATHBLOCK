@@ -9,6 +9,7 @@ public class MathBlockValue : MonoBehaviour
     private const string LabelRootName = "ValueLabels";
     private const string LabelShaderName = "MathBlock/LabelOverlay";
     private const string ToonShaderName = "Custom/URPToonShader";
+    private const string StretchBlockToonShaderName = "MathBlock/Stretch Block Toon";
 
     private static readonly (string name, Vector3 direction)[] FaceLabels =
     {
@@ -258,8 +259,7 @@ public class MathBlockValue : MonoBehaviour
             return false;
 
         SetValue(nextValue);
-        if (operatorType == GravityInteract.PencilOperator.Addition)
-            AdditionCelebrationEffect.Play(this);
+        AdditionCelebrationEffect.Play(this, operatorType);
         Debug.Log($"Bloco {name} atualizado para {currentValue} usando {operatorType}");
         return true;
     }
@@ -564,7 +564,9 @@ public class MathBlockValue : MonoBehaviour
 
     private void ConfigureToonMaterials()
     {
-        Shader toonShader = Shader.Find(ToonShaderName);
+        bool isResizable = GetComponent<ResizableBlock>() != null;
+        string shaderName = isResizable ? StretchBlockToonShaderName : ToonShaderName;
+        Shader toonShader = Shader.Find(shaderName);
         if (toonShader == null)
         {
             Debug.LogWarning($"Shader toon '{ToonShaderName}' não encontrado para {name}.", this);
@@ -600,10 +602,13 @@ public class MathBlockValue : MonoBehaviour
                     toon.SetTexture("_MainTex", sourceTexture);
 
                 toon.SetFloat("_ShadeSteps", 3f);
-                toon.SetFloat("_ShadeSmoothness", 0.08f);
+                toon.SetFloat("_ShadeSmoothness", isResizable ? 1f : 0.08f);
                 toon.SetFloat("_MinBrightness", 0.38f);
                 toon.SetFloat("_AmbientStrength", 0.42f);
-                toon.SetFloat("_OutlineWidth", 0.006f);
+                if (isResizable)
+                    toon.SetFloat("_OutlinePixels", 1.75f);
+                else
+                    toon.SetFloat("_OutlineWidth", 0.006f);
                 toon.EnableKeyword("_OUTLINE_ON");
                 toon.EnableKeyword("_RIM_ON");
                 toon.EnableKeyword("_SPECULAR_ON");
