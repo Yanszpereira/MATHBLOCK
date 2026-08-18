@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public sealed class OperatorHudStyler : MonoBehaviour
+/*
 {
     private static readonly string[] Names = { "Soma", "Subtracao", "Multiplicacao", "Divisao" };
     // Escapes Unicode mantêm os símbolos corretos em qualquer Editor ou build,
@@ -301,3 +301,4 @@ public sealed class OperatorHudVisual : MonoBehaviour
         transform.localScale = Vector3.Lerp(transform.localScale, targetScale, t);
     }
 }
+*/
