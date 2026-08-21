@@ -13,11 +13,20 @@ public sealed class ToonCloudSkyGenerator : MonoBehaviour
     private Transform viewer;
     private float recycleRadius;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install()
     {
-        string sceneName = SceneManager.GetActiveScene().name;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        string sceneName = scene.name;
         if (!sceneName.StartsWith("Fase") && sceneName != "MainScene")
+            return;
+
+        if (FindFirstObjectByType<ToonCloudSkyGenerator>() != null)
             return;
 
         GameObject generator = new GameObject("Environment - Toon 3D Clouds");

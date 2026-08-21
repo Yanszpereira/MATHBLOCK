@@ -1,19 +1,37 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public sealed class DistanceBlurOptionUI : MonoBehaviour
 {
     private const string VolumeKey = "MasterVolume";
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install()
     {
-        if (FindFirstObjectByType<DistanceBlurOptionUI>() != null)
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        foreach (DistanceBlurOptionUI existing in FindObjectsByType<DistanceBlurOptionUI>(
+                     FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
+        {
+            if (existing != null && existing.gameObject.scene == scene)
+                return;
+        }
+
+        if (!scene.name.Equals("MainMenu", StringComparison.OrdinalIgnoreCase) &&
+            !scene.name.StartsWith("Fase", StringComparison.OrdinalIgnoreCase))
             return;
 
-        new GameObject("Menu Options Logic").AddComponent<DistanceBlurOptionUI>();
+        GameObject logicObject = new GameObject("Menu Options Logic");
+        SceneManager.MoveGameObjectToScene(logicObject, scene);
+        logicObject.AddComponent<DistanceBlurOptionUI>();
     }
 
     private void Start()

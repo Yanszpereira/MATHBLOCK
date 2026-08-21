@@ -31,6 +31,7 @@ public sealed class ElevatorButton : MonoBehaviour
     private Vector3 buttonRestLocalPosition;
     private Vector3 restLocalScale;
     private Renderer[] fadeRenderers;
+    private Material[][] originalSharedMaterials;
     private Coroutine pressAnimation;
     private Coroutine appearAnimation;
     private BlockResizeParticleEffect appearParticleEffect;
@@ -120,6 +121,7 @@ public sealed class ElevatorButton : MonoBehaviour
             transform.localScale = restLocalScale;
 
         SetFadeAlpha(1f);
+        RestoreOriginalMaterials();
     }
 
     private IEnumerator AppearRoutine()
@@ -156,11 +158,18 @@ public sealed class ElevatorButton : MonoBehaviour
         if (fadeRenderers == null)
             fadeRenderers = GetComponentsInChildren<Renderer>(true);
 
+        if (originalSharedMaterials != null)
+            return;
+
+        originalSharedMaterials = new Material[fadeRenderers.Length][];
+
         for (int index = 0; index < fadeRenderers.Length; index++)
         {
             Renderer renderer = fadeRenderers[index];
             if (renderer == null)
                 continue;
+
+            originalSharedMaterials[index] = renderer.sharedMaterials;
 
             // Use per-instance materials so the fade does not affect other buttons.
             Material[] materials = renderer.materials;
@@ -168,6 +177,24 @@ public sealed class ElevatorButton : MonoBehaviour
             for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
                 ConfigureTransparentMaterial(materials[materialIndex]);
         }
+    }
+
+    private void RestoreOriginalMaterials()
+    {
+        if (originalSharedMaterials == null)
+            return;
+
+        for (int index = 0; index < fadeRenderers.Length; index++)
+        {
+            Renderer renderer = fadeRenderers[index];
+            Material[] originals = originalSharedMaterials[index];
+            if (renderer == null || originals == null)
+                continue;
+
+            renderer.sharedMaterials = originals;
+        }
+
+        originalSharedMaterials = null;
     }
 
     private void SetFadeAlpha(float alpha)

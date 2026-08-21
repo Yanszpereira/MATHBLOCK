@@ -8,16 +8,24 @@ public sealed class MobileTouchControls : MonoBehaviour
     private MobileInputJoystick joystick;
     private bool wasEnabled;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install()
     {
-        if (!SceneManager.GetActiveScene().name.StartsWith("Fase"))
+        // Remove primeiro para continuar seguro quando o Domain Reload estiver
+        // desabilitado nas opcoes de Enter Play Mode.
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (!scene.name.StartsWith("Fase", System.StringComparison.OrdinalIgnoreCase))
             return;
 
         if (!ShouldShowTouchControls())
             return;
 
-        CreateControls();
+        CreateControls(scene);
     }
 
     public static bool ShouldShowTouchControls()
@@ -29,14 +37,11 @@ public sealed class MobileTouchControls : MonoBehaviour
                UnityEngine.Device.Application.isMobilePlatform;
     }
 
-    private static void CreateControls()
+    private static void CreateControls(Scene scene)
     {
-        if (!SceneManager.GetActiveScene().name.StartsWith("Fase"))
-            return;
-
         foreach (Transform candidate in Resources.FindObjectsOfTypeAll<Transform>())
         {
-            if (candidate == null || !candidate.gameObject.scene.IsValid() ||
+            if (candidate == null || candidate.gameObject.scene != scene ||
                 !candidate.name.Equals("BotoesMobile", System.StringComparison.OrdinalIgnoreCase))
                 continue;
 

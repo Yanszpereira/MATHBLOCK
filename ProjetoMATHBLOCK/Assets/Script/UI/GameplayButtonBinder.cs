@@ -8,12 +8,28 @@ public sealed class GameplayButtonBinder : MonoBehaviour
     private GravityInteract gravityInteract;
     private MenuController menuController;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install()
     {
-        if (SceneManager.GetActiveScene().name == "MainMenu")
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (!scene.name.StartsWith("Fase", System.StringComparison.OrdinalIgnoreCase))
             return;
+
+        foreach (GameplayButtonBinder existing in FindObjectsByType<GameplayButtonBinder>(
+                     FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
+        {
+            if (existing != null && existing.gameObject.scene == scene)
+                return;
+        }
+
         GameObject binderObject = new GameObject("Gameplay Button Logic");
+        SceneManager.MoveGameObjectToScene(binderObject, scene);
         binderObject.AddComponent<GameplayButtonBinder>();
     }
 

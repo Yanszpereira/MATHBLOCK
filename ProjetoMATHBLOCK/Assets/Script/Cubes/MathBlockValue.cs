@@ -36,7 +36,7 @@ public class MathBlockValue : MonoBehaviour
     [SerializeField] private float scaleStep = 0.15f;
     [SerializeField] private float minimumScaleMultiplier = 0.5f;
     [SerializeField] private float maximumScaleMultiplier = 3f;
-    [SerializeField] private float labelSurfaceOffset = -0.0005f;
+    [SerializeField] private float labelSurfaceOffset = 0.002f;
     [SerializeField] private float labelFontSize = 120f;
     [SerializeField] private Color labelColor = Color.white;
     [SerializeField] private bool randomizeColorOnStart = true;
@@ -47,10 +47,12 @@ public class MathBlockValue : MonoBehaviour
     private Material labelMaterial;
     private Material[] runtimeColorMaterials;
     private TextMesh[] valueLabels;
+    private Camera labelCamera;
     private MaterialPropertyBlock propertyBlock;
     private Stack<DesfazerManager.Acao> operationStack = new Stack<DesfazerManager.Acao>();
     private bool hasPreviewValue;
     private int previewValue;
+    private float labelOpacity = 1f;
 
     public int CurrentValue => currentValue;
     public int BlockId => blockId;
@@ -103,6 +105,11 @@ public class MathBlockValue : MonoBehaviour
         RefreshLabels();
         RefreshVisual();
         RegisterWithUndoManager();
+    }
+
+    private void LateUpdate()
+    {
+        UpdateLabelVisibility();
     }
 
     private void OnDestroy()
@@ -171,6 +178,12 @@ public class MathBlockValue : MonoBehaviour
 
         hasPreviewValue = false;
         RefreshLabels();
+    }
+
+    public void SetLabelOpacity(float opacity)
+    {
+        labelOpacity = Mathf.Clamp01(opacity);
+        ApplyLabelColors();
     }
 
     public void RestoreOriginalRotation()
@@ -499,7 +512,7 @@ public class MathBlockValue : MonoBehaviour
 
             UpdateLabelTransform(label.transform, FaceLabels[i].direction);
             label.text = valueText;
-            label.color = labelColor;
+            label.color = GetVisibleLabelColor();
             label.fontSize = Mathf.RoundToInt(labelFontSize);
             label.anchor = TextAnchor.MiddleCenter;
             label.alignment = TextAlignment.Center;
@@ -516,7 +529,9 @@ public class MathBlockValue : MonoBehaviour
     {
         Vector3 center = GetLocalCenter();
         Vector3 halfExtents = GetLocalHalfExtents();
-        float offset = Mathf.Clamp(labelSurfaceOffset, -0.01f, 0.01f);
+        // Keep the glyphs physically outside the mesh. A tiny or negative offset
+        // causes depth fighting on mobile GPUs and can expose labels from other faces.
+        float offset = Mathf.Clamp(Mathf.Abs(labelSurfaceOffset), 0.002f, 0.01f);
         Vector3 faceOffset = center + new Vector3(
             direction.x * (halfExtents.x + offset),
             direction.y * (halfExtents.y + offset),
@@ -526,6 +541,55 @@ public class MathBlockValue : MonoBehaviour
         labelTransform.localPosition = faceOffset;
         labelTransform.localRotation = Quaternion.LookRotation(direction, Vector3.up) * Quaternion.Euler(0f, 180f, 0f);
         labelTransform.localScale = Vector3.one * 0.75f;
+    }
+
+    private void UpdateLabelVisibility()
+    {
+        if (valueLabels == null)
+            return;
+
+        if (labelCamera == null)
+            labelCamera = Camera.main;
+
+        if (labelCamera == null)
+            return;
+
+        Vector3 cameraPosition = labelCamera.transform.position;
+        for (int i = 0; i < valueLabels.Length && i < FaceLabels.Length; i++)
+        {
+            TextMesh label = valueLabels[i];
+            if (label == null)
+                continue;
+
+            Vector3 faceNormal = transform.TransformDirection(FaceLabels[i].direction).normalized;
+            Vector3 directionToCamera = labelCamera.orthographic
+                ? -labelCamera.transform.forward
+                : (cameraPosition - label.transform.position).normalized;
+
+            Renderer labelRenderer = label.GetComponent<Renderer>();
+            if (labelRenderer != null)
+                labelRenderer.enabled = Vector3.Dot(faceNormal, directionToCamera) > 0.01f;
+        }
+    }
+
+    private void ApplyLabelColors()
+    {
+        if (valueLabels == null)
+            return;
+
+        Color visibleColor = GetVisibleLabelColor();
+        for (int i = 0; i < valueLabels.Length; i++)
+        {
+            if (valueLabels[i] != null)
+                valueLabels[i].color = visibleColor;
+        }
+    }
+
+    private Color GetVisibleLabelColor()
+    {
+        Color visibleColor = labelColor;
+        visibleColor.a *= labelOpacity;
+        return visibleColor;
     }
 
     private void RefreshVisual()

@@ -27,8 +27,13 @@ public sealed class MathBlockDitherController : MonoBehaviour
     private float targetAmount;
     private float targetOpacity = 1f;
     private bool active;
+    private MathBlockValue blockValue;
 
-    private void Awake() { CacheRenderers(); }
+    private void Awake()
+    {
+        blockValue = GetComponent<MathBlockValue>();
+        CacheRenderers();
+    }
 
     private void CacheRenderers()
     {
@@ -93,6 +98,8 @@ public sealed class MathBlockDitherController : MonoBehaviour
 
     private void ApplyValues()
     {
+        blockValue?.SetLabelOpacity(currentOpacity);
+
         foreach (State state in states)
             foreach (Material material in state.Effects)
                 if (material != null)
@@ -106,6 +113,7 @@ public sealed class MathBlockDitherController : MonoBehaviour
     public void ForceRestore()
     {
         foreach (State state in states) if (state.Renderer != null) state.Renderer.sharedMaterials = state.Originals;
+        blockValue?.SetLabelOpacity(1f);
         active = false; currentAmount = targetAmount = 0f; currentOpacity = targetOpacity = 1f;
     }
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public sealed class ButtonsMobile : MonoBehaviour
@@ -7,23 +8,32 @@ public sealed class ButtonsMobile : MonoBehaviour
     private GravityInteract gravityInteract;
     private bool jumpAndInteractLayoutSwapped;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install()
     {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (!scene.name.StartsWith("Fase", System.StringComparison.OrdinalIgnoreCase))
+            return;
+
         if (!MobileTouchControls.ShouldShowTouchControls())
             return;
 
-        ActivateHud();
+        ActivateHud(scene);
     }
 
-    public static void ActivateHud()
+    public static void ActivateHud(Scene scene)
     {
         // Resources.FindObjectsOfTypeAll inclui filhos desativados de instancias
         // de prefab. FindObjectsByType podia deixar BotoesMobile de fora antes
         // de seu primeiro SetActive(true) no Device Simulator.
         foreach (Transform candidate in Resources.FindObjectsOfTypeAll<Transform>())
         {
-            if (candidate == null || !candidate.gameObject.scene.IsValid() ||
+            if (candidate == null || candidate.gameObject.scene != scene ||
                 !candidate.name.Equals("BotoesMobile", System.StringComparison.OrdinalIgnoreCase))
                 continue;
 

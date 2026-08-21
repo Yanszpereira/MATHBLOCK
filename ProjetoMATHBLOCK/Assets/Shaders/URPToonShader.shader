@@ -25,13 +25,13 @@ Pass { Name "FORWARD" Tags{"LightMode"="ForwardBase"} Blend [_SrcBlend] [_DstBle
 #include "AutoLight.cginc"
 sampler2D _MainTex; float4 _MainTex_ST; fixed4 _BaseColor,_ShadeColor,_SpecularColor,_RimColor,_DotColor; float _ShadeSteps,_ShadeSmoothness,_MinBrightness,_MaxBrightness,_Glossiness,_SpecularSmoothness,_RimAmount,_RimSmoothness,_AmbientStrength,_DitherAmount,_Opacity,_DotScale;
 struct A{float4 vertex:POSITION;float3 normal:NORMAL;float2 uv:TEXCOORD0;}; struct V{float4 pos:SV_POSITION;float2 uv:TEXCOORD0;float3 n:TEXCOORD1;float3 wp:TEXCOORD2;SHADOW_COORDS(3)};
-V vert(A i){V o;o.pos=UnityObjectToClipPos(i.vertex);o.uv=TRANSFORM_TEX(i.uv,_MainTex);o.n=UnityObjectToWorldNormal(i.normal);o.wp=mul(unity_ObjectToWorld,i.vertex).xyz;TRANSFER_SHADOW(o)return o;}
-fixed4 frag(V i):SV_Target{fixed4 a=tex2D(_MainTex,i.uv)*_BaseColor;float3 n=normalize(i.n),l=normalize(UnityWorldSpaceLightDir(i.wp)),v=normalize(UnityWorldSpaceViewDir(i.wp));UNITY_LIGHT_ATTENUATION(att,i,i.wp);float x=saturate(dot(n,l))*att;float steps=max(2,round(_ShadeSteps));float q=floor(x*steps)/max(1,steps-1);q+=smoothstep(.5-_ShadeSmoothness,.5+_ShadeSmoothness,frac(x*steps))/max(1,steps-1);q=saturate(q);float3 c=a.rgb*(lerp(_ShadeColor.rgb,float3(1,1,1),q)*lerp(_MinBrightness,_MaxBrightness,q)*_LightColor0.rgb+ShadeSH9(float4(n,1)).rgb*_AmbientStrength);
+V vert(A v){V o;o.pos=UnityObjectToClipPos(v.vertex);o.uv=TRANSFORM_TEX(v.uv,_MainTex);o.n=UnityObjectToWorldNormal(v.normal);o.wp=mul(unity_ObjectToWorld,v.vertex).xyz;TRANSFER_SHADOW(o)return o;}
+fixed4 frag(V i):SV_Target{fixed4 a=tex2D(_MainTex,i.uv)*_BaseColor;float3 n=normalize(i.n),l=normalize(UnityWorldSpaceLightDir(i.wp)),viewDir=normalize(UnityWorldSpaceViewDir(i.wp));UNITY_LIGHT_ATTENUATION(att,i,i.wp);float x=saturate(dot(n,l))*att;float steps=max(2,round(_ShadeSteps));float q=floor(x*steps)/max(1,steps-1);q+=smoothstep(.5-_ShadeSmoothness,.5+_ShadeSmoothness,frac(x*steps))/max(1,steps-1);q=saturate(q);float3 c=a.rgb*(lerp(_ShadeColor.rgb,float3(1,1,1),q)*lerp(_MinBrightness,_MaxBrightness,q)*_LightColor0.rgb+ShadeSH9(float4(n,1)).rgb*_AmbientStrength);
 #ifdef _SPECULAR_ON
-float sp=pow(saturate(dot(n,normalize(l+v))),lerp(8,128,_Glossiness));c+=_SpecularColor.rgb*smoothstep(.5-_SpecularSmoothness,.5+_SpecularSmoothness,sp)*att;
+float sp=pow(saturate(dot(n,normalize(l+viewDir))),lerp(8,128,_Glossiness));c+=_SpecularColor.rgb*smoothstep(.5-_SpecularSmoothness,.5+_SpecularSmoothness,sp)*att;
 #endif
 #ifdef _RIM_ON
-float rim=1-saturate(dot(n,v));c+=_RimColor.rgb*smoothstep(_RimAmount-_RimSmoothness,_RimAmount+_RimSmoothness,rim)*q;
+float rim=1-saturate(dot(n,viewDir));c+=_RimColor.rgb*smoothstep(_RimAmount-_RimSmoothness,_RimAmount+_RimSmoothness,rim)*q;
 #endif
 float2 cell=frac(i.pos.xy/max(2.0,_DotScale))-.5;float dots=1-smoothstep(.20,.30,length(cell));c=lerp(c,_DotColor.rgb,dots*saturate(_DitherAmount)*.85);return fixed4(c,a.a*saturate(_Opacity));} ENDCG }
 UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"

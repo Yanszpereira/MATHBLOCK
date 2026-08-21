@@ -17,9 +17,10 @@ Shader "MathBlock/LabelOverlay"
 
         Lighting Off
         ZWrite Off
-        Cull Off
+        ZTest LEqual
+        Cull Back
         Blend SrcAlpha OneMinusSrcAlpha
-        Offset -2, -2
+        Offset 0, 0
 
         Pass
         {

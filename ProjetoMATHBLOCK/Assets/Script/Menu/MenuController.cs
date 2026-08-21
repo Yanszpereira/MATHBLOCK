@@ -32,8 +32,7 @@ public class MenuController : MonoBehaviour
     [SerializeField] private AnimationCurve curvaFade =
         AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
-    [Header("Cena do jogo")]
-    [SerializeField] private string nomeCenaJogo = "Fase 1";
+    private const string CaminhoCenaFase1 = "Assets/Scenes/Fase 1.unity";
 
     private readonly Dictionary<GameObject, Coroutine> rotinasAtivas = new();
     private readonly Dictionary<GameObject, CanvasGroup> canvasGroups = new();
@@ -61,6 +60,7 @@ public class MenuController : MonoBehaviour
             return;
         }
 
+        RestaurarEscalaDaGameplayHud();
         ResolveMenuReferences();
         PrepararAcaoDeVoltar();
         RepararEventSystem();
@@ -117,12 +117,12 @@ public class MenuController : MonoBehaviour
         InputAction point = ui.AddAction("Point", InputActionType.PassThrough, expectedControlLayout: "Vector2");
         point.AddBinding("<Mouse>/position");
         point.AddBinding("<Pen>/position");
-        point.AddBinding("<Touchscreen>/primaryTouch/position");
+        point.AddBinding("<Touchscreen>/touch*/position");
 
         InputAction click = ui.AddAction("Click", InputActionType.PassThrough, expectedControlLayout: "Button");
         click.AddBinding("<Mouse>/leftButton");
         click.AddBinding("<Pen>/tip");
-        click.AddBinding("<Touchscreen>/primaryTouch/press");
+        click.AddBinding("<Touchscreen>/touch*/press");
 
         InputAction rightClick = ui.AddAction("RightClick", InputActionType.PassThrough, "<Mouse>/rightButton");
         InputAction middleClick = ui.AddAction("MiddleClick", InputActionType.PassThrough, "<Mouse>/middleButton");
@@ -145,6 +145,7 @@ public class MenuController : MonoBehaviour
         cancel.AddBinding("<Gamepad>/buttonEast");
 
         module.actionsAsset = runtimeUiActions;
+        module.pointerBehavior = UIPointerBehavior.SingleMouseOrPenButMultiTouchAndTrack;
         module.point = InputActionReference.Create(point);
         module.leftClick = InputActionReference.Create(click);
         module.rightClick = InputActionReference.Create(rightClick);
@@ -280,6 +281,25 @@ public class MenuController : MonoBehaviour
             target = target.parent;
         }
         return false;
+    }
+
+    private void RestaurarEscalaDaGameplayHud()
+    {
+        if (!IsInsideGameplayHud(transform))
+            return;
+
+        Transform hudRoot = transform;
+        while (hudRoot.parent != null && !hudRoot.name.Equals(
+                   "Gameplay HUD",
+                   System.StringComparison.OrdinalIgnoreCase))
+        {
+            hudRoot = hudRoot.parent;
+        }
+
+        // Uma instancia da Fase 1 foi salva com escala zero ao ser movida para
+        // o Canvas. Isso ocultava tanto a HUD quanto os menus proprios da fase.
+        if (hudRoot.localScale.sqrMagnitude < 0.0001f)
+            hudRoot.localScale = Vector3.one;
     }
 
     private void RepairAllHudButtonCalls()
@@ -477,10 +497,16 @@ public class MenuController : MonoBehaviour
     public void IniciarJogo()
     {
         Time.timeScale = 1f;
-        if (Application.CanStreamedLevelBeLoaded(nomeCenaJogo))
-            SceneManager.LoadScene(nomeCenaJogo);
-        else
-            Debug.LogError($"Cena '{nomeCenaJogo}' nao foi adicionada ao Build Settings.", this);
+        int buildIndex = SceneUtility.GetBuildIndexByScenePath(CaminhoCenaFase1);
+        if (buildIndex < 0)
+        {
+            Debug.LogError(
+                $"Cena '{CaminhoCenaFase1}' nao foi adicionada ao Build Settings ativo.",
+                this);
+            return;
+        }
+
+        SceneManager.LoadScene(buildIndex, LoadSceneMode.Single);
     }
 
     public void ReiniciarFase()
