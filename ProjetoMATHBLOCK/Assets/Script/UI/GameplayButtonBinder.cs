@@ -28,7 +28,7 @@ public sealed class GameplayButtonBinder : MonoBehaviour
 
     private static void ConfigureAndroidButtonGroups()
     {
-        bool showOnAndroid = Application.platform == RuntimePlatform.Android;
+        bool showOnMobile = Application.isMobilePlatform;
         Transform[] transforms = FindObjectsByType<Transform>(
             FindObjectsInactive.Include,
             FindObjectsSortMode.None);
@@ -38,7 +38,7 @@ public sealed class GameplayButtonBinder : MonoBehaviour
             if (candidate != null
                 && candidate.name.Equals("BotoesMobile", System.StringComparison.OrdinalIgnoreCase))
             {
-                candidate.gameObject.SetActive(showOnAndroid);
+                candidate.gameObject.SetActive(showOnMobile);
             }
         }
     }
@@ -49,6 +49,9 @@ public sealed class GameplayButtonBinder : MonoBehaviour
         foreach (Button button in buttons)
         {
             if (button == null)
+                continue;
+
+            if (IsMobileButton(button))
                 continue;
 
             ConfigureButtonFeedback(button);
@@ -71,6 +74,20 @@ public sealed class GameplayButtonBinder : MonoBehaviour
                     break;
             }
         }
+    }
+
+    private static bool IsMobileButton(Button button)
+    {
+        Transform current = button.transform.parent;
+        while (current != null)
+        {
+            if (current.name.Equals("BotoesMobile", System.StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            current = current.parent;
+        }
+
+        return false;
     }
 
     private static void ConfigureButtonFeedback(Button button)

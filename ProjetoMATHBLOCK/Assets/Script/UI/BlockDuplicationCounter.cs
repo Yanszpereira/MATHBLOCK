@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,7 +7,7 @@ using UnityEngine.UI;
 public sealed class BlockDuplicationCounter : MonoBehaviour
 {
     private PlayerMovement playerMovement;
-    private Text counterText;
+    private TMP_Text counterText;
     private GameObject panelObject;
     private Coroutine hideRoutine;
     private const float VisibleDuration = 5f;
@@ -71,7 +72,7 @@ public sealed class BlockDuplicationCounter : MonoBehaviour
         panel.sizeDelta = new Vector2(300f, 64f);
         panelObject.GetComponent<Image>().color = new Color(0.035f, 0.045f, 0.065f, 0.82f);
 
-        GameObject textObject = new GameObject("Count", typeof(RectTransform), typeof(Text));
+        GameObject textObject = new GameObject("Count", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
         textObject.transform.SetParent(panelObject.transform, false);
         RectTransform textRect = textObject.GetComponent<RectTransform>();
         textRect.anchorMin = Vector2.zero;
@@ -79,11 +80,13 @@ public sealed class BlockDuplicationCounter : MonoBehaviour
         textRect.offsetMin = new Vector2(16f, 6f);
         textRect.offsetMax = new Vector2(-16f, -6f);
 
-        counterText = textObject.GetComponent<Text>();
-        counterText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        counterText = textObject.GetComponent<TMP_Text>();
+        TMP_FontAsset schoolbellFont = Resources.Load<TMP_FontAsset>("Fonts & Materials/Schoolbell-Regular SDF");
+        if (schoolbellFont != null)
+            counterText.font = schoolbellFont;
         counterText.fontSize = 25;
-        counterText.fontStyle = FontStyle.Bold;
-        counterText.alignment = TextAnchor.MiddleCenter;
+        counterText.fontStyle = FontStyles.Bold;
+        counterText.alignment = TextAlignmentOptions.Center;
         counterText.color = Color.white;
         counterText.raycastTarget = false;
     }
