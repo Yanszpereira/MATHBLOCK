@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.EventSystems;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 using TouchPhase = UnityEngine.InputSystem.TouchPhase;
 
@@ -27,6 +28,8 @@ public class Look : MonoBehaviour
 
     private float xRotation;
     private Vector2 mouseInput;
+    private Vector2 touchInput;
+    private int lookTouchId = -1;
     private CharacterController controller;
     private PlayerMovement playerMovement;
     private Vector3 defaultCameraLocalPosition;
@@ -40,6 +43,8 @@ public class Look : MonoBehaviour
         LockCursor();
         controller = GetComponent<CharacterController>();
         playerMovement = GetComponent<PlayerMovement>();
+        mouseSensitivity = PlayerPrefs.GetFloat("MouseSensitivity", mouseSensitivity);
+        touchLookSensitivity = PlayerPrefs.GetFloat("TouchSensitivity", 40f) * 0.002f;
 
         if (cameraTransform != null)
         {
@@ -81,15 +86,28 @@ public class Look : MonoBehaviour
 
     private void OnDisable()
     {
+        mouseInput = Vector2.zero;
+        touchInput = Vector2.zero;
+        lookTouchId = -1;
         EnhancedTouchSupport.Disable();
     }
 
     private void Update()
     {
-        if (enableTouchSplitLook)
-            HandleTouchLook();
+        if (Time.timeScale <= 0f)
+        {
+            touchInput = Vector2.zero;
+            lookTouchId = -1;
+            return;
+        }
 
         RotateMouse();
+
+        if (enableTouchSplitLook)
+        {
+            HandleTouchLook();
+            RotateTouch();
+        }
     }
 
     private void LateUpdate()
@@ -99,10 +117,8 @@ public class Look : MonoBehaviour
 
     public void OnLookEvent(InputAction.CallbackContext context)
     {
-        if (Touchscreen.current == null)
-        {
+        if (context.control?.device is Mouse)
             mouseInput = context.ReadValue<Vector2>();
-        }
     }
 
     private void RotateMouse()
@@ -112,6 +128,17 @@ public class Look : MonoBehaviour
 
         ApplyCameraRotation();
         transform.Rotate(Vector3.up * mouseInput.x * mouseSensitivity * Time.deltaTime);
+    }
+
+    private void RotateTouch()
+    {
+        if (touchInput == Vector2.zero)
+            return;
+
+        xRotation -= touchInput.y * touchLookSensitivity;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        ApplyCameraRotation();
+        transform.Rotate(Vector3.up * touchInput.x * touchLookSensitivity);
     }
 
     private void ApplyWalkBob()
@@ -207,29 +234,37 @@ public class Look : MonoBehaviour
 
     private void HandleTouchLook()
     {
-        if (TryGetTouchDelta(true, out Vector2 touchDelta))
+        touchInput = Vector2.zero;
+
+        foreach (Touch touch in Touch.activeTouches)
         {
-            mouseInput = touchDelta * touchLookSensitivity;
+            if (touch.touchId != lookTouchId)
+                continue;
+
+            if (touch.phase == TouchPhase.Moved)
+                touchInput = touch.delta;
+
+            if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+                lookTouchId = -1;
+            return;
+        }
+
+        lookTouchId = -1;
+        foreach (Touch touch in Touch.activeTouches)
+        {
+            if (touch.phase != TouchPhase.Began || touch.screenPosition.x <= Screen.width * 0.5f)
+                continue;
+
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.touchId))
+                continue;
+
+            lookTouchId = touch.touchId;
+            return;
         }
     }
 
-    private bool TryGetTouchDelta(bool rightHalf, out Vector2 delta)
-    {
-        delta = Vector2.zero;
+    public void SetMouseSensitivity(float value) => mouseSensitivity = value;
 
-        foreach (var touch in Touch.activeTouches)
-        {
-            if (touch.phase != TouchPhase.Moved)
-                continue;
-
-            bool isRightSide = touch.screenPosition.x > Screen.width * 0.5f;
-            if (isRightSide != rightHalf)
-                continue;
-
-            delta = touch.delta;
-            return true;
-        }
-
-        return false;
-    }
+    public void SetTouchSensitivity(float value) =>
+        touchLookSensitivity = Mathf.Clamp(value, 1f, 100f) * 0.002f;
 }

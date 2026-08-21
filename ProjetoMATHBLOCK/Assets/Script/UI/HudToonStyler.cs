@@ -20,7 +20,7 @@ public sealed class HudToonStyler : MonoBehaviour
         Button[] buttons = FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (Button button in buttons)
         {
-            if (button == null || !IsInsideHud(button.transform))
+            if (button == null || !IsInsideHud(button.transform) || IsInsideMobileButtons(button.transform))
                 continue;
 
             ApplyButtonStyle(button);
@@ -63,6 +63,18 @@ public sealed class HudToonStyler : MonoBehaviour
             if (current.name.Equals("Hud", System.StringComparison.OrdinalIgnoreCase) ||
                 current.name.Equals("HUD", System.StringComparison.OrdinalIgnoreCase) ||
                 current.name.Equals("Special Block Touch Controls", System.StringComparison.OrdinalIgnoreCase))
+                return true;
+            current = current.parent;
+        }
+        return false;
+    }
+
+    private static bool IsInsideMobileButtons(Transform target)
+    {
+        Transform current = target;
+        while (current != null)
+        {
+            if (current.name.Equals("BotoesMobile", System.StringComparison.OrdinalIgnoreCase))
                 return true;
             current = current.parent;
         }

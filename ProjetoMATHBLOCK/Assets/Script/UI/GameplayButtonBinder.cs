@@ -22,13 +22,26 @@ public sealed class GameplayButtonBinder : MonoBehaviour
         ConfigureAndroidButtonGroups();
         movement = FindFirstObjectByType<PlayerMovement>();
         gravityInteract = FindFirstObjectByType<GravityInteract>();
-        menuController = FindFirstObjectByType<MenuController>(FindObjectsInactive.Include);
+        menuController = FindActiveMenuController();
         BindButtons();
+    }
+
+    private static MenuController FindActiveMenuController()
+    {
+        foreach (MenuController candidate in FindObjectsByType<MenuController>(
+                     FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
+        {
+            if (candidate != null && candidate.isActiveAndEnabled)
+                return candidate;
+        }
+
+        return null;
     }
 
     private static void ConfigureAndroidButtonGroups()
     {
-        bool showOnMobile = Application.isMobilePlatform;
+        bool showOnMobile = MobileTouchControls.ShouldShowTouchControls();
         Transform[] transforms = FindObjectsByType<Transform>(
             FindObjectsInactive.Include,
             FindObjectsSortMode.None);

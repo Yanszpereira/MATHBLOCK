@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(LineRenderer))]
 public class DynamicCrosshair : MonoBehaviour
@@ -9,17 +8,18 @@ public class DynamicCrosshair : MonoBehaviour
     public float rayDistance = 100f;
 
     [Header("Dynamic Dot")]
-    [SerializeField] private float dotRadius = 3.25f;
-    [SerializeField] private float expandedRadius = 9f;
-    [SerializeField] private float ringThickness = 1.4f;
+    [SerializeField] private float dotRadius = 6.5f;
+    [SerializeField] private float expandedRadius = 10f;
+    [SerializeField] private float ringThickness = 2.2f;
     [SerializeField] private float animationSpeed = 14f;
     [SerializeField] private Color crosshairColor = Color.white;
-    [SerializeField] private Vector2 referenceResolution = new Vector2(1920f, 1080f);
+    [Header("Global HUD")]
+    [SerializeField] private RectTransform crosshairLayer;
+    [SerializeField] private CircleCrosshairGraphic circleGraphic;
 
-    private GameObject crosshairCanvasObject;
-    private CircleCrosshairGraphic circleGraphic;
     private Material invertOverlayMaterial;
     private float interactionProgress;
+    private bool requestedVisible = true;
 
     private void Awake()
     {
@@ -33,7 +33,7 @@ public class DynamicCrosshair : MonoBehaviour
         if (playerCamera == null)
             playerCamera = Camera.main;
 
-        CreateCrosshair();
+        ResolveOrCreateCrosshair();
         UpdateCrosshairShape();
     }
 
@@ -75,33 +75,47 @@ public class DynamicCrosshair : MonoBehaviour
             || hit.collider.GetComponentInParent<opItem>() != null;
     }
 
-    private void CreateCrosshair()
+    private void ResolveOrCreateCrosshair()
     {
-        crosshairCanvasObject = new GameObject("CrosshairCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
+        if (crosshairLayer == null)
+        {
+            Transform existingLayer = transform.Find("CrosshairLayer");
+            if (existingLayer != null)
+                crosshairLayer = existingLayer as RectTransform;
+        }
 
-        Canvas canvas = crosshairCanvasObject.GetComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.overrideSorting = true;
-        canvas.sortingOrder = 32000;
-        canvas.pixelPerfect = false;
+        if (crosshairLayer == null)
+        {
+            GameObject layerObject = new GameObject("CrosshairLayer", typeof(RectTransform));
+            layerObject.layer = gameObject.layer;
+            crosshairLayer = layerObject.GetComponent<RectTransform>();
+            crosshairLayer.SetParent(transform, false);
+            crosshairLayer.anchorMin = Vector2.zero;
+            crosshairLayer.anchorMax = Vector2.one;
+            crosshairLayer.offsetMin = Vector2.zero;
+            crosshairLayer.offsetMax = Vector2.zero;
+            crosshairLayer.localScale = Vector3.one;
+            crosshairLayer.SetAsFirstSibling();
+        }
 
-        CanvasScaler scaler = crosshairCanvasObject.GetComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = referenceResolution;
-        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-        scaler.matchWidthOrHeight = 0.5f;
+        if (circleGraphic == null)
+            circleGraphic = crosshairLayer.GetComponentInChildren<CircleCrosshairGraphic>(true);
 
-        GameObject circleObject = new GameObject("DynamicCircle", typeof(RectTransform), typeof(CircleCrosshairGraphic));
-        circleObject.transform.SetParent(crosshairCanvasObject.transform, false);
+        if (circleGraphic == null)
+        {
+            GameObject circleObject = new GameObject("DynamicCircle", typeof(RectTransform), typeof(CircleCrosshairGraphic));
+            circleObject.layer = gameObject.layer;
+            circleObject.transform.SetParent(crosshairLayer, false);
+            circleGraphic = circleObject.GetComponent<CircleCrosshairGraphic>();
+        }
 
-        RectTransform rect = circleObject.GetComponent<RectTransform>();
+        RectTransform rect = circleGraphic.rectTransform;
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
         rect.anchoredPosition = Vector2.zero;
         rect.localPosition = Vector3.zero;
         rect.localScale = Vector3.one;
         rect.sizeDelta = new Vector2(expandedRadius * 2f, expandedRadius * 2f);
 
-        circleGraphic = circleObject.GetComponent<CircleCrosshairGraphic>();
         circleGraphic.raycastTarget = false;
 
         Shader invertShader = Shader.Find("UI/MathBlock Invert Overlay");
@@ -117,25 +131,30 @@ public class DynamicCrosshair : MonoBehaviour
 
         // O alpha controla a cobertura; o RGB é calculado pelo blend invertido.
         circleGraphic.color = new Color(1f, 1f, 1f, crosshairColor.a);
+        crosshairLayer.gameObject.SetActive(requestedVisible);
+    }
+
+    public void SetVisible(bool visible)
+    {
+        requestedVisible = visible;
+        if (crosshairLayer != null)
+            crosshairLayer.gameObject.SetActive(visible);
     }
 
     private void OnEnable()
     {
-        if (crosshairCanvasObject != null)
-            crosshairCanvasObject.SetActive(true);
+        if (crosshairLayer != null)
+            crosshairLayer.gameObject.SetActive(requestedVisible);
     }
 
     private void OnDisable()
     {
-        if (crosshairCanvasObject != null)
-            crosshairCanvasObject.SetActive(false);
+        if (crosshairLayer != null)
+            crosshairLayer.gameObject.SetActive(false);
     }
 
     private void OnDestroy()
     {
-        if (crosshairCanvasObject != null)
-            Destroy(crosshairCanvasObject);
-
         if (invertOverlayMaterial != null)
             Destroy(invertOverlayMaterial);
     }

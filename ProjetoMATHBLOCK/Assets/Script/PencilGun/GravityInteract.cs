@@ -36,6 +36,7 @@ public class GravityInteract : MonoBehaviour
     [SerializeField, Min(0.01f)] private float carriedBlockCameraContactRadius = 0.16f;
     [SerializeField] private float hammerApplySpeedThreshold = 10.14f;
     [SerializeField, Range(0f, 360f)] private float hammerAllowedDirectionAngle = 230f;
+    [SerializeField, Min(0.05f)] private float invalidHammerRetryDelay = 0.35f;
     [SerializeField] private string hammerImpactEffectObjectName = "efeitomarretada";
     [SerializeField] private float hammerImpactEffectDuration = 1f;
     [SerializeField] private PlayerMovement playerMovement;
@@ -65,6 +66,8 @@ public class GravityInteract : MonoBehaviour
     private MathBlockDitherController carriedDitherController;
     private GameObject hammerImpactEffectObject;
     private Coroutine hammerImpactDisableRoutine;
+    private MathBlockValue lastInvalidHammerBlock;
+    private float nextInvalidHammerAttemptTime;
 
     public PencilOperator EquippedOperator => equippedOperator;
     public Transform OperatorAbsorbTarget => GetOrCreateOperatorAbsorbTarget();
@@ -197,7 +200,35 @@ public class GravityInteract : MonoBehaviour
 
     public void InteractFromUI()
     {
+        if (TryHandleContactOperatorFromUI())
+            return;
+
+        OperatorsScript operatorInteraction = GetComponent<OperatorsScript>();
+        if (operatorInteraction == null)
+            operatorInteraction = FindFirstObjectByType<OperatorsScript>();
+
+        if (operatorInteraction != null && operatorInteraction.TryInteractWithOperatorFromUI())
+            return;
+
         TryHandleGrabOrDrop();
+    }
+
+    private bool TryHandleContactOperatorFromUI()
+    {
+        if (!grabbed || grabbedObject == null)
+            return false;
+
+        if (!TryGetCarriedBlockOverlap(out MathBlockValue contactedBlock) || contactedBlock == null)
+            return false;
+
+        // Durante o contato entre blocos, Interact pertence ao fluxo da conta.
+        // Mesmo sem operador ou com uma conta invalida, nao deixa o mesmo toque
+        // cair no fluxo de soltar o bloco.
+        if (isOnCooldown || equippedOperator == PencilOperator.None)
+            return true;
+
+        ApplyOperatorToBlock(contactedBlock, $"contato com {contactedBlock.name}");
+        return true;
     }
 
     public void DuplicateFromUI()
@@ -261,10 +292,17 @@ public class GravityInteract : MonoBehaviour
         if (!IsHammerDirectionAllowed(carriedVelocity))
             return false;
 
+        // A sobreposicao e consultada em todo frame. Sem esta trava, uma
+        // operacao invalida repetia som, feedback e log dezenas de vezes no
+        // mesmo impacto enquanto os colliders continuavam encostados.
+        if (overlappedBlock == lastInvalidHammerBlock &&
+            Time.unscaledTime < nextInvalidHammerAttemptTime)
+            return false;
+
         Vector3 impactPosition = grabbedObject.position;
         Vector3 impactDirection = carriedVelocity.sqrMagnitude > Mathf.Epsilon ? carriedVelocity.normalized : Vector3.up;
         Color impactColor = GetBlockVisualColor(overlappedBlock);
-        return ApplyOperatorToBlock(
+        bool applied = ApplyOperatorToBlock(
             overlappedBlock,
             $"marretada em {overlappedBlock.name}",
             true,
@@ -272,6 +310,13 @@ public class GravityInteract : MonoBehaviour
             impactColor,
             impactDirection
         );
+
+        if (!applied)
+        {
+            lastInvalidHammerBlock = overlappedBlock;
+            nextInvalidHammerAttemptTime = Time.unscaledTime + invalidHammerRetryDelay;
+        }
+        return applied;
     }
 
     private bool IsHammerDirectionAllowed(Vector3 velocity)
@@ -477,7 +522,9 @@ public class GravityInteract : MonoBehaviour
         if (invalidOperationFeedback != null)
             invalidOperationFeedback.Play(grabbedObject, interactionCamera);
 
-        Debug.LogWarning(
+        // Operacao matematicamente invalida e uma resposta prevista do jogo,
+        // nao um problema tecnico que deva aparecer como warning no Console.
+        Debug.Log(
             $"Operacao invalida ({contextLabel}): {targetValue} {equippedOperator} {carriedBlock.CurrentValue} no bloco {blockName}"
         );
         return false;
@@ -954,6 +1001,11 @@ public class GravityInteract : MonoBehaviour
     private void UpdateCarriedBlockCollisionOpacity(float deltaTime)
     {
         bool isOverlapping = TryGetCarriedBlockOverlap(out MathBlockValue overlappedBlock);
+        if (!isOverlapping || overlappedBlock != lastInvalidHammerBlock)
+        {
+            lastInvalidHammerBlock = null;
+            nextInvalidHammerAttemptTime = 0f;
+        }
         if (isOverlapping && TryHandleHammerApplication(overlappedBlock))
         {
             return;

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
@@ -36,14 +37,35 @@ public class MenuController : MonoBehaviour
 
     private readonly Dictionary<GameObject, Coroutine> rotinasAtivas = new();
     private readonly Dictionary<GameObject, CanvasGroup> canvasGroups = new();
+    private readonly HashSet<Button> repairedButtons = new();
     private InputActionAsset runtimeUiActions;
     private InputAction menuBackAction;
+    private DynamicCrosshair globalCrosshair;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void EnsureSceneController()
+    {
+        if (FindFirstObjectByType<MenuController>(FindObjectsInactive.Include) != null)
+            return;
+
+        bool hasGameplayMenu = FindSceneObject("MenuPaper") != null;
+        if (hasGameplayMenu)
+            new GameObject("MenuController Runtime").AddComponent<MenuController>();
+    }
 
     private void Awake()
     {
+        if (!IsPreferredSceneController())
+        {
+            enabled = false;
+            return;
+        }
+
+        ResolveMenuReferences();
         PrepararAcaoDeVoltar();
         RepararEventSystem();
         PrepararMenus();
+        RepairAllHudButtonCalls();
 
         if (IsMainMenu)
         {
@@ -77,8 +99,11 @@ public class MenuController : MonoBehaviour
 
         if (module == null)
         {
-            Debug.LogError("A cena nao possui InputSystemUIInputModule para controlar o menu.", this);
-            return;
+            EventSystem eventSystem = FindFirstObjectByType<EventSystem>(FindObjectsInactive.Include);
+            GameObject eventSystemObject = eventSystem != null
+                ? eventSystem.gameObject
+                : new GameObject("EventSystem", typeof(EventSystem));
+            module = eventSystemObject.AddComponent<InputSystemUIInputModule>();
         }
 
         // O asset que estava serializado na Fase 1 nao existe mais no projeto.
@@ -182,7 +207,7 @@ public class MenuController : MonoBehaviour
             menu.AddComponent<GraphicRaycaster>();
     }
 
-    private static void PrepararBotoes(GameObject menu)
+    private void PrepararBotoes(GameObject menu)
     {
         foreach (Button button in menu.GetComponentsInChildren<Button>(true))
         {
@@ -213,6 +238,105 @@ public class MenuController : MonoBehaviour
 
             if (button.GetComponent<HoverScale>() == null)
                 button.gameObject.AddComponent<HoverScale>();
+
+            RepairMissingPersistentCalls(button);
+        }
+    }
+
+    private void ResolveMenuReferences()
+    {
+        globalCrosshair ??= GetComponentInParent<DynamicCrosshair>(true);
+        menuInicial ??= FindSceneObject("MenuPaper");
+        menuCreditos ??= FindSceneObject("CreditsMenu");
+        menuOpcoes ??= FindSceneObject("OptionsMenu");
+        menuSair ??= FindSceneObject("ExitMenu");
+        blocker ??= FindSceneObject("Blocker");
+    }
+
+    private bool IsPreferredSceneController()
+    {
+        MenuController preferredHudController = null;
+        foreach (MenuController candidate in FindObjectsByType<MenuController>(
+                     FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
+        {
+            if (candidate != null && candidate.gameObject.scene == gameObject.scene &&
+                IsInsideGameplayHud(candidate.transform))
+            {
+                preferredHudController = candidate;
+                break;
+            }
+        }
+
+        return preferredHudController == null || preferredHudController == this;
+    }
+
+    private static bool IsInsideGameplayHud(Transform target)
+    {
+        while (target != null)
+        {
+            if (target.name.Equals("Gameplay HUD", System.StringComparison.OrdinalIgnoreCase))
+                return true;
+            target = target.parent;
+        }
+        return false;
+    }
+
+    private void RepairAllHudButtonCalls()
+    {
+        Transform hudRoot = transform;
+        while (hudRoot.parent != null && !hudRoot.name.Equals(
+                   "Gameplay HUD",
+                   System.StringComparison.OrdinalIgnoreCase))
+        {
+            hudRoot = hudRoot.parent;
+        }
+
+        foreach (Button button in hudRoot.GetComponentsInChildren<Button>(true))
+            RepairMissingPersistentCalls(button);
+    }
+
+    private static GameObject FindSceneObject(string expectedName)
+    {
+        foreach (Transform candidate in FindObjectsByType<Transform>(
+                     FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
+        {
+            if (candidate != null && candidate.gameObject.scene.IsValid() &&
+                candidate.name.Equals(expectedName, System.StringComparison.OrdinalIgnoreCase))
+                return candidate.gameObject;
+        }
+
+        return null;
+    }
+
+    private void RepairMissingPersistentCalls(Button button)
+    {
+        if (button == null || !repairedButtons.Add(button))
+            return;
+
+        int persistentCount = button.onClick.GetPersistentEventCount();
+        for (int i = 0; i < persistentCount; i++)
+        {
+            if (button.onClick.GetPersistentTarget(i) != null)
+                continue;
+
+            switch (button.onClick.GetPersistentMethodName(i))
+            {
+                case nameof(AbrirInicial): button.onClick.AddListener(AbrirInicial); break;
+                case nameof(AbrirCreditos): button.onClick.AddListener(AbrirCreditos); break;
+                case nameof(AbrirOpcoes): button.onClick.AddListener(AbrirOpcoes); break;
+                case nameof(AbrirSair): button.onClick.AddListener(AbrirSair); break;
+                case nameof(FecharInicial): button.onClick.AddListener(FecharInicial); break;
+                case nameof(FecharCreditos): button.onClick.AddListener(FecharCreditos); break;
+                case nameof(FecharOpcoes): button.onClick.AddListener(FecharOpcoes); break;
+                case nameof(FecharSair): button.onClick.AddListener(FecharSair); break;
+                case nameof(VoltarJogo): button.onClick.AddListener(VoltarJogo); break;
+                case nameof(IniciarJogo): button.onClick.AddListener(IniciarJogo); break;
+                case nameof(ReiniciarFase): button.onClick.AddListener(ReiniciarFase); break;
+                case nameof(VoltarMenuPrincipal): button.onClick.AddListener(VoltarMenuPrincipal); break;
+                case nameof(FecharJogo): button.onClick.AddListener(FecharJogo); break;
+            }
         }
     }
 
@@ -387,6 +511,7 @@ public class MenuController : MonoBehaviour
 
         gameplayPaused = true;
         Time.timeScale = 0f;
+        globalCrosshair?.SetVisible(false);
         DefinirCursor(true, false);
     }
 
@@ -397,6 +522,7 @@ public class MenuController : MonoBehaviour
 
         gameplayPaused = false;
         Time.timeScale = 1f;
+        globalCrosshair?.SetVisible(true);
         if (!Application.isMobilePlatform)
             DefinirCursor(false, true);
     }

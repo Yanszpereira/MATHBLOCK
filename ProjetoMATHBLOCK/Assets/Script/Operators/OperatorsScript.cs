@@ -38,6 +38,7 @@ public class OperatorsScript : MonoBehaviour
     private float lastSelectionSoundTime = -999f;
     private InputAction interactOperatorAction;
     private int lastInteractionFrame = -1;
+    private bool lastInteractionSucceeded;
 
     private void Awake()
     {
@@ -81,28 +82,34 @@ public class OperatorsScript : MonoBehaviour
         TryInteractWithOperator();
     }
 
-    private void TryInteractWithOperator()
+    public bool TryInteractWithOperatorFromUI()
+    {
+        return TryInteractWithOperator();
+    }
+
+    private bool TryInteractWithOperator()
     {
         if (lastInteractionFrame == Time.frameCount)
-            return;
+            return lastInteractionSucceeded;
 
         lastInteractionFrame = Time.frameCount;
+        lastInteractionSucceeded = false;
         ResolveReferences();
 
         if (pencilGun == null)
         {
             Debug.LogWarning("OperatorsScript sem referencia para GravityInteract.");
-            return;
+            return false;
         }
 
         if (playerVision == null)
         {
             Debug.LogWarning("OperatorsScript sem referencia para playerVision.");
-            return;
+            return false;
         }
 
         if (!TryGetLookedAtOperator(out opItem item))
-            return;
+            return false;
 
         if (equippedSceneOperator != null && equippedSceneOperator != item)
         {
@@ -117,6 +124,8 @@ public class OperatorsScript : MonoBehaviour
 
         equippedSceneOperator = item;
         UpdateHudIcons(item.operatorType);
+        lastInteractionSucceeded = true;
+        return true;
     }
 
     private void ResolveReferences()

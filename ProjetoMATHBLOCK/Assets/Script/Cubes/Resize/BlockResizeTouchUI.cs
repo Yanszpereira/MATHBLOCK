@@ -5,28 +5,36 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class BlockResizeTouchUI : MonoBehaviour
 {
+    private const string MobileGroupName = "BotoesMobile";
+    private const string OperatorsGroupName = "Operadores";
+    private const string MenuButtonName = "MenuButton";
+    private const string StretchButtonName = "Stretch";
+    private const string ExitButtonName = "ExitStretch";
+
+    private readonly Dictionary<GameObject, bool> previousVisibility = new Dictionary<GameObject, bool>();
     private BlockResizeController controller;
-    private Canvas canvas;
+    private Transform mobileGroup;
+    private GameObject operatorsGroup;
     private Button stretchButton;
-    private Button confirmButton;
-    private Button cancelButton;
-    private readonly List<GameObject> hiddenHudRoots = new List<GameObject>();
+    private Button exitButton;
     private float nextTargetCheck;
+    private bool resizeHudActive;
 
     private void Awake()
     {
-        if (Application.platform != RuntimePlatform.Android)
+        if (!MobileTouchControls.ShouldShowTouchControls())
         {
             enabled = false;
             return;
         }
-
         controller = GetComponent<BlockResizeController>();
-        CreateInterface();
     }
+
+    private void Start() => EnsureInterface();
 
     private void OnEnable()
     {
+        controller ??= GetComponent<BlockResizeController>();
         if (controller != null)
             controller.ResizeModeChanged += HandleResizeModeChanged;
     }
@@ -35,112 +43,157 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
     {
         if (controller != null)
             controller.ResizeModeChanged -= HandleResizeModeChanged;
-        RestoreHud();
+        RestoreGameplayHud();
     }
 
     private void Update()
     {
-        if (controller == null || controller.State != BlockResizeInteractionState.Idle)
+        if (controller == null)
             return;
-        if (Time.unscaledTime < nextTargetCheck)
+        if (stretchButton == null || exitButton == null)
+        {
+            EnsureInterface();
+            return;
+        }
+        if (controller.State != BlockResizeInteractionState.Idle || Time.unscaledTime < nextTargetCheck)
             return;
 
         nextTargetCheck = Time.unscaledTime + 0.1f;
-        stretchButton.gameObject.SetActive(controller.HasAvailableResizeTarget());
+        stretchButton.gameObject.SetActive(controller.HasResizeTargetAtCameraCenter());
+        exitButton.gameObject.SetActive(false);
     }
+
+    private void EnsureInterface()
+    {
+        mobileGroup ??= FindSceneTransform(MobileGroupName);
+        if (mobileGroup == null)
+            return;
+
+        operatorsGroup ??= FindSceneTransform(OperatorsGroupName)?.gameObject;
+        stretchButton ??= FindDirectButton(StretchButtonName);
+        exitButton ??= FindDirectButton(ExitButtonName);
+
+        if (stretchButton == null)
+        {
+            stretchButton = CreateHudButton(StretchButtonName,
+                Resources.Load<Sprite>("UI/Stretch/StretchMode"),
+                new Vector2(-585f, 320f), new Vector2(150f, 150f));
+            stretchButton.onClick.AddListener(BeginStretchMode);
+        }
+        if (exitButton == null)
+        {
+            exitButton = CreateHudButton(ExitButtonName,
+                Resources.Load<Sprite>("UI/Stretch/ExitStretchMode"),
+                new Vector2(-311f, 149f), new Vector2(230f, 230f));
+            exitButton.onClick.AddListener(ExitStretchMode);
+        }
+
+        stretchButton.gameObject.SetActive(false);
+        exitButton.gameObject.SetActive(false);
+    }
+
+    private void BeginStretchMode()
+    {
+        if (controller == null || !controller.HasResizeTargetAtCameraCenter())
+        {
+            stretchButton?.gameObject.SetActive(false);
+            return;
+        }
+        controller.TryHandleResizeTouchButton();
+    }
+
+    private void ExitStretchMode() => controller?.ConfirmResizeSession();
 
     private void HandleResizeModeChanged(bool active)
     {
-        stretchButton.gameObject.SetActive(false);
-        confirmButton.gameObject.SetActive(active);
-        cancelButton.gameObject.SetActive(active);
-        if (active)
-            HideGameplayHud();
-        else
-            RestoreHud();
+        if (active) ShowStretchModeHud();
+        else RestoreGameplayHud();
     }
 
-    private void CreateInterface()
+    private void ShowStretchModeHud()
     {
-        GameObject canvasObject = new GameObject("Special Block Touch Controls", typeof(Canvas), typeof(CanvasScaler));
-        canvasObject.transform.SetParent(transform, false);
-        canvas = canvasObject.GetComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 31000;
+        if (mobileGroup == null)
+            EnsureInterface();
+        if (mobileGroup == null)
+            return;
 
-        CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
-        scaler.matchWidthOrHeight = 0.5f;
+        previousVisibility.Clear();
+        foreach (Transform child in mobileGroup)
+        {
+            GameObject item = child.gameObject;
+            previousVisibility[item] = item.activeSelf;
+            bool keepVisible = child.name.Equals(MenuButtonName, System.StringComparison.OrdinalIgnoreCase)
+                || child.name.Equals(ExitButtonName, System.StringComparison.OrdinalIgnoreCase);
+            item.SetActive(keepVisible);
+        }
 
-        stretchButton = CreateButton("ESTICAR", new Vector2(1f, 0.5f), new Vector2(-150f, -120f), new Vector2(224f, 76f));
-        stretchButton.onClick.AddListener(() => controller.TryHandleResizeTouchButton());
-        stretchButton.gameObject.SetActive(false);
-
-        confirmButton = CreateButton("CONFIRMAR", new Vector2(1f, 0f), new Vector2(-150f, 46f), new Vector2(238f, 72f));
-        confirmButton.onClick.AddListener(controller.ConfirmResizeSession);
-        confirmButton.gameObject.SetActive(false);
-
-        cancelButton = CreateButton("CANCELAR", new Vector2(0f, 0f), new Vector2(150f, 46f), new Vector2(224f, 72f));
-        cancelButton.onClick.AddListener(controller.CancelResizeSession);
-        cancelButton.gameObject.SetActive(false);
+        if (operatorsGroup != null)
+        {
+            previousVisibility[operatorsGroup] = operatorsGroup.activeSelf;
+            operatorsGroup.SetActive(false);
+        }
+        exitButton?.gameObject.SetActive(true);
+        resizeHudActive = true;
     }
 
-    private Button CreateButton(string label, Vector2 anchor, Vector2 position, Vector2 size)
+    private void RestoreGameplayHud()
     {
-        GameObject buttonObject = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button));
-        buttonObject.transform.SetParent(canvas.transform, false);
+        if (!resizeHudActive && previousVisibility.Count == 0)
+            return;
+        foreach (KeyValuePair<GameObject, bool> entry in previousVisibility)
+            if (entry.Key != null)
+                entry.Key.SetActive(entry.Value);
+
+        previousVisibility.Clear();
+        resizeHudActive = false;
+        exitButton?.gameObject.SetActive(false);
+        stretchButton?.gameObject.SetActive(false);
+        nextTargetCheck = 0f;
+    }
+
+    private Button CreateHudButton(string objectName, Sprite sprite, Vector2 position, Vector2 size)
+    {
+        GameObject buttonObject = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(Button));
+        buttonObject.layer = mobileGroup.gameObject.layer;
+        buttonObject.transform.SetParent(mobileGroup, false);
+
         RectTransform rect = buttonObject.GetComponent<RectTransform>();
-        rect.anchorMin = anchor;
-        rect.anchorMax = anchor;
-        rect.pivot = anchor;
+        rect.anchorMin = rect.anchorMax = new Vector2(1f, 0f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
         rect.anchoredPosition = position;
         rect.sizeDelta = size;
+        rect.localScale = Vector3.one;
 
         Image image = buttonObject.GetComponent<Image>();
-        image.color = Color.white;
-        Button button = buttonObject.GetComponent<Button>();
-        HudToonStyler.ApplyButtonStyle(button);
+        image.sprite = sprite;
+        image.preserveAspect = true;
+        image.raycastTarget = true;
 
-        GameObject textObject = new GameObject("Label", typeof(RectTransform), typeof(Text));
-        textObject.transform.SetParent(buttonObject.transform, false);
-        RectTransform textRect = textObject.GetComponent<RectTransform>();
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = Vector2.zero;
-        textRect.offsetMax = Vector2.zero;
-        Text text = textObject.GetComponent<Text>();
-        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        text.text = label;
-        text.alignment = TextAnchor.MiddleCenter;
-        text.fontStyle = FontStyle.Bold;
-        text.fontSize = 27;
-        text.color = Color.white;
-        text.raycastTarget = false;
+        Button button = buttonObject.GetComponent<Button>();
+        button.targetGraphic = image;
+        button.transition = Selectable.Transition.ColorTint;
+        ColorBlock colors = button.colors;
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(0.88f, 1f, 1f, 1f);
+        colors.pressedColor = new Color(0.68f, 0.9f, 0.94f, 0.88f);
+        colors.selectedColor = colors.highlightedColor;
+        colors.fadeDuration = 0.08f;
+        button.colors = colors;
         return button;
     }
 
-    private void HideGameplayHud()
+    private Button FindDirectButton(string expectedName)
     {
-        hiddenHudRoots.Clear();
-        Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (Canvas targetCanvas in canvases)
-        {
-            if (targetCanvas == null || targetCanvas == canvas || !targetCanvas.gameObject.activeInHierarchy)
-                continue;
-            string lowerName = targetCanvas.name.ToLowerInvariant();
-            if (!lowerName.Contains("hud") && !lowerName.Contains("touch"))
-                continue;
-            hiddenHudRoots.Add(targetCanvas.gameObject);
-            targetCanvas.gameObject.SetActive(false);
-        }
+        Transform child = mobileGroup != null ? mobileGroup.Find(expectedName) : null;
+        return child != null ? child.GetComponent<Button>() : null;
     }
 
-    private void RestoreHud()
+    private static Transform FindSceneTransform(string expectedName)
     {
-        foreach (GameObject hudRoot in hiddenHudRoots)
-            if (hudRoot != null)
-                hudRoot.SetActive(true);
-        hiddenHudRoots.Clear();
+        foreach (Transform candidate in Resources.FindObjectsOfTypeAll<Transform>())
+            if (candidate != null && candidate.gameObject.scene.IsValid()
+                && candidate.name.Equals(expectedName, System.StringComparison.OrdinalIgnoreCase))
+                return candidate;
+        return null;
     }
 }

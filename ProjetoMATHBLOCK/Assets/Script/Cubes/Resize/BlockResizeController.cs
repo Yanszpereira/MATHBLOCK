@@ -34,6 +34,11 @@ public sealed class BlockResizeController : MonoBehaviour
     [SerializeField] private float dragDeadZone = 0.5f;
     [SerializeField] private bool restoreCapturedVelocity;
 
+    [Header("Mobile Drag")]
+    [SerializeField, Min(24f)] private float touchPixelsPerUnit = 110f;
+    [SerializeField, Min(1)] private int maximumTouchStepsPerDrag = 6;
+    [SerializeField, Min(2)] private int maximumTouchDimension = 8;
+
     [Header("Particles")]
     [SerializeField] private Texture2D resizeParticleTexture;
     [SerializeField] private Color resizeParticleColor = new Color(1f, 0.82f, 0.12f, 1f);
@@ -56,6 +61,9 @@ public sealed class BlockResizeController : MonoBehaviour
     private Vector3 dragAxisWorld;
     private float dragUnitWorldSize;
     private int lastEvaluatedSteps = int.MinValue;
+    private bool touchDragActive;
+    private int activeTouchId = -1;
+    private Vector2 touchDragStartScreenPosition;
 
     private InputAction enterResizeAction;
     private InputAction pointAction;
@@ -83,7 +91,7 @@ public sealed class BlockResizeController : MonoBehaviour
     private void Awake()
     {
         ResolveReferences();
-        if (Application.platform == RuntimePlatform.Android
+        if (MobileTouchControls.ShouldShowTouchControls()
             && GetComponent<BlockResizeTouchUI>() == null)
             gameObject.AddComponent<BlockResizeTouchUI>();
     }
@@ -124,7 +132,10 @@ public sealed class BlockResizeController : MonoBehaviour
         {
             UpdateHoveredHandle(GetActivePointerRay());
             if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame && hoveredHandle != null)
-                BeginHandleDrag(hoveredHandle, GetTouchRay());
+            {
+                BeginHandleTouchDrag(hoveredHandle);
+                return;
+            }
             if (clickAction != null && clickAction.WasPressedThisFrame() && hoveredHandle != null)
                 BeginHandleDrag(hoveredHandle, GetPointerRay());
             return;
@@ -132,10 +143,18 @@ public sealed class BlockResizeController : MonoBehaviour
 
         if (state == BlockResizeInteractionState.DraggingHandle)
         {
+            if (touchDragActive)
+            {
+                if (TryGetActiveTouchPosition(out Vector2 touchPosition))
+                    UpdateHandleTouchDrag(touchPosition);
+                else
+                    EndHandleDrag();
+                return;
+            }
+
             Ray pointerRay = GetActivePointerRay();
             UpdateHandleDrag(pointerRay);
-            bool touchReleased = Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasReleasedThisFrame;
-            if (touchReleased || (Touchscreen.current == null && (clickAction == null || clickAction.WasReleasedThisFrame())))
+            if (clickAction == null || clickAction.WasReleasedThisFrame())
                 EndHandleDrag();
         }
     }
@@ -223,7 +242,25 @@ public sealed class BlockResizeController : MonoBehaviour
         hoveredHandle = null;
         resizeGizmo.SetAllHandlesState(ResizeHandleVisualState.Normal);
         draggedHandle.SetVisualState(ResizeHandleVisualState.Selected);
+        touchDragActive = false;
+        activeTouchId = -1;
         state = BlockResizeInteractionState.DraggingHandle;
+        return true;
+    }
+
+    private bool BeginHandleTouchDrag(BlockResizeHandle handle)
+    {
+        if (Touchscreen.current == null)
+            return false;
+
+        var primaryTouch = Touchscreen.current.primaryTouch;
+        Vector2 startPosition = primaryTouch.position.ReadValue();
+        if (!BeginHandleDrag(handle, playerCamera.ScreenPointToRay(startPosition)))
+            return false;
+
+        touchDragActive = true;
+        activeTouchId = primaryTouch.touchId.ReadValue();
+        touchDragStartScreenPosition = startPosition;
         return true;
     }
 
@@ -242,17 +279,39 @@ public sealed class BlockResizeController : MonoBehaviour
             dragDeadZone
         );
 
+        return ApplyResizeSteps(steps);
+    }
+
+    private bool UpdateHandleTouchDrag(Vector2 screenPosition)
+    {
+        if (state != BlockResizeInteractionState.DraggingHandle || selectedBlock == null)
+            return false;
+
+        Vector3 originScreen = playerCamera.WorldToScreenPoint(dragStartPoint);
+        Vector3 axisScreenPoint = playerCamera.WorldToScreenPoint(
+            dragStartPoint + dragAxisWorld * Mathf.Max(dragUnitWorldSize, 0.01f));
+        Vector2 screenAxis = (Vector2)(axisScreenPoint - originScreen);
+        if (screenAxis.sqrMagnitude < 4f)
+            return false;
+
+        float projectedPixels = Vector2.Dot(
+            screenPosition - touchDragStartScreenPosition,
+            screenAxis.normalized);
+        int steps = CalculateTouchSteps(projectedPixels, touchPixelsPerUnit, maximumTouchStepsPerDrag);
+
+        int startDimension = GetAxis(dragStartState.Dimensions, GetDirectionAxis(draggedDirection));
+        steps = Mathf.Clamp(steps, 1 - startDimension, maximumTouchDimension - startDimension);
+        return ApplyResizeSteps(steps);
+    }
+
+    private bool ApplyResizeSteps(int steps)
+    {
         if (steps == lastEvaluatedSteps)
             return true;
 
         lastEvaluatedSteps = steps;
         bool applied = selectedBlock.TryApplyResizeFromState(
-            dragStartState,
-            selectedFace,
-            draggedDirection,
-            steps,
-            out _
-        );
+            dragStartState, selectedFace, draggedDirection, steps, out _);
         draggedHandle.SetVisualState(applied ? ResizeHandleVisualState.Allowed : ResizeHandleVisualState.Blocked);
         if (applied)
         {
@@ -260,6 +319,14 @@ public sealed class BlockResizeController : MonoBehaviour
             RefreshSelectedBlockParticles();
         }
         return applied;
+    }
+
+    public static int CalculateTouchSteps(float projectedPixels, float pixelsPerUnit, int maximumSteps)
+    {
+        float safePixelsPerUnit = Mathf.Max(1f, pixelsPerUnit);
+        int safeMaximum = Mathf.Max(1, maximumSteps);
+        int magnitude = Mathf.FloorToInt(Mathf.Abs(projectedPixels) / safePixelsPerUnit);
+        return Mathf.Clamp(magnitude, 0, safeMaximum) * (projectedPixels < 0f ? -1 : 1);
     }
 
     public void EndHandleDrag()
@@ -270,6 +337,8 @@ public sealed class BlockResizeController : MonoBehaviour
         if (draggedHandle != null)
             draggedHandle.SetVisualState(ResizeHandleVisualState.Normal);
         draggedHandle = null;
+        touchDragActive = false;
+        activeTouchId = -1;
         lastEvaluatedSteps = int.MinValue;
         state = BlockResizeInteractionState.ResizeMode;
         UpdateHoveredHandle(GetActivePointerRay());
@@ -360,6 +429,23 @@ public sealed class BlockResizeController : MonoBehaviour
         return targetBlock != null && targetBlock.CanResize();
     }
 
+    public bool HasResizeTargetAtCameraCenter()
+    {
+        if (state != BlockResizeInteractionState.Idle || playerCamera == null)
+            return false;
+        if (gravityInteract != null && gravityInteract.IsHoldingBlock)
+            return false;
+
+        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        if (!Physics.Raycast(ray, out RaycastHit hit, InteractionDistance, targetingMask, QueryTriggerInteraction.Ignore))
+            return false;
+
+        ResizableBlock targetBlock = hit.collider != null
+            ? hit.collider.GetComponentInParent<ResizableBlock>()
+            : null;
+        return targetBlock != null && targetBlock.CanResize();
+    }
+
     private void OnExitResizePerformed(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -402,6 +488,22 @@ public sealed class BlockResizeController : MonoBehaviour
             ? Touchscreen.current.primaryTouch.position.ReadValue()
             : Vector2.zero;
         return playerCamera.ScreenPointToRay(point);
+    }
+
+    private bool TryGetActiveTouchPosition(out Vector2 position)
+    {
+        position = default;
+        if (Touchscreen.current == null || activeTouchId < 0)
+            return false;
+
+        foreach (var touch in Touchscreen.current.touches)
+        {
+            if (touch.touchId.ReadValue() != activeTouchId || !touch.press.isPressed)
+                continue;
+            position = touch.position.ReadValue();
+            return true;
+        }
+        return false;
     }
 
     private Ray GetPointerRay()
@@ -599,6 +701,8 @@ public sealed class BlockResizeController : MonoBehaviour
         StopResizeParticles();
         hoveredHandle = null;
         draggedHandle = null;
+        touchDragActive = false;
+        activeTouchId = -1;
         RestoreRigidbody();
         RestorePlayerControls();
         selectedBlock = null;
@@ -664,6 +768,26 @@ public sealed class BlockResizeController : MonoBehaviour
             targetingMask &= ~(1 << resizeLayer);
         interactionDistance = Mathf.Max(0.1f, interactionDistance);
         dragDeadZone = Mathf.Clamp01(dragDeadZone);
+        touchPixelsPerUnit = Mathf.Max(24f, touchPixelsPerUnit);
+        maximumTouchStepsPerDrag = Mathf.Max(1, maximumTouchStepsPerDrag);
+        maximumTouchDimension = Mathf.Max(2, maximumTouchDimension);
+    }
+
+    private static int GetDirectionAxis(ResizeDirection direction)
+    {
+        switch (direction)
+        {
+            case ResizeDirection.PositiveX:
+            case ResizeDirection.NegativeX: return 0;
+            case ResizeDirection.PositiveY:
+            case ResizeDirection.NegativeY: return 1;
+            default: return 2;
+        }
+    }
+
+    private static int GetAxis(Vector3Int dimensions, int axis)
+    {
+        return axis == 0 ? dimensions.x : axis == 1 ? dimensions.y : dimensions.z;
     }
 
     private static bool IsAirAnchored(ResizableBlock block)

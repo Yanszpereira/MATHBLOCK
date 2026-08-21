@@ -498,6 +498,9 @@ MonoBehaviour:
     m_Bits: 256
   dragDeadZone: 0.5
   restoreCapturedVelocity: 0
+  touchPixelsPerUnit: 110
+  maximumTouchStepsPerDrag: 6
+  maximumTouchDimension: 8
   resizeParticleTexture: {fileID: 0}
   resizeParticleColor: {r: 1, g: 0.82, b: 0.12, a: 1}
 --- !u!1 &3515600641973011663

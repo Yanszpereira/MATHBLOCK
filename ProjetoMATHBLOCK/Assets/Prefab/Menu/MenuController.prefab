@@ -61,7 +61,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 198513669815821056}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c1e433575ebb3346bb5a68353d748f2, type: 3}
+  m_Script: {fileID: 11500000, guid: a681e6b226bd41688f51ab16f925127d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MouseSensitivityController
   slider: {fileID: 0}

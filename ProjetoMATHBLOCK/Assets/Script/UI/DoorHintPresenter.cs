@@ -137,7 +137,7 @@ public sealed class DoorHintPresenter : MonoBehaviour
         text.alignment = alignment;
         text.color = color;
         text.characterSpacing = style == FontStyles.Bold ? 1.5f : 0.25f;
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TextWrappingModes.Normal;
         text.raycastTarget = false;
     }
 

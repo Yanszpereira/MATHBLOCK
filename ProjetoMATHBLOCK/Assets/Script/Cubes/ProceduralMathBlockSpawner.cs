@@ -32,6 +32,7 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
     [SerializeField] private Color gizmoColor = new Color(0.1f, 0.8f, 1f, 0.25f);
 
     private readonly List<GameObject> spawnedBlocks = new List<GameObject>();
+    private Transform generatedBlocksRoot;
     private PlayerMovement progressionPlayer;
     private bool progressionCleanupComplete;
 
@@ -522,9 +523,11 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
 
     private void SpawnBlocks(List<int> values)
     {
+        Transform spawnRoot = GetOrCreateGeneratedBlocksRoot();
         for (int i = 0; i < values.Count; i++)
         {
             GameObject block = Instantiate(blockPrefab, GetRandomSpawnPosition(), Quaternion.identity);
+            block.transform.SetParent(spawnRoot, true);
             block.name = $"{blockPrefab.name}_Generated_{i + 1}_{values[i]}";
 
             SpawnerOwnedMathBlock ownership = block.GetComponent<SpawnerOwnedMathBlock>();
@@ -549,6 +552,27 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
 
             spawnedBlocks.Add(block);
         }
+    }
+
+    private Transform GetOrCreateGeneratedBlocksRoot()
+    {
+        if (generatedBlocksRoot != null)
+            return generatedBlocksRoot;
+
+        Transform existing = transform.Find("Generated Blocks");
+        if (existing != null)
+        {
+            generatedBlocksRoot = existing;
+            return generatedBlocksRoot;
+        }
+
+        GameObject rootObject = new GameObject("Generated Blocks");
+        generatedBlocksRoot = rootObject.transform;
+        generatedBlocksRoot.SetParent(transform, false);
+        generatedBlocksRoot.localPosition = Vector3.zero;
+        generatedBlocksRoot.localRotation = Quaternion.identity;
+        generatedBlocksRoot.localScale = Vector3.one;
+        return generatedBlocksRoot;
     }
 
     private Vector3 GetRandomSpawnPosition()
