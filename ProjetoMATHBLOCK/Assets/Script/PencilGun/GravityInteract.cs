@@ -170,6 +170,12 @@ public class GravityInteract : MonoBehaviour
                 Time.deltaTime * speed
             );
 
+            // Physics.AutoSyncTransforms is disabled in this project. The held
+            // block is moved directly while kinematic, so keep the physics
+            // representation aligned before overlap queries and the eventual
+            // hand-off back to dynamic simulation.
+            Physics.SyncTransforms();
+
             UpdateCarriedVelocity();
             UpdateCarriedBlockCollisionOpacity(Time.deltaTime);
         }
@@ -885,6 +891,8 @@ public class GravityInteract : MonoBehaviour
 
         if (grabbedRb != null)
         {
+            Physics.SyncTransforms();
+
             Vector3 releaseVelocity = Vector3.ClampMagnitude(
                 carriedVelocity * releaseVelocityMultiplier,
                 maxReleaseSpeed
