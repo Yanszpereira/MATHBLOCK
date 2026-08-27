@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 6061439391114845259}
   - component: {fileID: 318798714629143770}
   - component: {fileID: 5518273818496025232}
+  - component: {fileID: 4869927575433410332}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -97,7 +98,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 2000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -130,6 +131,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
   nonRigidbodyVelocity: 0
   attenuationObject: {fileID: 0}
+--- !u!114 &4869927575433410332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2121180624521702153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -621346085
+      Data2: 1340513864
+      Data3: 1231336880
+      Data4: -368745744
+    Path: event:/735157__rotlily__simple-music-loop-bass-keys-drums
+  Event: 
+  EventPlayTrigger: 1
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &2498392517500646027
 GameObject:
   m_ObjectHideFlags: 0
@@ -149,7 +181,7 @@ GameObject:
   - component: {fileID: 6187131241017548303}
   m_Layer: 0
   m_Name: Player 1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -293,8 +325,6 @@ MonoBehaviour:
   speed: 8
   gravity: -25
   jumpHeight: 1.6
-  touchMoveSensitivity: 0.015
-  enableTouchSplitMove: 1
   groundLayers:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -304,25 +334,25 @@ MonoBehaviour:
   playMovementSounds: 1
   footstepSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -1295936815
+      Data2: 1164483670
+      Data3: -1023384910
+      Data4: 406801710
+    Path: event:/Passos1
   jumpSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -2106292020
+      Data2: 1307845520
+      Data3: 333586309
+      Data4: 71349222
+    Path: event:/jump
   voidFallSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 2041015133
+      Data2: 1155526019
+      Data3: 599173805
+      Data4: 1987817330
+    Path: event:/quedavoid
   footstepInterval: 0.42
   minMoveInputForFootsteps: 0.1
   voidFallSoundDelay: 0.2
@@ -466,6 +496,30 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: e15115d7-35d8-48d1-a34e-5b38b05f3141
     m_ActionName: 'Player/UndoBlockOperation[/Keyboard/q]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: fcd72dc1-1080-49f9-a4ba-071495426832
+    m_ActionName: 'Player/EnterResize[/Keyboard/f]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 2fa51adb-6b16-4c98-9f34-40c34921378c
+    m_ActionName: 'Resize/Point[/Mouse/position]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1e228c4a-7144-4453-92a7-4d610c8288b6
+    m_ActionName: 'Resize/Click[/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 8c98708a-f910-4b4e-90f5-927ae59d8354
+    m_ActionName: 'Resize/Cancel[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 4973e344-0ffd-4128-8979-66e18cd7d662
+    m_ActionName: 'Resize/ExitResize[/Keyboard/f]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e47270e6-942a-44d4-8d4f-f67800ae844e
+    m_ActionName: 'Player/OpenMenu[/Keyboard/escape]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: 
@@ -491,7 +545,7 @@ MonoBehaviour:
   interactionDistance: 4
   targetingMask:
     serializedVersion: 2
-    m_Bits: 4294967039
+    m_Bits: 55
   resizeGizmoPrefab: {fileID: 2260200028215030336, guid: 540399880ddd6124695321772deb1a0a, type: 3}
   resizeHandleMask:
     serializedVersion: 2
@@ -621,8 +675,10 @@ MonoBehaviour:
   carriedBlockScrollSpeed: 0.45
   carriedBlockCollisionOpacity: 0.3
   carriedBlockOpacityLerpSpeed: 8
+  carriedBlockCameraContactRadius: 0.16
   hammerApplySpeedThreshold: 10.14
   hammerAllowedDirectionAngle: 230
+  invalidHammerRetryDelay: 0.35
   hammerImpactEffectObjectName: efeitomarretada
   hammerImpactEffectDuration: 1
   playerMovement: {fileID: 0}
