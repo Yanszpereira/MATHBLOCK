@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{2923678d-f843-4d30-a920-8ed3720b8002}">
+		<property name="assetPath">
+			<value>BlocoImpacto3.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>96</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>1.5998749999999999</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{3cccca5d-055f-482e-895d-bcee7f75872c}</destination>
+		</relationship>
+	</object>
+</objects>
