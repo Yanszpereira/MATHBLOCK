@@ -497,11 +497,11 @@ public class MenuController : MonoBehaviour
     public void IniciarJogo()
     {
         Time.timeScale = 1f;
-        int buildIndex = SceneUtility.GetBuildIndexByScenePath(CaminhoCenaFase1);
+        int buildIndex = SceneUtility.GetBuildIndexByScenePath("Fase 1");
         if (buildIndex < 0)
         {
             Debug.LogError(
-                $"Cena '{CaminhoCenaFase1}' nao foi adicionada ao Build Settings ativo.",
+                $"Cena '{"Fase 1"}' nao foi adicionada ao Build Settings ativo.",
                 this);
             return;
         }
