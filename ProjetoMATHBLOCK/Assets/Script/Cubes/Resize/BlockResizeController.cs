@@ -35,11 +35,6 @@ public sealed class BlockResizeController : MonoBehaviour
     [SerializeField] private float dragDeadZone = 0.5f;
     [SerializeField] private bool restoreCapturedVelocity;
 
-    [Header("Mobile Drag")]
-    [SerializeField, Min(24f)] private float touchPixelsPerUnit = 110f;
-    [SerializeField, Min(1)] private int maximumTouchStepsPerDrag = 6;
-    [SerializeField, Min(2)] private int maximumTouchDimension = 8;
-
     [Header("Particles")]
     [SerializeField] private Texture2D resizeParticleTexture;
     [SerializeField] private Color resizeParticleColor = new Color(1f, 0.82f, 0.12f, 1f);
@@ -67,7 +62,6 @@ public sealed class BlockResizeController : MonoBehaviour
     private int lastEvaluatedSteps = int.MinValue;
     private bool touchDragActive;
     private int activeTouchId = -1;
-    private Vector2 touchDragStartScreenPosition;
 
     private InputAction enterResizeAction;
     private InputAction pointAction;
@@ -150,7 +144,7 @@ public sealed class BlockResizeController : MonoBehaviour
             if (touchDragActive)
             {
                 if (TryGetActiveTouchPosition(out Vector2 touchPosition))
-                    UpdateHandleTouchDrag(touchPosition);
+                    UpdateHandleDrag(playerCamera.ScreenPointToRay(touchPosition));
                 else
                     EndHandleDrag();
                 return;
@@ -264,7 +258,6 @@ public sealed class BlockResizeController : MonoBehaviour
 
         touchDragActive = true;
         activeTouchId = primaryTouch.touchId.ReadValue();
-        touchDragStartScreenPosition = startPosition;
         return true;
     }
 
@@ -286,34 +279,13 @@ public sealed class BlockResizeController : MonoBehaviour
         return ApplyResizeSteps(steps);
     }
 
-    private bool UpdateHandleTouchDrag(Vector2 screenPosition)
-    {
-        if (state != BlockResizeInteractionState.DraggingHandle || selectedBlock == null)
-            return false;
-
-        Vector3 originScreen = playerCamera.WorldToScreenPoint(dragStartPoint);
-        Vector3 axisScreenPoint = playerCamera.WorldToScreenPoint(
-            dragStartPoint + dragAxisWorld * Mathf.Max(dragUnitWorldSize, 0.01f));
-        Vector2 screenAxis = (Vector2)(axisScreenPoint - originScreen);
-        if (screenAxis.sqrMagnitude < 4f)
-            return false;
-
-        float projectedPixels = Vector2.Dot(
-            screenPosition - touchDragStartScreenPosition,
-            screenAxis.normalized);
-        int steps = CalculateTouchSteps(projectedPixels, touchPixelsPerUnit, maximumTouchStepsPerDrag);
-
-        int startDimension = GetAxis(dragStartState.Dimensions, GetDirectionAxis(draggedDirection));
-        steps = Mathf.Clamp(steps, 1 - startDimension, maximumTouchDimension - startDimension);
-        return ApplyResizeSteps(steps);
-    }
-
     private bool ApplyResizeSteps(int steps)
     {
         if (steps == lastEvaluatedSteps)
+        {
+            draggedHandle.SetVisualState(ResizeHandleVisualState.Allowed);
             return true;
-
-        lastEvaluatedSteps = steps;
+        }
 
         Vector3Int previousDimensions = selectedBlock.Dimensions;
 
@@ -324,6 +296,7 @@ public sealed class BlockResizeController : MonoBehaviour
 
         if (applied)
         {
+            lastEvaluatedSteps = steps;
             Vector3Int newDimensions = selectedBlock.Dimensions;
 
             if (newDimensions != previousDimensions)
@@ -346,14 +319,6 @@ public sealed class BlockResizeController : MonoBehaviour
             : transform.position;
 
         RuntimeManager.PlayOneShot(resizeStepSound, soundPosition);
-    }
-
-    public static int CalculateTouchSteps(float projectedPixels, float pixelsPerUnit, int maximumSteps)
-    {
-        float safePixelsPerUnit = Mathf.Max(1f, pixelsPerUnit);
-        int safeMaximum = Mathf.Max(1, maximumSteps);
-        int magnitude = Mathf.FloorToInt(Mathf.Abs(projectedPixels) / safePixelsPerUnit);
-        return Mathf.Clamp(magnitude, 0, safeMaximum) * (projectedPixels < 0f ? -1 : 1);
     }
 
     public void EndHandleDrag()
@@ -795,26 +760,6 @@ public sealed class BlockResizeController : MonoBehaviour
             targetingMask &= ~(1 << resizeLayer);
         interactionDistance = Mathf.Max(0.1f, interactionDistance);
         dragDeadZone = Mathf.Clamp01(dragDeadZone);
-        touchPixelsPerUnit = Mathf.Max(24f, touchPixelsPerUnit);
-        maximumTouchStepsPerDrag = Mathf.Max(1, maximumTouchStepsPerDrag);
-        maximumTouchDimension = Mathf.Max(2, maximumTouchDimension);
-    }
-
-    private static int GetDirectionAxis(ResizeDirection direction)
-    {
-        switch (direction)
-        {
-            case ResizeDirection.PositiveX:
-            case ResizeDirection.NegativeX: return 0;
-            case ResizeDirection.PositiveY:
-            case ResizeDirection.NegativeY: return 1;
-            default: return 2;
-        }
-    }
-
-    private static int GetAxis(Vector3Int dimensions, int axis)
-    {
-        return axis == 0 ? dimensions.x : axis == 1 ? dimensions.y : dimensions.z;
     }
 
     private static bool IsAirAnchored(ResizableBlock block)

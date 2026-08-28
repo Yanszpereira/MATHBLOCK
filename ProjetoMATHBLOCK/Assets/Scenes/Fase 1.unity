@@ -10733,7 +10733,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7435822681735965342, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7760319943179108287, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -27967,11 +27967,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3399414467826449194, guid: 5b144e6e2233c4b41a10234964cf49c4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.51
+      value: 2.04
       objectReference: {fileID: 0}
     - target: {fileID: 3399414467826449194, guid: 5b144e6e2233c4b41a10234964cf49c4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 32.2
+      value: -24.1
       objectReference: {fileID: 0}
     - target: {fileID: 3399414467826449194, guid: 5b144e6e2233c4b41a10234964cf49c4, type: 3}
       propertyPath: m_LocalRotation.w
@@ -30641,6 +30641,13 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  clickSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!4 &3867611683050109108
 Transform:
   m_ObjectHideFlags: 0

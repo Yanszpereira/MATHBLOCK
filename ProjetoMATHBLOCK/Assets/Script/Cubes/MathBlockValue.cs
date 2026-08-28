@@ -10,6 +10,8 @@ public class MathBlockValue : MonoBehaviour
     private const string LabelShaderName = "MathBlock/LabelOverlay";
     private const string ToonShaderName = "Custom/URPToonShader";
     private const string StretchBlockToonShaderName = "MathBlock/Stretch Block Toon";
+    private const float LabelWorldScale = 0.75f;
+    private const float MinimumParentScale = 0.0001f;
 
     private static readonly (string name, Vector3 direction)[] FaceLabels =
     {
@@ -540,7 +542,31 @@ public class MathBlockValue : MonoBehaviour
 
         labelTransform.localPosition = faceOffset;
         labelTransform.localRotation = Quaternion.LookRotation(direction, Vector3.up) * Quaternion.Euler(0f, 180f, 0f);
-        labelTransform.localScale = Vector3.one * 0.75f;
+        labelTransform.localScale = CalculateUnstretchedLabelScale(labelTransform.localRotation);
+    }
+
+    private Vector3 CalculateUnstretchedLabelScale(Quaternion labelLocalRotation)
+    {
+        Vector3 parentWorldScale = Abs(transform.lossyScale);
+        Vector3 labelRightInParent = labelLocalRotation * Vector3.right;
+        Vector3 labelUpInParent = labelLocalRotation * Vector3.up;
+        Vector3 labelForwardInParent = labelLocalRotation * Vector3.forward;
+
+        return new Vector3(
+            LabelWorldScale / GetScaleAlongAxis(parentWorldScale, labelRightInParent),
+            LabelWorldScale / GetScaleAlongAxis(parentWorldScale, labelUpInParent),
+            LabelWorldScale / GetScaleAlongAxis(parentWorldScale, labelForwardInParent)
+        );
+    }
+
+    private static float GetScaleAlongAxis(Vector3 parentWorldScale, Vector3 axisInParent)
+    {
+        return Mathf.Max(MinimumParentScale, Vector3.Scale(parentWorldScale, axisInParent).magnitude);
+    }
+
+    private static Vector3 Abs(Vector3 value)
+    {
+        return new Vector3(Mathf.Abs(value.x), Mathf.Abs(value.y), Mathf.Abs(value.z));
     }
 
     private void UpdateLabelVisibility()
