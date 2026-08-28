@@ -957,7 +957,8 @@ GameObject:
   m_Component:
   - component: {fileID: 912743232}
   - component: {fileID: 912743231}
-  - component: {fileID: 912743230}
+  - component: {fileID: 912743234}
+  - component: {fileID: 912743233}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -965,14 +966,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &912743230
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 912743229}
-  m_Enabled: 1
 --- !u!20 &912743231
 Camera:
   m_ObjectHideFlags: 0
@@ -1039,6 +1032,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &912743233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912743229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 946219946
+      Data2: 1113757234
+      Data3: -1539254624
+      Data4: 1147278657
+    Path: event:/796080__colinleblancsound__levelbgm
+  Event: 
+  EventPlayTrigger: 1
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
+--- !u!114 &912743234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912743229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 0}
 --- !u!1 &1123432108
 GameObject:
   m_ObjectHideFlags: 0
@@ -1574,6 +1612,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.6
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!114 &691191515603968772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2527,6 +2566,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.8
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!222 &3450698213067826234
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2605,6 +2645,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.8
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!114 &3969653065458490889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2701,6 +2742,26 @@ PrefabInstance:
       propertyPath: menuCreditos
       value: 
       objectReference: {fileID: 1434047934}
+    - target: {fileID: 2831198617032421806, guid: a2cf1a7e73a9c1741af68a8f4df1a1c3, type: 3}
+      propertyPath: clickSound.Path
+      value: event:/SonsMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 2831198617032421806, guid: a2cf1a7e73a9c1741af68a8f4df1a1c3, type: 3}
+      propertyPath: clickSound.Guid.Data1
+      value: 522247977
+      objectReference: {fileID: 0}
+    - target: {fileID: 2831198617032421806, guid: a2cf1a7e73a9c1741af68a8f4df1a1c3, type: 3}
+      propertyPath: clickSound.Guid.Data2
+      value: 1079529861
+      objectReference: {fileID: 0}
+    - target: {fileID: 2831198617032421806, guid: a2cf1a7e73a9c1741af68a8f4df1a1c3, type: 3}
+      propertyPath: clickSound.Guid.Data3
+      value: -533985604
+      objectReference: {fileID: 0}
+    - target: {fileID: 2831198617032421806, guid: a2cf1a7e73a9c1741af68a8f4df1a1c3, type: 3}
+      propertyPath: clickSound.Guid.Data4
+      value: -529942406
+      objectReference: {fileID: 0}
     - target: {fileID: 3867611683557668541, guid: a2cf1a7e73a9c1741af68a8f4df1a1c3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 984.62164
@@ -3123,6 +3184,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HoverScale
   escalaHover: 1.8
   velocidade: 8
+  corHover: {r: 0.72, g: 1, b: 0.92, a: 1}
 --- !u!222 &7041048638775749975
 CanvasRenderer:
   m_ObjectHideFlags: 0

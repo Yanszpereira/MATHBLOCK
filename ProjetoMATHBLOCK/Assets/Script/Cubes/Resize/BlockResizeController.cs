@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using FMODUnity;
 
 public enum BlockResizeInteractionState
 {
@@ -42,6 +43,9 @@ public sealed class BlockResizeController : MonoBehaviour
     [Header("Particles")]
     [SerializeField] private Texture2D resizeParticleTexture;
     [SerializeField] private Color resizeParticleColor = new Color(1f, 0.82f, 0.12f, 1f);
+
+    [Header("Resize Sound")]
+    [SerializeField] private EventReference resizeStepSound;
 
     private BlockResizeGizmo resizeGizmo;
     private BlockResizeParticleEffect resizeParticleEffect;
@@ -310,15 +314,38 @@ public sealed class BlockResizeController : MonoBehaviour
             return true;
 
         lastEvaluatedSteps = steps;
+
+        Vector3Int previousDimensions = selectedBlock.Dimensions;
+
         bool applied = selectedBlock.TryApplyResizeFromState(
             dragStartState, selectedFace, draggedDirection, steps, out _);
+
         draggedHandle.SetVisualState(applied ? ResizeHandleVisualState.Allowed : ResizeHandleVisualState.Blocked);
+
         if (applied)
         {
+            Vector3Int newDimensions = selectedBlock.Dimensions;
+
+            if (newDimensions != previousDimensions)
+                PlayResizeStepSound();
+
             resizeGizmo.UpdateLayout();
             RefreshSelectedBlockParticles();
         }
+
         return applied;
+    }
+
+    private void PlayResizeStepSound()
+    {
+        if (resizeStepSound.IsNull)
+            return;
+
+        Vector3 soundPosition = selectedBlock != null
+            ? selectedBlock.WorldCenter
+            : transform.position;
+
+        RuntimeManager.PlayOneShot(resizeStepSound, soundPosition);
     }
 
     public static int CalculateTouchSteps(float projectedPixels, float pixelsPerUnit, int maximumSteps)

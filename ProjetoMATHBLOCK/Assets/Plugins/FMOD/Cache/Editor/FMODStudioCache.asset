@@ -54,6 +54,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 2037
+--- !u!114 &-6480312713228244469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/fase2 musica
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/fase2 musica
+  Guid:
+    Data1: -340074842
+    Data2: 1251083589
+    Data3: -1148394331
+    Data4: 1931630434
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 149052
 --- !u!114 &-5938004546434459357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,11 +150,65 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639222607241878198
+  lastModified: 639234817301736448
   FileSizes:
   - Name: Desktop
-    Value: 1370
+    Value: 1592
   Exists: 1
+--- !u!114 &-3819725788815592728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/esticabloco
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/esticabloco
+  Guid:
+    Data1: -2093389538
+    Data2: 1265782304
+    Data3: 927349136
+    Data4: -1773124436
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 210
+--- !u!114 &-3700970494476106534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SonsMenu
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/SonsMenu
+  Guid:
+    Data1: 522247977
+    Data2: 1079529861
+    Data3: -533985604
+    Data4: -529942406
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 1020
 --- !u!114 &-3451175947132569982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170,10 +251,10 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639222607241858080
+  lastModified: 639234817301721406
   FileSizes:
   - Name: Desktop
-    Value: 188928
+    Value: 10874720
   Exists: 1
 --- !u!114 &-1287082730350502226
 MonoBehaviour:
@@ -232,13 +313,17 @@ MonoBehaviour:
   - {fileID: 80205199838762478}
   - {fileID: 2851093397212492728}
   - {fileID: -8150528994178726816}
+  - {fileID: 6797599905772547641}
+  - {fileID: -3700970494476106534}
+  - {fileID: -6480312713228244469}
+  - {fileID: -3819725788815592728}
   EditorParameters: []
   MasterBanks:
   - {fileID: -2696089886721810191}
   StringsBanks:
   - {fileID: -4174064665557830792}
   cacheVersion: 131859
-  cacheTime: 639222607279341221
+  cacheTime: 639234817301736448
   SerializableEventsDict:
   - key: event:/divisao
     index: 0
@@ -246,7 +331,7 @@ MonoBehaviour:
     index: 1
   - key: event:/blockundo
     index: 2
-  - key: event:/soma
+  - key: event:/Soma
     index: 3
   - key: event:/quedavoid
     index: 4
@@ -256,16 +341,24 @@ MonoBehaviour:
     index: 6
   - key: event:/multiplication
     index: 7
-  - key: event:/subtracao
+  - key: event:/Subtracao
     index: 8
   - key: event:/jump
     index: 9
   - key: event:/Passos1
     index: 10
-  - key: event:/Erro 2
+  - key: event:/erro 2
     index: 11
   - key: event:/735157__rotlily__simple-music-loop-bass-keys-drums
     index: 12
+  - key: event:/796080__colinleblancsound__levelbgm
+    index: 13
+  - key: event:/SonsMenu
+    index: 14
+  - key: event:/fase2 musica
+    index: 15
+  - key: event:/esticabloco
+    index: 16
 --- !u!114 &80205199838762478
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -308,7 +401,7 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Musica.bank
   Name: Musica
   StudioPath: bank:/Musica
-  lastModified: 639222607279341221
+  lastModified: 639234720652003807
   FileSizes:
   - Name: Desktop
     Value: 3583168
@@ -350,9 +443,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/subtracao
+  m_Name: event:/Subtracao
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/subtracao
+  Path: event:/Subtracao
   Guid:
     Data1: -1388758072
     Data2: 1171891164
@@ -377,9 +470,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Erro 2
+  m_Name: event:/erro 2
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Erro 2
+  Path: event:/erro 2
   Guid:
     Data1: 1317407701
     Data2: 1126186320
@@ -394,6 +487,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 167
+--- !u!114 &6797599905772547641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/796080__colinleblancsound__levelbgm
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/796080__colinleblancsound__levelbgm
+  Guid:
+    Data1: 946219946
+    Data2: 1113757234
+    Data3: -1539254624
+    Data4: 1147278657
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 187992
 --- !u!114 &7930114106812756393
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -458,9 +578,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/soma
+  m_Name: event:/Soma
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/soma
+  Path: event:/Soma
   Guid:
     Data1: 572162393
     Data2: 1120590415
