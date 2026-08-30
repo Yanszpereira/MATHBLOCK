@@ -186,13 +186,13 @@ public class BlockResizeGizmoTests
     }
 
     [Test]
-    public void TouchDrag_DoesNotHaveASeparatePixelStepCalculation()
+    public void TouchSteps_UsesPixelThresholdAndGestureLimit()
     {
-        Type controllerType = RequireType("BlockResizeController");
-        Assert.That(controllerType.GetMethod("CalculateTouchSteps", StaticFlags), Is.Null);
-        Assert.That(controllerType.GetField("touchPixelsPerUnit", InstanceFlags), Is.Null);
-        Assert.That(controllerType.GetField("maximumTouchStepsPerDrag", InstanceFlags), Is.Null);
-        Assert.That(controllerType.GetField("maximumTouchDimension", InstanceFlags), Is.Null);
+        Assert.That(InvokeInt("CalculateTouchSteps", 99f, 100f, 6), Is.EqualTo(0));
+        Assert.That(InvokeInt("CalculateTouchSteps", 100f, 100f, 6), Is.EqualTo(1));
+        Assert.That(InvokeInt("CalculateTouchSteps", 249f, 100f, 6), Is.EqualTo(2));
+        Assert.That(InvokeInt("CalculateTouchSteps", -249f, 100f, 6), Is.EqualTo(-2));
+        Assert.That(InvokeInt("CalculateTouchSteps", 2000f, 100f, 6), Is.EqualTo(6));
     }
 
     private Component CreateBlock(int value, Quaternion rotation)

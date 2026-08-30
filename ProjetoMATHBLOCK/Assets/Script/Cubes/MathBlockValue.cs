@@ -157,7 +157,31 @@ public class MathBlockValue : MonoBehaviour
     public void SetValue(int newValue)
     {
         ClearPreviewValue();
-        currentValue = Mathf.Max(0, newValue);
+        int clampedValue = Mathf.Max(0, newValue);
+        ResizableBlock resizableBlock = GetComponent<ResizableBlock>();
+        if (resizableBlock != null
+            && clampedValue > 0
+            && resizableBlock.CurrentVolume > clampedValue)
+        {
+            Vector3Int previousDimensions = resizableBlock.Dimensions;
+            if (!resizableBlock.TryFitToValue(clampedValue, out ResizeValidationFailure failure))
+            {
+                Debug.LogError(
+                    $"[BlockResize] {name}: valor {clampedValue} recusado porque o bloco "
+                    + $"{previousDimensions} nao conseguiu respeitar o limite. Motivo: {failure}.",
+                    this
+                );
+                return;
+            }
+
+            Debug.Log(
+                $"[BlockResize] {name}: valor reduzido para {clampedValue}; "
+                + $"dimensoes ajustadas {previousDimensions}->{resizableBlock.Dimensions}.",
+                this
+            );
+        }
+
+        currentValue = clampedValue;
         RefreshLabels();
         RefreshVisual();
     }

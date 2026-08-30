@@ -31,6 +31,21 @@ public class BlockResizeInteractionTests
     }
 
     [UnityTest]
+    public IEnumerator EnterMode_RejectsExistingOversizedBlockWithoutMutatingIt()
+    {
+        Harness h = CreateHarness(4);
+        SetField(h.Block, "width", 3);
+        SetField(h.Block, "height", 2);
+        SetField(h.Block, "depth", 1);
+        InvokeNonPublic(h.Block, "ApplyCurrentDimensions");
+        yield return null;
+
+        Assert.That(h.Dimensions, Is.EqualTo(new Vector3Int(3, 2, 1)));
+        Assert.That(h.BeginFromFace("PositiveZ"), Is.False);
+        Assert.That(h.Dimensions, Is.EqualTo(new Vector3Int(3, 2, 1)));
+    }
+
+    [UnityTest]
     public IEnumerator Raycast_SelectsAllSixFaces()
     {
         Harness h = CreateHarness(9); yield return null;

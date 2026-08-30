@@ -717,7 +717,6 @@ public class ResizableBlock : MonoBehaviour
             height = proposal.Dimensions.y;
             depth = proposal.Dimensions.z;
 
-            transform.localScale = Vector3.one;
             transform.SetPositionAndRotation(proposal.RootPosition, proposal.Rotation);
             blockCollider.size = proposal.ColliderSize;
             visualRoot.localScale = proposal.VisualScale;
@@ -739,7 +738,6 @@ public class ResizableBlock : MonoBehaviour
         if (!HasRequiredReferences())
             return;
 
-        transform.localScale = Vector3.one;
         Vector3 localSize = CalculateLocalSize(Dimensions);
         blockCollider.size = localSize;
         visualRoot.localScale = localSize;

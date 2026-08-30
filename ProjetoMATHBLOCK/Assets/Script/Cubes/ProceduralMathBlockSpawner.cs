@@ -568,10 +568,12 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
 
         GameObject rootObject = new GameObject("Generated Blocks");
         generatedBlocksRoot = rootObject.transform;
-        generatedBlocksRoot.SetParent(transform, false);
-        generatedBlocksRoot.localPosition = Vector3.zero;
-        generatedBlocksRoot.localRotation = Quaternion.identity;
+        // This object is only an organisational container. Keep its world scale
+        // neutral even when the spawner Transform is stretched to define the
+        // spawn area; otherwise spawned blocks inherit that stretch.
+        generatedBlocksRoot.SetPositionAndRotation(transform.position, Quaternion.identity);
         generatedBlocksRoot.localScale = Vector3.one;
+        generatedBlocksRoot.SetParent(transform, true);
         return generatedBlocksRoot;
     }
 
