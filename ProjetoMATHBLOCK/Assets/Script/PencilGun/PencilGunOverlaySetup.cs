@@ -20,10 +20,13 @@ public sealed class PencilGunOverlaySetup : MonoBehaviour
                 continue;
 
             Transform gun = FindDescendantByName(camera.transform, "PencilGun");
-            if (gun == null || gun.GetComponent<PencilGunOverlaySetup>() != null)
+            if (gun == null)
                 continue;
 
-            gun.gameObject.AddComponent<PencilGunOverlaySetup>();
+            if (gun.GetComponent<PencilGunOverlaySetup>() == null)
+                gun.gameObject.AddComponent<PencilGunOverlaySetup>();
+            if (gun.GetComponent<PencilTipOperatorColor>() == null)
+                gun.gameObject.AddComponent<PencilTipOperatorColor>();
         }
     }
 

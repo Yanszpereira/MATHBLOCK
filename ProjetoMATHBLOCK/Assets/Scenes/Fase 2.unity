@@ -2947,7 +2947,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 484123149575799409, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -42
+      value: -42.000244
+      objectReference: {fileID: 0}
+    - target: {fileID: 1419259793555257020, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -27.000183
       objectReference: {fileID: 0}
     - target: {fileID: 2399139265838320610, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -3052,6 +3056,10 @@ PrefabInstance:
     - target: {fileID: 7435822681735965342, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7760319943179108287, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -28.000183
       objectReference: {fileID: 0}
     - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: clickSound.Path
@@ -4082,46 +4090,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1300645335}
     m_Modifications:
-    - target: {fileID: 3271105319279223346, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: EventReference.Path
-      value: event:/fase2 musica
-      objectReference: {fileID: 0}
-    - target: {fileID: 3271105319279223346, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: EventReference.Guid.Data1
-      value: -340074842
-      objectReference: {fileID: 0}
-    - target: {fileID: 3271105319279223346, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: EventReference.Guid.Data2
-      value: 1251083589
-      objectReference: {fileID: 0}
-    - target: {fileID: 3271105319279223346, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: EventReference.Guid.Data3
-      value: -1148394331
-      objectReference: {fileID: 0}
-    - target: {fileID: 3271105319279223346, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: EventReference.Guid.Data4
-      value: 1931630434
-      objectReference: {fileID: 0}
-    - target: {fileID: 4264102570802514721, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: resizeStepSound.Path
-      value: event:/824137__its-slava__button_select1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4264102570802514721, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: resizeStepSound.Guid.Data1
-      value: -2093389538
-      objectReference: {fileID: 0}
-    - target: {fileID: 4264102570802514721, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: resizeStepSound.Guid.Data2
-      value: 1265782304
-      objectReference: {fileID: 0}
-    - target: {fileID: 4264102570802514721, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: resizeStepSound.Guid.Data3
-      value: 927349136
-      objectReference: {fileID: 0}
-    - target: {fileID: 4264102570802514721, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: resizeStepSound.Guid.Data4
-      value: -1773124436
-      objectReference: {fileID: 0}
     - target: {fileID: 4745981285788249604, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 16.63157

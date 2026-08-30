@@ -43,6 +43,42 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "SelectAddition",
+                    "type": "Button",
+                    "id": "b65f1eb4-54f8-4fba-ae89-8ebc762386a1",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SelectSubtraction",
+                    "type": "Button",
+                    "id": "38b79f29-b071-4753-80dc-ce17836634fd",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SelectMultiplication",
+                    "type": "Button",
+                    "id": "def32ca8-acfb-40c7-a36b-6a9f75fa933c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SelectDivision",
+                    "type": "Button",
+                    "id": "88e07069-f300-4aaa-b134-c6cddaa88075",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "DuplicateBlock",
                     "type": "Button",
                     "id": "0d6a6018-6bcb-4c94-b626-b77520c28349",
@@ -240,6 +276,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "Operators",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "986f1b1c-a2e6-44b1-89c7-db38d067c33a",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "SelectAddition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ebed8f55-fca1-457a-b625-8a209b4ec10a",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "SelectSubtraction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "43ded59e-1662-40b7-9de8-d3187c2f5684",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "SelectMultiplication",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d5bc9535-60f4-4263-b814-b50032451ee0",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "SelectDivision",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

@@ -37,6 +37,10 @@ public class OperatorsScript : MonoBehaviour
     private opItem equippedSceneOperator;
     private float lastSelectionSoundTime = -999f;
     private InputAction interactOperatorAction;
+    private InputAction selectAdditionAction;
+    private InputAction selectSubtractionAction;
+    private InputAction selectMultiplicationAction;
+    private InputAction selectDivisionAction;
     private int lastInteractionFrame = -1;
     private bool lastInteractionSucceeded;
 
@@ -55,6 +59,8 @@ public class OperatorsScript : MonoBehaviour
         {
             interactOperatorAction.performed += OnInteractOperatorEvent;
         }
+
+        SubscribeSelectionActions();
     }
 
     private void OnDisable()
@@ -63,6 +69,8 @@ public class OperatorsScript : MonoBehaviour
         {
             interactOperatorAction.performed -= OnInteractOperatorEvent;
         }
+
+        UnsubscribeSelectionActions();
     }
 
     private void Update()
@@ -85,6 +93,46 @@ public class OperatorsScript : MonoBehaviour
     public bool TryInteractWithOperatorFromUI()
     {
         return TryInteractWithOperator();
+    }
+
+    private void OnSelectAddition(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            SelectOperator(GravityInteract.PencilOperator.Addition);
+    }
+
+    private void OnSelectSubtraction(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            SelectOperator(GravityInteract.PencilOperator.Subtraction);
+    }
+
+    private void OnSelectMultiplication(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            SelectOperator(GravityInteract.PencilOperator.Multiplication);
+    }
+
+    private void OnSelectDivision(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            SelectOperator(GravityInteract.PencilOperator.Division);
+    }
+
+    public void SelectAdditionFromUI() => SelectOperator(GravityInteract.PencilOperator.Addition);
+    public void SelectSubtractionFromUI() => SelectOperator(GravityInteract.PencilOperator.Subtraction);
+    public void SelectMultiplicationFromUI() => SelectOperator(GravityInteract.PencilOperator.Multiplication);
+    public void SelectDivisionFromUI() => SelectOperator(GravityInteract.PencilOperator.Division);
+
+    public bool SelectOperator(GravityInteract.PencilOperator operatorType)
+    {
+        ResolveReferences();
+
+        Vector3 soundPosition = playerVision != null
+            ? playerVision.position
+            : transform.position;
+
+        return SelectOperator(operatorType, null, soundPosition);
     }
 
     private bool TryInteractWithOperator()
@@ -111,20 +159,30 @@ public class OperatorsScript : MonoBehaviour
         if (!TryGetLookedAtOperator(out opItem item))
             return false;
 
-        if (equippedSceneOperator != null && equippedSceneOperator != item)
-        {
+        lastInteractionSucceeded = SelectOperator(item.operatorType, item, item.transform.position);
+        return lastInteractionSucceeded;
+    }
+
+    private bool SelectOperator(
+        GravityInteract.PencilOperator operatorType,
+        opItem sceneOperator,
+        Vector3 soundPosition)
+    {
+        if (pencilGun == null || operatorType == GravityInteract.PencilOperator.None)
+            return false;
+
+        if (equippedSceneOperator != null && equippedSceneOperator != sceneOperator)
             equippedSceneOperator.RestoreToScene();
-        }
 
-        pencilGun.SetEquippedOperator(item.operatorType);
+        pencilGun.SetEquippedOperator(operatorType);
+        PlaySelectionSound(operatorType, soundPosition);
 
-        PlaySelectionSound(item.operatorType, item.transform.position);
+        if (sceneOperator != null)
+            sceneOperator.ConsumeFromScene(GetAbsorbTarget());
 
-        item.ConsumeFromScene(GetAbsorbTarget());
-
-        equippedSceneOperator = item;
-        UpdateHudIcons(item.operatorType);
-        lastInteractionSucceeded = true;
+        equippedSceneOperator = sceneOperator;
+        UpdateHudIcons(operatorType);
+        Debug.Log($"Operador selecionado: {operatorType} ({(sceneOperator != null ? "cena" : "atalho")}).");
         return true;
     }
 
@@ -193,9 +251,6 @@ public class OperatorsScript : MonoBehaviour
 
     private void ResolveInputAction()
     {
-        if (interactOperatorAction != null)
-            return;
-
         PlayerInput playerInput = pencilGun != null
             ? pencilGun.GetComponentInParent<PlayerInput>()
             : null;
@@ -204,7 +259,37 @@ public class OperatorsScript : MonoBehaviour
             playerInput = FindFirstObjectByType<PlayerInput>();
 
         if (playerInput != null && playerInput.actions != null)
-            interactOperatorAction = playerInput.actions.FindAction("Operators", throwIfNotFound: false);
+        {
+            interactOperatorAction ??= playerInput.actions.FindAction("Operators", throwIfNotFound: false);
+            selectAdditionAction ??= playerInput.actions.FindAction("SelectAddition", throwIfNotFound: false);
+            selectSubtractionAction ??= playerInput.actions.FindAction("SelectSubtraction", throwIfNotFound: false);
+            selectMultiplicationAction ??= playerInput.actions.FindAction("SelectMultiplication", throwIfNotFound: false);
+            selectDivisionAction ??= playerInput.actions.FindAction("SelectDivision", throwIfNotFound: false);
+        }
+    }
+
+    private void SubscribeSelectionActions()
+    {
+        if (selectAdditionAction != null)
+            selectAdditionAction.performed += OnSelectAddition;
+        if (selectSubtractionAction != null)
+            selectSubtractionAction.performed += OnSelectSubtraction;
+        if (selectMultiplicationAction != null)
+            selectMultiplicationAction.performed += OnSelectMultiplication;
+        if (selectDivisionAction != null)
+            selectDivisionAction.performed += OnSelectDivision;
+    }
+
+    private void UnsubscribeSelectionActions()
+    {
+        if (selectAdditionAction != null)
+            selectAdditionAction.performed -= OnSelectAddition;
+        if (selectSubtractionAction != null)
+            selectSubtractionAction.performed -= OnSelectSubtraction;
+        if (selectMultiplicationAction != null)
+            selectMultiplicationAction.performed -= OnSelectMultiplication;
+        if (selectDivisionAction != null)
+            selectDivisionAction.performed -= OnSelectDivision;
     }
 
     private bool TryGetLookedAtOperator(out opItem item)
