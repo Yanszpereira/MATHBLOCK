@@ -28,6 +28,34 @@ public sealed class PencilTipOperatorColor : MonoBehaviour
     private Light glowLight;
     private Coroutine glowRoutine;
     private Color activeOperatorColor;
+
+    public bool TryGetOperatorColor(
+        GravityInteract.PencilOperator operatorType,
+        out Color color)
+    {
+        switch (operatorType)
+        {
+            case GravityInteract.PencilOperator.Addition:
+                color = additionColor;
+                return true;
+
+            case GravityInteract.PencilOperator.Subtraction:
+                color = subtractionColor;
+                return true;
+
+            case GravityInteract.PencilOperator.Multiplication:
+                color = multiplicationColor;
+                return true;
+
+            case GravityInteract.PencilOperator.Division:
+                color = divisionColor;
+                return true;
+
+            default:
+                color = default;
+                return false;
+        }
+    }
     private void Start()
     {
         ResolveTipRenderer();
@@ -47,28 +75,8 @@ public sealed class PencilTipOperatorColor : MonoBehaviour
             return;
         }
 
-        Color color;
-        switch (operatorType)
-        {
-            case GravityInteract.PencilOperator.Addition:
-                color = additionColor;
-                break;
-
-            case GravityInteract.PencilOperator.Subtraction:
-                color = subtractionColor;
-                break;
-
-            case GravityInteract.PencilOperator.Multiplication:
-                color = multiplicationColor;
-                break;
-
-            case GravityInteract.PencilOperator.Division:
-                color = divisionColor;
-                break;
-
-            default:
-                return;
-        }
+        if (!TryGetOperatorColor(operatorType, out Color color))
+            return;
 
         activeOperatorColor = color;
         SetTipColor(color, Color.black, 0f);
