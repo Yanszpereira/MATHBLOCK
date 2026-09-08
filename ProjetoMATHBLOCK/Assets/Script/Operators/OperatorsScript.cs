@@ -43,12 +43,18 @@ public class OperatorsScript : MonoBehaviour
     private InputAction selectDivisionAction;
     private int lastInteractionFrame = -1;
     private bool lastInteractionSucceeded;
+    private int unlockedOperatorMask;
 
     private void Awake()
     {
         ResolveReferences();
         ResolveInputAction();
         SetAllIconsAlpha(unequippedAlpha);
+    }
+
+    private void Start()
+    {
+        ResetOperatorAvailability();
     }
 
     private void OnEnable()
@@ -135,6 +141,15 @@ public class OperatorsScript : MonoBehaviour
         return SelectOperator(operatorType, null, soundPosition);
     }
 
+    public bool IsOperatorUnlocked(GravityInteract.PencilOperator operatorType)
+    {
+        if (operatorType == GravityInteract.PencilOperator.None)
+            return false;
+
+        int operatorBit = 1 << (int)operatorType;
+        return (unlockedOperatorMask & operatorBit) != 0;
+    }
+
     private bool TryInteractWithOperator()
     {
         if (lastInteractionFrame == Time.frameCount)
@@ -171,6 +186,16 @@ public class OperatorsScript : MonoBehaviour
         if (pencilGun == null || operatorType == GravityInteract.PencilOperator.None)
             return false;
 
+        bool isSceneInteraction = sceneOperator != null;
+        if (!isSceneInteraction && !IsOperatorUnlocked(operatorType))
+        {
+            Debug.Log($"Operador bloqueado até ser coletado no cenário: {operatorType}.");
+            return false;
+        }
+
+        if (isSceneInteraction)
+            UnlockOperator(operatorType);
+
         if (equippedSceneOperator != null && equippedSceneOperator != sceneOperator)
             equippedSceneOperator.RestoreToScene();
 
@@ -184,6 +209,25 @@ public class OperatorsScript : MonoBehaviour
         UpdateHudIcons(operatorType);
         Debug.Log($"Operador selecionado: {operatorType} ({(sceneOperator != null ? "cena" : "atalho")}).");
         return true;
+    }
+
+    private void ResetOperatorAvailability()
+    {
+        unlockedOperatorMask = 0;
+        equippedSceneOperator = null;
+
+        if (pencilGun != null)
+            pencilGun.ClearEquippedOperator();
+
+        SetAllIconsAlpha(unequippedAlpha);
+    }
+
+    private void UnlockOperator(GravityInteract.PencilOperator operatorType)
+    {
+        if (operatorType == GravityInteract.PencilOperator.None)
+            return;
+
+        unlockedOperatorMask |= 1 << (int)operatorType;
     }
 
     private void ResolveReferences()

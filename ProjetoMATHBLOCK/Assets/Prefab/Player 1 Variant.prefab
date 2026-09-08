@@ -172,7 +172,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 073d12368d99f9a409679594dd618783, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MathBlockBeamController
   gravityInteract: {fileID: 17608517078358294}
   beamOrigin: {fileID: 2417110068975440310}
@@ -181,6 +181,8 @@ MonoBehaviour:
   curveOffset: 0.35
   originWidth: 0.07
   targetWidth: 0.04
+  noOperatorColor: {r: 0.82, g: 0.84, b: 0.88, a: 1}
+  beamRevealDuration: 0.5
 --- !u!1 &8106481746700066077
 GameObject:
   m_ObjectHideFlags: 0
@@ -520,7 +522,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7326901805861718828, guid: 5b144e6e2233c4b41a10234964cf49c4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2640432611778644634}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2498392517500646027, guid: 5b144e6e2233c4b41a10234964cf49c4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5432749114072523071}
   m_SourcePrefab: {fileID: 100100000, guid: 5b144e6e2233c4b41a10234964cf49c4, type: 3}
 --- !u!114 &17608517078358294 stripped
 MonoBehaviour:
@@ -531,7 +536,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80b1c0ea0fbd0ea4383c5070da519aa8, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GravityInteract
 --- !u!4 &819193304810741250 stripped
 Transform:
@@ -543,3 +548,22 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3399414467826449194, guid: 5b144e6e2233c4b41a10234964cf49c4, type: 3}
   m_PrefabInstance: {fileID: 7993952728492610862}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5502320565820565413 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2498392517500646027, guid: 5b144e6e2233c4b41a10234964cf49c4, type: 3}
+  m_PrefabInstance: {fileID: 7993952728492610862}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5432749114072523071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5502320565820565413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37f5a810508055b42ba3adbb45f50040, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeveloperModeController
+  statusFontSize: 28
+  statusOffset: {x: 24, y: -24}
