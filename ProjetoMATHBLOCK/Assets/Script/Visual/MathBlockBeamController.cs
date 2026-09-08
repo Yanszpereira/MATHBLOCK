@@ -17,6 +17,12 @@ public sealed class MathBlockBeamController : MonoBehaviour
     [SerializeField, Min(0f)] private float originWidth = 0.07f;
     [SerializeField, Min(0f)] private float targetWidth = 0.04f;
 
+    [Header("Cor sem operador")]
+    [SerializeField] private Color noOperatorColor = new Color(0.82f, 0.84f, 0.88f, 1f);
+
+    [Header("Entrada do raio")]
+    [SerializeField, Min(0.01f)] private float beamRevealDuration = 0.5f;
+
     private Vector3[] points;
     private Transform cachedHeldBlock;
     private ResizableBlock cachedResizableBlock;
@@ -24,6 +30,9 @@ public sealed class MathBlockBeamController : MonoBehaviour
     private Renderer cachedRenderer;
     private PencilTipOperatorColor operatorColorSource;
     private GravityInteract.PencilOperator cachedOperator;
+    private bool hasAppliedOperatorColor;
+    private bool isBeamActive;
+    private float beamRevealElapsed;
 
     private void Awake()
     {
@@ -78,20 +87,31 @@ public sealed class MathBlockBeamController : MonoBehaviour
         Transform heldBlock = gravityInteract.HeldBlock;
         GravityInteract.PencilOperator currentOperator = gravityInteract.EquippedOperator;
 
-        if (heldBlock == null || currentOperator == GravityInteract.PencilOperator.None)
+        if (heldBlock == null)
         {
             DisableBeam();
             return;
         }
 
         if (heldBlock != cachedHeldBlock)
+        {
             CacheHeldBlock(heldBlock);
+            RestartBeamReveal();
+        }
 
-        if (currentOperator != cachedOperator)
+        if (!isBeamActive)
+            RestartBeamReveal();
+
+        if (!hasAppliedOperatorColor || currentOperator != cachedOperator)
         {
             cachedOperator = currentOperator;
-            if (operatorColorSource == null ||
-                !operatorColorSource.TryGetOperatorColor(currentOperator, out Color color))
+            Color color;
+            if (currentOperator == GravityInteract.PencilOperator.None)
+            {
+                color = noOperatorColor;
+            }
+            else if (operatorColorSource == null ||
+                     !operatorColorSource.TryGetOperatorColor(currentOperator, out color))
             {
                 DisableBeam();
                 return;
@@ -99,16 +119,20 @@ public sealed class MathBlockBeamController : MonoBehaviour
 
             lineRenderer.startColor = color;
             lineRenderer.endColor = color;
+            hasAppliedOperatorColor = true;
         }
 
         Vector3 start = beamOrigin.position;
         Vector3 end = GetHeldBlockCenter();
         Vector3 midpoint = (start + end) * 0.5f;
         Vector3 control = midpoint + beamOrigin.forward * curveOffset;
+        float duration = Mathf.Max(0.01f, beamRevealDuration);
+        beamRevealElapsed = Mathf.Min(beamRevealElapsed + Time.deltaTime, duration);
+        float revealProgress = Mathf.Clamp01(beamRevealElapsed / duration);
 
         for (int index = 0; index < points.Length; index++)
         {
-            float t = index / (float)(points.Length - 1);
+            float t = revealProgress * index / (float)(points.Length - 1);
             float inverseT = 1f - t;
             points[index] = inverseT * inverseT * start
                 + 2f * inverseT * t * control
@@ -117,6 +141,7 @@ public sealed class MathBlockBeamController : MonoBehaviour
 
         lineRenderer.SetPositions(points);
         lineRenderer.enabled = true;
+        isBeamActive = true;
     }
 
     private void CacheHeldBlock(Transform heldBlock)
@@ -152,12 +177,21 @@ public sealed class MathBlockBeamController : MonoBehaviour
         if (lineRenderer != null)
             lineRenderer.enabled = false;
 
+        isBeamActive = false;
+        beamRevealElapsed = 0f;
+
         if (cachedHeldBlock == null)
         {
             cachedResizableBlock = null;
             cachedCollider = null;
             cachedRenderer = null;
         }
+    }
+
+    private void RestartBeamReveal()
+    {
+        isBeamActive = false;
+        beamRevealElapsed = 0f;
     }
 
     private void OnDisable()

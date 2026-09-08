@@ -43,6 +43,9 @@ public sealed class BalanceScaleController : MonoBehaviour
     private const string SensorRootName = "BalanceSensors";
     private const string LeftSensorName = "LeftBalanceSensor";
     private const string RightSensorName = "RightBalanceSensor";
+    private const string SmallBalanceTextRootName = "SmallBalanceValueTexts";
+    private const string LeftValueTextName = "LeftBalanceValueText";
+    private const string RightValueTextName = "RightBalanceValueText";
     private const float ExactTieEpsilon = 0.0001f;
 
     [Header("Detection")]
@@ -59,6 +62,7 @@ public sealed class BalanceScaleController : MonoBehaviour
     [SerializeField, Min(0f)] private float contactTolerance = 0.08f;
     [SerializeField] private LayerMask blockLayers = ~0;
     [SerializeField, Min(0.02f)] private float scanInterval = 0.1f;
+    [SerializeField, Min(0.1f)] private float traySensorHeight = 8f;
     [SerializeField] private bool drawSensorGizmos = true;
 
     [Header("Visual References")]
@@ -67,13 +71,25 @@ public sealed class BalanceScaleController : MonoBehaviour
     [SerializeField] private Transform combinedTrays;
     [SerializeField] private Transform leftTrayVisual;
     [SerializeField] private Transform rightTrayVisual;
+    [SerializeField] private Transform leftLateralPoint;
+    [SerializeField] private Transform rightLateralPoint;
+
+    [Header("Balança Menor")]
+    [SerializeField, InspectorName("É Balança Menor")] private bool isSmallBalance;
+    [SerializeField, InspectorName("Balança Original")] private BalanceScaleController originalBalance;
+    [SerializeField, Min(0f), InspectorName("Altura dos Textos")] private float smallBalanceTextHeight = 0.75f;
+    [SerializeField, Min(1), InspectorName("Tamanho da Fonte")] private int smallBalanceTextFontSize = 64;
+    [SerializeField, Min(0.001f), InspectorName("Escala dos Textos")] private float smallBalanceTextCharacterSize = 0.1f;
+    [SerializeField, InspectorName("Cor quando Igual")] private Color smallBalanceEqualColor = Color.green;
+    [SerializeField, InspectorName("Cor quando Diferente")] private Color smallBalanceDifferentColor = Color.red;
 
     [Header("Visual Response")]
-    [SerializeField, Range(0f, 45f)] private float maximumTiltAngle = 8f;
+    [SerializeField, Range(0f, 45f)] private float maximumTiltAngle = 20f;
     [SerializeField, Min(0f)] private float maximumVerticalOffset = 0.25f;
     [SerializeField, Min(0f)] private float maximumLateralOffset = 0.15f;
     [SerializeField, Min(0.01f)] private float smoothingTime = 1.5f;
     [SerializeField, Min(0f)] private float balanceTolerance = 0f;
+    [SerializeField, Min(0f)] private float visualStateStabilityTime = 0.3f;
 
     [Header("Events")]
     public UnityEvent OnBalanced = new UnityEvent();
@@ -88,6 +104,8 @@ public sealed class BalanceScaleController : MonoBehaviour
 
     private BoxCollider leftSensorCollider;
     private BoxCollider rightSensorCollider;
+    private BoxCollider leftTrayCollider;
+    private BoxCollider rightTrayCollider;
     private GravityInteract gravityInteract;
     private Quaternion originalSupportRotation;
     private Quaternion originalLeftTrayRotation;
@@ -96,10 +114,23 @@ public sealed class BalanceScaleController : MonoBehaviour
     private Vector3 originalLeftTraySupportPosition;
     private Vector3 originalRightTraySupportPosition;
     private Vector3 originalCombinedTraySupportPosition;
+    private Vector3 originalLeftTrayWorldPosition;
+    private Vector3 originalRightTrayWorldPosition;
+    private Vector3 originalLeftLateralPointPosition;
+    private Vector3 originalRightLateralPointPosition;
     private float targetSupportAngle;
     private float currentSupportAngle;
     private float supportAngleVelocity;
     private float scanTimer;
+    private int visualLeftWeight;
+    private int visualRightWeight;
+    private int pendingVisualLeftWeight;
+    private int pendingVisualRightWeight;
+    private float pendingVisualSince;
+    private bool hasPendingVisualState;
+    private TextMesh leftSmallBalanceText;
+    private TextMesh rightSmallBalanceText;
+    private Material smallBalanceTextDepthMaterial;
     private bool hasBalanceState;
     private bool lastBalanced;
     private bool hasWarnedAboutCombinedMesh;
@@ -114,8 +145,17 @@ public sealed class BalanceScaleController : MonoBehaviour
     private void Awake()
     {
         ResolveReferences();
-        CreateSensors();
         CacheOriginalVisualState();
+
+        if (isSmallBalance)
+        {
+            DisableSmallBalanceColliders();
+            CreateSmallBalanceValueTexts();
+            UpdateSmallBalanceTexts();
+            return;
+        }
+
+        CreateSensors();
         gravityInteract = FindFirstObjectByType<GravityInteract>();
         RecalculateNow();
     }
@@ -126,12 +166,26 @@ public sealed class BalanceScaleController : MonoBehaviour
         rightSensor.size = ClampSensorSize(rightSensor.size);
         contactTolerance = Mathf.Max(0f, contactTolerance);
         scanInterval = Mathf.Max(0.02f, scanInterval);
+        traySensorHeight = Mathf.Max(0.1f, traySensorHeight);
         smoothingTime = Mathf.Max(0.01f, smoothingTime);
         balanceTolerance = Mathf.Max(0f, balanceTolerance);
+        visualStateStabilityTime = Mathf.Max(0f, visualStateStabilityTime);
+
+        if (isSmallBalance)
+        {
+            ResolveReferences();
+            DisableSmallBalanceColliders();
+        }
     }
 
     private void FixedUpdate()
     {
+        if (isSmallBalance)
+        {
+            ApplySmallBalanceMirror();
+            return;
+        }
+
         scanTimer -= Time.fixedDeltaTime;
         if (scanTimer <= 0f)
         {
@@ -140,6 +194,221 @@ public sealed class BalanceScaleController : MonoBehaviour
         }
 
         ApplyVisualResponse(Time.fixedDeltaTime);
+    }
+
+    private void CreateSmallBalanceValueTexts()
+    {
+        Transform textRoot = transform.Find(SmallBalanceTextRootName);
+        if (textRoot == null)
+        {
+            GameObject rootObject = new GameObject(SmallBalanceTextRootName);
+            textRoot = rootObject.transform;
+            textRoot.SetParent(transform, false);
+        }
+
+        leftSmallBalanceText = GetOrCreateSmallBalanceText(textRoot, LeftValueTextName);
+        rightSmallBalanceText = GetOrCreateSmallBalanceText(textRoot, RightValueTextName);
+    }
+
+    private TextMesh GetOrCreateSmallBalanceText(Transform parent, string textName)
+    {
+        Transform textTransform = parent.Find(textName);
+        if (textTransform == null)
+        {
+            GameObject textObject = new GameObject(textName);
+            textTransform = textObject.transform;
+            textTransform.SetParent(parent, false);
+        }
+
+        TextMesh textMesh = textTransform.GetComponent<TextMesh>();
+        if (textMesh == null)
+            textMesh = textTransform.gameObject.AddComponent<TextMesh>();
+
+        textMesh.anchor = TextAnchor.MiddleCenter;
+        textMesh.alignment = TextAlignment.Center;
+        textMesh.fontSize = Mathf.Max(1, smallBalanceTextFontSize);
+        textMesh.characterSize = Mathf.Max(0.001f, smallBalanceTextCharacterSize);
+        textMesh.color = smallBalanceEqualColor;
+        ApplyWorldDepthMaterial(textMesh);
+        CompensateSmallBalanceTextScale(textMesh);
+        return textMesh;
+    }
+
+    private void ApplyWorldDepthMaterial(TextMesh textMesh)
+    {
+        if (textMesh == null)
+            return;
+
+        MeshRenderer renderer = textMesh.GetComponent<MeshRenderer>();
+        if (renderer == null)
+            return;
+
+        if (smallBalanceTextDepthMaterial == null)
+        {
+            Shader shader = Shader.Find("Sprites/Default");
+            if (shader == null)
+            {
+                Debug.LogWarning($"{name}: Sprites/Default was not found; value texts will keep the UI font material.", this);
+                return;
+            }
+
+            smallBalanceTextDepthMaterial = new Material(shader)
+            {
+                name = "SmallBalanceTextDepthMaterial"
+            };
+
+            Material fontMaterial = textMesh.font != null ? textMesh.font.material : null;
+            if (fontMaterial != null && fontMaterial.HasProperty("_MainTex"))
+                smallBalanceTextDepthMaterial.SetTexture("_MainTex", fontMaterial.GetTexture("_MainTex"));
+            if (fontMaterial != null && fontMaterial.HasProperty("_Color"))
+                smallBalanceTextDepthMaterial.SetColor("_Color", fontMaterial.GetColor("_Color"));
+            else
+                smallBalanceTextDepthMaterial.SetColor("_Color", Color.white);
+        }
+
+        renderer.sharedMaterial = smallBalanceTextDepthMaterial;
+    }
+
+    private void UpdateSmallBalanceTexts()
+    {
+        if (leftSmallBalanceText == null || rightSmallBalanceText == null)
+            CreateSmallBalanceValueTexts();
+
+        int leftValue = originalBalance != null ? originalBalance.LeftWeight : 0;
+        int rightValue = originalBalance != null ? originalBalance.RightWeight : 0;
+        Color stateColor = leftValue == rightValue
+            ? smallBalanceEqualColor
+            : smallBalanceDifferentColor;
+
+        UpdateSmallBalanceText(leftSmallBalanceText, leftLateralPoint, leftValue, stateColor);
+        UpdateSmallBalanceText(rightSmallBalanceText, rightLateralPoint, rightValue, stateColor);
+    }
+
+    private void UpdateSmallBalanceText(TextMesh textMesh, Transform point, int value, Color color)
+    {
+        if (textMesh == null || point == null)
+            return;
+
+        textMesh.transform.position = point.position + Vector3.up * smallBalanceTextHeight;
+        FaceSmallBalanceTextTowardPlayer(textMesh);
+        CompensateSmallBalanceTextScale(textMesh);
+        textMesh.color = color;
+        textMesh.text = value.ToString();
+    }
+
+    private static void FaceSmallBalanceTextTowardPlayer(TextMesh textMesh)
+    {
+        Camera playerCamera = Camera.main;
+        if (textMesh == null || playerCamera == null)
+            return;
+
+        Vector3 toPlayer = playerCamera.transform.position - textMesh.transform.position;
+        toPlayer.y = 0f;
+        if (toPlayer.sqrMagnitude < 0.0001f)
+            return;
+
+        // TextMesh fronts are opposite the local forward direction in this setup.
+        // The 180-degree Y correction makes the glyph front face the player.
+        textMesh.transform.rotation =
+            Quaternion.LookRotation(toPlayer.normalized, Vector3.up) *
+            Quaternion.Euler(0f, 180f, 0f);
+    }
+
+    private static void CompensateSmallBalanceTextScale(TextMesh textMesh)
+    {
+        if (textMesh == null || textMesh.transform.parent == null)
+            return;
+
+        Vector3 parentScale = textMesh.transform.parent.lossyScale;
+        textMesh.transform.localScale = new Vector3(
+            SafeInverseScale(parentScale.x),
+            SafeInverseScale(parentScale.y),
+            SafeInverseScale(parentScale.z));
+    }
+
+    private static float SafeInverseScale(float value)
+    {
+        return 1f / Mathf.Max(0.0001f, Mathf.Abs(value));
+    }
+
+    private void DisableSmallBalanceColliders()
+    {
+        foreach (Collider collider in GetComponentsInChildren<Collider>(true))
+        {
+            if (collider != null)
+                collider.enabled = false;
+        }
+    }
+
+    private void ApplySmallBalanceMirror()
+    {
+        if (originalBalance == null || originalBalance == this)
+            return;
+
+        CopySupportMotion(
+            originalBalance.apoioBalancas,
+            originalBalance.originalSupportRotation,
+            apoioBalancas,
+            originalSupportRotation);
+        CopyTrayMotion(
+            originalBalance.leftTrayVisual,
+            originalBalance.transform,
+            originalBalance.originalLeftTrayWorldPosition,
+            originalBalance.originalLeftTrayRotation,
+            leftTrayVisual,
+            transform,
+            originalLeftTrayWorldPosition,
+            originalLeftTrayRotation);
+        CopyTrayMotion(
+            originalBalance.rightTrayVisual,
+            originalBalance.transform,
+            originalBalance.originalRightTrayWorldPosition,
+            originalBalance.originalRightTrayRotation,
+            rightTrayVisual,
+            transform,
+            originalRightTrayWorldPosition,
+            originalRightTrayRotation);
+
+        UpdateSmallBalanceTexts();
+    }
+
+    private static void CopySupportMotion(
+        Transform source,
+        Quaternion sourceOriginalRotation,
+        Transform destination,
+        Quaternion destinationOriginalRotation)
+    {
+        if (source == null || destination == null)
+            return;
+
+        Quaternion delta = source.localRotation * Quaternion.Inverse(sourceOriginalRotation);
+        destination.localRotation = delta * destinationOriginalRotation;
+    }
+
+    private static void CopyTrayMotion(
+        Transform source,
+        Transform sourceBalance,
+        Vector3 sourceOriginalPosition,
+        Quaternion sourceOriginalRotation,
+        Transform destination,
+        Transform destinationBalance,
+        Vector3 destinationOriginalPosition,
+        Quaternion destinationOriginalRotation)
+    {
+        if (source == null || sourceBalance == null ||
+            destination == null || destinationBalance == null)
+            return;
+
+        // Convert the original tray displacement through each balance root.
+        // TransformVector applies the destination scale, making the miniature
+        // reproduce the same relative trajectory at its own size.
+        Vector3 sourceWorldMotion = source.position - sourceOriginalPosition;
+        Vector3 sourceLocalMotion = sourceBalance.InverseTransformVector(sourceWorldMotion);
+        Vector3 destinationWorldMotion = destinationBalance.TransformVector(sourceLocalMotion);
+        destination.position = destinationOriginalPosition + destinationWorldMotion;
+
+        Quaternion rotationDelta = source.rotation * Quaternion.Inverse(sourceOriginalRotation);
+        destination.rotation = rotationDelta * destinationOriginalRotation;
     }
 
     /// <summary>Forces an immediate physics rescan; useful for tests and future UI.</summary>
@@ -170,12 +439,17 @@ public sealed class BalanceScaleController : MonoBehaviour
         TraverseContactChains();
         AssignWeightsAndMarkers();
         UpdateBalanceState();
+        UpdateVisualWeights();
     }
 
 private void ResolveReferences()
     {
         if (apoioBalancas == null)
             apoioBalancas = FindChildByName("ApoioBalancas");
+        if (leftLateralPoint == null && apoioBalancas != null)
+            leftLateralPoint = apoioBalancas.Find("PontoBE");
+        if (rightLateralPoint == null && apoioBalancas != null)
+            rightLateralPoint = apoioBalancas.Find("PontoBD");
         if (corpo == null)
             corpo = FindChildByName("Corpo");
         if (combinedTrays == null)
@@ -212,16 +486,10 @@ private void ResolveReferences()
 
     private void CreateSensors()
     {
-        Transform sensorRoot = transform.Find(SensorRootName);
-        if (sensorRoot == null)
-        {
-            GameObject rootObject = new GameObject(SensorRootName);
-            sensorRoot = rootObject.transform;
-            sensorRoot.SetParent(transform, false);
-        }
-
-        leftSensorCollider = GetOrCreateSensor(sensorRoot, LeftSensorName, leftSensor);
-        rightSensorCollider = GetOrCreateSensor(sensorRoot, RightSensorName, rightSensor);
+        leftTrayCollider = FindTrayCollider(leftTrayVisual, leftTrayCollider);
+        rightTrayCollider = FindTrayCollider(rightTrayVisual, rightTrayCollider);
+        leftSensorCollider = CreateTraySensor(leftTrayCollider, LeftSensorName, leftSensor, leftSensorCollider);
+        rightSensorCollider = CreateTraySensor(rightTrayCollider, RightSensorName, rightSensor, rightSensorCollider);
     }
 
     private BoxCollider GetOrCreateSensor(Transform parent, string sensorName, SideSensorSettings settings)
@@ -233,19 +501,74 @@ private void ResolveReferences()
             sensorTransform = sensorObject.transform;
             sensorTransform.SetParent(parent, false);
         }
-
         sensorTransform.localPosition = settings.localCenter;
         sensorTransform.localRotation = Quaternion.identity;
         sensorTransform.localScale = Vector3.one;
-
         BoxCollider box = sensorTransform.GetComponent<BoxCollider>();
         if (box == null)
             box = sensorTransform.gameObject.AddComponent<BoxCollider>();
-
         box.isTrigger = true;
         box.size = ClampSensorSize(settings.size);
         box.center = Vector3.zero;
         return box;
+    }
+
+    private BoxCollider FindTrayCollider(Transform trayVisual, BoxCollider cachedCollider)
+    {
+        if (cachedCollider != null)
+            return cachedCollider;
+        if (trayVisual == null)
+            return null;
+        foreach (BoxCollider candidate in trayVisual.GetComponentsInChildren<BoxCollider>(true))
+        {
+            if (candidate != null && candidate.enabled && !candidate.isTrigger)
+                return candidate;
+        }
+        return null;
+    }
+
+    private BoxCollider CreateTraySensor(BoxCollider trayCollider, string sensorName, SideSensorSettings fallbackSettings, BoxCollider existingSensor)
+    {
+        if (trayCollider == null)
+        {
+            Transform sensorRoot = transform.Find(SensorRootName);
+            if (sensorRoot == null)
+            {
+                GameObject rootObject = new GameObject(SensorRootName);
+                sensorRoot = rootObject.transform;
+                sensorRoot.SetParent(transform, false);
+            }
+            return GetOrCreateSensor(sensorRoot, sensorName, fallbackSettings);
+        }
+
+        Rigidbody trayBody = trayCollider.attachedRigidbody;
+        if (trayBody == null)
+            trayBody = trayCollider.gameObject.AddComponent<Rigidbody>();
+        trayBody.isKinematic = true;
+        trayBody.useGravity = false;
+        trayBody.interpolation = RigidbodyInterpolation.Interpolate;
+        trayBody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+
+        Transform sensorTransform = trayCollider.transform.Find(sensorName);
+        if (sensorTransform == null && existingSensor != null)
+            sensorTransform = existingSensor.transform;
+        if (sensorTransform == null)
+            sensorTransform = new GameObject(sensorName).transform;
+
+        sensorTransform.SetParent(trayCollider.transform, false);
+        sensorTransform.localRotation = Quaternion.identity;
+        sensorTransform.localScale = Vector3.one;
+        BoxCollider sensor = sensorTransform.GetComponent<BoxCollider>();
+        if (sensor == null)
+            sensor = sensorTransform.gameObject.AddComponent<BoxCollider>();
+
+        float height = Mathf.Max(0.1f, traySensorHeight);
+        Vector3 traySize = ClampSensorSize(trayCollider.size);
+        sensorTransform.localPosition = trayCollider.center + new Vector3(0f, traySize.y * 0.5f + height * 0.5f, 0f);
+        sensor.isTrigger = true;
+        sensor.center = Vector3.zero;
+        sensor.size = new Vector3(Mathf.Max(0.1f, traySize.x * 0.92f), height, Mathf.Max(0.1f, traySize.z * 0.92f));
+        return sensor;
     }
 
     private void CacheOriginalVisualState()
@@ -257,12 +580,14 @@ private void ResolveReferences()
         {
             originalLeftTrayRotation = leftTrayVisual.rotation;
             originalLeftTraySupportPosition = GetSupportLocalPosition(leftTrayVisual);
+            originalLeftTrayWorldPosition = leftTrayVisual.position;
         }
 
         if (rightTrayVisual != null)
         {
             originalRightTrayRotation = rightTrayVisual.rotation;
             originalRightTraySupportPosition = GetSupportLocalPosition(rightTrayVisual);
+            originalRightTrayWorldPosition = rightTrayVisual.position;
         }
 
         if (combinedTrays != null)
@@ -270,6 +595,11 @@ private void ResolveReferences()
             originalCombinedTrayRotation = combinedTrays.rotation;
             originalCombinedTraySupportPosition = GetSupportLocalPosition(combinedTrays);
         }
+
+        if (leftLateralPoint != null)
+            originalLeftLateralPointPosition = leftLateralPoint.position;
+        if (rightLateralPoint != null)
+            originalRightLateralPointPosition = rightLateralPoint.position;
     }
 
 private Vector3 GetSupportLocalPosition(Transform visual)
@@ -531,64 +861,112 @@ private Vector3 GetVisualAnchorWorldPosition(Transform visual)
         hasBalanceState = true;
     }
 
+    private void UpdateVisualWeights()
+    {
+        if (!hasPendingVisualState || pendingVisualLeftWeight != LeftWeight || pendingVisualRightWeight != RightWeight)
+        {
+            pendingVisualLeftWeight = LeftWeight;
+            pendingVisualRightWeight = RightWeight;
+            pendingVisualSince = Time.fixedTime;
+            hasPendingVisualState = true;
+        }
+        if (visualLeftWeight == pendingVisualLeftWeight && visualRightWeight == pendingVisualRightWeight)
+            return;
+        if (Time.fixedTime - pendingVisualSince < visualStateStabilityTime)
+            return;
+        visualLeftWeight = pendingVisualLeftWeight;
+        visualRightWeight = pendingVisualRightWeight;
+    }
+
     private void ApplyVisualResponse(float deltaTime)
     {
-        float total = Mathf.Max(1f, Mathf.Abs(LeftWeight) + Mathf.Abs(RightWeight));
-        float intensity = Mathf.Clamp01(Mathf.Abs(WeightDifference) / total);
-        float signedIntensity = Mathf.Sign(WeightDifference) * intensity;
+        int visualDifference = visualLeftWeight - visualRightWeight;
+        float total = Mathf.Max(1f, Mathf.Abs(visualLeftWeight) + Mathf.Abs(visualRightWeight));
+        float intensity = Mathf.Clamp01(Mathf.Abs(visualDifference) / total);
+        // Imported support axes are mirrored relative to the logical tray sides.
+        // Invert the visual sign so the loaded physical tray moves downward.
+        float signedIntensity = -Mathf.Sign(visualDifference) * intensity;
         targetSupportAngle = signedIntensity * maximumTiltAngle;
+        bool moved = false;
 
         if (apoioBalancas != null)
         {
-            currentSupportAngle = Mathf.SmoothDampAngle(
-                currentSupportAngle,
-                targetSupportAngle,
-                ref supportAngleVelocity,
-                smoothingTime,
-                Mathf.Infinity,
-                deltaTime);
-            // The imported FBX rotates this child 90 degrees around X, so its
-            // local Z points upward. The parent's local Z is the horizontal
-            // tilt axis perpendicular to the two trays; pre-multiplying keeps
-            // that parent-space axis and avoids the unwanted yaw on Y.
-            apoioBalancas.localRotation = Quaternion.AngleAxis(currentSupportAngle, Vector3.forward) * originalSupportRotation;
+            currentSupportAngle = Mathf.SmoothDampAngle(currentSupportAngle, targetSupportAngle, ref supportAngleVelocity, smoothingTime, Mathf.Infinity, deltaTime);
+            Quaternion targetRotation = Quaternion.AngleAxis(currentSupportAngle, Vector3.forward) * originalSupportRotation;
+            if (Quaternion.Angle(apoioBalancas.localRotation, targetRotation) > 0.0001f)
+            {
+                apoioBalancas.localRotation = targetRotation;
+                moved = true;
+            }
         }
 
-        ApplyTrayVisual(leftTrayVisual, originalLeftTraySupportPosition, originalLeftTrayRotation, -signedIntensity);
-        ApplyTrayVisual(rightTrayVisual, originalRightTraySupportPosition, originalRightTrayRotation, signedIntensity);
-
+        moved |= ApplyTrayVisual(
+            leftTrayVisual,
+            originalLeftTraySupportPosition,
+            originalLeftTrayRotation,
+            -signedIntensity,
+            leftLateralPoint,
+            originalLeftTrayWorldPosition,
+            originalLeftLateralPointPosition);
+        moved |= ApplyTrayVisual(
+            rightTrayVisual,
+            originalRightTraySupportPosition,
+            originalRightTrayRotation,
+            signedIntensity,
+            rightLateralPoint,
+            originalRightTrayWorldPosition,
+            originalRightLateralPointPosition);
         if (leftTrayVisual == null || rightTrayVisual == null)
         {
             if (!hasWarnedAboutCombinedMesh && combinedTrays != null)
             {
-                Debug.LogWarning(
-                    $"{name}: 'balancas' ainda e uma unica malha; configure LeftTrayVisual e RightTrayVisual para mover as bandejas separadamente.",
-                    this);
+                Debug.LogWarning($"{name}: 'balancas' ainda e uma unica malha; configure LeftTrayVisual e RightTrayVisual para mover as bandejas separadamente.", this);
                 hasWarnedAboutCombinedMesh = true;
             }
-
-            ApplyTrayVisual(combinedTrays, originalCombinedTraySupportPosition, originalCombinedTrayRotation, 0f);
+            moved |= ApplyTrayVisual(combinedTrays, originalCombinedTraySupportPosition, originalCombinedTrayRotation, 0f);
         }
+        if (moved)
+            Physics.SyncTransforms();
     }
 
-private void ApplyTrayVisual(Transform visual, Vector3 originalSupportPosition, Quaternion originalRotation, float signedOffset)
+private bool ApplyTrayVisual(
+        Transform visual,
+        Vector3 originalSupportPosition,
+        Quaternion originalRotation,
+        float signedOffset,
+        Transform lateralPoint = null,
+        Vector3 originalVisualPosition = default,
+        Vector3 originalLateralPointPosition = default)
     {
         if (visual == null)
-            return;
-
+            return false;
         Transform reference = apoioBalancas != null ? apoioBalancas : transform;
-        Vector3 localOffset = new Vector3(
-            signedOffset * maximumLateralOffset,
-            signedOffset * maximumVerticalOffset,
-            0f);
-
-        // Follow the actual mesh anchor, not the imported transform origin.
-        // The two FBX tray objects share an origin but their mesh vertices are
-        // on opposite sides, so each tray needs its own support trajectory.
-        Vector3 targetAnchor = reference.TransformPoint(originalSupportPosition);
+        Vector3 localOffset = new Vector3(signedOffset * maximumLateralOffset, signedOffset * maximumVerticalOffset, 0f);
         Vector3 worldOffset = reference.TransformDirection(localOffset);
-        visual.rotation = originalRotation;
-        visual.position = targetAnchor + worldOffset - GetVisualMeshCenterOffset(visual);
+        Vector3 targetPosition = reference.TransformPoint(originalSupportPosition) +
+            worldOffset - GetVisualMeshCenterOffset(visual);
+
+        if (lateralPoint != null)
+        {
+            // The point controls only the horizontal trajectory. Vertical motion
+            // remains governed by the scale's tilt and the visual load offset.
+            Vector3 lateralDelta = lateralPoint.position - originalLateralPointPosition;
+            targetPosition.x = originalVisualPosition.x + lateralDelta.x + worldOffset.x;
+            targetPosition.z = originalVisualPosition.z + lateralDelta.z + worldOffset.z;
+        }
+
+        bool moved = false;
+        if (Quaternion.Angle(visual.rotation, originalRotation) > 0.0001f)
+        {
+            visual.rotation = originalRotation;
+            moved = true;
+        }
+        if ((visual.position - targetPosition).sqrMagnitude > 0.00000001f)
+        {
+            visual.position = targetPosition;
+            moved = true;
+        }
+        return moved;
     }
 
     private BlockContactInfo GetOrCreateContact(MathBlockValue block)
