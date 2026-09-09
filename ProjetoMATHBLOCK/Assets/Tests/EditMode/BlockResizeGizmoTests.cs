@@ -185,17 +185,14 @@ public class BlockResizeGizmoTests
         Assert.That(secondFrame, Is.EqualTo(1));
     }
 
-    [TestCase(99f, 100f, 6, 0)]
-    [TestCase(100f, 100f, 6, 1)]
-    [TestCase(249f, 100f, 6, 2)]
-    [TestCase(-249f, 100f, 6, -2)]
-    [TestCase(2000f, 100f, 6, 6)]
-    public void TouchSteps_UsesPixelThresholdAndGestureLimit(
-        float pixels, float pixelsPerUnit, int maximum, int expected)
+    [Test]
+    public void TouchSteps_UsesPixelThresholdAndGestureLimit()
     {
-        int result = (int)InvokeStatic(
-            "BlockResizeController", "CalculateTouchSteps", pixels, pixelsPerUnit, maximum);
-        Assert.That(result, Is.EqualTo(expected));
+        Assert.That(InvokeInt("CalculateTouchSteps", 99f, 100f, 6), Is.EqualTo(0));
+        Assert.That(InvokeInt("CalculateTouchSteps", 100f, 100f, 6), Is.EqualTo(1));
+        Assert.That(InvokeInt("CalculateTouchSteps", 249f, 100f, 6), Is.EqualTo(2));
+        Assert.That(InvokeInt("CalculateTouchSteps", -249f, 100f, 6), Is.EqualTo(-2));
+        Assert.That(InvokeInt("CalculateTouchSteps", 2000f, 100f, 6), Is.EqualTo(6));
     }
 
     private Component CreateBlock(int value, Quaternion rotation)

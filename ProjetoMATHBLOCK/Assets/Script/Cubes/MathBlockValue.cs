@@ -10,6 +10,11 @@ public class MathBlockValue : MonoBehaviour
     private const string LabelShaderName = "MathBlock/LabelOverlay";
     private const string ToonShaderName = "Custom/URPToonShader";
     private const string StretchBlockToonShaderName = "MathBlock/Stretch Block Toon";
+    private const float LabelWorldScale = 0.75f;
+    private const float MinimumParentScale = 0.0001f;
+    private static readonly int OutlineColorId = Shader.PropertyToID("_OutlineColor");
+    private static readonly int OutlineWidthId = Shader.PropertyToID("_OutlineWidth");
+    private static readonly int OutlinePixelsId = Shader.PropertyToID("_OutlinePixels");
 
     private static readonly (string name, Vector3 direction)[] FaceLabels =
     {
@@ -41,6 +46,7 @@ public class MathBlockValue : MonoBehaviour
     [SerializeField] private Color labelColor = Color.white;
     [SerializeField] private bool randomizeColorOnStart = true;
     [SerializeField] private int blockId = -1;
+    [SerializeField, Min(1f)] private float heldOutlineWidthMultiplier = 2f;
 
     private Vector3 baseScale;
     private Quaternion originalRotation;
@@ -53,6 +59,9 @@ public class MathBlockValue : MonoBehaviour
     private bool hasPreviewValue;
     private int previewValue;
     private float labelOpacity = 1f;
+    private List<HeldOutlineState> heldOutlineStates;
+    private bool heldOutlineActive;
+    private Color heldOutlineColor;
 
     public int CurrentValue => currentValue;
     public int BlockId => blockId;
@@ -75,6 +84,17 @@ public class MathBlockValue : MonoBehaviour
         public Color baseColor;
         public bool hasColor;
         public Color color;
+    }
+
+    private struct HeldOutlineState
+    {
+        public Renderer renderer;
+        public bool hasColor;
+        public Color color;
+        public bool hasWidth;
+        public float width;
+        public bool hasPixels;
+        public float pixels;
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -155,7 +175,31 @@ public class MathBlockValue : MonoBehaviour
     public void SetValue(int newValue)
     {
         ClearPreviewValue();
-        currentValue = Mathf.Max(0, newValue);
+        int clampedValue = Mathf.Max(0, newValue);
+        ResizableBlock resizableBlock = GetComponent<ResizableBlock>();
+        if (resizableBlock != null
+            && clampedValue > 0
+            && resizableBlock.CurrentVolume > clampedValue)
+        {
+            Vector3Int previousDimensions = resizableBlock.Dimensions;
+            if (!resizableBlock.TryFitToValue(clampedValue, out ResizeValidationFailure failure))
+            {
+                Debug.LogError(
+                    $"[BlockResize] {name}: valor {clampedValue} recusado porque o bloco "
+                    + $"{previousDimensions} nao conseguiu respeitar o limite. Motivo: {failure}.",
+                    this
+                );
+                return;
+            }
+
+            Debug.Log(
+                $"[BlockResize] {name}: valor reduzido para {clampedValue}; "
+                + $"dimensoes ajustadas {previousDimensions}->{resizableBlock.Dimensions}.",
+                this
+            );
+        }
+
+        currentValue = clampedValue;
         RefreshLabels();
         RefreshVisual();
     }
@@ -323,6 +367,106 @@ public class MathBlockValue : MonoBehaviour
 
         color = Color.white;
         return false;
+    }
+
+    public void SetHeldOutline(Color color)
+    {
+        if (heldOutlineActive && heldOutlineColor == color)
+            return;
+
+        if (heldOutlineStates == null)
+            heldOutlineStates = new List<HeldOutlineState>();
+
+        if (!heldOutlineActive)
+            CaptureHeldOutlineStates();
+
+        float widthMultiplier = Mathf.Max(1f, heldOutlineWidthMultiplier);
+        for (int stateIndex = 0; stateIndex < heldOutlineStates.Count; stateIndex++)
+        {
+            HeldOutlineState state = heldOutlineStates[stateIndex];
+            if (state.renderer == null)
+                continue;
+
+            state.renderer.GetPropertyBlock(propertyBlock);
+            if (state.hasColor)
+                propertyBlock.SetColor(OutlineColorId, color);
+            if (state.hasWidth)
+                propertyBlock.SetFloat(OutlineWidthId, state.width * widthMultiplier);
+            if (state.hasPixels)
+                propertyBlock.SetFloat(OutlinePixelsId, state.pixels * widthMultiplier);
+            state.renderer.SetPropertyBlock(propertyBlock);
+        }
+
+        heldOutlineColor = color;
+        heldOutlineActive = heldOutlineStates.Count > 0;
+    }
+
+    public void ClearHeldOutline()
+    {
+        if (!heldOutlineActive || heldOutlineStates == null)
+            return;
+
+        for (int stateIndex = 0; stateIndex < heldOutlineStates.Count; stateIndex++)
+        {
+            HeldOutlineState state = heldOutlineStates[stateIndex];
+            if (state.renderer == null)
+                continue;
+
+            state.renderer.GetPropertyBlock(propertyBlock);
+            if (state.hasColor)
+                propertyBlock.SetColor(OutlineColorId, state.color);
+            if (state.hasWidth)
+                propertyBlock.SetFloat(OutlineWidthId, state.width);
+            if (state.hasPixels)
+                propertyBlock.SetFloat(OutlinePixelsId, state.pixels);
+            state.renderer.SetPropertyBlock(propertyBlock);
+        }
+
+        heldOutlineStates.Clear();
+        heldOutlineActive = false;
+    }
+
+    private void CaptureHeldOutlineStates()
+    {
+        heldOutlineStates.Clear();
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+        for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+        {
+            Renderer targetRenderer = renderers[rendererIndex];
+            if (targetRenderer == null || IsLabelRenderer(targetRenderer))
+                continue;
+
+            Material[] materials = targetRenderer.sharedMaterials;
+            HeldOutlineState state = new HeldOutlineState { renderer = targetRenderer };
+            for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
+            {
+                Material material = materials[materialIndex];
+                if (material == null)
+                    continue;
+
+                if (!state.hasColor && material.HasProperty(OutlineColorId))
+                {
+                    state.hasColor = true;
+                    state.color = material.GetColor(OutlineColorId);
+                }
+
+                if (!state.hasWidth && material.HasProperty(OutlineWidthId))
+                {
+                    state.hasWidth = true;
+                    state.width = material.GetFloat(OutlineWidthId);
+                }
+
+                if (!state.hasPixels && material.HasProperty(OutlinePixelsId))
+                {
+                    state.hasPixels = true;
+                    state.pixels = material.GetFloat(OutlinePixelsId);
+                }
+            }
+
+            if (state.hasColor || state.hasWidth || state.hasPixels)
+                heldOutlineStates.Add(state);
+        }
     }
 
     public bool TryUndoLastOperation(float spawnHeight)
@@ -540,7 +684,31 @@ public class MathBlockValue : MonoBehaviour
 
         labelTransform.localPosition = faceOffset;
         labelTransform.localRotation = Quaternion.LookRotation(direction, Vector3.up) * Quaternion.Euler(0f, 180f, 0f);
-        labelTransform.localScale = Vector3.one * 0.75f;
+        labelTransform.localScale = CalculateUnstretchedLabelScale(labelTransform.localRotation);
+    }
+
+    private Vector3 CalculateUnstretchedLabelScale(Quaternion labelLocalRotation)
+    {
+        Vector3 parentWorldScale = Abs(transform.lossyScale);
+        Vector3 labelRightInParent = labelLocalRotation * Vector3.right;
+        Vector3 labelUpInParent = labelLocalRotation * Vector3.up;
+        Vector3 labelForwardInParent = labelLocalRotation * Vector3.forward;
+
+        return new Vector3(
+            LabelWorldScale / GetScaleAlongAxis(parentWorldScale, labelRightInParent),
+            LabelWorldScale / GetScaleAlongAxis(parentWorldScale, labelUpInParent),
+            LabelWorldScale / GetScaleAlongAxis(parentWorldScale, labelForwardInParent)
+        );
+    }
+
+    private static float GetScaleAlongAxis(Vector3 parentWorldScale, Vector3 axisInParent)
+    {
+        return Mathf.Max(MinimumParentScale, Vector3.Scale(parentWorldScale, axisInParent).magnitude);
+    }
+
+    private static Vector3 Abs(Vector3 value)
+    {
+        return new Vector3(Mathf.Abs(value.x), Mathf.Abs(value.y), Mathf.Abs(value.z));
     }
 
     private void UpdateLabelVisibility()

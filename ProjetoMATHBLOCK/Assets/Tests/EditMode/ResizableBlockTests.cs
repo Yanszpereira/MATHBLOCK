@@ -113,6 +113,23 @@ public class ResizableBlockTests
         Assert.That(failure, Is.EqualTo("InvalidValue"));
     }
 
+    [Test]
+    public void ExistingOversizedBlock_FitsToCurrentValueWithoutGrowing()
+    {
+        TestBlock block = CreateBlock(4, 3, 2, 1);
+
+        object[] arguments = { 4, null, null };
+        bool fitted = (bool)GetMethod(block.ResizeComponent, "TryFitToValue").Invoke(
+            block.ResizeComponent,
+            arguments
+        );
+
+        Assert.That(fitted, Is.True);
+        Assert.That(arguments[2].ToString(), Is.EqualTo("None"));
+        AssertDimensions(block, 2, 2, 1);
+        Assert.That(GetProperty<long>(block.ResizeComponent, "CurrentVolume"), Is.LessThanOrEqualTo(4));
+    }
+
     [TestCase("PositiveZ", "PositiveX", 2, 1, 1)]
     [TestCase("NegativeZ", "PositiveY", 1, 2, 1)]
     [TestCase("PositiveX", "PositiveZ", 1, 1, 2)]
@@ -184,6 +201,27 @@ public class ResizableBlockTests
     }
 
     [Test]
+    public void ResizeUnderScaledParent_PreservesRootScaleCompensation()
+    {
+        GameObject parent = new GameObject("ScaledSpawner");
+        createdObjects.Add(parent);
+        parent.transform.localScale = new Vector3(2.24f, 1f, 5.724f);
+
+        TestBlock block = CreateBlock(4);
+        block.Root.transform.SetParent(parent.transform, true);
+        Vector3 compensatedLocalScale = block.Root.transform.localScale;
+        Vector3 worldScaleBefore = block.Root.transform.lossyScale;
+
+        Assert.That(TryApply(block, "PositiveX", "PositiveY", 1, out _), Is.True);
+
+        Assert.That(block.Root.transform.localScale,
+            Is.EqualTo(compensatedLocalScale).Using(Vector3Comparer.Instance));
+        Assert.That(block.Root.transform.lossyScale,
+            Is.EqualTo(worldScaleBefore).Using(Vector3Comparer.Instance));
+        AssertDimensions(block, 1, 2, 1);
+    }
+
+    [Test]
     public void Decrease_NeverProducesDimensionBelowOne()
     {
         TestBlock block = CreateBlock(3);
@@ -222,7 +260,13 @@ public class ResizableBlockTests
         AssertDimensions(block, 2, 2, 1);
     }
 
-    private TestBlock CreateBlock(int value, Vector3? position = null, Quaternion? rotation = null)
+    private TestBlock CreateBlock(
+        int value,
+        int width = 1,
+        int height = 1,
+        int depth = 1,
+        Vector3? position = null,
+        Quaternion? rotation = null)
     {
         GameObject root = new GameObject("ResizableBlockTest");
         createdObjects.Add(root);
@@ -243,6 +287,9 @@ public class ResizableBlockTests
         SetField(resizeComponent, "unitSize", Vector3.one);
         SetField(resizeComponent, "obstacleMask", (LayerMask)0);
         SetField(resizeComponent, "collisionSkin", 0.01f);
+        SetField(resizeComponent, "width", width);
+        SetField(resizeComponent, "height", height);
+        SetField(resizeComponent, "depth", depth);
         Invoke(mathBlockValue, "SetValue", value);
         InvokeNonPublic(resizeComponent, "ApplyCurrentDimensions");
         return new TestBlock(root, visual, collider, resizeComponent);

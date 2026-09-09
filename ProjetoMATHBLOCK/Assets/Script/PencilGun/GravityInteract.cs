@@ -43,6 +43,7 @@ public class GravityInteract : MonoBehaviour
     [SerializeField] private InvalidOperationFeedback invalidOperationFeedback;
     [SerializeField] private Transform operatorAbsorbTarget;
     [SerializeField] private Vector3 operatorAbsorbTargetCameraLocalPosition = new Vector3(0f, -0.55f, 0.45f);
+    [SerializeField] private PencilTipOperatorColor pencilTipOperatorColor;
 
     private PlayerInput playerInput;
     private InputAction applyOperatorAction;
@@ -94,6 +95,16 @@ public class GravityInteract : MonoBehaviour
             invalidOperationFeedback = GetComponent<InvalidOperationFeedback>();
             if (invalidOperationFeedback == null)
                 invalidOperationFeedback = gameObject.AddComponent<InvalidOperationFeedback>();
+        }
+
+        if (pencilTipOperatorColor == null)
+        {
+            pencilTipOperatorColor = GetComponent<PencilTipOperatorColor>();
+            if (pencilTipOperatorColor == null)
+            {
+                pencilTipOperatorColor = gameObject.AddComponent<PencilTipOperatorColor>();
+                Debug.Log("PencilGun: componente de cor e brilho da ponta instalado em runtime.", this);
+            }
         }
 
         playerInput = GetComponentInParent<PlayerInput>();
@@ -169,6 +180,12 @@ public class GravityInteract : MonoBehaviour
                 targetPosition,
                 Time.deltaTime * speed
             );
+
+            // Physics.AutoSyncTransforms is disabled in this project. The held
+            // block is moved directly while kinematic, so keep the physics
+            // representation aligned before overlap queries and the eventual
+            // hand-off back to dynamic simulation.
+            Physics.SyncTransforms();
 
             UpdateCarriedVelocity();
             UpdateCarriedBlockCollisionOpacity(Time.deltaTime);
@@ -761,6 +778,19 @@ public class GravityInteract : MonoBehaviour
     {
         PencilOperator previousOperator = equippedOperator;
         equippedOperator = newOperator;
+        pencilTipOperatorColor ??= GetComponent<PencilTipOperatorColor>();
+        pencilTipOperatorColor?.ApplyOperatorColor(newOperator);
+
+        if (grabbedBlockValue != null &&
+            TryGetCarriedBlockOverlap(out MathBlockValue targetBlock) &&
+            targetBlock != null)
+        {
+            UpdateCarriedOperationPreview(targetBlock);
+        }
+        else
+        {
+            ClearCarriedOperationPreview();
+        }
 
         if (previousOperator == newOperator)
         {
@@ -885,6 +915,8 @@ public class GravityInteract : MonoBehaviour
 
         if (grabbedRb != null)
         {
+            Physics.SyncTransforms();
+
             Vector3 releaseVelocity = Vector3.ClampMagnitude(
                 carriedVelocity * releaseVelocityMultiplier,
                 maxReleaseSpeed

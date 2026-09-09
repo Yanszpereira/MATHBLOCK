@@ -94,6 +94,10 @@ public class ResizableBlock : MonoBehaviour
     [SerializeField] private LayerMask obstacleMask = ~0;
     [SerializeField, Min(0f)] private float collisionSkin = 0.01f;
 
+    [Header("Ground Contact Stabilization")]
+    [SerializeField] private bool stabilizeRotationOnGround = true;
+    [SerializeField, Range(0.1f, 1f)] private float groundContactNormalThreshold = 0.55f;
+
     public int Width => width;
     public int Height => height;
     public int Depth => depth;
@@ -124,6 +128,44 @@ public class ResizableBlock : MonoBehaviour
 
         if (!Application.isPlaying)
             ApplyCurrentDimensions();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        StabilizeGroundContact(collision);
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        StabilizeGroundContact(collision);
+    }
+
+    private void StabilizeGroundContact(Collision collision)
+    {
+        if (!stabilizeRotationOnGround
+            || collision == null
+            || blockRigidbody == null
+            || blockRigidbody.isKinematic
+            || mathBlockValue == null)
+        {
+            return;
+        }
+
+        ContactPoint[] contacts = collision.contacts;
+        for (int i = 0; i < contacts.Length; i++)
+        {
+            if (contacts[i].normal.y < groundContactNormalThreshold)
+                continue;
+
+            // The pencil already uses this exact reset path. Applying it at
+            // ground contact prevents impact angular velocity from leaving a
+            // resizable block visually tilted after a high-speed landing.
+            mathBlockValue.RestoreOriginalRotation();
+            blockRigidbody.rotation = transform.rotation;
+            blockRigidbody.angularVelocity = Vector3.zero;
+            Physics.SyncTransforms();
+            return;
+        }
     }
 
     public bool CanResize()
@@ -675,7 +717,6 @@ public class ResizableBlock : MonoBehaviour
             height = proposal.Dimensions.y;
             depth = proposal.Dimensions.z;
 
-            transform.localScale = Vector3.one;
             transform.SetPositionAndRotation(proposal.RootPosition, proposal.Rotation);
             blockCollider.size = proposal.ColliderSize;
             visualRoot.localScale = proposal.VisualScale;
@@ -697,7 +738,6 @@ public class ResizableBlock : MonoBehaviour
         if (!HasRequiredReferences())
             return;
 
-        transform.localScale = Vector3.one;
         Vector3 localSize = CalculateLocalSize(Dimensions);
         blockCollider.size = localSize;
         visualRoot.localScale = localSize;
@@ -775,6 +815,7 @@ public class ResizableBlock : MonoBehaviour
             Mathf.Max(MinimumUnitSize, Mathf.Abs(unitSize.z))
         );
         collisionSkin = Mathf.Max(0f, collisionSkin);
+        groundContactNormalThreshold = Mathf.Clamp01(groundContactNormalThreshold);
     }
 
     private static long CalculateVolume(Vector3Int dimensions)

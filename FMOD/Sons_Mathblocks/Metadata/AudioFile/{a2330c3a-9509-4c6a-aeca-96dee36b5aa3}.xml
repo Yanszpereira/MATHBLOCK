@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{a2330c3a-9509-4c6a-aeca-96dee36b5aa3}">
+		<property name="assetPath">
+			<value>Bluezone_BC0294_modern_cinematic_impact_022.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>96</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>6.5994583333333336</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{3cccca5d-055f-482e-895d-bcee7f75872c}</destination>
+		</relationship>
+	</object>
+</objects>
