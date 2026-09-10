@@ -135,6 +135,8 @@ public sealed class BalanceScaleController : MonoBehaviour
     private bool lastBalanced;
     private bool hasWarnedAboutCombinedMesh;
 
+    public bool IsSmallBalance => isSmallBalance;
+
     public int LeftWeight { get; private set; }
     public int RightWeight { get; private set; }
     public int WeightDifference => LeftWeight - RightWeight;
