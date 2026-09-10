@@ -2615,7 +2615,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 15+15
+  m_text: 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3780,14 +3780,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c2e4f91a6d84b3e8f0c5d7a2b9e6143, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ElevatorTotemController
-  requiredValueInput: 15+15
+  requiredValueInput: 1
   isExpression: 1
-  requiredValue: 30
+  requiredValue: 1
   requiredValueText: {fileID: 1176480308}
   verificationPad: {fileID: 1269631833}
   platform: {fileID: 1779205004}
   moveSpeed: 3
   finalDestination: {x: -4.7563143, y: 43.10177, z: -57.07158}
+  islandStartSfx:
+    Guid:
+      Data1: -1677455061
+      Data2: 1337077704
+      Data3: -501574476
+      Data4: 1381217369
+    Path: "event:/IlhaFlutuante_Come\xE7andoMexer"
+  islandMoveSfx:
+    Guid:
+      Data1: -726489556
+      Data2: 1169183361
+      Data3: 372671110
+      Data4: -1053092492
+    Path: event:/IlhaMexendo
+  islandStopSfx:
+    Guid:
+      Data1: 111893865
+      Data2: 1212835484
+      Data3: -735592818
+      Data4: -101678447
+    Path: event:/Ilha Parando
   passengerDetectionHeight: 0.3
   passengerDetectionMargin: 0.08
   platformButtonPrefab: {fileID: 361443253}
