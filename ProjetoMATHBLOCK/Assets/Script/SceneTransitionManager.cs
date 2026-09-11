@@ -98,6 +98,22 @@ public sealed class SceneTransitionManager : MonoBehaviour
     public static bool TryReloadCurrentScene(Object logContext = null) =>
         TryTransitionToScene(SceneManager.GetActiveScene().buildIndex, logContext);
 
+    public static bool TryExecuteWithFade(System.Action action, Object logContext = null)
+    {
+        if (action == null)
+        {
+            Debug.LogError("A acao executada durante o fade nao foi informada.", logContext);
+            return false;
+        }
+
+        SceneTransitionManager manager = EnsureInstance();
+        if (manager == null || manager.isTransitioning)
+            return false;
+
+        manager.StartCoroutine(manager.FadeActionRoutine(action));
+        return true;
+    }
+
     private bool TryBeginTransition(string sceneName, Object logContext)
     {
         if (isTransitioning)
@@ -153,6 +169,25 @@ public sealed class SceneTransitionManager : MonoBehaviour
         }
 
         yield return LoadSceneAndPrepare(operation);
+        yield return FadeTo(0f, fadeInDuration);
+        FinishTransition();
+    }
+
+    private IEnumerator FadeActionRoutine(System.Action action)
+    {
+        BeginTransition();
+        yield return FadeTo(1f, fadeOutDuration);
+
+        try
+        {
+            action();
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogException(exception, this);
+        }
+
+        yield return null;
         yield return FadeTo(0f, fadeInDuration);
         FinishTransition();
     }

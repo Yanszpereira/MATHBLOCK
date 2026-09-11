@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8877342376345349781
+--- !u!114 &-8150528994178726816
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,758 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/796080__colinleblancsound__levelbgm
+  m_Name: event:/735157__rotlily__simple-music-loop-bass-keys-drums
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/796080__colinleblancsound__levelbgm
+  Path: event:/735157__rotlily__simple-music-loop-bass-keys-drums
   Guid:
-    Data1: 946219946
-    Data2: 1113757234
-    Data3: -1539254624
-    Data4: 1147278657
+    Data1: -621346085
+    Data2: 1340513864
+    Data3: 1231336880
+    Data4: -368745744
   Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 1
-  Is3D: 1
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 182000
---- !u!114 &-7722860257774878262
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/SonsMenu
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/SonsMenu
-  Guid:
-    Data1: 522247977
-    Data2: 1079529861
-    Data3: -533985604
-    Data4: -529942406
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 1
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 1020
---- !u!114 &-7084177051088656295
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/erro 2
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/erro 2
-  Guid:
-    Data1: 1317407701
-    Data2: 1126186320
-    Data3: 567300505
-    Data4: -42603114
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 167
---- !u!114 &-6757871440045278281
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Passos1
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Passos1
-  Guid:
-    Data1: -1295936815
-    Data2: 1164483670
-    Data3: -1023384910
-    Data4: 406801710
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 255
---- !u!114 &-6619598209641311456
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Hover
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Hover
-  Guid:
-    Data1: 506525713
-    Data2: 1176109974
-    Data3: -1975412571
-    Data4: 572417815
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 375
---- !u!114 &-6499436511827029682
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Subtracao
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Subtracao
-  Guid:
-    Data1: -1388758072
-    Data2: 1171891164
-    Data3: -1112782181
-    Data4: -521206757
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 120
---- !u!114 &-5780782486855422332
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/divisao
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/divisao
-  Guid:
-    Data1: 1424980227
-    Data2: 1123374774
-    Data3: 497699765
-    Data4: -2031556014
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 96
---- !u!114 &-5226550933820035129
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Soma
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Soma
-  Guid:
-    Data1: 572162393
-    Data2: 1120590415
-    Data3: 570623930
-    Data4: -1595123278
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 648
---- !u!114 &-4914089302249114955
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Multiplication
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Multiplication
-  Guid:
-    Data1: -1446870614
-    Data2: 1106767091
-    Data3: -974672228
-    Data4: 130327937
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 1056
---- !u!114 &-1293655277910656627
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/IlhaMexendo
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/IlhaMexendo
-  Guid:
-    Data1: -726489556
-    Data2: 1169183361
-    Data3: 372671110
-    Data4: -1053092492
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 4660
---- !u!114 &-1153459593133781050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Master.strings.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.strings.bank
-  Name: Master.strings
-  StudioPath: bank:/Master.strings
-  lastModified: 639247141683447362
-  FileSizes:
-  - Name: Desktop
-    Value: 2044
-  Exists: 1
---- !u!114 &-461074728695462124
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/MusicaFase2
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/MusicaFase2
-  Guid:
-    Data1: -1049772233
-    Data2: 1289349682
-    Data3: 349222533
-    Data4: -1148861001
-  Banks:
-  - {fileID: 451105433580098774}
-  - {fileID: 6880479780534884200}
-  IsStream: 1
-  Is3D: 0
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 155052
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d32cf7c32a3ed8347bac48ef5ed56d82, type: 3}
-  m_Name: FMODStudioCache
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EventCache
-  EditorBanks:
-  - {fileID: -1153459593133781050}
-  - {fileID: 451105433580098774}
-  - {fileID: 6880479780534884200}
-  EditorEvents:
-  - {fileID: -5780782486855422332}
-  - {fileID: 5134213604228498268}
-  - {fileID: 8150609517009774895}
-  - {fileID: 6773655218912490446}
-  - {fileID: -7722860257774878262}
-  - {fileID: 7476860401184394190}
-  - {fileID: -1293655277910656627}
-  - {fileID: -5226550933820035129}
-  - {fileID: 7021465711490618781}
-  - {fileID: 8597748462532190024}
-  - {fileID: 6899028629936477010}
-  - {fileID: 3315161093876188308}
-  - {fileID: -8877342376345349781}
-  - {fileID: -4914089302249114955}
-  - {fileID: -6499436511827029682}
-  - {fileID: 153693398638239153}
-  - {fileID: -6757871440045278281}
-  - {fileID: -7084177051088656295}
-  - {fileID: 6041343380541607625}
-  - {fileID: 8735610995531857780}
-  - {fileID: 4076283341648758194}
-  - {fileID: 331636606463936681}
-  - {fileID: -461074728695462124}
-  - {fileID: -6619598209641311456}
-  - {fileID: 3864739666968007257}
-  - {fileID: 4352855988201700112}
-  - {fileID: 4532262673384064935}
-  EditorParameters: []
-  MasterBanks:
-  - {fileID: 451105433580098774}
-  StringsBanks:
-  - {fileID: -1153459593133781050}
-  cacheVersion: 131859
-  cacheTime: 639247141702539862
-  SerializableEventsDict:
-  - key: event:/divisao
-    index: 0
-  - key: event:/Acertou
-    index: 1
-  - key: event:/esticabloco
-    index: 2
-  - key: event:/blockundo
-    index: 3
-  - key: event:/SonsMenu
-    index: 4
-  - key: "event:/IlhaFlutuante_Come\xE7andoMexer"
-    index: 5
-  - key: event:/IlhaMexendo
-    index: 6
-  - key: event:/Soma
-    index: 7
-  - key: event:/quedavoid
-    index: 8
-  - key: event:/Ilha Parando
-    index: 9
-  - key: event:/blocoNooutro
-    index: 10
-  - key: event:/PortaAbre
-    index: 11
-  - key: event:/796080__colinleblancsound__levelbgm
-    index: 12
-  - key: event:/Multiplication
-    index: 13
-  - key: event:/Subtracao
-    index: 14
-  - key: event:/jump
-    index: 15
-  - key: event:/Passos1
-    index: 16
-  - key: event:/erro 2
-    index: 17
-  - key: event:/Massive_floating_sto_#4-1789011124880
-    index: 18
-  - key: event:/MusicaFase1Certa
-    index: 19
-  - key: event:/HoverMenu
-    index: 20
-  - key: event:/PegaBloco
-    index: 21
-  - key: event:/MusicaFase2
-    index: 22
-  - key: event:/Hover
-    index: 23
-  - key: event:/PegaBloco 2
-    index: 24
-  - key: event:/erroOperation
-    index: 25
-  - key: event:/Fase3Music
-    index: 26
---- !u!114 &153693398638239153
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/jump
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/jump
-  Guid:
-    Data1: -2106292020
-    Data2: 1307845520
-    Data3: 333586309
-    Data4: 71349222
-  Banks:
-  - {fileID: 451105433580098774}
+  - {fileID: 444490799236697874}
   IsStream: 1
   Is3D: 1
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 680
---- !u!114 &331636606463936681
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PegaBloco
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/PegaBloco
-  Guid:
-    Data1: -1393829811
-    Data2: 1197661281
-    Data3: 1763972002
-    Data4: 747695939
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 320
---- !u!114 &451105433580098774
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Master.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.bank
-  Name: Master
-  StudioPath: bank:/Master
-  lastModified: 639247141683427350
-  FileSizes:
-  - Name: Desktop
-    Value: 11258752
-  Exists: 1
---- !u!114 &3315161093876188308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PortaAbre
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/PortaAbre
-  Guid:
-    Data1: 215736475
-    Data2: 1226829997
-    Data3: 831488165
-    Data4: 208379324
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 2534
---- !u!114 &3864739666968007257
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PegaBloco 2
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/PegaBloco 2
-  Guid:
-    Data1: 750272900
-    Data2: 1324672721
-    Data3: 2041804977
-    Data4: -3149281
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 260
---- !u!114 &4076283341648758194
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/HoverMenu
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/HoverMenu
-  Guid:
-    Data1: -1906024123
-    Data2: 1252038390
-    Data3: 2021018756
-    Data4: -1228451977
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 260
---- !u!114 &4352855988201700112
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/erroOperation
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/erroOperation
-  Guid:
-    Data1: -1402069544
-    Data2: 1230858852
-    Data3: -1520451928
-    Data4: 127955640
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 340
---- !u!114 &4532262673384064935
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Fase3Music
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Fase3Music
-  Guid:
-    Data1: 377368396
-    Data2: 1313976052
-    Data3: 1210019487
-    Data4: 475121515
-  Banks:
-  - {fileID: 6880479780534884200}
-  IsStream: 1
-  Is3D: 0
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 84480
---- !u!114 &5134213604228498268
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Acertou
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Acertou
-  Guid:
-    Data1: -291252969
-    Data2: 1154478309
-    Data3: -327878502
-    Data4: -51084846
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 6990
---- !u!114 &6041343380541607625
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Massive_floating_sto_#4-1789011124880
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Massive_floating_sto_#4-1789011124880
-  Guid:
-    Data1: -462957297
-    Data2: 1159666828
-    Data3: -206262850
-    Data4: 1085601714
-  Banks:
-  - {fileID: 6880479780534884200}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 1660
---- !u!114 &6773655218912490446
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/blockundo
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/blockundo
-  Guid:
-    Data1: 1245919776
-    Data2: 1199105781
-    Data3: 218434474
-    Data4: -601011933
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 202
---- !u!114 &6880479780534884200
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
-  m_Name: bank:/Musica.bank
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
-  Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Musica.bank
-  Name: Musica
-  StudioPath: bank:/Musica
-  lastModified: 639247141702539862
-  FileSizes:
-  - Name: Desktop
-    Value: 12827808
-  Exists: 1
---- !u!114 &6899028629936477010
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/blocoNooutro
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/blocoNooutro
-  Guid:
-    Data1: 1850614151
-    Data2: 1239432887
-    Data3: 2016577706
-    Data4: -410968824
-  Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
-  Is3D: 1
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 280
---- !u!114 &7021465711490618781
+  Length: 248000
+--- !u!114 &-6886491457075865124
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -780,7 +46,7 @@ MonoBehaviour:
     Data3: 599173805
     Data4: 1987817330
   Banks:
-  - {fileID: 451105433580098774}
+  - {fileID: -2696089886721810191}
   IsStream: 0
   Is3D: 1
   IsOneShot: 1
@@ -788,7 +54,7 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 2037
---- !u!114 &7476860401184394190
+--- !u!114 &-6480312713228244469
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -798,24 +64,98 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: "event:/IlhaFlutuante_Come\xE7andoMexer"
+  m_Name: event:/fase2 musica
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: "event:/IlhaFlutuante_Come\xE7andoMexer"
+  Path: event:/fase2 musica
   Guid:
-    Data1: -1677455061
-    Data2: 1337077704
-    Data3: -501574476
-    Data4: 1381217369
+    Data1: -340074842
+    Data2: 1251083589
+    Data3: -1148394331
+    Data4: 1931630434
   Banks:
-  - {fileID: 451105433580098774}
+  - {fileID: -2696089886721810191}
+  IsStream: 1
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 149052
+--- !u!114 &-5938004546434459357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/jump
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/jump
+  Guid:
+    Data1: -2106292020
+    Data2: 1307845520
+    Data3: 333586309
+    Data4: 71349222
+  Banks:
+  - {fileID: -2696089886721810191}
   IsStream: 0
-  Is3D: 0
+  Is3D: 1
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 1500
---- !u!114 &8150609517009774895
+  Length: 210
+--- !u!114 &-5404895832253870027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Acertou
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Acertou
+  Guid:
+    Data1: -291252969
+    Data2: 1154478309
+    Data3: -327878502
+    Data4: -51084846
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 6990
+--- !u!114 &-4174064665557830792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.strings.bank
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
+  Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.strings.bank
+  Name: Master.strings
+  StudioPath: bank:/Master.strings
+  lastModified: 639235019704896746
+  FileSizes:
+  - Name: Desktop
+    Value: 1592
+  Exists: 1
+--- !u!114 &-3819725788815592728
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -834,7 +174,7 @@ MonoBehaviour:
     Data3: 927349136
     Data4: -1773124436
   Banks:
-  - {fileID: 451105433580098774}
+  - {fileID: -2696089886721810191}
   IsStream: 0
   Is3D: 1
   IsOneShot: 1
@@ -842,7 +182,7 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 210
---- !u!114 &8597748462532190024
+--- !u!114 &-3700970494476106534
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -852,24 +192,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Ilha Parando
+  m_Name: event:/SonsMenu
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Ilha Parando
+  Path: event:/SonsMenu
   Guid:
-    Data1: 111893865
-    Data2: 1212835484
-    Data3: -735592818
-    Data4: -101678447
+    Data1: 522247977
+    Data2: 1079529861
+    Data3: -533985604
+    Data4: -529942406
   Banks:
-  - {fileID: 451105433580098774}
-  IsStream: 0
+  - {fileID: -2696089886721810191}
+  IsStream: 1
   Is3D: 0
   IsOneShot: 1
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 1560
---- !u!114 &8735610995531857780
+  Length: 1020
+--- !u!114 &-3451175947132569982
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -879,20 +219,379 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/MusicaFase1Certa
+  m_Name: event:/blockundo
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/MusicaFase1Certa
+  Path: event:/blockundo
   Guid:
-    Data1: -1586759779
-    Data2: 1147309583
-    Data3: 1169601456
-    Data4: 1718160
+    Data1: 1245919776
+    Data2: 1199105781
+    Data3: 218434474
+    Data4: -601011933
   Banks:
-  - {fileID: 6880479780534884200}
+  - {fileID: -2696089886721810191}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 202
+--- !u!114 &-2696089886721810191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.bank
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
+  Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.bank
+  Name: Master
+  StudioPath: bank:/Master
+  lastModified: 639235019704886733
+  FileSizes:
+  - Name: Desktop
+    Value: 10874720
+  Exists: 1
+--- !u!114 &-1287082730350502226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/divisao
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/divisao
+  Guid:
+    Data1: 1424980227
+    Data2: 1123374774
+    Data3: 497699765
+    Data4: -2031556014
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 96
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d32cf7c32a3ed8347bac48ef5ed56d82, type: 3}
+  m_Name: FMODStudioCache
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EventCache
+  EditorBanks:
+  - {fileID: -4174064665557830792}
+  - {fileID: -2696089886721810191}
+  - {fileID: 444490799236697874}
+  EditorEvents:
+  - {fileID: -1287082730350502226}
+  - {fileID: -5404895832253870027}
+  - {fileID: -3451175947132569982}
+  - {fileID: 8268150948682415858}
+  - {fileID: -6886491457075865124}
+  - {fileID: 458778120700239236}
+  - {fileID: 7930114106812756393}
+  - {fileID: 8178092510020160348}
+  - {fileID: 1957901532911351277}
+  - {fileID: -5938004546434459357}
+  - {fileID: 80205199838762478}
+  - {fileID: 2851093397212492728}
+  - {fileID: -8150528994178726816}
+  - {fileID: 6797599905772547641}
+  - {fileID: -3700970494476106534}
+  - {fileID: -6480312713228244469}
+  - {fileID: -3819725788815592728}
+  EditorParameters: []
+  MasterBanks:
+  - {fileID: -2696089886721810191}
+  StringsBanks:
+  - {fileID: -4174064665557830792}
+  cacheVersion: 131859
+  cacheTime: 639235019704896746
+  SerializableEventsDict:
+  - key: event:/divisao
+    index: 0
+  - key: event:/Acertou
+    index: 1
+  - key: event:/blockundo
+    index: 2
+  - key: event:/Soma
+    index: 3
+  - key: event:/quedavoid
+    index: 4
+  - key: event:/blocoNooutro
+    index: 5
+  - key: event:/PortaAbre
+    index: 6
+  - key: event:/multiplication
+    index: 7
+  - key: event:/Subtracao
+    index: 8
+  - key: event:/jump
+    index: 9
+  - key: event:/Passos1
+    index: 10
+  - key: event:/erro 2
+    index: 11
+  - key: event:/735157__rotlily__simple-music-loop-bass-keys-drums
+    index: 12
+  - key: event:/796080__colinleblancsound__levelbgm
+    index: 13
+  - key: event:/SonsMenu
+    index: 14
+  - key: event:/fase2 musica
+    index: 15
+  - key: event:/esticabloco
+    index: 16
+--- !u!114 &80205199838762478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Passos1
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Passos1
+  Guid:
+    Data1: -1295936815
+    Data2: 1164483670
+    Data3: -1023384910
+    Data4: 406801710
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 255
+--- !u!114 &444490799236697874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Musica.bank
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorBankRef
+  Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Musica.bank
+  Name: Musica
+  StudioPath: bank:/Musica
+  lastModified: 639228928765593354
+  FileSizes:
+  - Name: Desktop
+    Value: 3583168
+  Exists: 1
+--- !u!114 &458778120700239236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/blocoNooutro
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/blocoNooutro
+  Guid:
+    Data1: 1850614151
+    Data2: 1239432887
+    Data3: 2016577706
+    Data4: -410968824
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 280
+--- !u!114 &1957901532911351277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Subtracao
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Subtracao
+  Guid:
+    Data1: -1388758072
+    Data2: 1171891164
+    Data3: -1112782181
+    Data4: -521206757
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 120
+--- !u!114 &2851093397212492728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/erro 2
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/erro 2
+  Guid:
+    Data1: 1317407701
+    Data2: 1126186320
+    Data3: 567300505
+    Data4: -42603114
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 167
+--- !u!114 &6797599905772547641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/796080__colinleblancsound__levelbgm
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/796080__colinleblancsound__levelbgm
+  Guid:
+    Data1: 946219946
+    Data2: 1113757234
+    Data3: -1539254624
+    Data4: 1147278657
+  Banks:
+  - {fileID: -2696089886721810191}
   IsStream: 1
-  Is3D: 0
+  Is3D: 1
   IsOneShot: 0
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 248000
+  Length: 187992
+--- !u!114 &7930114106812756393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/PortaAbre
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/PortaAbre
+  Guid:
+    Data1: 215736475
+    Data2: 1226829997
+    Data3: 831488165
+    Data4: 208379324
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 2534
+--- !u!114 &8178092510020160348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/multiplication
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/multiplication
+  Guid:
+    Data1: -1446870614
+    Data2: 1106767091
+    Data3: -974672228
+    Data4: 130327937
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 1056
+--- !u!114 &8268150948682415858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Soma
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Soma
+  Guid:
+    Data1: 572162393
+    Data2: 1120590415
+    Data3: 570623930
+    Data4: -1595123278
+  Banks:
+  - {fileID: -2696089886721810191}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 648

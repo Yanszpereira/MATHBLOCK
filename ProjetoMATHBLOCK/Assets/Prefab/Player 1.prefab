@@ -676,7 +676,7 @@ MonoBehaviour:
   carriedBlockCollisionOpacity: 0.3
   carriedBlockOpacityLerpSpeed: 8
   carriedBlockCameraContactRadius: 0.16
-  hammerApplySpeedThreshold: 10.14
+  hammerApplySpeedThreshold: 100000
   hammerAllowedDirectionAngle: 230
   invalidHammerRetryDelay: 0.35
   hammerImpactEffectObjectName: efeitomarretada

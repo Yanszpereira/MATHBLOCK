@@ -35,7 +35,7 @@ public class GravityInteract : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float carriedBlockCollisionOpacity = 0.3f;
     [SerializeField] private float carriedBlockOpacityLerpSpeed = 8f;
     [SerializeField, Min(0.01f)] private float carriedBlockCameraContactRadius = 0.16f;
-    [SerializeField] private float hammerApplySpeedThreshold = 10.14f;
+    [SerializeField] private float hammerApplySpeedThreshold = 100000f;
     [SerializeField, Range(0f, 360f)] private float hammerAllowedDirectionAngle = 230f;
     [SerializeField, Min(0.05f)] private float invalidHammerRetryDelay = 0.35f;
     [SerializeField] private string hammerImpactEffectObjectName = "efeitomarretada";
