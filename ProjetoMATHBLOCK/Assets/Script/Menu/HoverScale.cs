@@ -5,9 +5,9 @@ using UnityEngine.UI;
 public class HoverScale : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     IPointerDownHandler, IPointerUpHandler
 {
-    [SerializeField] private float escalaHover = 1.1f;
+    [SerializeField] private float escalaHover = 1.4f;
     [SerializeField] private float velocidade = 10f;
-    [SerializeField] private Color corHover = new Color(0.72f, 1f, 0.92f, 1f);
+    [SerializeField] private Color corHover = new Color(0.9529412f, 0.8627451f, 0.7137255f, 1f); // hex F3DCB6
 
     private Vector3 escalaOriginal;
     private Vector3 escalaAlvo;

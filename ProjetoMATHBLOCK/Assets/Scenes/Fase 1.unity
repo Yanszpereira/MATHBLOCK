@@ -10714,6 +10714,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0.000061035156
       objectReference: {fileID: 0}
+    - target: {fileID: 5574020720337532730, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: corHover.b
+      value: 0.7137255
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574020720337532730, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: corHover.g
+      value: 0.8627451
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574020720337532730, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: corHover.r
+      value: 0.9529412
+      objectReference: {fileID: 0}
     - target: {fileID: 5611802513616455414, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -10805,6 +10817,38 @@ PrefabInstance:
     - target: {fileID: 8188758639608048591, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_fontSize
       value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 8633483892145667186, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: corHover.b
+      value: 0.7137255
+      objectReference: {fileID: 0}
+    - target: {fileID: 8633483892145667186, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: corHover.g
+      value: 0.8627451
+      objectReference: {fileID: 0}
+    - target: {fileID: 8633483892145667186, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: corHover.r
+      value: 0.9529412
+      objectReference: {fileID: 0}
+    - target: {fileID: 8633483892145667186, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: escalaHover
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8991399506069020369, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: corHover.b
+      value: 0.7137255
+      objectReference: {fileID: 0}
+    - target: {fileID: 8991399506069020369, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: corHover.g
+      value: 0.8627451
+      objectReference: {fileID: 0}
+    - target: {fileID: 8991399506069020369, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: corHover.r
+      value: 0.9529412
+      objectReference: {fileID: 0}
+    - target: {fileID: 8991399506069020369, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: escalaHover
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9171348539103113009, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_Sprite
@@ -22301,6 +22345,7 @@ Transform:
   - {fileID: 2033574228}
   - {fileID: 634978971}
   - {fileID: 827067853}
+  - {fileID: 1239838965}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1100782963 stripped
@@ -22610,7 +22655,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1239838964}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 23.88112, y: 12.15625, z: -5.13254}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -22633,7 +22678,7 @@ Transform:
   - {fileID: 1686938905}
   - {fileID: 846957470}
   - {fileID: 1482440768}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1083036293}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1240641795
 PrefabInstance:
@@ -30970,4 +31015,3 @@ SceneRoots:
   - {fileID: 1721091741}
   - {fileID: 1251729412}
   - {fileID: 472246582}
-  - {fileID: 1239838965}
