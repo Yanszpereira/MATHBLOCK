@@ -150,7 +150,7 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639245449751976295
+  lastModified: 639235019704896746
   FileSizes:
   - Name: Desktop
     Value: 1592
@@ -251,7 +251,7 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639245449751956346
+  lastModified: 639235019704886733
   FileSizes:
   - Name: Desktop
     Value: 10874720
@@ -323,7 +323,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: -4174064665557830792}
   cacheVersion: 131859
-  cacheTime: 639245449751976295
+  cacheTime: 639235019704896746
   SerializableEventsDict:
   - key: event:/divisao
     index: 0
@@ -401,7 +401,7 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Musica.bank
   Name: Musica
   StudioPath: bank:/Musica
-  lastModified: 639222581066792535
+  lastModified: 639228928765593354
   FileSizes:
   - Name: Desktop
     Value: 3583168
