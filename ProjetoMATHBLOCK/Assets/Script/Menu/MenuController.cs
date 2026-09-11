@@ -41,6 +41,7 @@ public class MenuController : MonoBehaviour
 
     [Header("Audio UI")]
     [SerializeField] private EventReference clickSound;
+    [SerializeField] private EventReference hoverSound;
 
     // =========================================================
 
@@ -469,14 +470,19 @@ public class MenuController : MonoBehaviour
                 }
             }
 
-            if (
-                button.GetComponent<HoverScale>() ==
-                null
-            )
+            HoverScale hoverScale =
+                button.GetComponent<HoverScale>();
+
+            if (hoverScale == null)
             {
-                button.gameObject
-                    .AddComponent<HoverScale>();
+                hoverScale =
+                    button.gameObject
+                        .AddComponent<HoverScale>();
             }
+
+            hoverScale.ConfigureHoverSound(
+                hoverSound
+            );
 
             RepairMissingPersistentCalls(button);
         }

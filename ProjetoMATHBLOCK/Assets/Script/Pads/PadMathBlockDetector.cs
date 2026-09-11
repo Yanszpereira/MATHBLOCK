@@ -66,6 +66,11 @@ public class PadMathBlockDetector : MonoBehaviour
         connectedVerifierObject = verifier != null ? verifier.gameObject : null;
     }
 
+    public void SetExpectedValue(int value)
+    {
+        expectedValue = value;
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         TryPrintBlockValue(collision.collider, forcePrint: true);
@@ -108,14 +113,18 @@ public class PadMathBlockDetector : MonoBehaviour
 
         Debug.Log($"Pad {name} detectou bloco {blockValue.name} com valor {value}.");
 
-        if (playErrorSoundWhenWrong && value != expectedValue)
+        DoorValueVerifier verifier = GetConnectedVerifier();
+
+        // Quando existe um DoorValueVerifier conectado, ele e a autoridade
+        // para decidir se o valor esta certo ou errado e tambem para tocar
+        // os sons de acerto/erro. Isso evita o Pad tocar um erro baseado no
+        // expectedValue local ao mesmo tempo em que a porta aceita o valor.
+        if (verifier == null && playErrorSoundWhenWrong && value != expectedValue)
         {
             PlayErrorSound();
         }
 
         ValueDetected?.Invoke(gameObject, value, blockValue.gameObject);
-
-        DoorValueVerifier verifier = GetConnectedVerifier();
 
         if (verifier == null)
         {

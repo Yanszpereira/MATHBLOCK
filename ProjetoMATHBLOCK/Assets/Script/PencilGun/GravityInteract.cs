@@ -4,6 +4,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 using System.Collections;
 using System.Collections.Generic;
+using FMODUnity;
 
 public class GravityInteract : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class GravityInteract : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float carriedBlockCollisionOpacity = 0.3f;
     [SerializeField] private float carriedBlockOpacityLerpSpeed = 8f;
     [SerializeField, Min(0.01f)] private float carriedBlockCameraContactRadius = 0.16f;
-    [SerializeField] private float hammerApplySpeedThreshold = 10.14f;
+    [SerializeField] private float hammerApplySpeedThreshold = 100000f;
     [SerializeField, Range(0f, 360f)] private float hammerAllowedDirectionAngle = 230f;
     [SerializeField, Min(0.05f)] private float invalidHammerRetryDelay = 0.35f;
     [SerializeField] private string hammerImpactEffectObjectName = "efeitomarretada";
@@ -44,6 +45,9 @@ public class GravityInteract : MonoBehaviour
     [SerializeField] private Transform operatorAbsorbTarget;
     [SerializeField] private Vector3 operatorAbsorbTargetCameraLocalPosition = new Vector3(0f, -0.55f, 0.45f);
     [SerializeField] private PencilTipOperatorColor pencilTipOperatorColor;
+
+    [Header("Audio FMOD - Cubo")]
+    [SerializeField] private EventReference grabBlockSound;
 
     private PlayerInput playerInput;
     private InputAction applyOperatorAction;
@@ -837,6 +841,17 @@ public class GravityInteract : MonoBehaviour
         return Vector3.forward * 0.9f;
     }
 
+    private void TocarSomPegarBloco()
+    {
+        if (grabbedObject == null || grabBlockSound.IsNull)
+            return;
+
+        RuntimeManager.PlayOneShotAttached(
+            grabBlockSound,
+            grabbedObject.gameObject
+        );
+    }
+
     public void Pegar(RaycastHit hit)
     {
         RestoreCarriedBlockCollisions();
@@ -874,6 +889,7 @@ public class GravityInteract : MonoBehaviour
 
         grabbed = true;
         canRaycast = false;
+        TocarSomPegarBloco();
         currentCarriedBlockDistance = GetInitialCarriedBlockDistance();
         carriedVelocity = Vector3.zero;
         lastCarriedPosition = grabbedObject.position;

@@ -15,11 +15,11 @@ RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
   m_Fog: 0
-  m_FogColor: {r: 0, g: 0, b: 0, a: 1}
-  m_FogMode: 3
+  m_FogColor: {r: 0.36078432, g: 0.57254905, b: 0.65882355, a: 1}
+  m_FogMode: 1
   m_FogDensity: 0.015
-  m_LinearFogStart: 0
-  m_LinearFogEnd: 300
+  m_LinearFogStart: 13.333333
+  m_LinearFogEnd: 40
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
@@ -10818,6 +10818,7 @@ PrefabInstance:
       propertyPath: m_fontSize
       value: 70
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 8633483892145667186, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: corHover.b
       value: 0.7137255
@@ -10849,6 +10850,47 @@ PrefabInstance:
     - target: {fileID: 8991399506069020369, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: escalaHover
       value: 3
+=======
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: clickSound.Path
+      value: event:/SonsMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Path
+      value: event:/Hover
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: clickSound.Guid.Data1
+      value: 522247977
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: clickSound.Guid.Data2
+      value: 1079529861
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: clickSound.Guid.Data3
+      value: -533985604
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: clickSound.Guid.Data4
+      value: -529942406
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data1
+      value: 506525713
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data2
+      value: 1176109974
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data3
+      value: -1975412571
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data4
+      value: 572417815
+>>>>>>> 30572a493fa0d8e74ce62fd8812834f56d230599
       objectReference: {fileID: 0}
     - target: {fileID: 9171348539103113009, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_Sprite
@@ -22491,6 +22533,69 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bef3071e0d9419e45991b37417b68e1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PadMathBlockDetector
+--- !u!1 &1161961791
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1161961792}
+  - component: {fileID: 1161961793}
+  m_Layer: 0
+  m_Name: Emissor de Musica
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1161961792
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1161961791}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
+  m_LocalPosition: {x: 0.5993967, y: 0, z: 1.8089542}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1867749765}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1161961793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1161961791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -1586759779
+      Data2: 1147309583
+      Data3: 1169601456
+      Data4: 1718160
+    Path: event:/MusicaFase1Certa
+  Event: 
+  EventPlayTrigger: 1
+  EventStopTrigger: 0
+  AllowFadeout: 0
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &1180214767
 GameObject:
   m_ObjectHideFlags: 0
@@ -29387,6 +29492,34 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1180214768}
     m_Modifications:
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Path
+      value: event:/PegaBloco
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data1
+      value: -1393829811
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data2
+      value: 1197661281
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data3
+      value: 1763972002
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data4
+      value: 747695939
+      objectReference: {fileID: 0}
+    - target: {fileID: 1391884967048770114, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: voidFallSoundY
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1391884967048770114, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: voidFallSoundDelay
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4745981285788249604, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11.622923
@@ -29431,9 +29564,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player 1 Variant
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3271105319279223346, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4745981285788249604, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1161961792}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
 --- !u!4 &1867749765 stripped
@@ -29505,6 +29642,10 @@ PrefabInstance:
       propertyPath: connectedVerifierObject
       value: 
       objectReference: {fileID: 859868076}
+    - target: {fileID: 6346917656526409954, guid: edc4a7af8b587b24abde9300b4e7f569, type: 3}
+      propertyPath: playErrorSoundWhenWrong
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7712601277985681596, guid: edc4a7af8b587b24abde9300b4e7f569, type: 3}
       propertyPath: PortaText
       value: 
@@ -30294,7 +30435,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8272150852395021154, guid: 6ad1129b447f9864aa5190417c023a6e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -65.5
+      value: -44.4
       objectReference: {fileID: 0}
     - target: {fileID: 8272150852395021154, guid: 6ad1129b447f9864aa5190417c023a6e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -30802,6 +30943,13 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   clickSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  hoverSound:
     Guid:
       Data1: 0
       Data2: 0
