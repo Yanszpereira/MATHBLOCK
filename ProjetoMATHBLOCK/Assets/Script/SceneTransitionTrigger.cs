@@ -69,8 +69,7 @@ public sealed class SceneTransitionTrigger : MonoBehaviour
             return false;
         }
 
-        SceneManager.LoadScene(destinationSceneName, LoadSceneMode.Single);
-        return true;
+        return SceneTransitionManager.TryTransitionToScene(destinationSceneName, logContext);
     }
 
     private void ConfigureTriggerCollider()
