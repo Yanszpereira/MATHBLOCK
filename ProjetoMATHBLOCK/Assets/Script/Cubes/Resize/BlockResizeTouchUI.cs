@@ -76,14 +76,14 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
         if (stretchButton == null)
         {
             stretchButton = CreateHudButton(StretchButtonName,
-                Resources.Load<Sprite>("UI/Stretch/StretchMode"),
+                Resources.Load<Sprite>("UI/Stretch/StretchMode 1"),
                 new Vector2(-585f, 320f), new Vector2(150f, 150f));
             stretchButton.onClick.AddListener(BeginStretchMode);
         }
         if (exitButton == null)
         {
             exitButton = CreateHudButton(ExitButtonName,
-                Resources.Load<Sprite>("UI/Stretch/ExitStretchMode"),
+                Resources.Load<Sprite>("UI/Stretch/ExitStretchMode 1"),
                 new Vector2(-311f, 149f), new Vector2(230f, 230f));
             exitButton.onClick.AddListener(ExitStretchMode);
         }
