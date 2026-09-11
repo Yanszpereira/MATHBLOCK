@@ -16822,6 +16822,7 @@ MonoBehaviour:
   particleSizeVariation: 0.025
   spiralRevolutions: 1.35
   clockwise: 1
+  centeredUpwardFlow: 1
   lightTextures:
   - {fileID: 2800000, guid: 3b0860c3b0cd69840afe2f25901e40bf, type: 3}
   - {fileID: 2800000, guid: 5210d5a1b8835ef4682ec4c090c87e59, type: 3}
@@ -22388,6 +22389,7 @@ Transform:
   - {fileID: 634978971}
   - {fileID: 827067853}
   - {fileID: 1239838965}
+  - {fileID: 4643299636260511021}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1100782963 stripped
@@ -22533,33 +22535,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bef3071e0d9419e45991b37417b68e1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PadMathBlockDetector
---- !u!1 &1179679812 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -8391222552659086748, guid: 7dea11459da99f14d89b704eacdc9700, type: 3}
-  m_PrefabInstance: {fileID: 634978970}
-  m_PrefabAsset: {fileID: 0}
---- !u!64 &1179679816
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1179679812}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -5495902117074765545, guid: 7dea11459da99f14d89b704eacdc9700, type: 3}
 --- !u!1 &1161961791
 GameObject:
   m_ObjectHideFlags: 0
@@ -22623,6 +22598,33 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
+--- !u!1 &1179679812 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -8391222552659086748, guid: 7dea11459da99f14d89b704eacdc9700, type: 3}
+  m_PrefabInstance: {fileID: 634978970}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &1179679816
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1179679812}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -5495902117074765545, guid: 7dea11459da99f14d89b704eacdc9700, type: 3}
 --- !u!1 &1180214767
 GameObject:
   m_ObjectHideFlags: 0
@@ -28908,9 +28910,10 @@ MonoBehaviour:
   fadeOutDuration: 0.65
   fadeInDuration: 0.45
   fadeColor: {r: 0, g: 0, b: 0, a: 1}
+  resetSceneName: Fase 1
   followPlayerLookDirection: 1
   playerCamera: {fileID: 0}
-  modelRotationOffset: {x: -90, y: -90, z: 0}
+  visibleFaceYaw: 180
 --- !u!1 &1721091740
 GameObject:
   m_ObjectHideFlags: 0
