@@ -10155,6 +10155,14 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 5812351e378011a44bd3f92fd4c211a1, type: 3}
+    - target: {fileID: 753409762835158083, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -46
+      objectReference: {fileID: 0}
+    - target: {fileID: 753409762835158083, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 84
+      objectReference: {fileID: 0}
     - target: {fileID: 896254376968379585, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -10259,6 +10267,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 107.78371
       objectReference: {fileID: 0}
+    - target: {fileID: 2808892013048468628, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3516070874159659601, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0.5
@@ -10314,6 +10326,36 @@ PrefabInstance:
     - target: {fileID: 4000071153723580112, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4240319315131876135, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_text
+      value: 'Deseja voltar ao menu inicial?
+
+'
+      objectReference: {fileID: 0}
+    - target: {fileID: 4240319315131876135, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_fontSize
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 4240319315131876135, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_margin.w
+      value: 65.195885
+      objectReference: {fileID: 0}
+    - target: {fileID: 4240319315131876135, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_margin.x
+      value: 13.074493
+      objectReference: {fileID: 0}
+    - target: {fileID: 4240319315131876135, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_margin.y
+      value: -21.234177
+      objectReference: {fileID: 0}
+    - target: {fileID: 4240319315131876135, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_margin.z
+      value: -71.83626
+      objectReference: {fileID: 0}
+    - target: {fileID: 4240319315131876135, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 4535903927336306994, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_Pivot.x

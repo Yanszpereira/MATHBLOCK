@@ -189,12 +189,17 @@ public class OperatorsScript : MonoBehaviour
         bool isSceneInteraction = sceneOperator != null;
         if (!isSceneInteraction && !IsOperatorUnlocked(operatorType))
         {
+            OperatorAchievement.ShowLockedOperator();
             Debug.Log($"Operador bloqueado até ser coletado no cenário: {operatorType}.");
             return false;
         }
 
+        bool isFirstUnlock = isSceneInteraction && !IsOperatorUnlocked(operatorType);
         if (isSceneInteraction)
             UnlockOperator(operatorType);
+
+        if (isFirstUnlock)
+            OperatorAchievement.ShowOperatorUnlocked(operatorType);
 
         if (equippedSceneOperator != null && equippedSceneOperator != sceneOperator)
             equippedSceneOperator.RestoreToScene();
