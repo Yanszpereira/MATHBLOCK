@@ -97,7 +97,7 @@ public sealed class DeveloperModeController : MonoBehaviour
 
     private void LoadPhase(string sceneName)
     {
-        SceneTransitionTrigger.TryLoadScene(sceneName, this);
+        SceneTransitionManager.TryTransitionToScene(sceneName, this);
     }
 
     private void EnsureStatusText()

@@ -36,7 +36,7 @@ public class MenuController : MonoBehaviour
         AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     // =========================================================
-    // ÁUDIO FMOD
+    // ï¿½UDIO FMOD
     // =========================================================
 
     [Header("Audio UI")]
@@ -61,7 +61,7 @@ public class MenuController : MonoBehaviour
     private DynamicCrosshair globalCrosshair;
 
     // =========================================================
-    // INICIALIZAÇÃO
+    // INICIALIZAï¿½ï¿½O
     // =========================================================
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -321,7 +321,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // PREPARAÇÃO DOS MENUS
+    // PREPARAï¿½ï¿½O DOS MENUS
     // =========================================================
 
     private void PrepararMenus()
@@ -409,7 +409,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // PREPARAÇÃO DOS BOTÕES
+    // PREPARAï¿½ï¿½O DOS BOTï¿½ES
     // =========================================================
 
     private void PrepararBotoes(
@@ -483,7 +483,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // REFERÊNCIAS
+    // REFERï¿½NCIAS
     // =========================================================
 
     private void ResolveMenuReferences()
@@ -599,7 +599,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // REPARAÇÃO DOS EVENTOS DOS BOTÕES
+    // REPARAï¿½ï¿½O DOS EVENTOS DOS BOTï¿½ES
     // =========================================================
 
     private void RepairAllHudButtonCalls()
@@ -806,7 +806,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // BOTÃO VOLTAR / ESC
+    // BOTï¿½O VOLTAR / ESC
     // =========================================================
 
     public void OnBackButtonPressed()
@@ -837,7 +837,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // BOTÕES DE ABRIR
+    // BOTï¿½ES DE ABRIR
     // =========================================================
 
     public void AbrirInicial()
@@ -869,7 +869,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // BOTÕES DE FECHAR
+    // BOTï¿½ES DE FECHAR
     // =========================================================
 
     public void FecharInicial()
@@ -1064,7 +1064,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // ANIMAÇÃO DO PAPEL
+    // ANIMAï¿½ï¿½O DO PAPEL
     // =========================================================
 
     private void TocarPapel(
@@ -1115,64 +1115,41 @@ public class MenuController : MonoBehaviour
     // INICIAR JOGO
     // =========================================================
 
-    public void IniciarJogo()
+public void IniciarJogo()
     {
         TocarSomClique();
-
         Time.timeScale = 1f;
 
-        int buildIndex =
-            SceneUtility
-                .GetBuildIndexByScenePath(
-                    CaminhoCenaFase1
-                );
-
+        int buildIndex = SceneUtility.GetBuildIndexByScenePath(CaminhoCenaFase1);
         if (buildIndex < 0)
         {
-            Debug.LogError(
-                $"Cena '{CaminhoCenaFase1}' nao foi adicionada ao Build Settings ativo.",
-                this
-            );
-
+            Debug.LogError($"Cena '{CaminhoCenaFase1}' nao foi adicionada ao Build Settings ativo.", this);
             return;
         }
 
-        SceneManager.LoadScene(
-            buildIndex,
-            LoadSceneMode.Single
-        );
+        SceneTransitionManager.TryTransitionToScene(buildIndex, this);
     }
 
     // =========================================================
     // REINICIAR FASE
     // =========================================================
 
-    public void ReiniciarFase()
+public void ReiniciarFase()
     {
         TocarSomClique();
-
         RetomarJogo();
-
-        SceneManager.LoadScene(
-            SceneManager
-                .GetActiveScene()
-                .buildIndex
-        );
+        SceneTransitionManager.TryReloadCurrentScene(this);
     }
 
     // =========================================================
     // VOLTAR PARA O MENU PRINCIPAL
     // =========================================================
 
-    public void VoltarMenuPrincipal()
+public void VoltarMenuPrincipal()
     {
         TocarSomClique();
-
         RetomarJogo();
-
-        SceneManager.LoadScene(
-            "MainMenu"
-        );
+        SceneTransitionManager.TryTransitionToScene("MainMenu", this);
     }
 
     // =========================================================
@@ -1356,7 +1333,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // DESTRUIÇÃO
+    // DESTRUIï¿½ï¿½O
     // =========================================================
 
     private void OnDestroy()
