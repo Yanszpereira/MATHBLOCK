@@ -261,17 +261,11 @@ public sealed class MathBlockBeamController : MonoBehaviour
         isBeamActive = false;
         beamRevealElapsed = 0f;
         cachedHeldBlock = null;
-<<<<<<< HEAD
-        cachedResizableBlock = null;
-        cachedCollider = null;
-        cachedRenderer = null;
-        cachedOutlineRenderers = null;
-        hasAppliedOperatorColor = false;
-=======
         cachedMathBlockValue = null;
         cachedResizableBlock = null;
         cachedCollider = null;
         cachedRenderer = null;
+        hasAppliedOperatorColor = false;
     }
 
     private void ClearCachedHeldBlockOutline()
@@ -280,7 +274,6 @@ public sealed class MathBlockBeamController : MonoBehaviour
             cachedMathBlockValue.ClearHeldOutline();
 
         cachedMathBlockValue = null;
->>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
     }
 
     private void RestartBeamReveal()

@@ -43,17 +43,11 @@ public class OperatorsScript : MonoBehaviour
     private InputAction selectDivisionAction;
     private int lastInteractionFrame = -1;
     private bool lastInteractionSucceeded;
-<<<<<<< HEAD
-    private readonly HashSet<GravityInteract.PencilOperator> equippedOperators =
-        new HashSet<GravityInteract.PencilOperator>();
-=======
     private int unlockedOperatorMask;
->>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
 
     private void Awake()
     {
         ResolveReferences();
-        RememberInitiallyEquippedOperator();
         ResolveInputAction();
         SetAllIconsAlpha(unequippedAlpha);
     }
@@ -140,7 +134,7 @@ public class OperatorsScript : MonoBehaviour
     {
         ResolveReferences();
 
-        if (!HasEquippedBefore(operatorType))
+        if (!IsOperatorUnlocked(operatorType))
         {
             Debug.Log($"Operador {operatorType} ainda nao foi equipado pelo jogador.", this);
             return false;
@@ -198,12 +192,8 @@ public class OperatorsScript : MonoBehaviour
         if (pencilGun == null || operatorType == GravityInteract.PencilOperator.None)
             return false;
 
-<<<<<<< HEAD
         // Interagir diretamente com o item da cena é o momento em que o
         // operador é obtido. Depois disso, os atalhos podem selecioná-lo.
-        if (sceneOperator != null)
-            equippedOperators.Add(operatorType);
-=======
         bool isSceneInteraction = sceneOperator != null;
         if (!isSceneInteraction && !IsOperatorUnlocked(operatorType))
         {
@@ -218,7 +208,6 @@ public class OperatorsScript : MonoBehaviour
 
         if (isFirstUnlock)
             OperatorAchievement.ShowOperatorUnlocked(operatorType);
->>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
 
         if (equippedSceneOperator != null && equippedSceneOperator != sceneOperator)
             equippedSceneOperator.RestoreToScene();
@@ -235,18 +224,11 @@ public class OperatorsScript : MonoBehaviour
         return true;
     }
 
-<<<<<<< HEAD
     public bool HasEquippedBefore(GravityInteract.PencilOperator operatorType)
     {
-        return operatorType != GravityInteract.PencilOperator.None &&
-               equippedOperators.Contains(operatorType);
+        return IsOperatorUnlocked(operatorType);
     }
 
-    private void RememberInitiallyEquippedOperator()
-    {
-        if (pencilGun != null && pencilGun.EquippedOperator != GravityInteract.PencilOperator.None)
-            equippedOperators.Add(pencilGun.EquippedOperator);
-=======
     private void ResetOperatorAvailability()
     {
         unlockedOperatorMask = 0;
@@ -264,7 +246,6 @@ public class OperatorsScript : MonoBehaviour
             return;
 
         unlockedOperatorMask |= 1 << (int)operatorType;
->>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
     }
 
     private void ResolveReferences()

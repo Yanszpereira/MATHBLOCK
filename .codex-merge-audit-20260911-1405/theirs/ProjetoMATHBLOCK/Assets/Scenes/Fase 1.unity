@@ -10818,6 +10818,7 @@ PrefabInstance:
       propertyPath: m_fontSize
       value: 70
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 8633483892145667186, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: corHover.b
       value: 0.7137255
@@ -10849,7 +10850,7 @@ PrefabInstance:
     - target: {fileID: 8991399506069020369, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: escalaHover
       value: 3
-      objectReference: {fileID: 0}
+=======
     - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: clickSound.Path
       value: event:/SonsMenu
@@ -10889,6 +10890,7 @@ PrefabInstance:
     - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: hoverSound.Guid.Data4
       value: 572417815
+>>>>>>> 30572a493fa0d8e74ce62fd8812834f56d230599
       objectReference: {fileID: 0}
     - target: {fileID: 9171348539103113009, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_Sprite
@@ -16184,10 +16186,7 @@ PrefabInstance:
     - {fileID: 65702495048144492, guid: 7dea11459da99f14d89b704eacdc9700, type: 3}
     - {fileID: -8700617353114198275, guid: 7dea11459da99f14d89b704eacdc9700, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: -8391222552659086748, guid: 7dea11459da99f14d89b704eacdc9700, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1179679816}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7dea11459da99f14d89b704eacdc9700, type: 3}
 --- !u!4 &634978971 stripped
 Transform:
@@ -22380,6 +22379,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4643299636260511021}
   - {fileID: 1692666816}
   - {fileID: 1482920293}
   - {fileID: 2572095281551832465}
@@ -22533,33 +22533,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bef3071e0d9419e45991b37417b68e1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PadMathBlockDetector
---- !u!1 &1179679812 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -8391222552659086748, guid: 7dea11459da99f14d89b704eacdc9700, type: 3}
-  m_PrefabInstance: {fileID: 634978970}
-  m_PrefabAsset: {fileID: 0}
---- !u!64 &1179679816
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1179679812}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -5495902117074765545, guid: 7dea11459da99f14d89b704eacdc9700, type: 3}
 --- !u!1 &1161961791
 GameObject:
   m_ObjectHideFlags: 0
@@ -22648,7 +22621,7 @@ Transform:
   m_GameObject: {fileID: 1180214767}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.8, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -28905,12 +28878,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CountdownTimer
   tempoInicial: 300
   timerText: {fileID: 1911027188}
-  fadeOutDuration: 0.65
-  fadeInDuration: 0.45
-  fadeColor: {r: 0, g: 0, b: 0, a: 1}
-  followPlayerLookDirection: 1
-  playerCamera: {fileID: 0}
-  modelRotationOffset: {x: -90, y: -90, z: 0}
 --- !u!1 &1721091740
 GameObject:
   m_ObjectHideFlags: 0
@@ -29593,10 +29560,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5391390812584162683, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 5345bac577ab4b6449f77d4564d90954, type: 2}
     - target: {fileID: 5502320565820565413, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: m_Name
       value: Player 1 Variant

@@ -86,15 +86,6 @@ public class MathBlockValue : MonoBehaviour
         public Color color;
     }
 
-<<<<<<< HEAD
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void RegisterSceneInitializer()
-    {
-        GlobalSceneBootstrap.Register(BootstrapMathBlockLabels);
-    }
-
-    private static void BootstrapMathBlockLabels(UnityEngine.SceneManagement.Scene scene)
-=======
     private struct HeldOutlineState
     {
         public Renderer renderer;
@@ -106,9 +97,13 @@ public class MathBlockValue : MonoBehaviour
         public float pixels;
     }
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void BootstrapMathBlockLabels()
->>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneInitializer()
+    {
+        GlobalSceneBootstrap.Register(BootstrapMathBlockLabels);
+    }
+
+    private static void BootstrapMathBlockLabels(UnityEngine.SceneManagement.Scene scene)
     {
         foreach (GameObject block in GameObject.FindGameObjectsWithTag("MathBlock"))
         {
