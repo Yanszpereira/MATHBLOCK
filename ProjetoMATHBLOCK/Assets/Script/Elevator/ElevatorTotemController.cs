@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using FMOD.Studio;
+using FMODUnity;
 
 /// <summary>
 /// Controls the locked/unlocked state, endpoint calls and movement of the
@@ -35,6 +37,15 @@ public sealed class ElevatorTotemController : MonoBehaviour
     [SerializeField] private float moveSpeed = 3f;
     [Tooltip("Destino mundial editavel pelo gizmo PFinal.")]
     [SerializeField] private Vector3 finalDestination;
+
+    [Header("Audio FMOD - Ilha")]
+    [Tooltip("Impacto/WHOOOM tocado quando a ilha comeca a se mover.")]
+    [SerializeField] private EventReference islandStartSfx;
+    [Tooltip("Rumble continuo enquanto a ilha estiver se movendo. Configure este evento como loop no FMOD.")]
+    [SerializeField] private EventReference islandMoveSfx;
+    [Tooltip("Impacto/THUUUM tocado quando a ilha chega ao destino.")]
+    [SerializeField] private EventReference islandStopSfx;
+
     [Header("Objetos sobre a plataforma")]
     [SerializeField, Min(0.02f)] private float passengerDetectionHeight = 0.3f;
     [SerializeField, Min(0f)] private float passengerDetectionMargin = 0.08f;
@@ -63,6 +74,7 @@ public sealed class ElevatorTotemController : MonoBehaviour
     private readonly List<Transform> passengersToDetach = new List<Transform>();
     private Collider[] platformColliders;
     private Collider[] passengerOverlapBuffer = new Collider[64];
+    private EventInstance islandMoveInstance;
 
     private sealed class PlatformPassengerState
     {
@@ -117,6 +129,7 @@ public sealed class ElevatorTotemController : MonoBehaviour
         if (verificationPad != null)
             verificationPad.ValueDetected -= OnVerificationValueDetected;
 
+        StopIslandMovementAudio(false);
         DetachAllPassengers();
     }
 
@@ -134,6 +147,7 @@ public sealed class ElevatorTotemController : MonoBehaviour
             platform.position = targetPosition;
             state = IsAtInitial(targetPosition) ? ElevatorState.IdleAtInitial : ElevatorState.IdleAtFinal;
             SetAttachedPassengerPhysics(false);
+            StopIslandMovementAudio(true);
         }
     }
 
@@ -211,6 +225,7 @@ public sealed class ElevatorTotemController : MonoBehaviour
         if (platform == null)
             return;
 
+        bool wasMoving = IsMoving;
         targetPosition = destination;
 
         if (Vector3.SqrMagnitude(platform.position - destination) < 0.000001f)
@@ -223,6 +238,38 @@ public sealed class ElevatorTotemController : MonoBehaviour
 
         state = IsAtInitial(destination) ? ElevatorState.MovingToInitial : ElevatorState.MovingToFinal;
         SetAttachedPassengerPhysics(true);
+
+        if (!wasMoving)
+            StartIslandMovementAudio();
+    }
+
+    private void StartIslandMovementAudio()
+    {
+        if (platform == null)
+            return;
+
+        if (!islandStartSfx.IsNull)
+            RuntimeManager.PlayOneShotAttached(islandStartSfx, platform.gameObject);
+
+        if (islandMoveSfx.IsNull || islandMoveInstance.isValid())
+            return;
+
+        islandMoveInstance = RuntimeManager.CreateInstance(islandMoveSfx);
+        RuntimeManager.AttachInstanceToGameObject(islandMoveInstance, platform);
+        islandMoveInstance.start();
+    }
+
+    private void StopIslandMovementAudio(bool playStopImpact)
+    {
+        if (islandMoveInstance.isValid())
+        {
+            islandMoveInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            islandMoveInstance.release();
+            islandMoveInstance = default;
+        }
+
+        if (playStopImpact && platform != null && !islandStopSfx.IsNull)
+            RuntimeManager.PlayOneShotAttached(islandStopSfx, platform.gameObject);
     }
 
     private void CreateButtonInstances()

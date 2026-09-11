@@ -43,8 +43,12 @@ public class OperatorsScript : MonoBehaviour
     private InputAction selectDivisionAction;
     private int lastInteractionFrame = -1;
     private bool lastInteractionSucceeded;
+<<<<<<< HEAD
     private readonly HashSet<GravityInteract.PencilOperator> equippedOperators =
         new HashSet<GravityInteract.PencilOperator>();
+=======
+    private int unlockedOperatorMask;
+>>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
 
     private void Awake()
     {
@@ -52,6 +56,11 @@ public class OperatorsScript : MonoBehaviour
         RememberInitiallyEquippedOperator();
         ResolveInputAction();
         SetAllIconsAlpha(unequippedAlpha);
+    }
+
+    private void Start()
+    {
+        ResetOperatorAvailability();
     }
 
     private void OnEnable()
@@ -144,6 +153,15 @@ public class OperatorsScript : MonoBehaviour
         return SelectOperator(operatorType, null, soundPosition);
     }
 
+    public bool IsOperatorUnlocked(GravityInteract.PencilOperator operatorType)
+    {
+        if (operatorType == GravityInteract.PencilOperator.None)
+            return false;
+
+        int operatorBit = 1 << (int)operatorType;
+        return (unlockedOperatorMask & operatorBit) != 0;
+    }
+
     private bool TryInteractWithOperator()
     {
         if (lastInteractionFrame == Time.frameCount)
@@ -180,10 +198,27 @@ public class OperatorsScript : MonoBehaviour
         if (pencilGun == null || operatorType == GravityInteract.PencilOperator.None)
             return false;
 
+<<<<<<< HEAD
         // Interagir diretamente com o item da cena é o momento em que o
         // operador é obtido. Depois disso, os atalhos podem selecioná-lo.
         if (sceneOperator != null)
             equippedOperators.Add(operatorType);
+=======
+        bool isSceneInteraction = sceneOperator != null;
+        if (!isSceneInteraction && !IsOperatorUnlocked(operatorType))
+        {
+            OperatorAchievement.ShowLockedOperator();
+            Debug.Log($"Operador bloqueado até ser coletado no cenário: {operatorType}.");
+            return false;
+        }
+
+        bool isFirstUnlock = isSceneInteraction && !IsOperatorUnlocked(operatorType);
+        if (isSceneInteraction)
+            UnlockOperator(operatorType);
+
+        if (isFirstUnlock)
+            OperatorAchievement.ShowOperatorUnlocked(operatorType);
+>>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
 
         if (equippedSceneOperator != null && equippedSceneOperator != sceneOperator)
             equippedSceneOperator.RestoreToScene();
@@ -200,6 +235,7 @@ public class OperatorsScript : MonoBehaviour
         return true;
     }
 
+<<<<<<< HEAD
     public bool HasEquippedBefore(GravityInteract.PencilOperator operatorType)
     {
         return operatorType != GravityInteract.PencilOperator.None &&
@@ -210,6 +246,25 @@ public class OperatorsScript : MonoBehaviour
     {
         if (pencilGun != null && pencilGun.EquippedOperator != GravityInteract.PencilOperator.None)
             equippedOperators.Add(pencilGun.EquippedOperator);
+=======
+    private void ResetOperatorAvailability()
+    {
+        unlockedOperatorMask = 0;
+        equippedSceneOperator = null;
+
+        if (pencilGun != null)
+            pencilGun.ClearEquippedOperator();
+
+        SetAllIconsAlpha(unequippedAlpha);
+    }
+
+    private void UnlockOperator(GravityInteract.PencilOperator operatorType)
+    {
+        if (operatorType == GravityInteract.PencilOperator.None)
+            return;
+
+        unlockedOperatorMask |= 1 << (int)operatorType;
+>>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
     }
 
     private void ResolveReferences()

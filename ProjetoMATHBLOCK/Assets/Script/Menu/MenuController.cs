@@ -41,6 +41,7 @@ public class MenuController : MonoBehaviour
 
     [Header("Audio UI")]
     [SerializeField] private EventReference clickSound;
+    [SerializeField] private EventReference hoverSound;
 
     // =========================================================
 
@@ -474,14 +475,19 @@ public class MenuController : MonoBehaviour
                 }
             }
 
-            if (
-                button.GetComponent<HoverScale>() ==
-                null
-            )
+            HoverScale hoverScale =
+                button.GetComponent<HoverScale>();
+
+            if (hoverScale == null)
             {
-                button.gameObject
-                    .AddComponent<HoverScale>();
+                hoverScale =
+                    button.gameObject
+                        .AddComponent<HoverScale>();
             }
+
+            hoverScale.ConfigureHoverSound(
+                hoverSound
+            );
 
             RepairMissingPersistentCalls(button);
         }
@@ -1120,64 +1126,41 @@ public class MenuController : MonoBehaviour
     // INICIAR JOGO
     // =========================================================
 
-    public void IniciarJogo()
+public void IniciarJogo()
     {
         TocarSomClique();
-
         Time.timeScale = 1f;
 
-        int buildIndex =
-            SceneUtility
-                .GetBuildIndexByScenePath(
-                    CaminhoCenaFase1
-                );
-
+        int buildIndex = SceneUtility.GetBuildIndexByScenePath(CaminhoCenaFase1);
         if (buildIndex < 0)
         {
-            Debug.LogError(
-                $"Cena '{CaminhoCenaFase1}' nao foi adicionada ao Build Settings ativo.",
-                this
-            );
-
+            Debug.LogError($"Cena '{CaminhoCenaFase1}' nao foi adicionada ao Build Settings ativo.", this);
             return;
         }
 
-        SceneManager.LoadScene(
-            buildIndex,
-            LoadSceneMode.Single
-        );
+        SceneTransitionManager.TryTransitionToScene(buildIndex, this);
     }
 
     // =========================================================
     // REINICIAR FASE
     // =========================================================
 
-    public void ReiniciarFase()
+public void ReiniciarFase()
     {
         TocarSomClique();
-
         RetomarJogo();
-
-        SceneManager.LoadScene(
-            SceneManager
-                .GetActiveScene()
-                .buildIndex
-        );
+        SceneTransitionManager.TryReloadCurrentScene(this);
     }
 
     // =========================================================
     // VOLTAR PARA O MENU PRINCIPAL
     // =========================================================
 
-    public void VoltarMenuPrincipal()
+public void VoltarMenuPrincipal()
     {
         TocarSomClique();
-
         RetomarJogo();
-
-        SceneManager.LoadScene(
-            "MainMenu"
-        );
+        SceneTransitionManager.TryTransitionToScene("MainMenu", this);
     }
 
     // =========================================================

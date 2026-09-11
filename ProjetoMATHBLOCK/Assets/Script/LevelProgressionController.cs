@@ -74,10 +74,7 @@ public sealed class LevelProgressionController : MonoBehaviour
         Cursor.lockState = nextScene == "MainMenu" ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = nextScene == "MainMenu";
 
-        if (Application.CanStreamedLevelBeLoaded(nextScene))
-            SceneManager.LoadScene(nextScene);
-        else
-            Debug.LogError($"Próxima cena '{nextScene}' não está no Build Settings.", this);
+        SceneTransitionManager.TryTransitionToScene(nextScene, this);
     }
 
     private static string GetNextScene(string currentScene)

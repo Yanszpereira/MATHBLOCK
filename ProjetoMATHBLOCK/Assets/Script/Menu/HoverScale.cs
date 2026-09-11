@@ -1,13 +1,17 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using FMODUnity;
 
 public class HoverScale : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     IPointerDownHandler, IPointerUpHandler
 {
-    [SerializeField] private float escalaHover = 1.1f;
+    [SerializeField] private float escalaHover = 1.4f;
     [SerializeField] private float velocidade = 10f;
-    [SerializeField] private Color corHover = new Color(0.72f, 1f, 0.92f, 1f);
+    [SerializeField] private Color corHover = new Color(0.9529412f, 0.8627451f, 0.7137255f, 1f); // hex F3DCB6
+
+    [Header("Audio FMOD")]
+    [SerializeField] private EventReference hoverSound;
 
     private Vector3 escalaOriginal;
     private Vector3 escalaAlvo;
@@ -40,9 +44,26 @@ public class HoverScale : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             graphic.color = Color.Lerp(graphic.color, corAlvo, t);
     }
 
+    public void ConfigureHoverSound(EventReference sound)
+    {
+        hoverSound = sound;
+    }
+
+    private void TocarSomHover()
+    {
+        if (hoverSound.IsNull)
+            return;
+
+        RuntimeManager.PlayOneShot(
+            hoverSound,
+            transform.position
+        );
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         cursorSobre = true;
+        TocarSomHover();
         // Alguns prefabs antigos possuem valor 3; limita para evitar o botao cobrir o menu.
         escalaAlvo = escalaOriginal * Mathf.Clamp(escalaHover, 1.06f, 1.18f);
         corAlvo = PreservarAlpha(corHover, corOriginal.a);

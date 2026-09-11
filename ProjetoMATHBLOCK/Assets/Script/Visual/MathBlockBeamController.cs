@@ -29,6 +29,7 @@ public sealed class MathBlockBeamController : MonoBehaviour
     private Vector3[] points;
     private Transform cachedHeldBlock;
     private ResizableBlock cachedResizableBlock;
+    private MathBlockValue cachedMathBlockValue;
     private BoxCollider cachedCollider;
     private Renderer cachedRenderer;
     private Renderer[] cachedOutlineRenderers;
@@ -129,6 +130,8 @@ public sealed class MathBlockBeamController : MonoBehaviour
             hasAppliedOperatorColor = true;
         }
 
+        cachedMathBlockValue?.SetHeldOutline(lineRenderer.startColor);
+
         Vector3 start = beamOrigin.position;
         Vector3 end = GetHeldBlockCenter();
         Vector3 midpoint = (start + end) * 0.5f;
@@ -153,7 +156,11 @@ public sealed class MathBlockBeamController : MonoBehaviour
 
     private void CacheHeldBlock(Transform heldBlock)
     {
+        ClearCachedHeldBlockOutline();
         cachedHeldBlock = heldBlock;
+        cachedMathBlockValue = heldBlock != null
+            ? heldBlock.GetComponent<MathBlockValue>()
+            : null;
         cachedResizableBlock = heldBlock != null
             ? heldBlock.GetComponent<ResizableBlock>()
             : null;
@@ -245,6 +252,8 @@ public sealed class MathBlockBeamController : MonoBehaviour
 
     private void DisableBeam()
     {
+        ClearCachedHeldBlockOutline();
+
         if (lineRenderer != null)
             lineRenderer.enabled = false;
 
@@ -252,11 +261,26 @@ public sealed class MathBlockBeamController : MonoBehaviour
         isBeamActive = false;
         beamRevealElapsed = 0f;
         cachedHeldBlock = null;
+<<<<<<< HEAD
         cachedResizableBlock = null;
         cachedCollider = null;
         cachedRenderer = null;
         cachedOutlineRenderers = null;
         hasAppliedOperatorColor = false;
+=======
+        cachedMathBlockValue = null;
+        cachedResizableBlock = null;
+        cachedCollider = null;
+        cachedRenderer = null;
+    }
+
+    private void ClearCachedHeldBlockOutline()
+    {
+        if (cachedMathBlockValue != null)
+            cachedMathBlockValue.ClearHeldOutline();
+
+        cachedMathBlockValue = null;
+>>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
     }
 
     private void RestartBeamReveal()

@@ -12,6 +12,9 @@ public class MathBlockValue : MonoBehaviour
     private const string StretchBlockToonShaderName = "MathBlock/Stretch Block Toon";
     private const float LabelWorldScale = 0.75f;
     private const float MinimumParentScale = 0.0001f;
+    private static readonly int OutlineColorId = Shader.PropertyToID("_OutlineColor");
+    private static readonly int OutlineWidthId = Shader.PropertyToID("_OutlineWidth");
+    private static readonly int OutlinePixelsId = Shader.PropertyToID("_OutlinePixels");
 
     private static readonly (string name, Vector3 direction)[] FaceLabels =
     {
@@ -43,6 +46,7 @@ public class MathBlockValue : MonoBehaviour
     [SerializeField] private Color labelColor = Color.white;
     [SerializeField] private bool randomizeColorOnStart = true;
     [SerializeField] private int blockId = -1;
+    [SerializeField, Min(1f)] private float heldOutlineWidthMultiplier = 2f;
 
     private Vector3 baseScale;
     private Quaternion originalRotation;
@@ -55,6 +59,9 @@ public class MathBlockValue : MonoBehaviour
     private bool hasPreviewValue;
     private int previewValue;
     private float labelOpacity = 1f;
+    private List<HeldOutlineState> heldOutlineStates;
+    private bool heldOutlineActive;
+    private Color heldOutlineColor;
 
     public int CurrentValue => currentValue;
     public int BlockId => blockId;
@@ -79,6 +86,7 @@ public class MathBlockValue : MonoBehaviour
         public Color color;
     }
 
+<<<<<<< HEAD
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneInitializer()
     {
@@ -86,6 +94,21 @@ public class MathBlockValue : MonoBehaviour
     }
 
     private static void BootstrapMathBlockLabels(UnityEngine.SceneManagement.Scene scene)
+=======
+    private struct HeldOutlineState
+    {
+        public Renderer renderer;
+        public bool hasColor;
+        public Color color;
+        public bool hasWidth;
+        public float width;
+        public bool hasPixels;
+        public float pixels;
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void BootstrapMathBlockLabels()
+>>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
     {
         foreach (GameObject block in GameObject.FindGameObjectsWithTag("MathBlock"))
         {
@@ -354,6 +377,106 @@ public class MathBlockValue : MonoBehaviour
 
         color = Color.white;
         return false;
+    }
+
+    public void SetHeldOutline(Color color)
+    {
+        if (heldOutlineActive && heldOutlineColor == color)
+            return;
+
+        if (heldOutlineStates == null)
+            heldOutlineStates = new List<HeldOutlineState>();
+
+        if (!heldOutlineActive)
+            CaptureHeldOutlineStates();
+
+        float widthMultiplier = Mathf.Max(1f, heldOutlineWidthMultiplier);
+        for (int stateIndex = 0; stateIndex < heldOutlineStates.Count; stateIndex++)
+        {
+            HeldOutlineState state = heldOutlineStates[stateIndex];
+            if (state.renderer == null)
+                continue;
+
+            state.renderer.GetPropertyBlock(propertyBlock);
+            if (state.hasColor)
+                propertyBlock.SetColor(OutlineColorId, color);
+            if (state.hasWidth)
+                propertyBlock.SetFloat(OutlineWidthId, state.width * widthMultiplier);
+            if (state.hasPixels)
+                propertyBlock.SetFloat(OutlinePixelsId, state.pixels * widthMultiplier);
+            state.renderer.SetPropertyBlock(propertyBlock);
+        }
+
+        heldOutlineColor = color;
+        heldOutlineActive = heldOutlineStates.Count > 0;
+    }
+
+    public void ClearHeldOutline()
+    {
+        if (!heldOutlineActive || heldOutlineStates == null)
+            return;
+
+        for (int stateIndex = 0; stateIndex < heldOutlineStates.Count; stateIndex++)
+        {
+            HeldOutlineState state = heldOutlineStates[stateIndex];
+            if (state.renderer == null)
+                continue;
+
+            state.renderer.GetPropertyBlock(propertyBlock);
+            if (state.hasColor)
+                propertyBlock.SetColor(OutlineColorId, state.color);
+            if (state.hasWidth)
+                propertyBlock.SetFloat(OutlineWidthId, state.width);
+            if (state.hasPixels)
+                propertyBlock.SetFloat(OutlinePixelsId, state.pixels);
+            state.renderer.SetPropertyBlock(propertyBlock);
+        }
+
+        heldOutlineStates.Clear();
+        heldOutlineActive = false;
+    }
+
+    private void CaptureHeldOutlineStates()
+    {
+        heldOutlineStates.Clear();
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+        for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+        {
+            Renderer targetRenderer = renderers[rendererIndex];
+            if (targetRenderer == null || IsLabelRenderer(targetRenderer))
+                continue;
+
+            Material[] materials = targetRenderer.sharedMaterials;
+            HeldOutlineState state = new HeldOutlineState { renderer = targetRenderer };
+            for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
+            {
+                Material material = materials[materialIndex];
+                if (material == null)
+                    continue;
+
+                if (!state.hasColor && material.HasProperty(OutlineColorId))
+                {
+                    state.hasColor = true;
+                    state.color = material.GetColor(OutlineColorId);
+                }
+
+                if (!state.hasWidth && material.HasProperty(OutlineWidthId))
+                {
+                    state.hasWidth = true;
+                    state.width = material.GetFloat(OutlineWidthId);
+                }
+
+                if (!state.hasPixels && material.HasProperty(OutlinePixelsId))
+                {
+                    state.hasPixels = true;
+                    state.pixels = material.GetFloat(OutlinePixelsId);
+                }
+            }
+
+            if (state.hasColor || state.hasWidth || state.hasPixels)
+                heldOutlineStates.Add(state);
+        }
     }
 
     public bool TryUndoLastOperation(float spawnHeight)

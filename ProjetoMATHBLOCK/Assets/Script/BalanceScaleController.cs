@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using TMPro;
 
 /// <summary>
 /// Reads MathBlockValue from blocks resting on either tray and drives the
@@ -128,12 +129,13 @@ public sealed class BalanceScaleController : MonoBehaviour
     private int pendingVisualRightWeight;
     private float pendingVisualSince;
     private bool hasPendingVisualState;
-    private TextMesh leftSmallBalanceText;
-    private TextMesh rightSmallBalanceText;
-    private Material smallBalanceTextDepthMaterial;
+    private TextMeshPro leftSmallBalanceText;
+    private TextMeshPro rightSmallBalanceText;
     private bool hasBalanceState;
     private bool lastBalanced;
     private bool hasWarnedAboutCombinedMesh;
+
+    public bool IsSmallBalance => isSmallBalance;
 
     public int LeftWeight { get; private set; }
     public int RightWeight { get; private set; }
@@ -210,7 +212,7 @@ public sealed class BalanceScaleController : MonoBehaviour
         rightSmallBalanceText = GetOrCreateSmallBalanceText(textRoot, RightValueTextName);
     }
 
-    private TextMesh GetOrCreateSmallBalanceText(Transform parent, string textName)
+private TextMeshPro GetOrCreateSmallBalanceText(Transform parent, string textName)
     {
         Transform textTransform = parent.Find(textName);
         if (textTransform == null)
@@ -220,56 +222,53 @@ public sealed class BalanceScaleController : MonoBehaviour
             textTransform.SetParent(parent, false);
         }
 
-        TextMesh textMesh = textTransform.GetComponent<TextMesh>();
-        if (textMesh == null)
-            textMesh = textTransform.gameObject.AddComponent<TextMesh>();
+        TextMesh legacyText = textTransform.GetComponent<TextMesh>();
+        if (legacyText != null)
+        {
+            if (Application.isPlaying)
+                Destroy(legacyText);
+            else
+                DestroyImmediate(legacyText);
+        }
 
-        textMesh.anchor = TextAnchor.MiddleCenter;
-        textMesh.alignment = TextAlignment.Center;
+        TextMeshPro textMesh = textTransform.GetComponent<TextMeshPro>();
+        if (textMesh == null)
+            textMesh = textTransform.gameObject.AddComponent<TextMeshPro>();
+
+        textMesh.alignment = TextAlignmentOptions.Center;
+        textMesh.enableWordWrapping = false;
         textMesh.fontSize = Mathf.Max(1, smallBalanceTextFontSize);
-        textMesh.characterSize = Mathf.Max(0.001f, smallBalanceTextCharacterSize);
         textMesh.color = smallBalanceEqualColor;
-        ApplyWorldDepthMaterial(textMesh);
+        ApplySmallBalanceTextOutline(textMesh);
         CompensateSmallBalanceTextScale(textMesh);
         return textMesh;
     }
 
-    private void ApplyWorldDepthMaterial(TextMesh textMesh)
+private static void ApplySmallBalanceTextOutline(TextMeshPro textMesh)
     {
         if (textMesh == null)
             return;
 
-        MeshRenderer renderer = textMesh.GetComponent<MeshRenderer>();
-        if (renderer == null)
-            return;
+        const float outlineWidth = 0.5f;
+        textMesh.outlineColor = Color.white;
+        textMesh.outlineWidth = outlineWidth;
 
-        if (smallBalanceTextDepthMaterial == null)
+        Material material = textMesh.fontMaterial;
+        if (material != null)
         {
-            Shader shader = Shader.Find("Sprites/Default");
-            if (shader == null)
-            {
-                Debug.LogWarning($"{name}: Sprites/Default was not found; value texts will keep the UI font material.", this);
-                return;
-            }
-
-            smallBalanceTextDepthMaterial = new Material(shader)
-            {
-                name = "SmallBalanceTextDepthMaterial"
-            };
-
-            Material fontMaterial = textMesh.font != null ? textMesh.font.material : null;
-            if (fontMaterial != null && fontMaterial.HasProperty("_MainTex"))
-                smallBalanceTextDepthMaterial.SetTexture("_MainTex", fontMaterial.GetTexture("_MainTex"));
-            if (fontMaterial != null && fontMaterial.HasProperty("_Color"))
-                smallBalanceTextDepthMaterial.SetColor("_Color", fontMaterial.GetColor("_Color"));
-            else
-                smallBalanceTextDepthMaterial.SetColor("_Color", Color.white);
+            if (material.HasProperty("_OutlineColor"))
+                material.SetColor("_OutlineColor", Color.white);
+            if (material.HasProperty("_OutlineWidth"))
+                material.SetFloat("_OutlineWidth", outlineWidth);
         }
 
-        renderer.sharedMaterial = smallBalanceTextDepthMaterial;
+        textMesh.UpdateMeshPadding();
     }
 
-    private void UpdateSmallBalanceTexts()
+
+
+
+private void UpdateSmallBalanceTexts()
     {
         if (leftSmallBalanceText == null || rightSmallBalanceText == null)
             CreateSmallBalanceValueTexts();
@@ -284,7 +283,7 @@ public sealed class BalanceScaleController : MonoBehaviour
         UpdateSmallBalanceText(rightSmallBalanceText, rightLateralPoint, rightValue, stateColor);
     }
 
-    private void UpdateSmallBalanceText(TextMesh textMesh, Transform point, int value, Color color)
+private void UpdateSmallBalanceText(TextMeshPro textMesh, Transform point, int value, Color color)
     {
         if (textMesh == null || point == null)
             return;
@@ -293,10 +292,11 @@ public sealed class BalanceScaleController : MonoBehaviour
         FaceSmallBalanceTextTowardPlayer(textMesh);
         CompensateSmallBalanceTextScale(textMesh);
         textMesh.color = color;
+        ApplySmallBalanceTextOutline(textMesh);
         textMesh.text = value.ToString();
     }
 
-    private static void FaceSmallBalanceTextTowardPlayer(TextMesh textMesh)
+private static void FaceSmallBalanceTextTowardPlayer(TextMeshPro textMesh)
     {
         Camera playerCamera = Camera.main;
         if (textMesh == null || playerCamera == null)
@@ -307,23 +307,22 @@ public sealed class BalanceScaleController : MonoBehaviour
         if (toPlayer.sqrMagnitude < 0.0001f)
             return;
 
-        // TextMesh fronts are opposite the local forward direction in this setup.
-        // The 180-degree Y correction makes the glyph front face the player.
         textMesh.transform.rotation =
             Quaternion.LookRotation(toPlayer.normalized, Vector3.up) *
             Quaternion.Euler(0f, 180f, 0f);
     }
 
-    private static void CompensateSmallBalanceTextScale(TextMesh textMesh)
+private void CompensateSmallBalanceTextScale(TextMeshPro textMesh)
     {
         if (textMesh == null || textMesh.transform.parent == null)
             return;
 
         Vector3 parentScale = textMesh.transform.parent.lossyScale;
+        float visualScale = Mathf.Max(0.001f, smallBalanceTextCharacterSize);
         textMesh.transform.localScale = new Vector3(
-            SafeInverseScale(parentScale.x),
-            SafeInverseScale(parentScale.y),
-            SafeInverseScale(parentScale.z));
+            SafeInverseScale(parentScale.x) * visualScale,
+            SafeInverseScale(parentScale.y) * visualScale,
+            SafeInverseScale(parentScale.z) * visualScale);
     }
 
     private static float SafeInverseScale(float value)

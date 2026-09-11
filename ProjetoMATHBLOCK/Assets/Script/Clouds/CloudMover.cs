@@ -217,6 +217,9 @@ public class CloudMover : MonoBehaviour
 
         foreach (ParticleFadeTarget particleFadeTarget in particleFadeTargets)
         {
+            if (particleFadeTarget.ParticleSystem == null)
+                continue;
+
             ParticleSystem.MainModule main = particleFadeTarget.ParticleSystem.main;
             main.startColor = ApplyAlphaToGradient(particleFadeTarget.OriginalStartColor, alpha);
         }

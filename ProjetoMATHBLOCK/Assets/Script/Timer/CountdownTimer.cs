@@ -124,8 +124,17 @@ public class CountdownTimer : MonoBehaviour
         tempoAtual -= Time.deltaTime;
         if (tempoAtual > 0f)
         {
+<<<<<<< HEAD
             AtualizarTexto();
             return;
+=======
+            tempoAtual = 0;
+            contando = false;
+
+            Debug.Log("Tempo esgotado!");
+            // Aqui voc� pode chamar Game Over
+            SceneTransitionManager.TryTransitionToScene("Fase 1", this);
+>>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
         }
 
         tempoAtual = 0f;
@@ -158,6 +167,7 @@ public class CountdownTimer : MonoBehaviour
         TimerResetFadeCompletion.Attach(fadeGroup, fadeInDuration);
         SceneManager.LoadScene(resetSceneName, LoadSceneMode.Single);
     }
+<<<<<<< HEAD
 
     private void EnsureFadeOverlay(float initialAlpha)
     {
@@ -302,4 +312,6 @@ internal sealed class TimerResetFadeCompletion : MonoBehaviour
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
+=======
+>>>>>>> f6d3b363c6be784869f6b52c7564c8fb55016096
 }

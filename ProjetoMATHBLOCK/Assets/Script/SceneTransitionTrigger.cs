@@ -45,22 +45,31 @@ public sealed class SceneTransitionTrigger : MonoBehaviour
 
     private void LoadDestinationScene()
     {
+        if (!TryLoadScene(destinationSceneName, this))
+            return;
+
+        transitionStarted = true;
+    }
+
+    public static bool TryLoadScene(string destinationSceneName, Object logContext = null)
+    {
         if (string.IsNullOrWhiteSpace(destinationSceneName))
         {
-            Debug.LogError($"{nameof(SceneTransitionTrigger)} em '{name}' não possui uma cena de destino.", this);
-            return;
+            Debug.LogError(
+                $"{nameof(SceneTransitionTrigger)} não possui uma cena de destino.",
+                logContext);
+            return false;
         }
 
         if (!Application.CanStreamedLevelBeLoaded(destinationSceneName))
         {
             Debug.LogError(
                 $"A cena de destino '{destinationSceneName}' não está no Build Settings ou não pode ser carregada.",
-                this);
-            return;
+                logContext);
+            return false;
         }
 
-        transitionStarted = true;
-        SceneManager.LoadScene(destinationSceneName, LoadSceneMode.Single);
+        return SceneTransitionManager.TryTransitionToScene(destinationSceneName, logContext);
     }
 
     private void ConfigureTriggerCollider()

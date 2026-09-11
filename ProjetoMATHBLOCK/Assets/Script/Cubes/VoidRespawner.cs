@@ -152,6 +152,9 @@ public class VoidRespawner : MonoBehaviour
 
     private void RespawnPlayer(PlayerMovement player)
     {
+        if (SceneTransitionManager.IsTransitioning)
+            return;
+
         int instanceId = player.gameObject.GetInstanceID();
         if (respawningPlayers.Contains(instanceId) || !CanRespawn(instanceId))
             return;
@@ -179,6 +182,14 @@ public class VoidRespawner : MonoBehaviour
     }
 
     private void TeleportPlayer(PlayerMovement player)
+    {
+        if (player == null)
+            return;
+
+        SceneTransitionManager.TryExecuteWithFade(() => RespawnPlayerBehindFade(player), this);
+    }
+
+    private void RespawnPlayerBehindFade(PlayerMovement player)
     {
         if (player == null)
             return;
