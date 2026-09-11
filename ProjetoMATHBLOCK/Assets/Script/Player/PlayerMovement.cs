@@ -151,7 +151,9 @@ public class PlayerMovement : MonoBehaviour
         if (jumpSound.IsNull)
             return;
 
-        RuntimeManager.PlayOneShot(jumpSound, transform.position);
+        // Mantem o som preso ao player durante o inicio do salto.
+        // Isso evita que um SFX 3D fique para tras enquanto o jogador se move.
+        RuntimeManager.PlayOneShotAttached(jumpSound, gameObject);
     }
 
     private void HandleVoidFallSound(bool isGrounded)
@@ -186,7 +188,11 @@ public class PlayerMovement : MonoBehaviour
             return;
 
         hasPlayedVoidFallSound = true;
-        RuntimeManager.PlayOneShot(voidFallSound, transform.position);
+
+        // O player continua caindo depois que o som dispara. PlayOneShot em uma
+        // posicao fixa deixaria a fonte acima dele; Attached faz o SFX acompanhar
+        // o player durante toda a queda.
+        RuntimeManager.PlayOneShotAttached(voidFallSound, gameObject);
     }
 
     private void ResetFootstepTimer()
