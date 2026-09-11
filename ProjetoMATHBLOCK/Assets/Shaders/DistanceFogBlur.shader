@@ -15,10 +15,12 @@ Shader "Hidden/MathBlock/DistanceFogBlur"
             sampler2D _MainTex;
             UNITY_DECLARE_DEPTH_TEXTURE(_CameraDepthTexture);
             sampler2D _ExclusionMask;
+            sampler2D _DotExclusionMask;
             float4 _MainTex_TexelSize;
             float4 _ExclusionMask_TexelSize; // preencher via material.SetTextureOffset/SetVector no script, ou deixar Unity popular automaticamente se o nome bater com uma textura setada via SetTexture
             float _StartDistance, _FullDistance, _BlurRadius;
             float _FogColorStrength, _DotStrength, _DotScale, _MobileQuality;
+            float _GroundDotScale, _GroundDotStrength;
             float _DownLook, _DownDarkening;
             fixed4 _FogColor, _DotColor;
 
@@ -81,12 +83,15 @@ Shader "Hidden/MathBlock/DistanceFogBlur"
                 half lowerScreen = 1.0h - smoothstep(0.08, 0.92, input.uv.y);
 
                 // Pontos discretos: modulam levemente a neblina, sem virar ruído forte.
-                float2 cell = frac(input.pos.xy / max(2.0, _DotScale)) - 0.5;
+                half groundMask = saturate(tex2D(_DotExclusionMask, input.uv).r);
+                float localDotScale = lerp(_DotScale, _GroundDotScale, groundMask);
+                float2 cell = frac(input.pos.xy / max(2.0, localDotScale)) - 0.5;
                 half dot = 1.0 - smoothstep(0.18, 0.29, length(cell));
                 // Ao olhar para baixo, os pontos deixam de depender da distancia.
                 // Assim continuam visiveis inclusive no chao perto do jogador.
                 half dotCoverage = max(fog, localDownLook * (0.55h + lowerScreen * 0.45h));
-                half dottedAmount = dot * dotCoverage * _DotStrength * lerp(1.0h, 1.65h, localDownLook);
+                half dottedAmount = dot * dotCoverage * _DotStrength * lerp(1.0h, 1.65h, localDownLook)
+                    * lerp(1.0h, _GroundDotStrength, groundMask);
                 color = lerp(color, _DotColor.rgb, dottedAmount);
 
                 // Atmosfera inferior: quanto mais a camera aponta para baixo,

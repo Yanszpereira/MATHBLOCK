@@ -141,6 +141,7 @@ public class CountdownTimer : MonoBehaviour
             yield break;
 
         resetStarted = true;
+        BlockResizeController.ExitAllForSceneTransition();
         Scene activeScene = SceneManager.GetActiveScene();
         Debug.Log($"Tempo esgotado em {activeScene.name}. Reiniciando o jogo em {resetSceneName}.", this);
 
@@ -157,6 +158,7 @@ public class CountdownTimer : MonoBehaviour
         }
 
         TimerResetFadeCompletion.Attach(fadeGroup, fadeInDuration);
+        BlockResizeController.ExitAllForSceneTransition();
         SceneManager.LoadScene(resetSceneName, LoadSceneMode.Single);
     }
 
@@ -280,6 +282,7 @@ internal sealed class TimerResetFadeCompletion : MonoBehaviour
     {
         // Um frame garante que a camera e a HUD globais já foram inicializadas.
         yield return null;
+        BlockResizeController.RestoreGameplayControls(SceneManager.GetActiveScene());
         float elapsed = 0f;
         while (group != null && elapsed < duration)
         {

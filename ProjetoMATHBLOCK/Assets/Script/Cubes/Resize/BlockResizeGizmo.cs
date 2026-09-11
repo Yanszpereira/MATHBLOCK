@@ -129,10 +129,11 @@ public sealed class BlockResizeGizmo : MonoBehaviour
         );
 
         PositionHandle(topHandle, layout.Top, verticalScreenAxisWorld);
-        Vector3 bottomPosition = layout.Bottom;
-        if (Mathf.Abs(Vector3.Dot(faceNormalWorld, Vector3.up)) < 0.5f)
-            bottomPosition += verticalScreenAxisWorld * bottomHandleGroundClearance;
-        PositionHandle(bottomHandle, bottomPosition, -verticalScreenAxisWorld);
+        bool isLateralFace = Mathf.Abs(Vector3.Dot(faceNormalWorld.normalized, Vector3.up)) < 0.5f;
+        if (bottomHandle != null)
+            bottomHandle.gameObject.SetActive(!isLateralFace);
+        if (!isLateralFace)
+            PositionHandle(bottomHandle, layout.Bottom, -verticalScreenAxisWorld);
         PositionHandle(leftHandle, layout.Left, -horizontalScreenAxisWorld);
         PositionHandle(rightHandle, layout.Right, horizontalScreenAxisWorld);
     }
@@ -160,6 +161,7 @@ public sealed class BlockResizeGizmo : MonoBehaviour
     public bool ContainsHandle(BlockResizeHandle handle)
     {
         return handle != null
+            && handle.gameObject.activeInHierarchy
             && (handle == topHandle || handle == bottomHandle || handle == leftHandle || handle == rightHandle);
     }
 

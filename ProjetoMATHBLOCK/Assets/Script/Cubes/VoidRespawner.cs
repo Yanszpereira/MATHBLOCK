@@ -186,7 +186,9 @@ public class VoidRespawner : MonoBehaviour
         if (player == null)
             return;
 
-        SceneTransitionManager.TryExecuteWithFade(() => RespawnPlayerBehindFade(player), this);
+        // RespawnPlayerWithFade já mantém a tela totalmente preta durante o
+        // teleporte. Disparar também o fade global criava duas transições.
+        RespawnPlayerBehindFade(player);
     }
 
     private void RespawnPlayerBehindFade(PlayerMovement player)

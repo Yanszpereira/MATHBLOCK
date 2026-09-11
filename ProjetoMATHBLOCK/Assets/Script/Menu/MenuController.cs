@@ -13,6 +13,8 @@ using FMODUnity;
 /// </summary>
 public class MenuController : MonoBehaviour
 {
+    private const string MenuMusicEventPath = "event:/796080__colinleblancsound__levelbgm";
+
     private bool gameplayPaused;
     private bool IsMainMenu => SceneManager.GetActiveScene().name == "MainMenu";
 
@@ -73,6 +75,8 @@ public class MenuController : MonoBehaviour
 
     private static void EnsureSceneController(Scene scene)
     {
+        StopMenuMusicWhenGameplayStarts(scene);
+
         if (FindFirstObjectByType<MenuController>(
                 FindObjectsInactive.Include) != null)
         {
@@ -86,6 +90,24 @@ public class MenuController : MonoBehaviour
         {
             new GameObject("MenuController Runtime")
                 .AddComponent<MenuController>();
+        }
+    }
+
+    private static void StopMenuMusicWhenGameplayStarts(Scene scene)
+    {
+        if (scene.name != "Fase 1")
+            return;
+
+        StudioEventEmitter[] emitters = FindObjectsByType<StudioEventEmitter>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+
+        foreach (StudioEventEmitter emitter in emitters)
+        {
+            if (emitter == null || emitter.EventReference.Path != MenuMusicEventPath)
+                continue;
+
+            emitter.Stop();
         }
     }
 
@@ -114,7 +136,7 @@ public class MenuController : MonoBehaviour
             Time.timeScale = 1f;
 
             DefinirCursor(
-                true,
+                false,
                 false
             );
         }
@@ -804,6 +826,12 @@ public class MenuController : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (IsMainMenu)
+        {
+            DefinirCursor(false, false);
+            return;
+        }
+
         if (
             gameplayPaused &&
             !Application.isMobilePlatform

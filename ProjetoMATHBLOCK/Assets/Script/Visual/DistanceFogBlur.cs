@@ -30,6 +30,8 @@ public sealed class DistanceFogBlur : MonoBehaviour
     [SerializeField, Range(0f, 0.35f)] private float dotStrength = 0.14f;
     [SerializeField, Range(2f, 24f)] private float dotScale = 7f;
     [SerializeField] private Color dotColor = new Color(0.055f, 0.012f, 0.085f, 1f);
+    [SerializeField, Range(2f, 12f)] private float phaseTwoGroundDotScale = 4f;
+    [SerializeField, Range(0f, 1f)] private float phaseTwoGroundDotStrength = 0.32f;
 
     [Header("Downward look atmosphere")]
     [SerializeField, Range(0f, 0.8f)] private float downwardDarkening = 0.52f;
@@ -51,6 +53,7 @@ public sealed class DistanceFogBlur : MonoBehaviour
     private Renderer[] phaseOneCubeRenderers;
     private Renderer[] mathBlockRenderers;
     private Renderer[] countdownTimerRenderers;
+    private Renderer[] phaseTwoScenarioRenderers;
     private float nextParticleRefreshTime;
     private readonly HashSet<Renderer> exclusionRenderers = new HashSet<Renderer>();
 
@@ -62,10 +65,13 @@ public sealed class DistanceFogBlur : MonoBehaviour
     private static readonly int DotStrengthId = Shader.PropertyToID("_DotStrength");
     private static readonly int DotScaleId = Shader.PropertyToID("_DotScale");
     private static readonly int DotColorId = Shader.PropertyToID("_DotColor");
+    private static readonly int GroundDotScaleId = Shader.PropertyToID("_GroundDotScale");
+    private static readonly int GroundDotStrengthId = Shader.PropertyToID("_GroundDotStrength");
     private static readonly int DownLookId = Shader.PropertyToID("_DownLook");
     private static readonly int DownDarkeningId = Shader.PropertyToID("_DownDarkening");
     private static readonly int MobileQualityId = Shader.PropertyToID("_MobileQuality");
     private static readonly int ExclusionMaskId = Shader.PropertyToID("_ExclusionMask");
+    private static readonly int DotExclusionMaskId = Shader.PropertyToID("_DotExclusionMask");
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneInitializer()
@@ -170,18 +176,24 @@ public sealed class DistanceFogBlur : MonoBehaviour
         material.SetFloat(DotStrengthId, dotStrength);
         material.SetFloat(DotScaleId, Mathf.Lerp(dotScale, downwardDotScale, downLook));
         material.SetColor(DotColorId, dotColor);
+        material.SetFloat(GroundDotScaleId, phaseTwoGroundDotScale);
+        material.SetFloat(GroundDotStrengthId, phaseTwoGroundDotStrength);
         material.SetFloat(DownLookId, downLook);
         material.SetFloat(DownDarkeningId, downwardDarkening);
         material.SetFloat(MobileQualityId, mobile ? 1f : 0f);
 
         RenderTexture exclusionMask = BuildExclusionMask(source.width, source.height);
+        RenderTexture dotExclusionMask = BuildDotExclusionMask(source.width, source.height);
         material.SetTexture(ExclusionMaskId, exclusionMask != null ? exclusionMask : Texture2D.blackTexture);
+        material.SetTexture(DotExclusionMaskId, dotExclusionMask != null ? dotExclusionMask : Texture2D.blackTexture);
 
         if (downsample == 1)
         {
             Graphics.Blit(source, destination, material);
             if (exclusionMask != null)
                 RenderTexture.ReleaseTemporary(exclusionMask);
+            if (dotExclusionMask != null)
+                RenderTexture.ReleaseTemporary(dotExclusionMask);
             return;
         }
 
@@ -194,6 +206,42 @@ public sealed class DistanceFogBlur : MonoBehaviour
         RenderTexture.ReleaseTemporary(temporary);
         if (exclusionMask != null)
             RenderTexture.ReleaseTemporary(exclusionMask);
+        if (dotExclusionMask != null)
+            RenderTexture.ReleaseTemporary(dotExclusionMask);
+    }
+
+    private RenderTexture BuildDotExclusionMask(int width, int height)
+    {
+        if (exclusionMaskMaterial == null || targetCamera == null ||
+            phaseTwoScenarioRenderers == null || phaseTwoScenarioRenderers.Length == 0)
+            return null;
+
+        RenderTexture mask = RenderTexture.GetTemporary(
+            width,
+            height,
+            0,
+            RenderTextureFormat.ARGB32,
+            RenderTextureReadWrite.Linear);
+        mask.filterMode = FilterMode.Bilinear;
+
+        CommandBuffer commands = CommandBufferPool.Get("MathBlock Phase 2 Dot Exclusions");
+        commands.SetRenderTarget(mask);
+        commands.ClearRenderTarget(false, true, Color.black);
+        commands.SetViewProjectionMatrices(targetCamera.worldToCameraMatrix, targetCamera.projectionMatrix);
+
+        foreach (Renderer targetRenderer in phaseTwoScenarioRenderers)
+        {
+            if (targetRenderer == null || !targetRenderer.enabled || !targetRenderer.gameObject.activeInHierarchy)
+                continue;
+
+            int materialCount = Mathf.Max(1, targetRenderer.sharedMaterials.Length);
+            for (int materialIndex = 0; materialIndex < materialCount; materialIndex++)
+                commands.DrawRenderer(targetRenderer, exclusionMaskMaterial, materialIndex, 0);
+        }
+
+        Graphics.ExecuteCommandBuffer(commands);
+        CommandBufferPool.Release(commands);
+        return mask;
     }
 
     private RenderTexture BuildExclusionMask(int width, int height)
@@ -325,6 +373,15 @@ private void RefreshParticleRenderers()
             if (timer != null && timer.gameObject.scene == gameObject.scene)
                 timerRenderers.AddRange(timer.GetComponentsInChildren<Renderer>(true));
         countdownTimerRenderers = timerRenderers.ToArray();
+
+        List<Renderer> phaseTwoRenderers = new List<Renderer>();
+        foreach (Renderer candidate in sceneRenderers)
+        {
+            if (MobileSceneToonMaterials.BelongsToPhaseTwoScenarioGeometry(candidate)
+                && MobileSceneToonMaterials.IsGroundSurface(candidate))
+                phaseTwoRenderers.Add(candidate);
+        }
+        phaseTwoScenarioRenderers = phaseTwoRenderers.ToArray();
 
         nextParticleRefreshTime = Time.unscaledTime + 2f;
     }

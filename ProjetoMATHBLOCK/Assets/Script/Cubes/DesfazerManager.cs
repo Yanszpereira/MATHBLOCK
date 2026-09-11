@@ -245,6 +245,8 @@ public class DesfazerManager : MonoBehaviour
         }
 
         targetStack.Pop();
+        EnsureBlockPhysics(targetBlock.gameObject, false);
+        Physics.SyncTransforms();
         PlayUndoSound(targetBlock);
 
         Debug.Log($"Bloco {targetBlock.name} desfez {action.operatorType} e voltou para {targetBlock.CurrentValue}.");
@@ -377,17 +379,9 @@ public class DesfazerManager : MonoBehaviour
                 CloneStack(action.consumedBlockStackSnapshot)
             );
 
-            Rigidbody restoredRigidbody = restoredBlock.GetComponent<Rigidbody>();
-
-            if (restoredRigidbody != null)
-            {
-                restoredRigidbody.isKinematic = false;
-                restoredRigidbody.useGravity = true;
-                restoredRigidbody.linearVelocity = Vector3.zero;
-                restoredRigidbody.angularVelocity = Vector3.zero;
-            }
-
             restoredBlock.SetActive(true);
+            EnsureBlockPhysics(restoredBlock, true);
+            Physics.SyncTransforms();
             restoredValue.ApplyRendererColors(action.consumedBlockRendererSnapshot);
 
             DestroyUndoObject(action.consumedBlockSnapshot);
@@ -405,6 +399,51 @@ public class DesfazerManager : MonoBehaviour
             );
             return false;
         }
+    }
+
+    private static void EnsureBlockPhysics(GameObject blockObject, bool makeDynamic)
+    {
+        if (blockObject == null)
+            return;
+
+        // Mantém o bloco identificável pelos raycasts e pelo trigger do void.
+        blockObject.tag = "MathBlock";
+
+        Collider[] colliders = blockObject.GetComponentsInChildren<Collider>(true);
+        bool hasPhysicalCollider = false;
+        foreach (Collider blockCollider in colliders)
+        {
+            if (blockCollider == null || blockCollider.isTrigger)
+                continue;
+
+            blockCollider.enabled = true;
+            hasPhysicalCollider = true;
+        }
+
+        // Só entra em ação se o snapshot realmente vier sem collider físico.
+        if (!hasPhysicalCollider)
+        {
+            BoxCollider fallbackCollider = blockObject.AddComponent<BoxCollider>();
+            fallbackCollider.isTrigger = false;
+            fallbackCollider.enabled = true;
+        }
+
+        Rigidbody rigidbody = blockObject.GetComponent<Rigidbody>();
+        if (rigidbody == null && makeDynamic)
+            rigidbody = blockObject.AddComponent<Rigidbody>();
+
+        if (rigidbody == null)
+            return;
+
+        rigidbody.detectCollisions = true;
+        if (makeDynamic)
+        {
+            rigidbody.isKinematic = false;
+            rigidbody.useGravity = true;
+            rigidbody.linearVelocity = Vector3.zero;
+            rigidbody.angularVelocity = Vector3.zero;
+        }
+        rigidbody.WakeUp();
     }
 
     private static void DestroyUndoObject(Object target)

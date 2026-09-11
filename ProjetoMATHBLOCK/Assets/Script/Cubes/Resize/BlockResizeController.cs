@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using FMODUnity;
 
 public enum BlockResizeInteractionState
@@ -92,6 +93,80 @@ public sealed class BlockResizeController : MonoBehaviour
         : interactionDistance;
     public event Action<bool> ResizeModeChanged;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterGameplayControlRecovery()
+    {
+        GlobalSceneBootstrap.Register(RestoreGameplayControls, 10000);
+    }
+
+    public static void RestoreGameplayControls(Scene scene)
+    {
+        if (!scene.IsValid() || !scene.isLoaded
+            || (!scene.name.StartsWith("Fase", StringComparison.OrdinalIgnoreCase)
+                && !scene.name.Equals("MainScene", StringComparison.OrdinalIgnoreCase)))
+            return;
+
+        Time.timeScale = 1f;
+        ExitAllForSceneTransition();
+
+        PlayerInput[] playerInputs = FindObjectsByType<PlayerInput>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+
+        foreach (PlayerInput input in playerInputs)
+        {
+            if (input == null || input.gameObject.scene != scene
+                || !input.enabled || !input.gameObject.activeInHierarchy || input.actions == null)
+                continue;
+
+            InputActionMap resizeMap = input.actions.FindActionMap(ResizeMapName, false);
+            InputActionMap playerMap = input.actions.FindActionMap(PlayerMapName, false);
+            resizeMap?.Disable();
+
+            if (!input.inputIsActive)
+                input.ActivateInput();
+
+            if (playerMap != null)
+            {
+                input.SwitchCurrentActionMap(PlayerMapName);
+                playerMap.Enable();
+            }
+
+            Look look = input.GetComponent<Look>();
+            if (look != null)
+                look.enabled = true;
+
+            PlayerMovement movement = input.GetComponent<PlayerMovement>();
+            if (movement != null)
+                movement.enabled = true;
+        }
+
+        if (!Application.isMobilePlatform)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
+
+    public static void ExitAllForSceneTransition()
+    {
+        BlockResizeController[] controllers = FindObjectsByType<BlockResizeController>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+
+        foreach (BlockResizeController controller in controllers)
+        {
+            if (controller != null)
+                controller.ExitForSceneTransition();
+        }
+    }
+
+    private void ExitForSceneTransition()
+    {
+        if (state != BlockResizeInteractionState.Idle || controlsCaptured)
+            ExitResizeMode(false);
+    }
+
     private void Awake()
     {
         ResolveReferences();
@@ -116,6 +191,7 @@ public sealed class BlockResizeController : MonoBehaviour
 
     private void OnDestroy()
     {
+        ExitForSceneTransition();
         StopResizeParticles();
         if (resizeGizmo != null)
             Destroy(resizeGizmo.gameObject);

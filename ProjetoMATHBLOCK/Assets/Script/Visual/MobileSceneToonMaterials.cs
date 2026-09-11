@@ -157,7 +157,7 @@
           return false;
       }
 
-      private static bool BelongsToPhaseTwoScenarioGeometry(Renderer target)
+      public static bool BelongsToPhaseTwoScenarioGeometry(Renderer target)
       {
           if (target == null ||
               !target.gameObject.scene.name.Equals("Fase 2", System.StringComparison.OrdinalIgnoreCase))

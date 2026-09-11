@@ -747,7 +747,13 @@ public class GravityInteract : MonoBehaviour
         if (sourceBlock == null || playerMovement == null)
             return;
 
-        MathBlockValue sourceValue = sourceBlock.GetComponent<MathBlockValue>();
+        MathBlockValue sourceValue = sourceBlock.GetComponentInParent<MathBlockValue>();
+        Transform sourceRoot = sourceValue != null ? sourceValue.transform : sourceBlock;
+        Vector3 sourceWorldScale = sourceRoot.lossyScale;
+        ResizableBlock sourceResizable = sourceRoot.GetComponent<ResizableBlock>();
+        Vector3Int sourceDimensions = sourceResizable != null
+            ? sourceResizable.Dimensions
+            : Vector3Int.one;
         MathBlockValue.RendererColorSnapshot[] colorSnapshot = sourceValue != null
             ? sourceValue.CaptureRendererColors()
             : null;
@@ -756,9 +762,21 @@ public class GravityInteract : MonoBehaviour
         if (!playerMovement.TryConsumeBlockDuplication())
             return;
 
-        Vector3 spawnPosition = sourceBlock.position + Vector3.up * duplicateSpawnHeight;
-        GameObject duplicatedBlock = Instantiate(sourceBlock.gameObject, spawnPosition, sourceBlock.rotation);
-        duplicatedBlock.name = $"{sourceBlock.name}_Clone";
+        Vector3 spawnPosition = sourceRoot.position + Vector3.up * duplicateSpawnHeight;
+        GameObject duplicatedBlock = Instantiate(sourceRoot.gameObject, spawnPosition, sourceRoot.rotation);
+        duplicatedBlock.name = $"{sourceRoot.name}_Clone";
+        // O clone nasce na raiz da cena; preserve a escala mundial que antes
+        // podia incluir a escala do spawner/pai.
+        duplicatedBlock.transform.localScale = sourceWorldScale;
+
+        ResizableBlock duplicatedResizable = duplicatedBlock.GetComponent<ResizableBlock>();
+        if (sourceResizable != null && duplicatedResizable != null)
+        {
+            duplicatedResizable.RestoreState(new ResizableBlockState(
+                sourceDimensions,
+                spawnPosition,
+                sourceRoot.rotation));
+        }
 
         MathBlockValue duplicatedValue = duplicatedBlock.GetComponent<MathBlockValue>();
         if (duplicatedValue != null)
@@ -770,13 +788,15 @@ public class GravityInteract : MonoBehaviour
         Rigidbody duplicatedRigidbody = duplicatedBlock.GetComponent<Rigidbody>();
         if (duplicatedRigidbody != null)
         {
+            duplicatedRigidbody.detectCollisions = true;
             duplicatedRigidbody.isKinematic = false;
             duplicatedRigidbody.useGravity = true;
             duplicatedRigidbody.linearVelocity = Vector3.zero;
             duplicatedRigidbody.angularVelocity = Vector3.zero;
         }
 
-        Debug.Log($"Bloco duplicado: {sourceBlock.name}. Duplicacoes restantes: {playerMovement.AvailableBlockDuplications}");
+        Physics.SyncTransforms();
+        Debug.Log($"Bloco duplicado: {sourceRoot.name}. Duplicacoes restantes: {playerMovement.AvailableBlockDuplications}");
     }
 
     public void SetEquippedOperator(PencilOperator newOperator)

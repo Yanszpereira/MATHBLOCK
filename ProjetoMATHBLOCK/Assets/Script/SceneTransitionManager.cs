@@ -194,6 +194,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
 
     private void BeginTransition()
     {
+        BlockResizeController.ExitAllForSceneTransition();
         isTransitioning = true;
         SetInputBlock(true);
         BlockGameplayInput();
@@ -268,6 +269,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
         }
 
         blockedPlayerInputs.Clear();
+        BlockResizeController.RestoreGameplayControls(SceneManager.GetActiveScene());
         SetInputBlock(false);
         isTransitioning = false;
     }

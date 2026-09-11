@@ -18,6 +18,7 @@ public class DynamicCrosshair : MonoBehaviour
     [SerializeField] private CircleCrosshairGraphic circleGraphic;
 
     private Material invertOverlayMaterial;
+    private readonly RaycastHit[] interactionHits = new RaycastHit[16];
     private float interactionProgress;
     private bool requestedVisible = true;
 
@@ -68,11 +69,28 @@ public class DynamicCrosshair : MonoBehaviour
     private bool IsLookingAtInteractable()
     {
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
-        if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide))
+        int hitCount = Physics.RaycastNonAlloc(
+            ray, interactionHits, rayDistance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+        if (hitCount == 0)
             return false;
 
-        return hit.collider.GetComponentInParent<MathBlockValue>() != null
-            || hit.collider.GetComponentInParent<opItem>() != null;
+        float nearestDistance = float.PositiveInfinity;
+        bool foundInteractable = false;
+        for (int index = 0; index < hitCount; index++)
+        {
+            Collider target = interactionHits[index].collider;
+            bool isInteractable = target != null
+                && (target.GetComponentInParent<MathBlockValue>() != null
+                    || target.GetComponentInParent<ResizableBlock>() != null
+                    || target.GetComponentInParent<opItem>() != null);
+            if (isInteractable && interactionHits[index].distance < nearestDistance)
+            {
+                nearestDistance = interactionHits[index].distance;
+                foundInteractable = true;
+            }
+        }
+
+        return foundInteractable;
     }
 
     private void ResolveOrCreateCrosshair()

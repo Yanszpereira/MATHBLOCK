@@ -26,6 +26,38 @@ public class DoorOpener : MonoBehaviour
 
     public bool HasOpened => hasOpened;
 
+    public bool TryGetDoorBounds(out Bounds bounds)
+    {
+        bounds = default;
+        bool foundRenderer = false;
+
+        IncludeDoorRenderers(rightDoorAnimator, ref bounds, ref foundRenderer);
+        IncludeDoorRenderers(leftDoorAnimator, ref bounds, ref foundRenderer);
+
+        return foundRenderer;
+    }
+
+    private static void IncludeDoorRenderers(Animator doorAnimator, ref Bounds bounds, ref bool foundRenderer)
+    {
+        if (doorAnimator == null)
+            return;
+
+        Renderer[] renderers = doorAnimator.GetComponentsInChildren<Renderer>(true);
+
+        foreach (Renderer doorRenderer in renderers)
+        {
+            if (!foundRenderer)
+            {
+                bounds = doorRenderer.bounds;
+                foundRenderer = true;
+            }
+            else
+            {
+                bounds.Encapsulate(doorRenderer.bounds);
+            }
+        }
+    }
+
     private void Awake()
     {
         hasOpened = false;

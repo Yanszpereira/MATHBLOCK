@@ -13,6 +13,7 @@ public class DoorValueVerifier : MonoBehaviour
     [Header("Referências")]
     [SerializeField] private GameObject acceptedPadObject;
     [SerializeField] private GameObject successParticleObject;
+    [SerializeField, Range(-0.5f, 0.5f)] private float successParticleVerticalOffset = 0.15f;
 
     [SerializeField] private GameObject correctFeedbackObject;
     [SerializeField] private GameObject wrongFeedbackObject;
@@ -202,6 +203,8 @@ public class DoorValueVerifier : MonoBehaviour
         if (successParticleObject == null)
             return;
 
+        CenterSuccessParticlesOnDoor();
+
         successParticleObject.SetActive(true);
 
         ParticleSystem[] particleSystems = successParticleObject.GetComponentsInChildren<ParticleSystem>();
@@ -211,6 +214,16 @@ public class DoorValueVerifier : MonoBehaviour
             particleSystem.Clear();
             particleSystem.Play();
         }
+    }
+
+    private void CenterSuccessParticlesOnDoor()
+    {
+        if (doorOpener == null || !doorOpener.TryGetDoorBounds(out Bounds doorBounds))
+            return;
+
+        Vector3 particlePosition = doorBounds.center;
+        particlePosition.y += doorBounds.extents.y * successParticleVerticalOffset;
+        successParticleObject.transform.position = particlePosition;
     }
 
     private static string ObjectName(Object target)
