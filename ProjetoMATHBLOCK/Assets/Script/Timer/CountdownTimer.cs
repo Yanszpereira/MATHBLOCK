@@ -33,7 +33,7 @@ public class CountdownTimer : MonoBehaviour
 
             Debug.Log("Tempo esgotado!");
             // Aqui voc� pode chamar Game Over
-            SceneManager.LoadScene("Fase 1");
+            SceneTransitionManager.TryTransitionToScene("Fase 1", this);
         }
 
         AtualizarTexto();
