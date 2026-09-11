@@ -285,10 +285,10 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639246753888912082
+  lastModified: 639246769825321712
   FileSizes:
   - Name: Desktop
-    Value: 1826
+    Value: 1864
   Exists: 1
 --- !u!114 &11400000
 MonoBehaviour:
@@ -329,13 +329,14 @@ MonoBehaviour:
   - {fileID: 6041343380541607625}
   - {fileID: 8735610995531857780}
   - {fileID: 4076283341648758194}
+  - {fileID: 331636606463936681}
   EditorParameters: []
   MasterBanks:
   - {fileID: 451105433580098774}
   StringsBanks:
   - {fileID: -1153459593133781050}
   cacheVersion: 131859
-  cacheTime: 639246753888912082
+  cacheTime: 639246769825321712
   SerializableEventsDict:
   - key: event:/divisao
     index: 0
@@ -381,6 +382,8 @@ MonoBehaviour:
     index: 20
   - key: event:/HoverMenu
     index: 21
+  - key: event:/PegaBloco
+    index: 22
 --- !u!114 &153693398638239153
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -408,6 +411,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 680
+--- !u!114 &331636606463936681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/PegaBloco
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/PegaBloco
+  Guid:
+    Data1: -1393829811
+    Data2: 1197661281
+    Data3: 1763972002
+    Data4: 747695939
+  Banks:
+  - {fileID: 451105433580098774}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 320
 --- !u!114 &451105433580098774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -423,10 +453,10 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639246753888892058
+  lastModified: 639246769825291495
   FileSizes:
   - Name: Desktop
-    Value: 11205248
+    Value: 11218400
   Exists: 1
 --- !u!114 &3315161093876188308
 MonoBehaviour:

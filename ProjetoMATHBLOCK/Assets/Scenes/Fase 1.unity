@@ -10511,6 +10511,46 @@ PrefabInstance:
       propertyPath: m_fontSize
       value: 70
       objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: clickSound.Path
+      value: event:/SonsMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Path
+      value: event:/HoverMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: clickSound.Guid.Data1
+      value: 522247977
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: clickSound.Guid.Data2
+      value: 1079529861
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: clickSound.Guid.Data3
+      value: -533985604
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: clickSound.Guid.Data4
+      value: -529942406
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data1
+      value: -1906024123
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data2
+      value: 1252038390
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data3
+      value: 2021018756
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data4
+      value: -1228451977
+      objectReference: {fileID: 0}
     - target: {fileID: 9171348539103113009, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -28429,6 +28469,34 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1180214768}
     m_Modifications:
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Path
+      value: event:/PegaBloco
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data1
+      value: -1393829811
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data2
+      value: 1197661281
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data3
+      value: 1763972002
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data4
+      value: 747695939
+      objectReference: {fileID: 0}
+    - target: {fileID: 1391884967048770114, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: voidFallSoundY
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1391884967048770114, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: voidFallSoundDelay
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4745981285788249604, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11.622923
@@ -28551,6 +28619,10 @@ PrefabInstance:
       propertyPath: connectedVerifierObject
       value: 
       objectReference: {fileID: 859868076}
+    - target: {fileID: 6346917656526409954, guid: edc4a7af8b587b24abde9300b4e7f569, type: 3}
+      propertyPath: playErrorSoundWhenWrong
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7712601277985681596, guid: edc4a7af8b587b24abde9300b4e7f569, type: 3}
       propertyPath: PortaText
       value: 
@@ -29226,7 +29298,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8272150852395021154, guid: 6ad1129b447f9864aa5190417c023a6e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -65.5
+      value: -44.4
       objectReference: {fileID: 0}
     - target: {fileID: 8272150852395021154, guid: 6ad1129b447f9864aa5190417c023a6e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -29549,6 +29621,13 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   clickSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  hoverSound:
     Guid:
       Data1: 0
       Data2: 0
