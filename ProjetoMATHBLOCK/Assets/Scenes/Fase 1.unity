@@ -10812,7 +10812,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: hoverSound.Path
-      value: event:/HoverMenu
+      value: event:/Hover
       objectReference: {fileID: 0}
     - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: clickSound.Guid.Data1
@@ -10832,19 +10832,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: hoverSound.Guid.Data1
-      value: -1906024123
+      value: 506525713
       objectReference: {fileID: 0}
     - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: hoverSound.Guid.Data2
-      value: 1252038390
+      value: 1176109974
       objectReference: {fileID: 0}
     - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: hoverSound.Guid.Data3
-      value: 2021018756
+      value: -1975412571
       objectReference: {fileID: 0}
     - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: hoverSound.Guid.Data4
-      value: -1228451977
+      value: 572417815
       objectReference: {fileID: 0}
     - target: {fileID: 9171348539103113009, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_Sprite
@@ -22341,6 +22341,7 @@ Transform:
   - {fileID: 2033574228}
   - {fileID: 634978971}
   - {fileID: 827067853}
+  - {fileID: 1239838965}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1100782963 stripped
@@ -22713,7 +22714,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1239838964}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 23.88112, y: 12.15625, z: -5.13254}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -22736,7 +22737,7 @@ Transform:
   - {fileID: 1686938905}
   - {fileID: 846957470}
   - {fileID: 1482440768}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1083036293}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1240641795
 PrefabInstance:
@@ -31116,4 +31117,3 @@ SceneRoots:
   - {fileID: 1721091741}
   - {fileID: 1251729412}
   - {fileID: 472246582}
-  - {fileID: 1239838965}

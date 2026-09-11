@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects serializationModel="Studio.02.03.00">
-	<object class="AudioFile" id="{cada1735-f7b3-47f8-9174-57a4f6fb0c72}">
+	<object class="AudioFile" id="{479d59da-84f5-4968-83be-d7be36dc3ba6}">
 		<property name="assetPath">
-			<value>Gigantic_floating_st_#3-1788997294655.wav</value>
+			<value>PegaBloco.wav</value>
 		</property>
 		<property name="frequencyInKHz">
 			<value>48</value>
@@ -11,7 +11,7 @@
 			<value>2</value>
 		</property>
 		<property name="length">
-			<value>2.25</value>
+			<value>1.2</value>
 		</property>
 		<relationship name="masterAssetFolder">
 			<destination>{3cccca5d-055f-482e-895d-bcee7f75872c}</destination>

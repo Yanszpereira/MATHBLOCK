@@ -633,6 +633,69 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8752820033399685019, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
   m_PrefabInstance: {fileID: 1967337066}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &343519094
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 343519095}
+  - component: {fileID: 343519096}
+  m_Layer: 0
+  m_Name: MusicaEmitter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &343519095
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343519094}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
+  m_LocalPosition: {x: 17.02633, y: -1.1100006, z: 17.361898}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1042673527}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &343519096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343519094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -1049772233
+      Data2: 1289349682
+      Data3: 349222533
+      Data4: -1148861001
+    Path: event:/MusicaFase2
+  Event: 
+  EventPlayTrigger: 1
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1001 &359601211
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2719,7 +2782,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1095794090}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -28.33472, y: 36.7033, z: 90.01133}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2735,7 +2798,7 @@ Transform:
   - {fileID: 897583175}
   - {fileID: 252739111}
   - {fileID: 658325737}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1996057331}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1099459066
 PrefabInstance:
@@ -3552,6 +3615,10 @@ PrefabInstance:
       value: event:/SonsMenu
       objectReference: {fileID: 0}
     - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Path
+      value: event:/Hover
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: clickSound.Guid.Data1
       value: 522247977
       objectReference: {fileID: 0}
@@ -3566,6 +3633,22 @@ PrefabInstance:
     - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: clickSound.Guid.Data4
       value: -529942406
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data1
+      value: 506525713
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data2
+      value: 1176109974
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data3
+      value: -1975412571
+      objectReference: {fileID: 0}
+    - target: {fileID: 9098417256334701201, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: hoverSound.Guid.Data4
+      value: 572417815
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4597,6 +4680,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1300645335}
     m_Modifications:
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Path
+      value: event:/PegaBloco 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data1
+      value: 750272900
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data2
+      value: 1324672721
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data3
+      value: 2041804977
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data4
+      value: -3149281
+      objectReference: {fileID: 0}
     - target: {fileID: 4745981285788249604, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 16.63157
@@ -4641,9 +4744,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player 1 Variant
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3271105319279223346, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4745981285788249604, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 343519095}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
 --- !u!1001 &1758622273
@@ -5971,6 +6078,7 @@ Transform:
   - {fileID: 6653464006240410769}
   - {fileID: 2065553467}
   - {fileID: 435377273}
+  - {fileID: 1095794091}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2003283263 stripped
@@ -6489,4 +6597,3 @@ SceneRoots:
   - {fileID: 1626552547}
   - {fileID: 1269552539}
   - {fileID: 1995635638}
-  - {fileID: 1095794091}
