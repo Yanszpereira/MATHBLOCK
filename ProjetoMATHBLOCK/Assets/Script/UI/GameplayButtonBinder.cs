@@ -11,11 +11,10 @@ public sealed class GameplayButtonBinder : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        GlobalSceneBootstrap.Register(OnSceneLoaded);
     }
 
-    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private static void OnSceneLoaded(Scene scene)
     {
         if (!scene.name.StartsWith("Fase", System.StringComparison.OrdinalIgnoreCase))
             return;

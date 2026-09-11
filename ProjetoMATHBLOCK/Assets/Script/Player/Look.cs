@@ -20,6 +20,19 @@ public class Look : MonoBehaviour
     [SerializeField] private float cameraTiltAmplitude = 1.2f;
     [SerializeField] private float bobReturnSpeed = 12f;
 
+    [Header("Camera Jump Shake")]
+    [SerializeField, Min(0.01f)] private float jumpShakeDuration = 0.28f;
+    [SerializeField, Min(0f)] private float jumpShakeStrength = 0.16f;
+    [SerializeField, Min(0f)] private float jumpShakeRotation = 2.2f;
+    [SerializeField, Min(1f)] private float jumpShakeFrequency = 30f;
+
+    [Header("Camera Fall Shake")]
+    [SerializeField, Min(0f)] private float fallShakeStartSpeed = 3.5f;
+    [SerializeField, Min(0f)] private float fallShakeFullSpeed = 16f;
+    [SerializeField, Min(0f)] private float fallShakeStrength = 0.075f;
+    [SerializeField, Min(0f)] private float fallShakeRotation = 0.8f;
+    [SerializeField, Min(1f)] private float fallShakeFrequency = 17f;
+
     [Header("Pencil Walk Bob")]
     [SerializeField] private Transform pencilTransform;
     [SerializeField] private float pencilVerticalAmplitude = 0.08f;
@@ -37,6 +50,14 @@ public class Look : MonoBehaviour
     private Quaternion defaultPencilLocalRotation;
     private float bobTimer;
     private float currentCameraTilt;
+    private float jumpShakeElapsed;
+    private bool jumpShakeActive;
+    private Vector3 lastJumpShakeOffset;
+    private float currentJumpPitch;
+    private float currentJumpRoll;
+    private Vector3 lastFallShakeOffset;
+    private float currentFallPitch;
+    private float currentFallRoll;
 
     private void Start()
     {
@@ -86,6 +107,15 @@ public class Look : MonoBehaviour
 
     private void OnDisable()
     {
+        if (cameraTransform != null)
+            cameraTransform.localPosition -= lastJumpShakeOffset + lastFallShakeOffset;
+        lastJumpShakeOffset = Vector3.zero;
+        lastFallShakeOffset = Vector3.zero;
+        jumpShakeActive = false;
+        currentJumpPitch = 0f;
+        currentJumpRoll = 0f;
+        currentFallPitch = 0f;
+        currentFallRoll = 0f;
         mouseInput = Vector2.zero;
         touchInput = Vector2.zero;
         lookTouchId = -1;
@@ -143,8 +173,20 @@ public class Look : MonoBehaviour
 
     private void ApplyWalkBob()
     {
-        if (!enableWalkBob || cameraTransform == null || controller == null)
+        if (cameraTransform == null)
         {
+            return;
+        }
+
+        cameraTransform.localPosition -= lastJumpShakeOffset;
+        lastJumpShakeOffset = Vector3.zero;
+        cameraTransform.localPosition -= lastFallShakeOffset;
+        lastFallShakeOffset = Vector3.zero;
+
+        if (!enableWalkBob || controller == null)
+        {
+            ApplyJumpShake();
+            ApplyFallShake();
             return;
         }
 
@@ -164,6 +206,8 @@ public class Look : MonoBehaviour
             );
 
             cameraTransform.localPosition = defaultCameraLocalPosition + bobOffset;
+            ApplyJumpShake();
+            ApplyFallShake();
             currentCameraTilt = horizontalWave * cameraTiltAmplitude;
             ApplyCameraRotation();
             ApplyPencilBob(verticalWave, horizontalWave);
@@ -176,9 +220,70 @@ public class Look : MonoBehaviour
             defaultCameraLocalPosition,
             bobReturnSpeed * Time.deltaTime
         );
+        ApplyJumpShake();
+        ApplyFallShake();
         currentCameraTilt = Mathf.Lerp(currentCameraTilt, 0f, bobReturnSpeed * Time.deltaTime);
         ApplyCameraRotation();
         ResetPencilBob();
+    }
+
+    public void PlayJumpShake()
+    {
+        jumpShakeElapsed = 0f;
+        jumpShakeActive = true;
+    }
+
+    private void ApplyJumpShake()
+    {
+        if (!jumpShakeActive || cameraTransform == null)
+            return;
+
+        float duration = Mathf.Max(0.01f, jumpShakeDuration);
+        jumpShakeElapsed += Time.unscaledDeltaTime;
+        float normalized = Mathf.Clamp01(jumpShakeElapsed / duration);
+        float envelope = 1f - normalized;
+        float phase = jumpShakeElapsed * jumpShakeFrequency;
+
+        lastJumpShakeOffset = new Vector3(
+            Mathf.Sin(phase * 0.73f) * jumpShakeStrength * 0.35f,
+            -Mathf.Sin(phase) * jumpShakeStrength,
+            0f) * envelope;
+        cameraTransform.localPosition += lastJumpShakeOffset;
+        currentJumpPitch = -Mathf.Sin(phase) * jumpShakeRotation * envelope;
+        currentJumpRoll = Mathf.Sin(phase * 0.73f) * jumpShakeRotation * 0.65f * envelope;
+
+        if (normalized >= 1f)
+        {
+            jumpShakeActive = false;
+            lastJumpShakeOffset = Vector3.zero;
+            currentJumpPitch = 0f;
+            currentJumpRoll = 0f;
+        }
+    }
+
+    private void ApplyFallShake()
+    {
+        bool falling = playerMovement != null && playerMovement.IsFalling;
+        float intensity = falling
+            ? Mathf.InverseLerp(fallShakeStartSpeed, Mathf.Max(fallShakeStartSpeed + 0.01f, fallShakeFullSpeed), playerMovement.FallingSpeed)
+            : 0f;
+        intensity = Mathf.SmoothStep(0f, 1f, intensity);
+
+        if (intensity <= 0.001f || cameraTransform == null)
+        {
+            currentFallPitch = Mathf.Lerp(currentFallPitch, 0f, 14f * Time.unscaledDeltaTime);
+            currentFallRoll = Mathf.Lerp(currentFallRoll, 0f, 14f * Time.unscaledDeltaTime);
+            return;
+        }
+
+        float phase = Time.unscaledTime * fallShakeFrequency;
+        float noiseX = Mathf.PerlinNoise(phase, 3.17f) * 2f - 1f;
+        float noiseY = Mathf.PerlinNoise(8.41f, phase * 1.13f) * 2f - 1f;
+        lastFallShakeOffset = new Vector3(noiseX, noiseY, 0f) * fallShakeStrength * intensity;
+        cameraTransform.localPosition += lastFallShakeOffset;
+        currentFallPitch = noiseY * fallShakeRotation * intensity;
+        currentFallRoll = noiseX * fallShakeRotation * intensity;
+        ApplyCameraRotation();
     }
 
     private void ApplyCameraRotation()
@@ -188,7 +293,10 @@ public class Look : MonoBehaviour
             return;
         }
 
-        cameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, currentCameraTilt);
+        cameraTransform.localRotation = Quaternion.Euler(
+            xRotation + currentJumpPitch + currentFallPitch,
+            0f,
+            currentCameraTilt + currentJumpRoll + currentFallRoll);
     }
 
     private void ApplyPencilBob(float verticalWave, float horizontalWave)

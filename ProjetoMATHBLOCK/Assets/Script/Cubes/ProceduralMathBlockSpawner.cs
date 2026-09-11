@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -22,6 +23,10 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
     [SerializeField] private bool requireDoorVerifier = true;
     [SerializeField] private bool requireResizableBlockComponent;
 
+    [Header("Spawn Presentation")]
+    [SerializeField, Min(0f)] private float nextSpawnerDelay = 2f;
+    [SerializeField, Min(0.05f)] private float popDuration = 0.42f;
+
     [Header("Progression Cleanup")]
     [SerializeField] private bool clearBlocksAfterPassingDoor = true;
     [SerializeField, Min(0.05f)] private float doorPassageClearance = 0.45f;
@@ -35,6 +40,8 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
     private Transform generatedBlocksRoot;
     private PlayerMovement progressionPlayer;
     private bool progressionCleanupComplete;
+    private bool progressionUnlocked;
+    private bool generationScheduled;
 
     private void Awake()
     {
@@ -68,10 +75,13 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
 
     private void Start()
     {
-        if (generateOnStart)
-        {
-            Generate();
-        }
+        if (!generateOnStart)
+            return;
+
+        if (doorVerifier != null)
+            StartCoroutine(InitializeDoorProgression());
+        else
+            UnlockAndGenerate();
     }
 
     private void Update()
@@ -104,6 +114,7 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
 
         ClearOwnedBlocks();
         progressionCleanupComplete = true;
+        UnlockNextSpawner();
         DoorHintPresenter.NotifyDoorPassed();
         Debug.Log($"{name}: jogador atravessou {door.name}; blocos deste desafio foram removidos.", this);
     }
@@ -551,7 +562,92 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
             }
 
             spawnedBlocks.Add(block);
+            BlockSpawnPop.Play(block, popDuration);
         }
+    }
+
+    private IEnumerator InitializeDoorProgression()
+    {
+        yield return null;
+
+        ProceduralMathBlockSpawner[] sceneSpawners = FindObjectsByType<ProceduralMathBlockSpawner>(
+            FindObjectsInactive.Exclude,
+            FindObjectsSortMode.None);
+
+        foreach (ProceduralMathBlockSpawner spawner in sceneSpawners)
+            if (spawner != null && spawner.gameObject.scene == gameObject.scene && spawner.progressionUnlocked)
+                yield break;
+
+        PlayerMovement player = FindFirstObjectByType<PlayerMovement>();
+        Vector3 origin = player != null ? player.transform.position : Vector3.zero;
+        ProceduralMathBlockSpawner first = null;
+        float bestDistance = float.PositiveInfinity;
+
+        foreach (ProceduralMathBlockSpawner spawner in sceneSpawners)
+        {
+            if (spawner == null || spawner.gameObject.scene != gameObject.scene ||
+                spawner.doorVerifier == null || !spawner.generateOnStart)
+                continue;
+
+            float distance = (spawner.transform.position - origin).sqrMagnitude;
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                first = spawner;
+            }
+        }
+
+        first?.UnlockAndGenerate();
+    }
+
+    private void UnlockNextSpawner()
+    {
+        ProceduralMathBlockSpawner[] sceneSpawners = FindObjectsByType<ProceduralMathBlockSpawner>(
+            FindObjectsInactive.Exclude,
+            FindObjectsSortMode.None);
+        Vector3 origin = doorVerifier != null && doorVerifier.DoorOpener != null
+            ? doorVerifier.DoorOpener.transform.position
+            : transform.position;
+
+        ProceduralMathBlockSpawner next = null;
+        float bestDistance = float.PositiveInfinity;
+        foreach (ProceduralMathBlockSpawner candidate in sceneSpawners)
+        {
+            if (candidate == null || candidate == this || candidate.gameObject.scene != gameObject.scene ||
+                candidate.doorVerifier == null || !candidate.generateOnStart ||
+                candidate.progressionUnlocked || candidate.generationScheduled)
+                continue;
+
+            float distance = (candidate.transform.position - origin).sqrMagnitude;
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                next = candidate;
+            }
+        }
+
+        if (next != null)
+            next.StartCoroutine(next.UnlockAfterDelay(nextSpawnerDelay));
+    }
+
+    private IEnumerator UnlockAfterDelay(float delay)
+    {
+        if (generationScheduled || progressionUnlocked)
+            yield break;
+
+        generationScheduled = true;
+        yield return new WaitForSeconds(Mathf.Max(0f, delay));
+        generationScheduled = false;
+        UnlockAndGenerate();
+    }
+
+    private void UnlockAndGenerate()
+    {
+        if (progressionUnlocked)
+            return;
+
+        progressionUnlocked = true;
+        Generate();
     }
 
     private Transform GetOrCreateGeneratedBlocksRoot()

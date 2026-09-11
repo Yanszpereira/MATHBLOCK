@@ -11,11 +11,10 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        GlobalSceneBootstrap.Register(OnSceneLoaded);
     }
 
-    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private static void OnSceneLoaded(Scene scene)
     {
         foreach (DistanceBlurOptionUI existing in FindObjectsByType<DistanceBlurOptionUI>(
                      FindObjectsInactive.Include,
@@ -412,8 +411,13 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
 
     private static void CreateBlurToggle(RectTransform optionsMenu)
     {
-        if (FindChild(optionsMenu, "Distance Blur Option") != null)
+        Transform existingRow = FindChild(optionsMenu, "Distance Blur Option");
+        if (existingRow != null)
+        {
+            Toggle existingToggle = existingRow.GetComponentInChildren<Toggle>(true);
+            ConfigureBlurToggle(existingToggle);
             return;
+        }
 
         GameObject row = new GameObject("Distance Blur Option", typeof(RectTransform));
         row.transform.SetParent(optionsMenu, false);
@@ -457,7 +461,16 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
         Toggle toggle = toggleObject.GetComponent<Toggle>();
         toggle.targetGraphic = background;
         toggle.graphic = check;
+        ConfigureBlurToggle(toggle);
+    }
+
+    private static void ConfigureBlurToggle(Toggle toggle)
+    {
+        if (toggle == null)
+            return;
+
         toggle.SetIsOnWithoutNotify(DistanceFogBlur.UserEnabled);
+        toggle.onValueChanged.RemoveListener(DistanceFogBlur.SetUserEnabled);
         toggle.onValueChanged.AddListener(DistanceFogBlur.SetUserEnabled);
     }
 

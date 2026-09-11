@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Separa a PencilGun da câmera do mundo. A arma é desenhada por uma câmera
@@ -10,8 +11,13 @@ public sealed class PencilGunOverlaySetup : MonoBehaviour
     private const int PencilGunLayer = 3;
     private readonly List<Material> runtimeMaterials = new List<Material>();
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void Install()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneInitializer()
+    {
+        GlobalSceneBootstrap.Register(Install, -200);
+    }
+
+    private static void Install(Scene scene)
     {
         Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
         foreach (Camera camera in cameras)

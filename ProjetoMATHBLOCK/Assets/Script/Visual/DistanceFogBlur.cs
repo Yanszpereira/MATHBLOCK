@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Camera))]
 [DisallowMultipleComponent]
@@ -8,6 +9,16 @@ public sealed class DistanceFogBlur : MonoBehaviour
 {
     public const string PreferenceKey = "visual.distanceBlur.enabled";
     public static bool UserEnabled => PlayerPrefs.GetInt(PreferenceKey, 1) != 0;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void EnsureDefaultPreference()
+    {
+        if (PlayerPrefs.HasKey(PreferenceKey))
+            return;
+
+        PlayerPrefs.SetInt(PreferenceKey, 1);
+        PlayerPrefs.Save();
+    }
     [Header("Distance fog")]
     [SerializeField, Min(0f)] private float startDistance = 24f;
     [SerializeField, Min(0.1f)] private float fullBlurDistance = 85f;
@@ -16,8 +27,14 @@ public sealed class DistanceFogBlur : MonoBehaviour
     [SerializeField] private Color fogColor = new Color(0.46f, 0.56f, 0.68f, 1f);
 
     [Header("Subtle dotted character")]
-    [SerializeField, Range(0f, 0.2f)] private float dotStrength = 0.045f;
-    [SerializeField, Range(2f, 16f)] private float dotScale = 6f;
+    [SerializeField, Range(0f, 0.35f)] private float dotStrength = 0.14f;
+    [SerializeField, Range(2f, 24f)] private float dotScale = 7f;
+    [SerializeField] private Color dotColor = new Color(0.055f, 0.012f, 0.085f, 1f);
+
+    [Header("Downward look atmosphere")]
+    [SerializeField, Range(0f, 0.8f)] private float downwardDarkening = 0.52f;
+    [SerializeField, Range(1f, 3f)] private float downwardBlurMultiplier = 1.55f;
+    [SerializeField, Range(2f, 40f)] private float downwardDotScale = 18f;
 
     [Header("Performance")]
     [SerializeField, Range(1, 4)] private int desktopDownsample = 1;
@@ -31,6 +48,9 @@ public sealed class DistanceFogBlur : MonoBehaviour
     private GravityInteract gravityInteract;
     private ParticleSystemRenderer[] particleRenderers;
     private Renderer[] taggedCloudRenderers;
+    private Renderer[] phaseOneCubeRenderers;
+    private Renderer[] mathBlockRenderers;
+    private Renderer[] countdownTimerRenderers;
     private float nextParticleRefreshTime;
     private readonly HashSet<Renderer> exclusionRenderers = new HashSet<Renderer>();
 
@@ -41,13 +61,23 @@ public sealed class DistanceFogBlur : MonoBehaviour
     private static readonly int FogColorStrengthId = Shader.PropertyToID("_FogColorStrength");
     private static readonly int DotStrengthId = Shader.PropertyToID("_DotStrength");
     private static readonly int DotScaleId = Shader.PropertyToID("_DotScale");
+    private static readonly int DotColorId = Shader.PropertyToID("_DotColor");
+    private static readonly int DownLookId = Shader.PropertyToID("_DownLook");
+    private static readonly int DownDarkeningId = Shader.PropertyToID("_DownDarkening");
     private static readonly int MobileQualityId = Shader.PropertyToID("_MobileQuality");
     private static readonly int ExclusionMaskId = Shader.PropertyToID("_ExclusionMask");
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void InstallOnWorldCamera()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneInitializer()
     {
-        if (!UserEnabled)
+        GlobalSceneBootstrap.Register(InstallOnWorldCamera, -100);
+    }
+
+    private static void InstallOnWorldCamera(Scene scene)
+    {
+        if (!UserEnabled ||
+            (!scene.name.StartsWith("Fase", System.StringComparison.OrdinalIgnoreCase) &&
+             !scene.name.Equals("MainScene", System.StringComparison.OrdinalIgnoreCase)))
             return;
         Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
         Camera worldCamera = null;
@@ -128,11 +158,20 @@ public sealed class DistanceFogBlur : MonoBehaviour
 
         material.SetFloat(StartDistanceId, startDistance);
         material.SetFloat(FullDistanceId, Mathf.Max(startDistance + 0.1f, fullBlurDistance));
-        material.SetFloat(BlurRadiusId, blurRadius);
+        // Dot com Vector3.down funciona independentemente da representacao Euler
+        // usada pelo rig da camera. O efeito comeca suavemente depois do horizonte.
+        float downwardAlignment = targetCamera != null
+            ? Vector3.Dot(targetCamera.transform.forward.normalized, Vector3.down)
+            : 0f;
+        float downLook = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.04f, 0.72f, downwardAlignment));
+        material.SetFloat(BlurRadiusId, blurRadius * Mathf.Lerp(1f, downwardBlurMultiplier, downLook));
         material.SetColor(FogColorId, fogColor);
         material.SetFloat(FogColorStrengthId, fogColorStrength);
         material.SetFloat(DotStrengthId, dotStrength);
-        material.SetFloat(DotScaleId, dotScale);
+        material.SetFloat(DotScaleId, Mathf.Lerp(dotScale, downwardDotScale, downLook));
+        material.SetColor(DotColorId, dotColor);
+        material.SetFloat(DownLookId, downLook);
+        material.SetFloat(DownDarkeningId, downwardDarkening);
         material.SetFloat(MobileQualityId, mobile ? 1f : 0f);
 
         RenderTexture exclusionMask = BuildExclusionMask(source.width, source.height);
@@ -179,6 +218,16 @@ public sealed class DistanceFogBlur : MonoBehaviour
                 if (cloudRenderer != null && cloudRenderer.enabled && cloudRenderer.gameObject.activeInHierarchy)
                     exclusionRenderers.Add(cloudRenderer);
         }
+
+        if (phaseOneCubeRenderers != null)
+        {
+            foreach (Renderer cubeRenderer in phaseOneCubeRenderers)
+                if (cubeRenderer != null && cubeRenderer.enabled && cubeRenderer.gameObject.activeInHierarchy)
+                    exclusionRenderers.Add(cubeRenderer);
+        }
+
+        AddRenderersToExclusion(mathBlockRenderers);
+        AddRenderersToExclusion(countdownTimerRenderers);
 
         foreach (DistanceFogBlurExclude exclusion in DistanceFogBlurExclude.ActiveExclusions)
         {
@@ -228,6 +277,16 @@ public sealed class DistanceFogBlur : MonoBehaviour
         return mask;
     }
 
+    private void AddRenderersToExclusion(Renderer[] renderers)
+    {
+        if (renderers == null)
+            return;
+
+        foreach (Renderer targetRenderer in renderers)
+            if (targetRenderer != null && targetRenderer.enabled && targetRenderer.gameObject.activeInHierarchy)
+                exclusionRenderers.Add(targetRenderer);
+    }
+
 private void RefreshParticleRenderers()
     {
         // Particulas transparentes devem receber o fog do pos-processamento.
@@ -239,6 +298,34 @@ private void RefreshParticleRenderers()
         foreach (GameObject cloud in taggedClouds)
             cloudRenderers.AddRange(cloud.GetComponentsInChildren<Renderer>(true));
         taggedCloudRenderers = cloudRenderers.ToArray();
+
+        List<Renderer> cubeRenderers = new List<Renderer>();
+        Renderer[] sceneRenderers = FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (Renderer candidate in sceneRenderers)
+        {
+            if (candidate != null &&
+                candidate.gameObject.scene == gameObject.scene &&
+                MobileSceneToonMaterials.IsPhaseOneCube(candidate))
+            {
+                cubeRenderers.Add(candidate);
+            }
+        }
+        phaseOneCubeRenderers = cubeRenderers.ToArray();
+
+        List<Renderer> blockRenderers = new List<Renderer>();
+        MathBlockValue[] blocks = FindObjectsByType<MathBlockValue>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (MathBlockValue block in blocks)
+            if (block != null && block.gameObject.scene == gameObject.scene)
+                blockRenderers.AddRange(block.GetComponentsInChildren<Renderer>(true));
+        mathBlockRenderers = blockRenderers.ToArray();
+
+        List<Renderer> timerRenderers = new List<Renderer>();
+        CountdownTimer[] timers = FindObjectsByType<CountdownTimer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (CountdownTimer timer in timers)
+            if (timer != null && timer.gameObject.scene == gameObject.scene)
+                timerRenderers.AddRange(timer.GetComponentsInChildren<Renderer>(true));
+        countdownTimerRenderers = timerRenderers.ToArray();
+
         nextParticleRefreshTime = Time.unscaledTime + 2f;
     }
 

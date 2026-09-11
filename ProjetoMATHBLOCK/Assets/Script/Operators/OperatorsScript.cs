@@ -43,10 +43,13 @@ public class OperatorsScript : MonoBehaviour
     private InputAction selectDivisionAction;
     private int lastInteractionFrame = -1;
     private bool lastInteractionSucceeded;
+    private readonly HashSet<GravityInteract.PencilOperator> equippedOperators =
+        new HashSet<GravityInteract.PencilOperator>();
 
     private void Awake()
     {
         ResolveReferences();
+        RememberInitiallyEquippedOperator();
         ResolveInputAction();
         SetAllIconsAlpha(unequippedAlpha);
     }
@@ -128,6 +131,12 @@ public class OperatorsScript : MonoBehaviour
     {
         ResolveReferences();
 
+        if (!HasEquippedBefore(operatorType))
+        {
+            Debug.Log($"Operador {operatorType} ainda nao foi equipado pelo jogador.", this);
+            return false;
+        }
+
         Vector3 soundPosition = playerVision != null
             ? playerVision.position
             : transform.position;
@@ -171,6 +180,11 @@ public class OperatorsScript : MonoBehaviour
         if (pencilGun == null || operatorType == GravityInteract.PencilOperator.None)
             return false;
 
+        // Interagir diretamente com o item da cena é o momento em que o
+        // operador é obtido. Depois disso, os atalhos podem selecioná-lo.
+        if (sceneOperator != null)
+            equippedOperators.Add(operatorType);
+
         if (equippedSceneOperator != null && equippedSceneOperator != sceneOperator)
             equippedSceneOperator.RestoreToScene();
 
@@ -184,6 +198,18 @@ public class OperatorsScript : MonoBehaviour
         UpdateHudIcons(operatorType);
         Debug.Log($"Operador selecionado: {operatorType} ({(sceneOperator != null ? "cena" : "atalho")}).");
         return true;
+    }
+
+    public bool HasEquippedBefore(GravityInteract.PencilOperator operatorType)
+    {
+        return operatorType != GravityInteract.PencilOperator.None &&
+               equippedOperators.Contains(operatorType);
+    }
+
+    private void RememberInitiallyEquippedOperator()
+    {
+        if (pencilGun != null && pencilGun.EquippedOperator != GravityInteract.PencilOperator.None)
+            equippedOperators.Add(pencilGun.EquippedOperator);
     }
 
     private void ResolveReferences()

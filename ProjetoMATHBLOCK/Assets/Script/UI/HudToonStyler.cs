@@ -6,10 +6,15 @@ public sealed class HudToonStyler : MonoBehaviour
 {
     private static Sprite buttonSprite;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void Install()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneInitializer()
     {
-        if (!SceneManager.GetActiveScene().name.StartsWith("Fase"))
+        GlobalSceneBootstrap.Register(Install);
+    }
+
+    private static void Install(Scene scene)
+    {
+        if (!scene.name.StartsWith("Fase") || FindFirstObjectByType<HudToonStyler>() != null)
             return;
         GameObject stylist = new GameObject("HUD Toon Dotted Style");
         stylist.AddComponent<HudToonStyler>();

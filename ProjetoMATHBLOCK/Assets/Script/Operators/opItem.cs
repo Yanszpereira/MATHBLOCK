@@ -2,7 +2,12 @@ using UnityEngine;
 
 public class opItem : MonoBehaviour
 {
+    private static readonly int OutlinePixelsId = Shader.PropertyToID("_OutlinePixels");
+
     public GravityInteract.PencilOperator operatorType;
+
+    [Header("Toon Outline")]
+    [SerializeField, Range(0f, 8f)] private float outlinePixels = 3.5f;
 
     [Header("Reactivation Animation")]
     [SerializeField] private AnimationClip reactivationAnimation;
@@ -44,7 +49,28 @@ public class opItem : MonoBehaviour
         wobbleTimeOffset = Random.Range(0f, Mathf.PI * 2f);
         cachedRenderers = GetComponentsInChildren<Renderer>(true);
         cachedColliders = GetComponentsInChildren<Collider>(true);
+        ApplyOperatorOutline();
         CacheLights();
+    }
+
+    private void ApplyOperatorOutline()
+    {
+        if (cachedRenderers == null)
+            return;
+
+        MaterialPropertyBlock properties = new MaterialPropertyBlock();
+        for (int index = 0; index < cachedRenderers.Length; index++)
+        {
+            Renderer target = cachedRenderers[index];
+            if (target == null || target.sharedMaterial == null ||
+                !target.sharedMaterial.HasProperty(OutlinePixelsId))
+                continue;
+
+            target.GetPropertyBlock(properties);
+            properties.SetFloat(OutlinePixelsId, outlinePixels);
+            target.SetPropertyBlock(properties);
+            properties.Clear();
+        }
     }
 
     private void Update()

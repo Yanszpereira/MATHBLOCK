@@ -11,13 +11,10 @@ public sealed class MobileTouchControls : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install()
     {
-        // Remove primeiro para continuar seguro quando o Domain Reload estiver
-        // desabilitado nas opcoes de Enter Play Mode.
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        GlobalSceneBootstrap.Register(OnSceneLoaded);
     }
 
-    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private static void OnSceneLoaded(Scene scene)
     {
         if (!scene.name.StartsWith("Fase", System.StringComparison.OrdinalIgnoreCase))
             return;

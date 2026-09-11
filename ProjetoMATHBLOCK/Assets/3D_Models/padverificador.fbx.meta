@@ -3,7 +3,17 @@ guid: 0049bff65e47ee141a7ba91d0a4e0508
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: base do pad
+    second: {fileID: 2100000, guid: 5345bac577ab4b6449f77d4564d90954, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: botao.001
+    second: {fileID: 2100000, guid: a6f7c3a0956e0544289a4ff8e1046062, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

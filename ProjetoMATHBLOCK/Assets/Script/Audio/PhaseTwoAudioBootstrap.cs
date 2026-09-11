@@ -10,10 +10,15 @@ public sealed class PhaseTwoAudioBootstrap : MonoBehaviour
     private const string MusicEvent = "event:/735157__rotlily__simple-music-loop-bass-keys-drums";
     private EventInstance musicInstance;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void Install()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneInitializer()
     {
-        if (SceneManager.GetActiveScene().name != PhaseTwoName
+        GlobalSceneBootstrap.Register(Install);
+    }
+
+    private static void Install(Scene scene)
+    {
+        if (scene.name != PhaseTwoName
             || FindFirstObjectByType<PhaseTwoAudioBootstrap>() != null)
             return;
 
@@ -29,7 +34,9 @@ public sealed class PhaseTwoAudioBootstrap : MonoBehaviour
     private void OnDestroy()
     {
         if (!musicInstance.isValid()) return;
-        musicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        // A troca de fase já possui fade visual. Parar imediatamente impede que
+        // a música da Fase 2 se sobreponha ao áudio inicial da Fase 1.
+        musicInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
         musicInstance.release();
         musicInstance.clearHandle();
     }

@@ -61,6 +61,7 @@ public class GravityInteract : MonoBehaviour
     private bool hasLastCarriedPosition;
     private float currentCarriedBlockDistance;
     private readonly List<CollisionIgnorePair> ignoredCarriedBlockCollisions = new List<CollisionIgnorePair>();
+    private readonly List<CarriedColliderState> carriedColliderStates = new List<CarriedColliderState>();
     private readonly List<CarriedRendererState> carriedRendererStates = new List<CarriedRendererState>();
     private float currentCarriedBlockOpacity = 1f;
     private float targetCarriedBlockOpacity = 1f;
@@ -953,6 +954,11 @@ public class GravityInteract : MonoBehaviour
             if (carriedCollider == null)
                 continue;
 
+            // Mantem o volume disponível para ComputePenetration/preview, mas
+            // impede o bloco cinemático movido pelo zoom de deslocar o player.
+            carriedColliderStates.Add(new CarriedColliderState(carriedCollider, carriedCollider.isTrigger));
+            carriedCollider.isTrigger = true;
+
             foreach (GameObject mathBlock in mathBlocks)
             {
                 if (mathBlock == null || mathBlock.transform == carriedBlock || mathBlock.transform.IsChildOf(carriedBlock))
@@ -999,6 +1005,14 @@ public class GravityInteract : MonoBehaviour
         }
 
         ignoredCarriedBlockCollisions.Clear();
+
+        for (int i = 0; i < carriedColliderStates.Count; i++)
+        {
+            CarriedColliderState state = carriedColliderStates[i];
+            if (state.Collider != null)
+                state.Collider.isTrigger = state.WasTrigger;
+        }
+        carriedColliderStates.Clear();
     }
 
     private void CacheCarriedBlockRenderers(Transform carriedBlock)
@@ -1352,6 +1366,18 @@ public class GravityInteract : MonoBehaviour
         }
     }
 
+    private readonly struct CarriedColliderState
+    {
+        public readonly Collider Collider;
+        public readonly bool WasTrigger;
+
+        public CarriedColliderState(Collider collider, bool wasTrigger)
+        {
+            Collider = collider;
+            WasTrigger = wasTrigger;
+        }
+    }
+
     private struct CarriedRendererState
     {
         public readonly Renderer Renderer;
@@ -1381,6 +1407,10 @@ public class GravityInteract : MonoBehaviour
         private readonly Color propertyBlockColor;
         private readonly Shader originalShader;
         private readonly Texture originalBaseMap;
+        private readonly bool hasDitherAmount;
+        private readonly float ditherAmount;
+        private readonly bool hasOpacity;
+        private readonly float opacity;
 
         public CarriedRendererState(Renderer targetRenderer, Material material)
         {
@@ -1388,6 +1418,10 @@ public class GravityInteract : MonoBehaviour
             Material = material;
             originalShader = material.shader;
             originalBaseMap = material.HasProperty("_BaseMap") ? material.GetTexture("_BaseMap") : null;
+            hasDitherAmount = material.HasProperty("_DitherAmount");
+            ditherAmount = hasDitherAmount ? material.GetFloat("_DitherAmount") : 0f;
+            hasOpacity = material.HasProperty("_Opacity");
+            opacity = hasOpacity ? material.GetFloat("_Opacity") : 1f;
             hasBaseColor = material.HasProperty("_BaseColor");
             baseColor = hasBaseColor ? material.GetColor("_BaseColor") : Color.white;
             hasColor = material.HasProperty("_Color");
@@ -1432,15 +1466,28 @@ public class GravityInteract : MonoBehaviour
                 return;
             }
 
-            Shader ditherShader = Shader.Find("MathBlock/DitheredOpacity");
-            if (ditherShader == null)
+            // Os shaders toon já oferecem dither e opacidade. Mantê-los evita
+            // perder bandas, rim light e principalmente o passe de contorno.
+            if (hasDitherAmount && hasOpacity)
+            {
+                ConfigureTransparentMaterial(Material);
+                Material.SetFloat("_DitherAmount", amount);
+                Material.SetFloat("_Opacity", 1f - amount);
+                if (Material.HasProperty("_DotScale"))
+                    Material.SetFloat("_DotScale", 7f);
+                return;
+            }
+
+            Shader fallbackShader = Shader.Find("MathBlock/DitheredOpacity");
+            if (fallbackShader == null)
                 return;
 
-            Material.shader = ditherShader;
+            Material.shader = fallbackShader;
             if (originalBaseMap != null)
                 Material.SetTexture("_BaseMap", originalBaseMap);
             Material.SetColor("_BaseColor", hasBaseColor ? baseColor : hasColor ? color : Color.white);
             Material.SetFloat("_DitherAmount", amount);
+            Material.SetFloat("_Opacity", 1f - amount);
             Material.SetFloat("_DotScale", 7f);
         }
 
@@ -1503,6 +1550,12 @@ public class GravityInteract : MonoBehaviour
             {
                 Material.SetColor("_Color", color);
             }
+
+            if (hasDitherAmount)
+                Material.SetFloat("_DitherAmount", ditherAmount);
+
+            if (hasOpacity)
+                Material.SetFloat("_Opacity", opacity);
 
             if (hasSurface)
             {

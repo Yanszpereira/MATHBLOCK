@@ -57,6 +57,7 @@ public class OperatorSelectionTests
             SetField(operators, iconField, iconObject.GetComponent<Image>());
         }
 
+        UnlockOperator(operators, expectedOperator);
         Invoke(operators, selectionMethod);
 
         object equipped = gravityInteract.GetType()
@@ -71,6 +72,33 @@ public class OperatorSelectionTests
             float expectedAlpha = iconField == selectedIconField ? 1f : 0.7f;
             Assert.That(icon.color.a, Is.EqualTo(expectedAlpha).Within(0.001f));
         }
+    }
+
+    [Test]
+    public void UiSelection_DoesNotEquipOperatorBeforeItWasObtained()
+    {
+        GameObject player = Track(new GameObject("LockedOperatorSelectionPlayer"));
+        Component gravityInteract = player.AddComponent(GravityInteractType);
+        Component operators = player.GetComponent(OperatorsScriptType);
+
+        Assert.That(operators, Is.Not.Null);
+        SetField(operators, "playOperatorSelectionSounds", false);
+
+        Invoke(operators, "SelectAdditionFromUI");
+
+        object equipped = gravityInteract.GetType()
+            .GetProperty("EquippedOperator", InstanceFlags)
+            ?.GetValue(gravityInteract);
+
+        Assert.That(equipped?.ToString(), Is.EqualTo("None"));
+    }
+
+    private static void UnlockOperator(Component operators, string operatorName)
+    {
+        object unlocked = GetField(operators, "equippedOperators");
+        Type operatorType = GravityInteractType.GetNestedType("PencilOperator", BindingFlags.Public);
+        object operatorValue = Enum.Parse(operatorType, operatorName);
+        unlocked.GetType().GetMethod("Add")?.Invoke(unlocked, new[] { operatorValue });
     }
 
     private GameObject Track(GameObject target)

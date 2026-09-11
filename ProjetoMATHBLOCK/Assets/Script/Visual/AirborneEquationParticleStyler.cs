@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Dá acabamento consistente às contas que flutuam no cenário sem alterar
@@ -10,8 +11,13 @@ public sealed class AirborneEquationParticleStyler : MonoBehaviour
     private const string ShaderName = "MathBlock/Airborne Equation Particle";
     private static readonly List<Material> runtimeMaterials = new List<Material>();
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void StyleSceneEquations()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneInitializer()
+    {
+        GlobalSceneBootstrap.Register(StyleSceneEquations);
+    }
+
+    private static void StyleSceneEquations(Scene scene)
     {
         for (int index = runtimeMaterials.Count - 1; index >= 0; index--)
         {

@@ -16,11 +16,10 @@ public sealed class ToonCloudSkyGenerator : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        GlobalSceneBootstrap.Register(OnSceneLoaded);
     }
 
-    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private static void OnSceneLoaded(Scene scene)
     {
         string sceneName = scene.name;
         if (!sceneName.StartsWith("Fase") && sceneName != "MainScene")
@@ -134,9 +133,11 @@ public sealed class ToonCloudSkyGenerator : MonoBehaviour
         SetFloat("_EnableSpecular", 0f);
         SetFloat("_EnableRim", 1f);
         SetFloat("_RimAmount", 0.65f);
-        SetFloat("_OutlineWidth", Application.isMobilePlatform ? 0f : 0.0022f);
-        if (!Application.isMobilePlatform)
-            cloudMaterial.EnableKeyword("_OUTLINE_ON");
+        // O shader atual mede a borda em pixels. _OutlineWidth era legado e
+        // não produzia mais efeito, principalmente no mobile.
+        SetFloat("_OutlinePixels", Application.isMobilePlatform ? 1.2f : 1.5f);
+        SetFloat("_EnableOutline", 1f);
+        cloudMaterial.EnableKeyword("_OUTLINE_ON");
         cloudMaterial.EnableKeyword("_RIM_ON");
         cloudMaterial.enableInstancing = true;
     }

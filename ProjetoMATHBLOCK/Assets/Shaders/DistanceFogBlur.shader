@@ -19,7 +19,8 @@ Shader "Hidden/MathBlock/DistanceFogBlur"
             float4 _ExclusionMask_TexelSize; // preencher via material.SetTextureOffset/SetVector no script, ou deixar Unity popular automaticamente se o nome bater com uma textura setada via SetTexture
             float _StartDistance, _FullDistance, _BlurRadius;
             float _FogColorStrength, _DotStrength, _DotScale, _MobileQuality;
-            fixed4 _FogColor;
+            float _DownLook, _DownDarkening;
+            fixed4 _FogColor, _DotColor;
 
             // 1 / 0.84, pré-calculado para trocar divisão por multiplicação no branch mobile.
             static const half INV_MOBILE_WEIGHT = 1.190476h;
@@ -35,7 +36,7 @@ Shader "Hidden/MathBlock/DistanceFogBlur"
                 // Early-out: se não há neblina base neste pixel, a exclusão só pode
                 // reduzir ainda mais (nunca aumentar), então o resultado final já é 0.
                 // Evita 7 leituras de textura da máscara + todo o blur em pixels próximos.
-                if (fog <= 0.001)
+                if (fog <= 0.001 && _DownLook <= 0.001)
                 {
                     return center;
                 }
@@ -50,6 +51,7 @@ Shader "Hidden/MathBlock/DistanceFogBlur"
                 exclusion = max(exclusion, tex2D(_ExclusionMask, input.uv + maskPixel).r);
                 exclusion = max(exclusion, tex2D(_ExclusionMask, input.uv - maskPixel).r);
                 fog *= 1.0 - saturate(exclusion);
+                half localDownLook = _DownLook * (1.0h - saturate(exclusion));
 
                 float2 offset = _MainTex_TexelSize.xy * _BlurRadius * fog;
 
@@ -75,10 +77,22 @@ Shader "Hidden/MathBlock/DistanceFogBlur"
                 half3 color = lerp(center.rgb, blurred.rgb, fog);
                 color = lerp(color, _FogColor.rgb, fog * _FogColorStrength);
 
+                // Intensidade vertical compartilhada pelo pontilhado e escurecimento.
+                half lowerScreen = 1.0h - smoothstep(0.08, 0.92, input.uv.y);
+
                 // Pontos discretos: modulam levemente a neblina, sem virar ruído forte.
                 float2 cell = frac(input.pos.xy / max(2.0, _DotScale)) - 0.5;
                 half dot = 1.0 - smoothstep(0.18, 0.29, length(cell));
-                color *= 1.0 - dot * fog * _DotStrength;
+                // Ao olhar para baixo, os pontos deixam de depender da distancia.
+                // Assim continuam visiveis inclusive no chao perto do jogador.
+                half dotCoverage = max(fog, localDownLook * (0.55h + lowerScreen * 0.45h));
+                half dottedAmount = dot * dotCoverage * _DotStrength * lerp(1.0h, 1.65h, localDownLook);
+                color = lerp(color, _DotColor.rgb, dottedAmount);
+
+                // Atmosfera inferior: quanto mais a camera aponta para baixo,
+                // mais a parte baixa da tela mergulha no preto arroxeado.
+                half downwardAmount = saturate(localDownLook * _DownDarkening * (0.42h + lowerScreen * 0.58h));
+                color = lerp(color, _DotColor.rgb, downwardAmount);
 
                 return fixed4(color, center.a);
             }

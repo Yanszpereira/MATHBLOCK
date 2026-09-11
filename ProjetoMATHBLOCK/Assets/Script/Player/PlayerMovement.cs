@@ -10,6 +10,9 @@ public class PlayerMovement : MonoBehaviour
     public float gravity = -9.81f;
     public float jumpHeight = 1.6f;
 
+    [Header("Jump Feedback")]
+    [SerializeField, Min(0f)] private float jumpCooldown = 1f;
+
     [Header("Ground Check")]
 
     [Header("Ground Check")]
@@ -40,6 +43,9 @@ public class PlayerMovement : MonoBehaviour
     private float verticalInput;
     private float verticalVelocity;
     private bool jumpWasPressed;
+    private float nextJumpAllowedTime;
+    private Look playerLook;
+    private GravityInteract gravityInteract;
     private readonly RaycastHit[] groundHits = new RaycastHit[8];
     private Vector3 velocity;
 
@@ -50,10 +56,13 @@ public class PlayerMovement : MonoBehaviour
     private int maximumBlockDuplications;
 
     public bool IsTryingToMove => new Vector2(horizontalInput, verticalInput).sqrMagnitude > 0.01f;
+    public bool IsFalling => !isGroundedThisFrame && verticalVelocity < -1f;
+    public float FallingSpeed => IsFalling ? -verticalVelocity : 0f;
     public int AvailableBlockDuplications => availableBlockDuplications;
     public int MaximumBlockDuplications => maximumBlockDuplications;
     public event Action<int, int> BlockDuplicationsChanged;
     public event Action BlockDuplicationRequested;
+    private bool isGroundedThisFrame;
 
     private void Awake()
     {
@@ -64,6 +73,12 @@ public class PlayerMovement : MonoBehaviour
             gameObject.AddComponent<BlockDuplicationCounter>();
 
         PlayerInput playerInput = GetComponent<PlayerInput>();
+        playerLook = GetComponent<Look>();
+        if (playerLook == null)
+            playerLook = GetComponentInChildren<Look>(true);
+        if (playerLook == null)
+            playerLook = GetComponentInParent<Look>();
+        gravityInteract = GetComponent<GravityInteract>();
 
         if (playerInput != null)
         {
@@ -74,6 +89,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         bool isGrounded = IsGrounded();
+        isGroundedThisFrame = isGrounded;
 
         Vector3 move = transform.right * horizontalInput + transform.forward * verticalInput;
         controller.Move(move * speed * Time.deltaTime);
@@ -85,12 +101,17 @@ public class PlayerMovement : MonoBehaviour
 
         bool jumpPressed = IsJumpPressed();
 
-        if (isGrounded && jumpPressed && !jumpWasPressed)
+        bool isHoldingBlock = gravityInteract != null && gravityInteract.IsHoldingBlock;
+        if (isGrounded && !isHoldingBlock && jumpPressed && !jumpWasPressed &&
+            Time.time >= nextJumpAllowedTime)
         {
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
             isGrounded = false;
+            isGroundedThisFrame = false;
+            nextJumpAllowedTime = Time.time + Mathf.Max(0f, jumpCooldown);
 
             PlayJumpSound();
+            playerLook?.PlayJumpShake();
             ResetFootstepTimer();
         }
 
@@ -275,6 +296,7 @@ public class PlayerMovement : MonoBehaviour
         verticalVelocity = 0f;
         velocity = Vector3.zero;
         jumpWasPressed = false;
+        nextJumpAllowedTime = 0f;
         ResetFootstepTimer();
         ResetVoidFallSoundState();
     }

@@ -12,10 +12,16 @@ public sealed class LevelProgressionController : MonoBehaviour
     private float nextCheckTime;
     private bool transitionStarted;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void Install()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneInitializer()
     {
-        if (!SceneManager.GetActiveScene().name.StartsWith("Fase"))
+        GlobalSceneBootstrap.Register(Install);
+    }
+
+    private static void Install(Scene scene)
+    {
+        if (!scene.name.StartsWith("Fase") ||
+            FindFirstObjectByType<LevelProgressionController>() != null)
             return;
         GameObject progressionObject = new GameObject("Level Progression");
         progressionObject.AddComponent<LevelProgressionController>();

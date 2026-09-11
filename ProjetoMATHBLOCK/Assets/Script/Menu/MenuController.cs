@@ -36,7 +36,7 @@ public class MenuController : MonoBehaviour
         AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     // =========================================================
-    // ÁUDIO FMOD
+    // ï¿½UDIO FMOD
     // =========================================================
 
     [Header("Audio UI")]
@@ -61,11 +61,16 @@ public class MenuController : MonoBehaviour
     private DynamicCrosshair globalCrosshair;
 
     // =========================================================
-    // INICIALIZAÇÃO
+    // INICIALIZAï¿½ï¿½O
     // =========================================================
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void EnsureSceneController()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneInitializer()
+    {
+        GlobalSceneBootstrap.Register(EnsureSceneController);
+    }
+
+    private static void EnsureSceneController(Scene scene)
     {
         if (FindFirstObjectByType<MenuController>(
                 FindObjectsInactive.Include) != null)
@@ -321,7 +326,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // PREPARAÇÃO DOS MENUS
+    // PREPARAï¿½ï¿½O DOS MENUS
     // =========================================================
 
     private void PrepararMenus()
@@ -409,7 +414,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // PREPARAÇÃO DOS BOTÕES
+    // PREPARAï¿½ï¿½O DOS BOTï¿½ES
     // =========================================================
 
     private void PrepararBotoes(
@@ -483,7 +488,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // REFERÊNCIAS
+    // REFERï¿½NCIAS
     // =========================================================
 
     private void ResolveMenuReferences()
@@ -599,7 +604,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // REPARAÇÃO DOS EVENTOS DOS BOTÕES
+    // REPARAï¿½ï¿½O DOS EVENTOS DOS BOTï¿½ES
     // =========================================================
 
     private void RepairAllHudButtonCalls()
@@ -806,7 +811,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // BOTÃO VOLTAR / ESC
+    // BOTï¿½O VOLTAR / ESC
     // =========================================================
 
     public void OnBackButtonPressed()
@@ -837,7 +842,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // BOTÕES DE ABRIR
+    // BOTï¿½ES DE ABRIR
     // =========================================================
 
     public void AbrirInicial()
@@ -869,7 +874,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // BOTÕES DE FECHAR
+    // BOTï¿½ES DE FECHAR
     // =========================================================
 
     public void FecharInicial()
@@ -1064,7 +1069,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // ANIMAÇÃO DO PAPEL
+    // ANIMAï¿½ï¿½O DO PAPEL
     // =========================================================
 
     private void TocarPapel(
@@ -1181,6 +1186,14 @@ public class MenuController : MonoBehaviour
 
     public void FecharJogo()
     {
+        // Na HUD de pausa, Sair abandona a fase e retorna a tela inicial.
+        // Encerrar o aplicativo continua disponivel apenas no MainMenu.
+        if (!IsMainMenu)
+        {
+            VoltarMenuPrincipal();
+            return;
+        }
+
         TocarSomClique();
 
 #if UNITY_EDITOR
@@ -1356,7 +1369,7 @@ public class MenuController : MonoBehaviour
     }
 
     // =========================================================
-    // DESTRUIÇÃO
+    // DESTRUIï¿½ï¿½O
     // =========================================================
 
     private void OnDestroy()

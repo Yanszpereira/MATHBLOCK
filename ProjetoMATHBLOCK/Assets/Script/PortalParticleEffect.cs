@@ -68,6 +68,10 @@ public sealed class PortalParticleEffect : MonoBehaviour
     [SerializeField]
     private bool clockwise = true;
 
+    [SerializeField]
+    [Tooltip("Faz as luzes nascerem no centro e subirem pela porta.")]
+    private bool centeredUpwardFlow = true;
+
     [Header("Sprites de luz")]
     [SerializeField]
     [Tooltip("Light_01 até Light_03. São preenchidos automaticamente no Editor.")]
@@ -95,6 +99,7 @@ public sealed class PortalParticleEffect : MonoBehaviour
     private struct PortalParticle
     {
         public Vector2 startOffset;
+        public Vector2 endOffset;
         public float age;
         public float lifetime;
         public float size;
@@ -403,12 +408,28 @@ public sealed class PortalParticleEffect : MonoBehaviour
     {
         GetPlaneAxes(out _, out _, out _, out Vector2 halfSize);
 
-        Vector2 edgeOffset = GetRandomPointOnRectangleBorder(halfSize);
+        Vector2 startOffset;
+        Vector2 endOffset;
+        if (centeredUpwardFlow)
+        {
+            startOffset = new Vector2(
+                Random.Range(-halfSize.x * 0.10f, halfSize.x * 0.10f),
+                Random.Range(-halfSize.y * 0.08f, halfSize.y * 0.08f));
+            endOffset = new Vector2(
+                Random.Range(-halfSize.x * 0.38f, halfSize.x * 0.38f),
+                halfSize.y);
+        }
+        else
+        {
+            startOffset = GetRandomPointOnRectangleBorder(halfSize);
+            endOffset = Vector2.zero;
+        }
         float size = Mathf.Max(0.001f, particleSize + Random.Range(-particleSizeVariation, particleSizeVariation));
 
         return new PortalParticle
         {
-            startOffset = edgeOffset,
+            startOffset = startOffset,
+            endOffset = endOffset,
             age = 0f,
             lifetime = particleLifetime * Random.Range(0.8f, 1.2f),
             size = size,
@@ -448,10 +469,23 @@ public sealed class PortalParticleEffect : MonoBehaviour
                 continue;
 
             float progress = Mathf.Clamp01(portalParticle.age / portalParticle.lifetime);
-            float contraction = 1f - progress;
-            float direction = clockwise ? -1f : 1f;
-            float angle = direction * progress * spiralRevolutions * Mathf.PI * 2f;
-            Vector2 rotatedOffset = Rotate(portalParticle.startOffset * contraction, angle);
+            Vector2 rotatedOffset;
+            if (centeredUpwardFlow)
+            {
+                float easedProgress = progress * progress * (3f - 2f * progress);
+                float direction = clockwise ? -1f : 1f;
+                float sway = Mathf.Sin(progress * spiralRevolutions * Mathf.PI * 2f) *
+                    portalParticle.size * 0.9f * direction;
+                rotatedOffset = Vector2.Lerp(portalParticle.startOffset, portalParticle.endOffset, easedProgress);
+                rotatedOffset.x += sway * (1f - progress);
+            }
+            else
+            {
+                float contraction = 1f - progress;
+                float direction = clockwise ? -1f : 1f;
+                float angle = direction * progress * spiralRevolutions * Mathf.PI * 2f;
+                rotatedOffset = Rotate(portalParticle.startOffset * contraction, angle);
+            }
 
             ParticleSystem.Particle particle = particleBuffers[lightIndex][particleIndex];
             particle.position = center + axisU * rotatedOffset.x + axisV * rotatedOffset.y;

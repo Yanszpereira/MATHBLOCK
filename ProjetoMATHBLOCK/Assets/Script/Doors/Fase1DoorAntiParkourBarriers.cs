@@ -16,10 +16,14 @@ public sealed class Fase1DoorAntiParkourBarriers : MonoBehaviour
     private static readonly Vector3 RightCenter = new Vector3(15.5f, 8f, 0f);
     private static readonly Vector3 SideBarrierSize = new Vector3(20f, 20f, 4f);
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void InstallInFase1()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneInitializer()
     {
-        Scene activeScene = SceneManager.GetActiveScene();
+        GlobalSceneBootstrap.Register(InstallInFase1);
+    }
+
+    private static void InstallInFase1(Scene activeScene)
+    {
         if (!activeScene.IsValid() || activeScene.name != TargetSceneName)
             return;
 

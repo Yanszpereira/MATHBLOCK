@@ -44,7 +44,7 @@ Material:
     - _OutlineWidth: 0.006
     - _RimAmount: 0.72
     - _RimSmoothness: 0.12
-    - _ShadeSmoothness: 0.08
+    - _ShadeSmoothness: 1
     - _ShadeSteps: 3
     - _SpecularSmoothness: 0.045
     m_Colors:

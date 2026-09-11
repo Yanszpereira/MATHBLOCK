@@ -79,8 +79,13 @@ public class MathBlockValue : MonoBehaviour
         public Color color;
     }
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void BootstrapMathBlockLabels()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneInitializer()
+    {
+        GlobalSceneBootstrap.Register(BootstrapMathBlockLabels);
+    }
+
+    private static void BootstrapMathBlockLabels(UnityEngine.SceneManagement.Scene scene)
     {
         foreach (GameObject block in GameObject.FindGameObjectsWithTag("MathBlock"))
         {
@@ -716,14 +721,14 @@ public class MathBlockValue : MonoBehaviour
                     toon.SetTexture("_MainTex", sourceTexture);
 
                 toon.SetFloat("_ShadeSteps", 3f);
-                toon.SetFloat("_ShadeSmoothness", isResizable ? 1f : 0.08f);
+                toon.SetFloat("_ShadeSmoothness", 1f);
                 toon.SetFloat("_MinBrightness", 0.38f);
                 toon.SetFloat("_AmbientStrength", 0.42f);
-                if (isResizable)
-                    toon.SetFloat("_OutlinePixels", 1.75f);
-                else
-                    toon.SetFloat("_OutlineWidth", 0.006f);
+                if (toon.HasProperty("_OutlinePixels"))
+                    toon.SetFloat("_OutlinePixels", 0f);
                 toon.EnableKeyword("_OUTLINE_ON");
+                if (!isResizable)
+                    toon.EnableKeyword("_OUTLINE_GROUND_MASK_ON");
                 toon.EnableKeyword("_RIM_ON");
                 toon.EnableKeyword("_SPECULAR_ON");
 

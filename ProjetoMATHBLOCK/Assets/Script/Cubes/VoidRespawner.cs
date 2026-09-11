@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 public class VoidRespawner : MonoBehaviour
@@ -17,10 +19,17 @@ public class VoidRespawner : MonoBehaviour
     [SerializeField] private int groundSampleAttempts = 32;
     [SerializeField] private float groundRaycastHeight = 50f;
 
+    [Header("Player Fade")]
+    [SerializeField, Min(0.05f)] private float playerFadeOutDuration = 0.3f;
+    [SerializeField, Min(0.05f)] private float playerFadeInDuration = 0.45f;
+    [SerializeField, Min(0f)] private float blackScreenHoldDuration = 0.08f;
+    [SerializeField] private Color playerFadeColor = Color.black;
+
     [Header("Fallback Trigger")]
     [SerializeField] private Vector3 fallbackTriggerSize = new Vector3(120f, 8f, 120f);
 
     private readonly Dictionary<int, float> lastRespawnTimes = new Dictionary<int, float>();
+    private readonly HashSet<int> respawningPlayers = new HashSet<int>();
     private Vector3 initialPlayerPosition;
     private Quaternion initialPlayerRotation;
     private bool hasCapturedPlayerSpawn;
@@ -28,12 +37,10 @@ public class VoidRespawner : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneLoadedHandler()
     {
-        SceneManager.sceneLoaded -= HandleSceneLoaded;
-        SceneManager.sceneLoaded += HandleSceneLoaded;
+        GlobalSceneBootstrap.Register(InstallOnTaggedVoids);
     }
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void InstallOnTaggedVoids()
+    private static void InstallOnTaggedVoids(Scene scene)
     {
         GameObject[] voidObjects;
         try
@@ -53,11 +60,6 @@ public class VoidRespawner : MonoBehaviour
                 voidObject.AddComponent<VoidRespawner>();
             }
         }
-    }
-
-    private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        InstallOnTaggedVoids();
     }
 
     private void Awake()
@@ -151,7 +153,34 @@ public class VoidRespawner : MonoBehaviour
     private void RespawnPlayer(PlayerMovement player)
     {
         int instanceId = player.gameObject.GetInstanceID();
-        if (!CanRespawn(instanceId))
+        if (respawningPlayers.Contains(instanceId) || !CanRespawn(instanceId))
+            return;
+
+        respawningPlayers.Add(instanceId);
+        StartCoroutine(RespawnPlayerWithFade(player, instanceId));
+    }
+
+    private IEnumerator RespawnPlayerWithFade(PlayerMovement player, int instanceId)
+    {
+        CanvasGroup fade = CreatePlayerFadeOverlay();
+        yield return Fade(fade, 0f, 1f, playerFadeOutDuration);
+
+        if (player != null)
+            TeleportPlayer(player);
+
+        if (blackScreenHoldDuration > 0f)
+            yield return new WaitForSecondsRealtime(blackScreenHoldDuration);
+
+        yield return Fade(fade, 1f, 0f, playerFadeInDuration);
+        if (fade != null)
+            Destroy(fade.gameObject);
+
+        respawningPlayers.Remove(instanceId);
+    }
+
+    private void TeleportPlayer(PlayerMovement player)
+    {
+        if (player == null)
             return;
 
         if (!hasCapturedPlayerSpawn)
@@ -184,6 +213,58 @@ public class VoidRespawner : MonoBehaviour
         }
 
         Physics.SyncTransforms();
+    }
+
+    private CanvasGroup CreatePlayerFadeOverlay()
+    {
+        GameObject canvasObject = new GameObject(
+            "Void Respawn Fade",
+            typeof(RectTransform),
+            typeof(Canvas),
+            typeof(CanvasScaler),
+            typeof(GraphicRaycaster),
+            typeof(CanvasGroup));
+
+        Canvas canvas = canvasObject.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = short.MaxValue;
+
+        CanvasGroup group = canvasObject.GetComponent<CanvasGroup>();
+        group.alpha = 0f;
+        group.interactable = true;
+        group.blocksRaycasts = true;
+
+        GameObject imageObject = new GameObject("Fade Color", typeof(RectTransform), typeof(Image));
+        RectTransform imageRect = imageObject.GetComponent<RectTransform>();
+        imageRect.SetParent(canvasObject.transform, false);
+        imageRect.anchorMin = Vector2.zero;
+        imageRect.anchorMax = Vector2.one;
+        imageRect.offsetMin = Vector2.zero;
+        imageRect.offsetMax = Vector2.zero;
+
+        Image image = imageObject.GetComponent<Image>();
+        image.color = playerFadeColor;
+        image.raycastTarget = true;
+        return group;
+    }
+
+    private static IEnumerator Fade(CanvasGroup group, float from, float to, float duration)
+    {
+        if (group == null)
+            yield break;
+
+        duration = Mathf.Max(0.05f, duration);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float normalized = Mathf.Clamp01(elapsed / duration);
+            float eased = normalized * normalized * (3f - 2f * normalized);
+            group.alpha = Mathf.Lerp(from, to, eased);
+            yield return null;
+        }
+
+        group.alpha = to;
     }
 
     private void RespawnBlock(MathBlockValue block)

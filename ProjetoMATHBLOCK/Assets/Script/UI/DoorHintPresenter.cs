@@ -2,22 +2,24 @@ using System.Collections;
 using FMODUnity;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-/// <summary>Apresenta dicas contextuais quando o jogador atravessa portas.</summary>
+/// <summary>Apresenta a introdução aos operadores no início da primeira fase.</summary>
 public sealed class DoorHintPresenter : MonoBehaviour
 {
+    private const float InitialDelay = 5f;
     private const float SlideDuration = 0.58f;
     private const float ReadingDuration = 3.5f;
     private static DoorHintPresenter instance;
-    private static int passedDoorCount;
 
-    // Paleta do balão — tons quentes de "pergaminho" com identidade teal do jogo.
-    private static readonly Color FillTop = new Color(1.00f, 0.97f, 0.89f, 1f);
-    private static readonly Color FillBottom = new Color(0.99f, 0.92f, 0.78f, 1f);
-    private static readonly Color BorderColor = new Color(0.07f, 0.30f, 0.34f, 1f);
-    private static readonly Color TitleColor = new Color(0.05f, 0.20f, 0.23f, 1f);
-    private static readonly Color BodyColor = new Color(0.28f, 0.22f, 0.14f, 1f);
+    // Papel claro com a identidade teal preservada na borda e no glow.
+    private static readonly Color FillTop = new Color(1f, 1f, 0.985f, 0.98f);
+    private static readonly Color FillBottom = new Color(0.90f, 0.97f, 0.955f, 0.98f);
+    private static readonly Color BorderColor = new Color(0.16f, 1f, 0.78f, 1f);
+    private static readonly Color GlowColor = new Color(0.05f, 1f, 0.78f, 0.28f);
+    private static readonly Color TitleColor = new Color(0.025f, 0.34f, 0.29f, 1f);
+    private static readonly Color BodyColor = new Color(0.055f, 0.11f, 0.13f, 0.94f);
 
     private RectTransform balloon;
     private CanvasGroup canvasGroup;
@@ -25,13 +27,24 @@ public sealed class DoorHintPresenter : MonoBehaviour
     private float hiddenY;
     private const float VisibleY = -18f;
 
-    public static void NotifyDoorPassed()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneInitializer()
     {
-        passedDoorCount++;
-        if (passedDoorCount != 1)
+        GlobalSceneBootstrap.Register(InstallAtGameStart);
+    }
+
+    private static void InstallAtGameStart(Scene scene)
+    {
+        if (scene.name != "Fase 1")
             return;
 
-        EnsureInstance().ShowOperatorHint();
+        DoorHintPresenter presenter = EnsureInstance();
+        presenter.StartCoroutine(presenter.ShowAfterInitialDelay());
+    }
+
+    public static void NotifyDoorPassed()
+    {
+        // Mantido para não quebrar chamadas antigas das portas/spawners.
     }
 
     private static DoorHintPresenter EnsureInstance()
@@ -53,6 +66,18 @@ public sealed class DoorHintPresenter : MonoBehaviour
         }
         instance = this;
         BuildInterface();
+    }
+
+    private void OnDestroy()
+    {
+        if (instance == this)
+            instance = null;
+    }
+
+    private IEnumerator ShowAfterInitialDelay()
+    {
+        yield return new WaitForSecondsRealtime(InitialDelay);
+        ShowOperatorHint();
     }
 
     private void ShowOperatorHint()
@@ -81,7 +106,7 @@ public sealed class DoorHintPresenter : MonoBehaviour
         balloon.anchorMin = new Vector2(0.5f, 1f);
         balloon.anchorMax = new Vector2(0.5f, 1f);
         balloon.pivot = new Vector2(0.5f, 1f);
-        balloon.sizeDelta = new Vector2(700f, 330f);
+        balloon.sizeDelta = new Vector2(780f, 268f);
         hiddenY = balloon.sizeDelta.y + 35f;
         balloon.anchoredPosition = new Vector2(0f, hiddenY);
 
@@ -96,11 +121,26 @@ public sealed class DoorHintPresenter : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
         canvasGroup.interactable = false;
 
-        AddText(panelObject.transform, "DICA: OPERADORES", 32f, FontStyles.Bold, TitleColor,
-            new Vector2(38f, -62f), new Vector2(-38f, -20f), TextAlignmentOptions.Center);
+        AddBackdropLayer(panelObject.transform, "Outer Glow", new Vector2(24f, 24f), GlowColor, 0);
+        AddBackdropLayer(panelObject.transform, "Bright Border", new Vector2(10f, 10f),
+            new Color(0.08f, 0.85f, 0.68f, 0.52f), 1);
+
+        GameObject accentObject = new GameObject("Accent Divider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        accentObject.transform.SetParent(panelObject.transform, false);
+        RectTransform accentRect = accentObject.GetComponent<RectTransform>();
+        accentRect.anchorMin = accentRect.anchorMax = new Vector2(0f, 0.5f);
+        accentRect.pivot = new Vector2(0.5f, 0.5f);
+        accentRect.anchoredPosition = new Vector2(326f, 0f);
+        accentRect.sizeDelta = new Vector2(3f, 186f);
+        Image accent = accentObject.GetComponent<Image>();
+        accent.color = new Color(BorderColor.r, BorderColor.g, BorderColor.b, 0.55f);
+        accent.raycastTarget = false;
+
+        AddText(panelObject.transform, "DICA  •  OPERADORES", 32f, FontStyles.Bold, TitleColor,
+            new Vector2(354f, -76f), new Vector2(-38f, -24f), TextAlignmentOptions.Left);
         AddText(panelObject.transform,
-            "Pegue um operador e use-o entre dois MathBlocks. A soma junta valores; os outros operadores transformam o resultado de maneiras diferentes.",
-            21f, FontStyles.Normal, BodyColor, new Vector2(44f, -128f), new Vector2(-44f, -66f), TextAlignmentOptions.Center);
+            "Pegue um operador e aplique-o entre dois MathBlocks.\n\nCada símbolo transforma os valores de uma maneira diferente.",
+            21f, FontStyles.Normal, BodyColor, new Vector2(354f, -226f), new Vector2(-42f, -88f), TextAlignmentOptions.Left);
 
         GameObject imageObject = new GameObject("Operator Illustration", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
         imageObject.transform.SetParent(panelObject.transform, false);
@@ -108,12 +148,31 @@ public sealed class DoorHintPresenter : MonoBehaviour
         imageRect.anchorMin = new Vector2(0.5f, 1f);
         imageRect.anchorMax = new Vector2(0.5f, 1f);
         imageRect.pivot = new Vector2(0.5f, 1f);
-        imageRect.anchoredPosition = new Vector2(0f, -138f);
-        imageRect.sizeDelta = new Vector2(540f, 168f);
+        imageRect.anchoredPosition = new Vector2(-218f, -82f);
+        imageRect.sizeDelta = new Vector2(270f, 96f);
         RawImage illustration = imageObject.GetComponent<RawImage>();
         illustration.texture = Resources.Load<Texture2D>("Tutorial/operator_hint");
         illustration.uvRect = new Rect(0f, 0f, 1f, 1f);
         illustration.raycastTarget = false;
+    }
+
+    private static void AddBackdropLayer(Transform panel, string layerName, Vector2 expansion, Color color, int siblingIndex)
+    {
+        GameObject layerObject = new GameObject(layerName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        layerObject.transform.SetParent(panel, false);
+        layerObject.transform.SetSiblingIndex(siblingIndex);
+
+        RectTransform rect = layerObject.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = -expansion;
+        rect.offsetMax = expansion;
+
+        Image image = layerObject.GetComponent<Image>();
+        image.sprite = CreateBalloonSprite();
+        image.type = Image.Type.Sliced;
+        image.color = color;
+        image.raycastTarget = false;
     }
 
     private static void AddText(Transform parent, string content, float size, FontStyles style, Color color,
@@ -186,10 +245,10 @@ public sealed class DoorHintPresenter : MonoBehaviour
     {
         const int size = 200;
         const float shadowBlur = 18f;
-        const float shadowOpacity = 0.30f;
+        const float shadowOpacity = 0.42f;
         const float cardMargin = shadowBlur + 4f;
         const float cornerRadius = 34f;
-        const float borderThickness = 5f;
+        const float borderThickness = 6f;
         const float antiAliasWidth = 1.25f;
 
         Vector2 halfSize = new Vector2(size / 2f - cardMargin, size / 2f - cardMargin);
