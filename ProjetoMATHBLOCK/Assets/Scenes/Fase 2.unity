@@ -626,6 +626,8 @@ Transform:
   m_Children:
   - {fileID: 210717860}
   - {fileID: 676031506}
+  - {fileID: 1136126236}
+  - {fileID: 2025465474}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &306360734 stripped
@@ -7760,7 +7762,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 255096799}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 71ceeba6969acd841a5f468851dfe22d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7784,7 +7786,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 71ceeba6969acd841a5f468851dfe22d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 71ceeba6969acd841a5f468851dfe22d, type: 3}
       propertyPath: m_LocalRotation.z
@@ -7811,6 +7813,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 71ceeba6969acd841a5f468851dfe22d, type: 3}
+--- !u!4 &1136126236 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 71ceeba6969acd841a5f468851dfe22d, type: 3}
+  m_PrefabInstance: {fileID: 1136126235}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1149708689
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8285,7 +8292,7 @@ MonoBehaviour:
       Data2: 0
       Data3: 0
       Data4: 0
-    Path:
+    Path: 
   errorSoundCooldown: 0.35
 --- !u!1 &1282032039
 GameObject:
@@ -8938,7 +8945,7 @@ MonoBehaviour:
       Data2: 0
       Data3: 0
       Data4: 0
-    Path:
+    Path: 
   errorSoundCooldown: 0.35
 --- !u!65 &1554065829
 BoxCollider:
@@ -9242,21 +9249,21 @@ MonoBehaviour:
       Data2: 0
       Data3: 0
       Data4: 0
-    Path:
+    Path: 
   islandMoveSfx:
     Guid:
       Data1: 0
       Data2: 0
       Data3: 0
       Data4: 0
-    Path:
+    Path: 
   islandStopSfx:
     Guid:
       Data1: 0
       Data2: 0
       Data3: 0
       Data4: 0
-    Path:
+    Path: 
   passengerDetectionHeight: 0.3
   passengerDetectionMargin: 0.08
   platformButtonPrefab: {fileID: 361443253}
@@ -11108,7 +11115,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 255096799}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 3187a2025d8e4b442b99abeb984e92c8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -11128,7 +11135,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3187a2025d8e4b442b99abeb984e92c8, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3187a2025d8e4b442b99abeb984e92c8, type: 3}
       propertyPath: m_LocalRotation.y
@@ -11159,6 +11166,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3187a2025d8e4b442b99abeb984e92c8, type: 3}
+--- !u!4 &2025465474 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3187a2025d8e4b442b99abeb984e92c8, type: 3}
+  m_PrefabInstance: {fileID: 2025465473}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2042368291
 GameObject:
   m_ObjectHideFlags: 0
@@ -11509,5 +11521,3 @@ SceneRoots:
   - {fileID: 1626552547}
   - {fileID: 1269552539}
   - {fileID: 1995635638}
-  - {fileID: 1136126235}
-  - {fileID: 2025465473}

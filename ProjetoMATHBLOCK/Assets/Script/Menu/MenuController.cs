@@ -104,7 +104,7 @@ public class MenuController : MonoBehaviour
 
         foreach (StudioEventEmitter emitter in emitters)
         {
-            if (emitter == null || emitter.EventReference.Path != MenuMusicEventPath)
+            if (emitter == null || emitter.EventReference.Guid != RuntimeManager.PathToGUID(MenuMusicEventPath))
                 continue;
 
             emitter.Stop();
