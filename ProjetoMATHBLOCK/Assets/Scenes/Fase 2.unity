@@ -2742,7 +2742,6 @@ MonoBehaviour:
   particleSizeVariation: 0.025
   spiralRevolutions: 1.35
   clockwise: 1
-  centeredUpwardFlow: 1
   lightTextures:
   - {fileID: 2800000, guid: 3b0860c3b0cd69840afe2f25901e40bf, type: 3}
   - {fileID: 2800000, guid: 5210d5a1b8835ef4682ec4c090c87e59, type: 3}

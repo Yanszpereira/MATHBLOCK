@@ -4,9 +4,6 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public sealed class MathBlockBeamController : MonoBehaviour
 {
-    private static readonly int OutlineColorId = Shader.PropertyToID("_OutlineColor");
-    private static readonly int OutlinePixelsId = Shader.PropertyToID("_OutlinePixels");
-
     [Header("Referências")]
     [SerializeField] private GravityInteract gravityInteract;
     [SerializeField] private Transform beamOrigin;
@@ -32,7 +29,6 @@ public sealed class MathBlockBeamController : MonoBehaviour
     private MathBlockValue cachedMathBlockValue;
     private BoxCollider cachedCollider;
     private Renderer cachedRenderer;
-    private Renderer[] cachedOutlineRenderers;
     private PencilTipOperatorColor operatorColorSource;
     private GravityInteract.PencilOperator cachedOperator;
     private bool hasAppliedOperatorColor;
@@ -100,7 +96,6 @@ public sealed class MathBlockBeamController : MonoBehaviour
 
         if (heldBlock != cachedHeldBlock)
         {
-            RestoreHeldBlockOutline();
             CacheHeldBlock(heldBlock);
             RestartBeamReveal();
             hasAppliedOperatorColor = false;
@@ -126,7 +121,6 @@ public sealed class MathBlockBeamController : MonoBehaviour
 
             lineRenderer.startColor = color;
             lineRenderer.endColor = color;
-            ApplyHeldBlockOutline(color);
             hasAppliedOperatorColor = true;
         }
 
@@ -170,70 +164,6 @@ public sealed class MathBlockBeamController : MonoBehaviour
         cachedRenderer = heldBlock != null
             ? heldBlock.GetComponentInChildren<Renderer>(true)
             : null;
-        cachedOutlineRenderers = heldBlock != null
-            ? heldBlock.GetComponentsInChildren<Renderer>(true)
-            : null;
-    }
-
-    private void ApplyHeldBlockOutline(Color color)
-    {
-        if (cachedOutlineRenderers == null)
-            return;
-
-        color.a = 1f;
-        MaterialPropertyBlock properties = new MaterialPropertyBlock();
-        for (int rendererIndex = 0; rendererIndex < cachedOutlineRenderers.Length; rendererIndex++)
-        {
-            Renderer target = cachedOutlineRenderers[rendererIndex];
-            if (!TryGetOutlineMaterial(target, out _))
-                continue;
-
-            target.GetPropertyBlock(properties);
-            properties.SetColor(OutlineColorId, color);
-            properties.SetFloat(OutlinePixelsId, cachedResizableBlock != null ? 1.75f : 2.5f);
-            target.SetPropertyBlock(properties);
-            properties.Clear();
-        }
-    }
-
-    private void RestoreHeldBlockOutline()
-    {
-        if (cachedOutlineRenderers == null)
-            return;
-
-        MaterialPropertyBlock properties = new MaterialPropertyBlock();
-        for (int rendererIndex = 0; rendererIndex < cachedOutlineRenderers.Length; rendererIndex++)
-        {
-            Renderer target = cachedOutlineRenderers[rendererIndex];
-            if (!TryGetOutlineMaterial(target, out Material material))
-                continue;
-
-            target.GetPropertyBlock(properties);
-            properties.SetColor(OutlineColorId, material.GetColor(OutlineColorId));
-            properties.SetFloat(OutlinePixelsId, 0f);
-            target.SetPropertyBlock(properties);
-            properties.Clear();
-        }
-    }
-
-    private static bool TryGetOutlineMaterial(Renderer target, out Material outlineMaterial)
-    {
-        outlineMaterial = null;
-        if (target == null)
-            return false;
-
-        Material[] materials = target.sharedMaterials;
-        for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
-        {
-            Material material = materials[materialIndex];
-            if (material == null || !material.HasProperty(OutlineColorId))
-                continue;
-
-            outlineMaterial = material;
-            return true;
-        }
-
-        return false;
     }
 
     private Vector3 GetHeldBlockCenter()
@@ -257,7 +187,6 @@ public sealed class MathBlockBeamController : MonoBehaviour
         if (lineRenderer != null)
             lineRenderer.enabled = false;
 
-        RestoreHeldBlockOutline();
         isBeamActive = false;
         beamRevealElapsed = 0f;
         cachedHeldBlock = null;

@@ -6,9 +6,9 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(Camera))]
 public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
 {
-    [SerializeField] private Color outlineColor = new Color(0.028f, 0.006f, 0.045f, 1f);
-    [SerializeField, Range(0.5f, 8f)] private float thicknessPixels = 1.75f;
-    [SerializeField, Range(0.001f, 0.2f)] private float depthSensitivity = 0.02f;
+    [SerializeField] private Color outlineColor = new Color(0.028f, 0.006f, 0.045f, 0.62f);
+    [SerializeField, Range(0.5f, 8f)] private float thicknessPixels = 1f;
+    [SerializeField, Range(0.001f, 0.2f)] private float depthSensitivity = 0.025f;
     private Camera targetCamera;
     private Material outlineMaterial, maskMaterial;
     private GravityInteract gravityInteract;
@@ -24,8 +24,7 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
 
     private static void OnSceneLoaded(Scene scene)
     {
-        if (!scene.name.StartsWith("Fase", System.StringComparison.OrdinalIgnoreCase) &&
-            !scene.name.Equals("MainScene", System.StringComparison.OrdinalIgnoreCase)) return;
+        if (!IsGameplayScene(scene)) return;
         Camera camera = Camera.main;
         if (camera != null && camera.GetComponent<ScreenSpaceOutlineEffect>() == null)
             camera.gameObject.AddComponent<ScreenSpaceOutlineEffect>();
@@ -37,7 +36,14 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
         targetCamera.depthTextureMode |= DepthTextureMode.DepthNormals;
         Shader outline = Shader.Find("Hidden/MathBlock/ScreenSpaceOutline");
         Shader mask = Shader.Find("Hidden/MathBlock/ScreenSpaceOutlineMask");
-        if (outline == null || mask == null || !outline.isSupported || !mask.isSupported) { enabled = false; return; }
+        if (outline == null || mask == null || !outline.isSupported || !mask.isSupported)
+        {
+            Debug.LogError(
+                $"Outline global indisponível. Shader principal: {DescribeShader(outline)}; máscara: {DescribeShader(mask)}.",
+                this);
+            enabled = false;
+            return;
+        }
         outlineMaterial = new Material(outline) { hideFlags = HideFlags.HideAndDontSave };
         maskMaterial = new Material(mask) { hideFlags = HideFlags.HideAndDontSave };
         RefreshRenderers();
@@ -45,7 +51,11 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        if (outlineMaterial == null || maskMaterial == null) { Graphics.Blit(source, destination); return; }
+        if (!IsGameplayScene(SceneManager.GetActiveScene()) || outlineMaterial == null || maskMaterial == null)
+        {
+            Graphics.Blit(source, destination);
+            return;
+        }
         RenderTexture mask = BuildMask(source.width, source.height);
         outlineMaterial.SetColor(ColorId, outlineColor);
         outlineMaterial.SetFloat(ThicknessId, thicknessPixels);
@@ -112,5 +122,17 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
     {
         if (outlineMaterial != null) DestroyImmediate(outlineMaterial);
         if (maskMaterial != null) DestroyImmediate(maskMaterial);
+    }
+
+    private static string DescribeShader(Shader shader)
+    {
+        return shader == null ? "não encontrado" : $"{shader.name} (suportado={shader.isSupported})";
+    }
+
+    private static bool IsGameplayScene(Scene scene)
+    {
+        return scene.IsValid() &&
+               (scene.name.StartsWith("Fase", System.StringComparison.OrdinalIgnoreCase) ||
+                scene.name.Equals("MainScene", System.StringComparison.OrdinalIgnoreCase));
     }
 }

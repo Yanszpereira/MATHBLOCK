@@ -10470,7 +10470,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1419259793555257020, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -26.999878
+      value: -26.999939
       objectReference: {fileID: 0}
     - target: {fileID: 1522096170449284096, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: corHover.b
@@ -10812,7 +10812,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7760319943179108287, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -27.999878
+      value: -27.999939
       objectReference: {fileID: 0}
     - target: {fileID: 8188758639608048591, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_fontSize
@@ -16822,7 +16822,6 @@ MonoBehaviour:
   particleSizeVariation: 0.025
   spiralRevolutions: 1.35
   clockwise: 1
-  centeredUpwardFlow: 1
   lightTextures:
   - {fileID: 2800000, guid: 3b0860c3b0cd69840afe2f25901e40bf, type: 3}
   - {fileID: 2800000, guid: 5210d5a1b8835ef4682ec4c090c87e59, type: 3}
@@ -29253,6 +29252,10 @@ PrefabInstance:
       propertyPath: doorVerifier
       value: 
       objectReference: {fileID: 18635115}
+    - target: {fileID: 2862294720460524906, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: generationMode
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2862294720460524906, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
       propertyPath: possibleDoorMaxValue
       value: 200

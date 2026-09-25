@@ -10,6 +10,7 @@ public class MathBlockValue : MonoBehaviour
     private const string LabelShaderName = "MathBlock/LabelOverlay";
     private const string ToonShaderName = "Custom/URPToonShader";
     private const string StretchBlockToonShaderName = "MathBlock/Stretch Block Toon";
+    private const float HeldOutlineMinimumPixels = 4f;
     private const float LabelWorldScale = 0.75f;
     private const float MinimumParentScale = 0.0001f;
     private static readonly int OutlineColorId = Shader.PropertyToID("_OutlineColor");
@@ -379,6 +380,8 @@ public class MathBlockValue : MonoBehaviour
         if (heldOutlineActive && heldOutlineColor == color)
             return;
 
+        propertyBlock ??= new MaterialPropertyBlock();
+
         if (heldOutlineStates == null)
             heldOutlineStates = new List<HeldOutlineState>();
 
@@ -398,7 +401,9 @@ public class MathBlockValue : MonoBehaviour
             if (state.hasWidth)
                 propertyBlock.SetFloat(OutlineWidthId, state.width * widthMultiplier);
             if (state.hasPixels)
-                propertyBlock.SetFloat(OutlinePixelsId, state.pixels * widthMultiplier);
+                propertyBlock.SetFloat(
+                    OutlinePixelsId,
+                    Mathf.Max(state.pixels * widthMultiplier, HeldOutlineMinimumPixels));
             state.renderer.SetPropertyBlock(propertyBlock);
         }
 
@@ -410,6 +415,8 @@ public class MathBlockValue : MonoBehaviour
     {
         if (!heldOutlineActive || heldOutlineStates == null)
             return;
+
+        propertyBlock ??= new MaterialPropertyBlock();
 
         for (int stateIndex = 0; stateIndex < heldOutlineStates.Count; stateIndex++)
         {

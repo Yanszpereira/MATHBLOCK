@@ -556,6 +556,7 @@ public sealed class BlockResizeController : MonoBehaviour
                 return false;
 
             LogInteraction($"bloco ancorado pelo touch block={heldBlock.name}");
+            return true;
         }
 
         return TryBeginResizeAtCameraCenter();

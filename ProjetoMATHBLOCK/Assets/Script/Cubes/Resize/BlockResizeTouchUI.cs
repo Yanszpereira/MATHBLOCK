@@ -59,7 +59,7 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
             return;
 
         nextTargetCheck = Time.unscaledTime + 0.1f;
-        stretchButton.gameObject.SetActive(controller.HasResizeTargetAtCameraCenter());
+        stretchButton.gameObject.SetActive(controller.HasAvailableResizeTarget());
         exitButton.gameObject.SetActive(false);
     }
 
@@ -94,7 +94,7 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
 
     private void BeginStretchMode()
     {
-        if (controller == null || !controller.HasResizeTargetAtCameraCenter())
+        if (controller == null || !controller.HasAvailableResizeTarget())
         {
             stretchButton?.gameObject.SetActive(false);
             return;

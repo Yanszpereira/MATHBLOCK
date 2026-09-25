@@ -1,0 +1,2556 @@
+﻿#include "pch-cpp.hpp"
+
+
+
+
+
+template <typename R>
+struct VirtualFuncInvoker0
+{
+	typedef R (*Func)(void*, const RuntimeMethod*);
+
+	static inline R Invoke (Il2CppMethodSlot slot, RuntimeObject* obj)
+	{
+		const VirtualInvokeData& invokeData = il2cpp_codegen_get_virtual_invoke_data(slot, obj);
+		return ((Func)invokeData.methodPtr)(obj, invokeData.method);
+	}
+};
+
+struct List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4;
+struct List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D;
+struct BankU5BU5D_t58904B47BB60A78AA092F5A615D121CD9EEB6F50;
+struct BusU5BU5D_t2F3D0F2757F9BABE3649A6E1ADC1EE01585C779A;
+struct ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031;
+struct CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB;
+struct FmodResonanceAudioRoomU5BU5D_t5BEEF51627E8992A0F6135AF46BD1E20AC9BEDE7;
+struct IntPtrU5BU5D_tFD177F8C806A6921AD7150264CCC62FA00CAD832;
+struct ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918;
+struct StackTraceU5BU5D_t32FBCB20930EAF5BAE3F450FF75228E5450DA0DF;
+struct CancellationTokenSource_tAAE1E0033BCFC233801F8CB4CED5C852B350CB7B;
+struct Component_t39FBE53E5EFCF4409111FB22C15FF73717632EC3;
+struct FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35;
+struct IDictionary_t6D03155AF1FA9083817AA5B6AD7DEEACC26AB220;
+struct IndexOutOfRangeException_t7ECB35264FB6CA8FAA516BD958F4B2ADC78E8A82;
+struct MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71;
+struct SafeSerializationManager_tCBB85B95DFD1634237140CD892E82D06ECB3F5E6;
+struct String_t;
+struct Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1;
+struct UnitySourceGeneratedAssemblyMonoScriptTypes_v1_t91403D98B038360BF3C9D99EA5CD453876C9AF0C;
+struct Void_t4861ACF8F4594C3437BB48B6E56783494B843915;
+
+IL2CPP_EXTERN_C RuntimeClass* ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031_il2cpp_TypeInfo_var;
+IL2CPP_EXTERN_C RuntimeClass* FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var;
+IL2CPP_EXTERN_C RuntimeClass* IndexOutOfRangeException_t7ECB35264FB6CA8FAA516BD958F4B2ADC78E8A82_il2cpp_TypeInfo_var;
+IL2CPP_EXTERN_C RuntimeClass* List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4_il2cpp_TypeInfo_var;
+IL2CPP_EXTERN_C RuntimeClass* Marshal_tD976A56A90263C3CE2B780D4B1CADADE2E70B4A7_il2cpp_TypeInfo_var;
+IL2CPP_EXTERN_C RuntimeClass* RuntimeManager_t8E78AD643D1B838B80E527F55596F997F5B7340D_il2cpp_TypeInfo_var;
+IL2CPP_EXTERN_C RuntimeClass* Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_il2cpp_TypeInfo_var;
+IL2CPP_EXTERN_C RuntimeField* U3CPrivateImplementationDetailsU3E_t5A4A065C21883D3DF0D5E78A478C52D751D28002____0481731F33E7E9F59E03DC3894D8BAE5CA4EA3E2285CBF6FBF2ADE2958851835_FieldInfo_var;
+IL2CPP_EXTERN_C RuntimeField* U3CPrivateImplementationDetailsU3E_t5A4A065C21883D3DF0D5E78A478C52D751D28002____68BCACD21844545E141B28CAF2194A274C4DCC63A4DFC610F7C5D97ECC2F7584_FieldInfo_var;
+IL2CPP_EXTERN_C String_t* _stringLiteral04A5492DE7135826F34AFDA6E93B88BA6DCEE868;
+IL2CPP_EXTERN_C String_t* _stringLiteral560FF11FB71A07916C2C601DFDC9A5A18BE76F6D;
+IL2CPP_EXTERN_C String_t* _stringLiteral6FC8A3409851599FCC995B0B63300CE4AA4839CD;
+IL2CPP_EXTERN_C const RuntimeMethod* List_1_Add_m15A7EDC9675F1799FB7F8FDE4B54160F08E6B60F_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* List_1_Contains_m514EE87C010065C7B906F04FF956394E51C0BA28_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* List_1_Remove_m488421E36E8DD1FC47D403479508332A6E8E6986_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* List_1__ctor_mC49CD4F04DE70D42EEA0EBE4E070E85277A71E74_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* List_1_get_Count_mB9ECF5EFC357C7D11539D209275897FC664A456F_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* List_1_get_Item_mFD82115F7E4F9C27FF8E3B802B65CC483EFEAAEA_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* Marshal_SizeOf_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mAEFADBFCD4F6500CCE4C4C77FAA446531AACA4C2_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* Marshal_StructureToPtr_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mBC8CF1A75A5AFF2D73E492F1E38ED0B423116434_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* Matrix4x4_GetColumn_m5CE079D7A69DE70E3144BADD20A1651C73A8D118_RuntimeMethod_var;
+struct Exception_t_marshaled_com;
+struct Exception_t_marshaled_pinvoke;
+
+struct BankU5BU5D_t58904B47BB60A78AA092F5A615D121CD9EEB6F50;
+struct BusU5BU5D_t2F3D0F2757F9BABE3649A6E1ADC1EE01585C779A;
+struct ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031;
+struct ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918;
+
+IL2CPP_EXTERN_C_BEGIN
+IL2CPP_EXTERN_C_END
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+struct U3CModuleU3E_tAB97E41F11218B8A1F47958B86C3930523B32ADC 
+{
+};
+struct List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4  : public RuntimeObject
+{
+	FmodResonanceAudioRoomU5BU5D_t5BEEF51627E8992A0F6135AF46BD1E20AC9BEDE7* ____items;
+	int32_t ____size;
+	int32_t ____version;
+	RuntimeObject* ____syncRoot;
+};
+struct List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D  : public RuntimeObject
+{
+	ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* ____items;
+	int32_t ____size;
+	int32_t ____version;
+	RuntimeObject* ____syncRoot;
+};
+struct U3CPrivateImplementationDetailsU3E_t5A4A065C21883D3DF0D5E78A478C52D751D28002  : public RuntimeObject
+{
+};
+struct FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35  : public RuntimeObject
+{
+};
+struct String_t  : public RuntimeObject
+{
+	int32_t ____stringLength;
+	Il2CppChar ____firstChar;
+};
+struct UnitySourceGeneratedAssemblyMonoScriptTypes_v1_t91403D98B038360BF3C9D99EA5CD453876C9AF0C  : public RuntimeObject
+{
+};
+struct ValueType_t6D9B272BD21782F0A9A14F2E41F85A50E97A986F  : public RuntimeObject
+{
+};
+struct ValueType_t6D9B272BD21782F0A9A14F2E41F85A50E97A986F_marshaled_pinvoke
+{
+};
+struct ValueType_t6D9B272BD21782F0A9A14F2E41F85A50E97A986F_marshaled_com
+{
+};
+struct Boolean_t09A6377A54BE2F9E6985A8149F19234FD7DDFE22 
+{
+	bool ___m_value;
+};
+struct Byte_t94D9231AC217BE4D2E004C4CD32DF6D099EA41A3 
+{
+	uint8_t ___m_value;
+};
+struct Color_tD001788D726C3A7F1379BEED0260B9591F440C1F 
+{
+	float ___r;
+	float ___g;
+	float ___b;
+	float ___a;
+};
+struct Enum_t2A1A94B24E3B776EEF4E5E485E290BB9D4D072E2  : public ValueType_t6D9B272BD21782F0A9A14F2E41F85A50E97A986F
+{
+};
+struct Enum_t2A1A94B24E3B776EEF4E5E485E290BB9D4D072E2_marshaled_pinvoke
+{
+};
+struct Enum_t2A1A94B24E3B776EEF4E5E485E290BB9D4D072E2_marshaled_com
+{
+};
+struct Int32_t680FF22E76F6EFAD4375103CBBFFA0421349384C 
+{
+	int32_t ___m_value;
+};
+struct IntPtr_t 
+{
+	void* ___m_value;
+};
+struct Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 
+{
+	float ___m00;
+	float ___m10;
+	float ___m20;
+	float ___m30;
+	float ___m01;
+	float ___m11;
+	float ___m21;
+	float ___m31;
+	float ___m02;
+	float ___m12;
+	float ___m22;
+	float ___m32;
+	float ___m03;
+	float ___m13;
+	float ___m23;
+	float ___m33;
+};
+struct Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 
+{
+	float ___x;
+	float ___y;
+	float ___z;
+	float ___w;
+};
+struct Single_t4530F2FF86FCB0DC29F35385CA1BD21BE294761C 
+{
+	float ___m_value;
+};
+struct UInt32_t1833D51FFA667B18A5AA4B8D34DE284F8495D29B 
+{
+	uint32_t ___m_value;
+};
+struct VECTOR_t2970F478E0C7B6D413C80CF3ADCE451A7BB4F41F 
+{
+	float ___x;
+	float ___y;
+	float ___z;
+};
+struct Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 
+{
+	float ___x;
+	float ___y;
+	float ___z;
+};
+struct Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 
+{
+	float ___x;
+	float ___y;
+	float ___z;
+	float ___w;
+};
+struct Void_t4861ACF8F4594C3437BB48B6E56783494B843915 
+{
+	union
+	{
+		struct
+		{
+		};
+		uint8_t Void_t4861ACF8F4594C3437BB48B6E56783494B843915__padding[1];
+	};
+};
+#pragma pack(push, tp, 1)
+struct __StaticArrayInitTypeSizeU3D145_t71EBCC452F936FAFBB81ADFDFF97E422E0E21EA6 
+{
+	union
+	{
+		struct
+		{
+			union
+			{
+			};
+		};
+		uint8_t __StaticArrayInitTypeSizeU3D145_t71EBCC452F936FAFBB81ADFDFF97E422E0E21EA6__padding[145];
+	};
+};
+#pragma pack(pop, tp)
+#pragma pack(push, tp, 1)
+struct __StaticArrayInitTypeSizeU3D164_t0530F00FCEBE497298DB6295A857EFF44588B65A 
+{
+	union
+	{
+		struct
+		{
+			union
+			{
+			};
+		};
+		uint8_t __StaticArrayInitTypeSizeU3D164_t0530F00FCEBE497298DB6295A857EFF44588B65A__padding[164];
+	};
+};
+#pragma pack(pop, tp)
+struct MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120 
+{
+	ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* ___FilePathsData;
+	ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* ___TypesData;
+	int32_t ___TotalTypes;
+	int32_t ___TotalFiles;
+	bool ___IsEditorOnly;
+};
+struct MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshaled_pinvoke
+{
+	Il2CppSafeArray* ___FilePathsData;
+	Il2CppSafeArray* ___TypesData;
+	int32_t ___TotalTypes;
+	int32_t ___TotalFiles;
+	int32_t ___IsEditorOnly;
+};
+struct MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshaled_com
+{
+	Il2CppSafeArray* ___FilePathsData;
+	Il2CppSafeArray* ___TypesData;
+	int32_t ___TotalTypes;
+	int32_t ___TotalFiles;
+	int32_t ___IsEditorOnly;
+};
+struct Bank_t50242D065FC8F72841CEBC3BA826A8CACA567ACA 
+{
+	intptr_t ___handle;
+};
+struct Bounds_t367E830C64BBF235ED8C3B2F8CF6254FDCAD39C3 
+{
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___m_Center;
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___m_Extents;
+};
+struct Bus_t0858329521D636D685370BE433B68C792F12CB7C 
+{
+	intptr_t ___handle;
+};
+struct ChannelGroup_t8AC73DBE8B58D6B23FCF28C45F3322EF457061AD 
+{
+	intptr_t ___handle;
+};
+struct DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD 
+{
+	intptr_t ___handle;
+};
+struct Exception_t  : public RuntimeObject
+{
+	String_t* ____className;
+	String_t* ____message;
+	RuntimeObject* ____data;
+	Exception_t* ____innerException;
+	String_t* ____helpURL;
+	RuntimeObject* ____stackTrace;
+	String_t* ____stackTraceString;
+	String_t* ____remoteStackTraceString;
+	int32_t ____remoteStackIndex;
+	RuntimeObject* ____dynamicMethods;
+	int32_t ____HResult;
+	String_t* ____source;
+	SafeSerializationManager_tCBB85B95DFD1634237140CD892E82D06ECB3F5E6* ____safeSerializationManager;
+	StackTraceU5BU5D_t32FBCB20930EAF5BAE3F450FF75228E5450DA0DF* ___captured_traces;
+	IntPtrU5BU5D_tFD177F8C806A6921AD7150264CCC62FA00CAD832* ___native_trace_ips;
+	int32_t ___caught_in_unmanaged;
+};
+struct Exception_t_marshaled_pinvoke
+{
+	char* ____className;
+	char* ____message;
+	RuntimeObject* ____data;
+	Exception_t_marshaled_pinvoke* ____innerException;
+	char* ____helpURL;
+	Il2CppIUnknown* ____stackTrace;
+	char* ____stackTraceString;
+	char* ____remoteStackTraceString;
+	int32_t ____remoteStackIndex;
+	Il2CppIUnknown* ____dynamicMethods;
+	int32_t ____HResult;
+	char* ____source;
+	SafeSerializationManager_tCBB85B95DFD1634237140CD892E82D06ECB3F5E6* ____safeSerializationManager;
+	StackTraceU5BU5D_t32FBCB20930EAF5BAE3F450FF75228E5450DA0DF* ___captured_traces;
+	Il2CppSafeArray* ___native_trace_ips;
+	int32_t ___caught_in_unmanaged;
+};
+struct Exception_t_marshaled_com
+{
+	Il2CppChar* ____className;
+	Il2CppChar* ____message;
+	RuntimeObject* ____data;
+	Exception_t_marshaled_com* ____innerException;
+	Il2CppChar* ____helpURL;
+	Il2CppIUnknown* ____stackTrace;
+	Il2CppChar* ____stackTraceString;
+	Il2CppChar* ____remoteStackTraceString;
+	int32_t ____remoteStackIndex;
+	Il2CppIUnknown* ____dynamicMethods;
+	int32_t ____HResult;
+	Il2CppChar* ____source;
+	SafeSerializationManager_tCBB85B95DFD1634237140CD892E82D06ECB3F5E6* ____safeSerializationManager;
+	StackTraceU5BU5D_t32FBCB20930EAF5BAE3F450FF75228E5450DA0DF* ___captured_traces;
+	Il2CppSafeArray* ___native_trace_ips;
+	int32_t ___caught_in_unmanaged;
+};
+struct Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C  : public RuntimeObject
+{
+	intptr_t ___m_CachedPtr;
+};
+struct Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_marshaled_pinvoke
+{
+	intptr_t ___m_CachedPtr;
+};
+struct Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_marshaled_com
+{
+	intptr_t ___m_CachedPtr;
+};
+struct RESULT_t1E31B643F38EE21E9B10FF1843F93EC77D3D11D7 
+{
+	int32_t ___value__;
+};
+struct RuntimeFieldHandle_t6E4C45B6D2EA12FC99185805A7E77527899B25C5 
+{
+	intptr_t ___value;
+};
+struct System_t6EFDC3E1FD4233974056B56839DD37F057D7AD20 
+{
+	intptr_t ___handle;
+};
+struct System_t9A51FE13708186A22E9D4454A7EA18347C389FEC 
+{
+	intptr_t ___handle;
+};
+struct SurfaceMaterial_t5E3BA8AF39ABA94D81B72CDB74C07335CFCBCEEC 
+{
+	int32_t ___value__;
+};
+struct Component_t39FBE53E5EFCF4409111FB22C15FF73717632EC3  : public Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C
+{
+};
+struct SystemException_tCC48D868298F4C0705279823E34B00F4FBDB7295  : public Exception_t
+{
+};
+struct RoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538 
+{
+	float ___PositionX;
+	float ___PositionY;
+	float ___PositionZ;
+	float ___RotationX;
+	float ___RotationY;
+	float ___RotationZ;
+	float ___RotationW;
+	float ___DimensionsX;
+	float ___DimensionsY;
+	float ___DimensionsZ;
+	int32_t ___MaterialLeft;
+	int32_t ___MaterialRight;
+	int32_t ___MaterialBottom;
+	int32_t ___MaterialTop;
+	int32_t ___MaterialFront;
+	int32_t ___MaterialBack;
+	float ___ReflectionScalar;
+	float ___ReverbGain;
+	float ___ReverbTime;
+	float ___ReverbBrightness;
+};
+struct Behaviour_t01970CFBBA658497AE30F311C447DB0440BAB7FA  : public Component_t39FBE53E5EFCF4409111FB22C15FF73717632EC3
+{
+};
+struct IndexOutOfRangeException_t7ECB35264FB6CA8FAA516BD958F4B2ADC78E8A82  : public SystemException_tCC48D868298F4C0705279823E34B00F4FBDB7295
+{
+};
+struct Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1  : public Component_t39FBE53E5EFCF4409111FB22C15FF73717632EC3
+{
+};
+struct MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71  : public Behaviour_t01970CFBBA658497AE30F311C447DB0440BAB7FA
+{
+	CancellationTokenSource_tAAE1E0033BCFC233801F8CB4CED5C852B350CB7B* ___m_CancellationTokenSource;
+};
+struct FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35  : public MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71
+{
+	int32_t ___LeftWall;
+	int32_t ___RightWall;
+	int32_t ___Floor;
+	int32_t ___Ceiling;
+	int32_t ___BackWall;
+	int32_t ___FrontWall;
+	float ___Reflectivity;
+	float ___ReverbGainDb;
+	float ___ReverbBrightness;
+	float ___ReverbTime;
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___Size;
+};
+struct List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4_StaticFields
+{
+	FmodResonanceAudioRoomU5BU5D_t5BEEF51627E8992A0F6135AF46BD1E20AC9BEDE7* ___s_emptyArray;
+};
+struct List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D_StaticFields
+{
+	ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* ___s_emptyArray;
+};
+struct U3CPrivateImplementationDetailsU3E_t5A4A065C21883D3DF0D5E78A478C52D751D28002_StaticFields
+{
+	__StaticArrayInitTypeSizeU3D164_t0530F00FCEBE497298DB6295A857EFF44588B65A ___0481731F33E7E9F59E03DC3894D8BAE5CA4EA3E2285CBF6FBF2ADE2958851835;
+	__StaticArrayInitTypeSizeU3D145_t71EBCC452F936FAFBB81ADFDFF97E422E0E21EA6 ___68BCACD21844545E141B28CAF2194A274C4DCC63A4DFC610F7C5D97ECC2F7584;
+};
+struct FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields
+{
+	Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 ___flipZ;
+	String_t* ___listenerPluginName;
+	int32_t ___roomPropertiesSize;
+	int32_t ___roomPropertiesIndex;
+	Bounds_t367E830C64BBF235ED8C3B2F8CF6254FDCAD39C3 ___bounds;
+	List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* ___enabledRooms;
+	VECTOR_t2970F478E0C7B6D413C80CF3ADCE451A7BB4F41F ___listenerPositionFmod;
+	DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD ___listenerPlugin;
+};
+struct String_t_StaticFields
+{
+	String_t* ___Empty;
+};
+struct Boolean_t09A6377A54BE2F9E6985A8149F19234FD7DDFE22_StaticFields
+{
+	String_t* ___TrueString;
+	String_t* ___FalseString;
+};
+struct IntPtr_t_StaticFields
+{
+	intptr_t ___Zero;
+};
+struct Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6_StaticFields
+{
+	Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 ___zeroMatrix;
+	Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 ___identityMatrix;
+};
+struct Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974_StaticFields
+{
+	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___identityQuaternion;
+};
+struct Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_StaticFields
+{
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___zeroVector;
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___oneVector;
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___upVector;
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___downVector;
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___leftVector;
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___rightVector;
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___forwardVector;
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___backVector;
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___positiveInfinityVector;
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___negativeInfinityVector;
+};
+struct Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3_StaticFields
+{
+	Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 ___zeroVector;
+	Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 ___oneVector;
+	Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 ___positiveInfinityVector;
+	Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 ___negativeInfinityVector;
+};
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+struct ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031  : public RuntimeArray
+{
+	ALIGN_FIELD (8) uint8_t m_Items[1];
+
+	inline uint8_t GetAt(il2cpp_array_size_t index) const
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		return m_Items[index];
+	}
+	inline uint8_t* GetAddressAt(il2cpp_array_size_t index)
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		return m_Items + index;
+	}
+	inline void SetAt(il2cpp_array_size_t index, uint8_t value)
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		m_Items[index] = value;
+	}
+	inline uint8_t GetAtUnchecked(il2cpp_array_size_t index) const
+	{
+		return m_Items[index];
+	}
+	inline uint8_t* GetAddressAtUnchecked(il2cpp_array_size_t index)
+	{
+		return m_Items + index;
+	}
+	inline void SetAtUnchecked(il2cpp_array_size_t index, uint8_t value)
+	{
+		m_Items[index] = value;
+	}
+};
+struct BankU5BU5D_t58904B47BB60A78AA092F5A615D121CD9EEB6F50  : public RuntimeArray
+{
+	ALIGN_FIELD (8) Bank_t50242D065FC8F72841CEBC3BA826A8CACA567ACA m_Items[1];
+
+	inline Bank_t50242D065FC8F72841CEBC3BA826A8CACA567ACA GetAt(il2cpp_array_size_t index) const
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		return m_Items[index];
+	}
+	inline Bank_t50242D065FC8F72841CEBC3BA826A8CACA567ACA* GetAddressAt(il2cpp_array_size_t index)
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		return m_Items + index;
+	}
+	inline void SetAt(il2cpp_array_size_t index, Bank_t50242D065FC8F72841CEBC3BA826A8CACA567ACA value)
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		m_Items[index] = value;
+	}
+	inline Bank_t50242D065FC8F72841CEBC3BA826A8CACA567ACA GetAtUnchecked(il2cpp_array_size_t index) const
+	{
+		return m_Items[index];
+	}
+	inline Bank_t50242D065FC8F72841CEBC3BA826A8CACA567ACA* GetAddressAtUnchecked(il2cpp_array_size_t index)
+	{
+		return m_Items + index;
+	}
+	inline void SetAtUnchecked(il2cpp_array_size_t index, Bank_t50242D065FC8F72841CEBC3BA826A8CACA567ACA value)
+	{
+		m_Items[index] = value;
+	}
+};
+struct BusU5BU5D_t2F3D0F2757F9BABE3649A6E1ADC1EE01585C779A  : public RuntimeArray
+{
+	ALIGN_FIELD (8) Bus_t0858329521D636D685370BE433B68C792F12CB7C m_Items[1];
+
+	inline Bus_t0858329521D636D685370BE433B68C792F12CB7C GetAt(il2cpp_array_size_t index) const
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		return m_Items[index];
+	}
+	inline Bus_t0858329521D636D685370BE433B68C792F12CB7C* GetAddressAt(il2cpp_array_size_t index)
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		return m_Items + index;
+	}
+	inline void SetAt(il2cpp_array_size_t index, Bus_t0858329521D636D685370BE433B68C792F12CB7C value)
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		m_Items[index] = value;
+	}
+	inline Bus_t0858329521D636D685370BE433B68C792F12CB7C GetAtUnchecked(il2cpp_array_size_t index) const
+	{
+		return m_Items[index];
+	}
+	inline Bus_t0858329521D636D685370BE433B68C792F12CB7C* GetAddressAtUnchecked(il2cpp_array_size_t index)
+	{
+		return m_Items + index;
+	}
+	inline void SetAtUnchecked(il2cpp_array_size_t index, Bus_t0858329521D636D685370BE433B68C792F12CB7C value)
+	{
+		m_Items[index] = value;
+	}
+};
+struct ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918  : public RuntimeArray
+{
+	ALIGN_FIELD (8) RuntimeObject* m_Items[1];
+
+	inline RuntimeObject* GetAt(il2cpp_array_size_t index) const
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		return m_Items[index];
+	}
+	inline RuntimeObject** GetAddressAt(il2cpp_array_size_t index)
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		return m_Items + index;
+	}
+	inline void SetAt(il2cpp_array_size_t index, RuntimeObject* value)
+	{
+		IL2CPP_ARRAY_BOUNDS_CHECK(index, (uint32_t)(this)->max_length);
+		m_Items[index] = value;
+		Il2CppCodeGenWriteBarrier((void**)m_Items + index, (void*)value);
+	}
+	inline RuntimeObject* GetAtUnchecked(il2cpp_array_size_t index) const
+	{
+		return m_Items[index];
+	}
+	inline RuntimeObject** GetAddressAtUnchecked(il2cpp_array_size_t index)
+	{
+		return m_Items + index;
+	}
+	inline void SetAtUnchecked(il2cpp_array_size_t index, RuntimeObject* value)
+	{
+		m_Items[index] = value;
+		Il2CppCodeGenWriteBarrier((void**)m_Items + index, (void*)value);
+	}
+};
+
+
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool List_1_Contains_m4C9139C2A6B23E9343D3F87807B32C6E2CFE660D_gshared (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, RuntimeObject* ___0_item, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void List_1_Add_mEBCF994CC3814631017F46A387B1A192ED6C85C7_gshared_inline (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, RuntimeObject* ___0_item, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool List_1_Remove_m4DFA48F4CEB9169601E75FC28517C5C06EFA5AD7_gshared (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, RuntimeObject* ___0_item, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t List_1_get_Count_m4407E4C389F22B8CEC282C15D56516658746C383_gshared_inline (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* List_1_get_Item_m33561245D64798C2AB07584C0EC4F240E4839A38_gshared (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, int32_t ___0_index, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Marshal_StructureToPtr_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mBC8CF1A75A5AFF2D73E492F1E38ED0B423116434_gshared (RoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538 ___0_structure, intptr_t ___1_ptr, bool ___2_fDeleteOld, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Marshal_SizeOf_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mAEFADBFCD4F6500CCE4C4C77FAA446531AACA4C2_gshared (const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void List_1__ctor_m7F078BB342729BDF11327FD89D7872265328F690_gshared (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_NO_INLINE IL2CPP_METHOD_ATTR void List_1_AddWithResize_m79A9BF770BEF9C06BE40D5401E55E375F2726CC4_gshared (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, RuntimeObject* ___0_item, const RuntimeMethod* method) ;
+
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RuntimeHelpers_InitializeArray_m751372AA3F24FBF6DA9B9D687CBFA2DE436CAB9B (RuntimeArray* ___0_array, RuntimeFieldHandle_t6E4C45B6D2EA12FC99185805A7E77527899B25C5 ___1_fldHandle, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2 (RuntimeObject* __this, const RuntimeMethod* method) ;
+inline bool List_1_Contains_m514EE87C010065C7B906F04FF956394E51C0BA28 (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* __this, FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* ___0_item, const RuntimeMethod* method)
+{
+	return ((  bool (*) (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4*, FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35*, const RuntimeMethod*))List_1_Contains_m4C9139C2A6B23E9343D3F87807B32C6E2CFE660D_gshared)(__this, ___0_item, method);
+}
+inline void List_1_Add_m15A7EDC9675F1799FB7F8FDE4B54160F08E6B60F_inline (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* __this, FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* ___0_item, const RuntimeMethod* method)
+{
+	((  void (*) (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4*, FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35*, const RuntimeMethod*))List_1_Add_mEBCF994CC3814631017F46A387B1A192ED6C85C7_gshared_inline)(__this, ___0_item, method);
+}
+inline bool List_1_Remove_m488421E36E8DD1FC47D403479508332A6E8E6986 (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* __this, FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* ___0_item, const RuntimeMethod* method)
+{
+	return ((  bool (*) (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4*, FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35*, const RuntimeMethod*))List_1_Remove_m4DFA48F4CEB9169601E75FC28517C5C06EFA5AD7_gshared)(__this, ___0_item, method);
+}
+inline int32_t List_1_get_Count_mB9ECF5EFC357C7D11539D209275897FC664A456F_inline (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* __this, const RuntimeMethod* method)
+{
+	return ((  int32_t (*) (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4*, const RuntimeMethod*))List_1_get_Count_m4407E4C389F22B8CEC282C15D56516658746C383_gshared_inline)(__this, method);
+}
+inline FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* List_1_get_Item_mFD82115F7E4F9C27FF8E3B802B65CC483EFEAAEA (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* __this, int32_t ___0_index, const RuntimeMethod* method)
+{
+	return ((  FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* (*) (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4*, int32_t, const RuntimeMethod*))List_1_get_Item_m33561245D64798C2AB07584C0EC4F240E4839A38_gshared)(__this, ___0_index, method);
+}
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538 FmodResonanceAudio_GetRoomProperties_m20E941629CDA31D5A1D27028D5EC7E0673BC647F (FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* ___0_room, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR intptr_t Marshal_AllocHGlobal_mE1D700DF967E28BE8AB3E0D67C81A96B4FCC8F4F (int32_t ___0_cb, const RuntimeMethod* method) ;
+inline void Marshal_StructureToPtr_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mBC8CF1A75A5AFF2D73E492F1E38ED0B423116434 (RoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538 ___0_structure, intptr_t ___1_ptr, bool ___2_fDeleteOld, const RuntimeMethod* method)
+{
+	((  void (*) (RoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538, intptr_t, bool, const RuntimeMethod*))Marshal_StructureToPtr_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mBC8CF1A75A5AFF2D73E492F1E38ED0B423116434_gshared)(___0_structure, ___1_ptr, ___2_fDeleteOld, method);
+}
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD FmodResonanceAudio_get_ListenerPlugin_mD852E94681203B33FB96E426E51EFC961DE1AAAB (const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* FmodResonanceAudio_GetBytes_m118205AD0F68AE69DA396FE804E86630D8BA6365 (intptr_t ___0_ptr, int32_t ___1_length, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DSP_setParameterData_m9F28CFB3C0427D34E2F00EC4F59FAB554AB55C9D (DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD* __this, int32_t ___0_index, ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* ___1_data, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Marshal_FreeHGlobal_m298EF0650E82E326EDA8048488DC384BB9171EB9 (intptr_t ___0_hglobal, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR System_t6EFDC3E1FD4233974056B56839DD37F057D7AD20 RuntimeManager_get_CoreSystem_mB63C5146714D83EBF9DE3B6E17735226BAA0EF18 (const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t System_get3DListenerAttributes_m06103C27268810A6357FB146F2A894027641896D (System_t6EFDC3E1FD4233974056B56839DD37F057D7AD20* __this, int32_t ___0_listener, VECTOR_t2970F478E0C7B6D413C80CF3ADCE451A7BB4F41F* ___1_pos, VECTOR_t2970F478E0C7B6D413C80CF3ADCE451A7BB4F41F* ___2_vel, VECTOR_t2970F478E0C7B6D413C80CF3ADCE451A7BB4F41F* ___3_forward, VECTOR_t2970F478E0C7B6D413C80CF3ADCE451A7BB4F41F* ___4_up, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Vector3__ctor_m376936E6B999EF1ECBE57D990A386303E2283DE0_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* __this, float ___0_x, float ___1_y, float ___2_z, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371 (Component_t39FBE53E5EFCF4409111FB22C15FF73717632EC3* __this, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Transform_get_position_m69CD5FA214FDAE7BB701552943674846C220FDE1 (Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* __this, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector3_op_Subtraction_mE42023FF80067CB44A1D4A27EB7CF2B24CABB828_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_a, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_b, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 Transform_get_rotation_m32AF40CA0D50C797DA639A696F8EAEC7524C179C (Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* __this, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 Quaternion_Inverse_mD9C060AC626A7B406F4984AC98F8358DC89EF512_inline (Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___0_rotation, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Transform_get_lossyScale_mFF740DA4BE1489C6882CD2F3A37B7321176E5D07 (Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* __this, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector3_Scale_m7C3CD199271902D5C00CBF35CD230DEB62B68CAE_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_a, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_b, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Bounds_set_size_m950CFB68CDD1BF409E770509A38B958E1AE68128_inline (Bounds_t367E830C64BBF235ED8C3B2F8CF6254FDCAD39C3* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_value, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Quaternion_op_Multiply_mE1EBA73F9173432B50F8F17CE8190C5A7986FB8C (Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___0_rotation, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_point, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool Bounds_Contains_m584E9DE0CF9D90C3C4F928BA8F5AD328393F3555_inline (Bounds_t367E830C64BBF235ED8C3B2F8CF6254FDCAD39C3* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_point, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool DSP_hasHandle_m6B7E68A9F0F07B429C856569EE2578DAB6312723 (DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD* __this, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD FmodResonanceAudio_Initialize_m6F0D8A464FBAABAD7040F426D3F81FCB0624A5A1 (const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector3_get_one_mC9B289F1E15C42C597180C9FE6FB492495B51D02_inline (const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 Matrix4x4_TRS_mCC04FD47347234B451ACC6CCD2CE6D02E1E0E1E3_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_pos, Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___1_q, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___2_s, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 Matrix4x4_op_Multiply_m75E91775655DCA8DFC8EDE0AB787285BB3935162_inline (Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 ___0_lhs, Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 ___1_rhs, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 Matrix4x4_GetColumn_m5CE079D7A69DE70E3144BADD20A1651C73A8D118_inline (Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6* __this, int32_t ___0_index, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector4_op_Implicit_m0217ADDC8CADDB93ACBABB17A50207698DAB0071_inline (Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 ___0_v, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 Quaternion_LookRotation_mFB02EDC8F733774DFAC3BEA4B4BB265A228F8307_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_forward, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_upwards, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool IntPtr_op_Inequality_m90EFC9C4CAD9A33E309F2DDF98EE4E1DD253637B_inline (intptr_t ___0_value1, intptr_t ___1_value2, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Marshal_Copy_mF7402FFDB520EA1B8D1C32B368DBEE4B13F1BE77 (intptr_t ___0_source, ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* ___1_destination, int32_t ___2_startIndex, int32_t ___3_length, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FmodResonanceAudio_ConvertAudioTransformFromUnity_mADC39D21EA0D3A5AE8C304A7041EFB3E3C0AF215 (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___0_position, Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974* ___1_rotation, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float FmodResonanceAudio_ConvertAmplitudeFromDb_mB733E1B4458C6EB6342882C0E65FD625FE366A68 (float ___0_db, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR System_t9A51FE13708186A22E9D4454A7EA18347C389FEC RuntimeManager_get_StudioSystem_m783AEDBA088138F0A6929EEE2E628002B5287C57 (const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t System_getBankCount_m28AF716F1A068059CEF930A8306C5034D6258D7B (System_t9A51FE13708186A22E9D4454A7EA18347C389FEC* __this, int32_t* ___0_count, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t System_getBankList_m672E0205A7C39538E10C0BB15365BD54653F058D (System_t9A51FE13708186A22E9D4454A7EA18347C389FEC* __this, BankU5BU5D_t58904B47BB60A78AA092F5A615D121CD9EEB6F50** ___0_array, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Bank_getBusCount_mDB4D9767E286CA8952D68CA2E5E6268BAC443861 (Bank_t50242D065FC8F72841CEBC3BA826A8CACA567ACA* __this, int32_t* ___0_count, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Bank_getBusList_m31CC23B28516D03EC240181928C269012D5784B0 (Bank_t50242D065FC8F72841CEBC3BA826A8CACA567ACA* __this, BusU5BU5D_t2F3D0F2757F9BABE3649A6E1ADC1EE01585C779A** ___0_array, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Bus_getPath_m1C3BF57DF5A6E3083AE0F763C9816EF8AAF88747 (Bus_t0858329521D636D685370BE433B68C792F12CB7C* __this, String_t** ___0_path, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t System_getBus_m72A5E19A1084B02B1EF3BB2F71DD87EACFEA40D0 (System_t9A51FE13708186A22E9D4454A7EA18347C389FEC* __this, String_t* ___0_path, Bus_t0858329521D636D685370BE433B68C792F12CB7C* ___1_bus, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Bus_lockChannelGroup_m218261189677988D595DE11884BB8CE785D80139 (Bus_t0858329521D636D685370BE433B68C792F12CB7C* __this, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t System_flushCommands_mF8141A609F9E327B16CFA51A0DD488CC49CAA68B (System_t9A51FE13708186A22E9D4454A7EA18347C389FEC* __this, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Bus_getChannelGroup_mAE99D88164967EE1E5056CA68F4A48918B06D60C (Bus_t0858329521D636D685370BE433B68C792F12CB7C* __this, ChannelGroup_t8AC73DBE8B58D6B23FCF28C45F3322EF457061AD* ___0_group, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool ChannelGroup_hasHandle_m9A0F2D3241B19FB791370DC8539AECFDDB1BD3EF (ChannelGroup_t8AC73DBE8B58D6B23FCF28C45F3322EF457061AD* __this, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t ChannelGroup_getNumDSPs_mF195CCD9228B86502562D548D99B7FB8907CC38E (ChannelGroup_t8AC73DBE8B58D6B23FCF28C45F3322EF457061AD* __this, int32_t* ___0_numdsps, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t ChannelGroup_getDSP_mD799A7E5A919958BC156AF30C790266D68677D3E (ChannelGroup_t8AC73DBE8B58D6B23FCF28C45F3322EF457061AD* __this, int32_t ___0_index, DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD* ___1_dsp, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DSP_getInfo_mB51F9D52E187E2FA6F32A964D22B859AB8C7D38F (DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD* __this, String_t** ___0_name, uint32_t* ___1_version, int32_t* ___2_channels, int32_t* ___3_configwidth, int32_t* ___4_configheight, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool String_Equals_mCD5F35DEDCAFE51ACD4E033726FC2EF8DF7E9B4D (String_t* __this, String_t* ___0_value, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Bus_unlockChannelGroup_m699B697E38852BFD104DDC8DFD8B08EE29C9F639 (Bus_t0858329521D636D685370BE433B68C792F12CB7C* __this, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_Concat_m9E3155FB84015C823606188F53B47CB44C444991 (String_t* ___0_str0, String_t* ___1_str1, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RuntimeUtils_DebugLogError_m1C24AAA71793478DCA40E4F4685D18E492E8ADDE (String_t* ___0_message, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 Matrix4x4_Scale_m95902D2A889FD6E7B04BBEAE6FAE5D6D8A88E642_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_vector, const RuntimeMethod* method) ;
+inline int32_t Marshal_SizeOf_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mAEFADBFCD4F6500CCE4C4C77FAA446531AACA4C2 (const RuntimeMethod* method)
+{
+	return ((  int32_t (*) (const RuntimeMethod*))Marshal_SizeOf_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mAEFADBFCD4F6500CCE4C4C77FAA446531AACA4C2_gshared)(method);
+}
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector3_get_zero_m0C1249C3F25B1C70EAD3CC8B31259975A457AE39_inline (const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Bounds__ctor_mAF7B238B9FBF90C495E5D7951760085A93119C5A_inline (Bounds_t367E830C64BBF235ED8C3B2F8CF6254FDCAD39C3* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_center, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_size, const RuntimeMethod* method) ;
+inline void List_1__ctor_mC49CD4F04DE70D42EEA0EBE4E070E85277A71E74 (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* __this, const RuntimeMethod* method)
+{
+	((  void (*) (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4*, const RuntimeMethod*))List_1__ctor_m7F078BB342729BDF11327FD89D7872265328F690_gshared)(__this, method);
+}
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool FmodResonanceAudio_IsListenerInsideRoom_mF51A6574877EEB05D8496935C40F6B9C50BC495D (FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* ___0_room, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FmodResonanceAudio_UpdateAudioRoom_mE957D662AD9913EC12470386DDC9A65777CF67D2 (FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* ___0_room, bool ___1_roomEnabled, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F Color_get_yellow_m66637FA14383E8D74F24AE256B577CE1D55D469F_inline (const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_set_color_m53927A2741937484180B20B55F7F20F8F60C5797 (Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_value, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 Transform_get_localToWorldMatrix_m5D35188766856338DD21DE756F42277C21719E6D (Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* __this, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_set_matrix_m100B4ACA7FBDFF65CE1BD0000E9E0D7566147A15 (Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 ___0_value, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_DrawWireCube_m343533B3955A2D04A8638280D0EF537274A1FD8B (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_center, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_size, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MonoBehaviour__ctor_m592DB0105CA0BC97AA1C5F4AD27B12D68A3B7C1E (MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71* __this, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 Quaternion_Internal_Inverse_m0ABC2C5E4F26053F9F6B8260065D08E264F62566 (Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974* ___0_rotation, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool Bounds_Internal_Contains_m03EAA1D2CE49D2467C621523D403635D33F4D63A (Bounds_t367E830C64BBF235ED8C3B2F8CF6254FDCAD39C3* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___0_point, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 Matrix4x4_Internal_TRS_m39AB7D4719528E75EAEC127019A36907AABE52B4 (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___0_pos, Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974* ___1_q, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___2_s, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void IndexOutOfRangeException__ctor_mFD06819F05B815BE2D6E826D4E04F4C449D0A425 (IndexOutOfRangeException_t7ECB35264FB6CA8FAA516BD958F4B2ADC78E8A82* __this, String_t* ___0_message, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 Quaternion_Internal_LookRotation_m489E6A5E916949FFE91C0B11A60C6016D996C1E0 (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___0_forward, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___1_upwards, const RuntimeMethod* method) ;
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Color__ctor_m3786F0D6E510D9CFA544523A955870BD2A514C8C_inline (Color_tD001788D726C3A7F1379BEED0260B9591F440C1F* __this, float ___0_r, float ___1_g, float ___2_b, float ___3_a, const RuntimeMethod* method) ;
+inline void List_1_AddWithResize_m79A9BF770BEF9C06BE40D5401E55E375F2726CC4 (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, RuntimeObject* ___0_item, const RuntimeMethod* method)
+{
+	((  void (*) (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D*, RuntimeObject*, const RuntimeMethod*))List_1_AddWithResize_m79A9BF770BEF9C06BE40D5401E55E375F2726CC4_gshared)(__this, ___0_item, method);
+}
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+// Method Definition Index: 70610
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120 UnitySourceGeneratedAssemblyMonoScriptTypes_v1_Get_m89A3A2D839E02FD4A67534285C7BE87F4BBDDFCA (const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&U3CPrivateImplementationDetailsU3E_t5A4A065C21883D3DF0D5E78A478C52D751D28002____0481731F33E7E9F59E03DC3894D8BAE5CA4EA3E2285CBF6FBF2ADE2958851835_FieldInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&U3CPrivateImplementationDetailsU3E_t5A4A065C21883D3DF0D5E78A478C52D751D28002____68BCACD21844545E141B28CAF2194A274C4DCC63A4DFC610F7C5D97ECC2F7584_FieldInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120 V_0;
+	memset((&V_0), 0, sizeof(V_0));
+	{
+		il2cpp_codegen_initobj((&V_0), sizeof(MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120));
+		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_0 = (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)SZArrayNew(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031_il2cpp_TypeInfo_var, (uint32_t)((int32_t)164));
+		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_1 = L_0;
+		RuntimeFieldHandle_t6E4C45B6D2EA12FC99185805A7E77527899B25C5 L_2 = { reinterpret_cast<intptr_t> (U3CPrivateImplementationDetailsU3E_t5A4A065C21883D3DF0D5E78A478C52D751D28002____0481731F33E7E9F59E03DC3894D8BAE5CA4EA3E2285CBF6FBF2ADE2958851835_FieldInfo_var) };
+		RuntimeHelpers_InitializeArray_m751372AA3F24FBF6DA9B9D687CBFA2DE436CAB9B((RuntimeArray*)L_1, L_2, NULL);
+		(&V_0)->___FilePathsData = L_1;
+		Il2CppCodeGenWriteBarrier((void**)(&(&V_0)->___FilePathsData), (void*)L_1);
+		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_3 = (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)SZArrayNew(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031_il2cpp_TypeInfo_var, (uint32_t)((int32_t)145));
+		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_4 = L_3;
+		RuntimeFieldHandle_t6E4C45B6D2EA12FC99185805A7E77527899B25C5 L_5 = { reinterpret_cast<intptr_t> (U3CPrivateImplementationDetailsU3E_t5A4A065C21883D3DF0D5E78A478C52D751D28002____68BCACD21844545E141B28CAF2194A274C4DCC63A4DFC610F7C5D97ECC2F7584_FieldInfo_var) };
+		RuntimeHelpers_InitializeArray_m751372AA3F24FBF6DA9B9D687CBFA2DE436CAB9B((RuntimeArray*)L_4, L_5, NULL);
+		(&V_0)->___TypesData = L_4;
+		Il2CppCodeGenWriteBarrier((void**)(&(&V_0)->___TypesData), (void*)L_4);
+		(&V_0)->___TotalFiles = 2;
+		(&V_0)->___TotalTypes = 3;
+		(&V_0)->___IsEditorOnly = (bool)0;
+		MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120 L_6 = V_0;
+		return L_6;
+	}
+}
+// Method Definition Index: 70611
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnitySourceGeneratedAssemblyMonoScriptTypes_v1__ctor_mBC6E862BB20DB12A65B2F108817CC90B9CC5FD7B (UnitySourceGeneratedAssemblyMonoScriptTypes_v1_t91403D98B038360BF3C9D99EA5CD453876C9AF0C* __this, const RuntimeMethod* method) 
+{
+	{
+		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
+		return;
+	}
+}
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+IL2CPP_EXTERN_C void MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshal_pinvoke(const MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120& unmarshaled, MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshaled_pinvoke& marshaled)
+{
+	marshaled.___FilePathsData = il2cpp_codegen_com_marshal_safe_array(IL2CPP_VT_I1, unmarshaled.___FilePathsData);
+	marshaled.___TypesData = il2cpp_codegen_com_marshal_safe_array(IL2CPP_VT_I1, unmarshaled.___TypesData);
+	marshaled.___TotalTypes = unmarshaled.___TotalTypes;
+	marshaled.___TotalFiles = unmarshaled.___TotalFiles;
+	marshaled.___IsEditorOnly = static_cast<int32_t>(unmarshaled.___IsEditorOnly);
+}
+IL2CPP_EXTERN_C void MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshal_pinvoke_back(const MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshaled_pinvoke& marshaled, MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120& unmarshaled)
+{
+	unmarshaled.___FilePathsData = (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)il2cpp_codegen_com_marshal_safe_array_result(IL2CPP_VT_I1, il2cpp_defaults.byte_class, marshaled.___FilePathsData);
+	Il2CppCodeGenWriteBarrier((void**)(&unmarshaled.___FilePathsData), (void*)(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)il2cpp_codegen_com_marshal_safe_array_result(IL2CPP_VT_I1, il2cpp_defaults.byte_class, marshaled.___FilePathsData));
+	unmarshaled.___TypesData = (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)il2cpp_codegen_com_marshal_safe_array_result(IL2CPP_VT_I1, il2cpp_defaults.byte_class, marshaled.___TypesData);
+	Il2CppCodeGenWriteBarrier((void**)(&unmarshaled.___TypesData), (void*)(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)il2cpp_codegen_com_marshal_safe_array_result(IL2CPP_VT_I1, il2cpp_defaults.byte_class, marshaled.___TypesData));
+	int32_t unmarshaledTotalTypes_temp_2 = 0;
+	unmarshaledTotalTypes_temp_2 = marshaled.___TotalTypes;
+	unmarshaled.___TotalTypes = unmarshaledTotalTypes_temp_2;
+	int32_t unmarshaledTotalFiles_temp_3 = 0;
+	unmarshaledTotalFiles_temp_3 = marshaled.___TotalFiles;
+	unmarshaled.___TotalFiles = unmarshaledTotalFiles_temp_3;
+	bool unmarshaledIsEditorOnly_temp_4 = false;
+	unmarshaledIsEditorOnly_temp_4 = static_cast<bool>(marshaled.___IsEditorOnly);
+	unmarshaled.___IsEditorOnly = unmarshaledIsEditorOnly_temp_4;
+}
+IL2CPP_EXTERN_C void MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshal_pinvoke_cleanup(MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshaled_pinvoke& marshaled)
+{
+	il2cpp_codegen_com_destroy_safe_array(marshaled.___FilePathsData);
+	marshaled.___FilePathsData = NULL;
+	il2cpp_codegen_com_destroy_safe_array(marshaled.___TypesData);
+	marshaled.___TypesData = NULL;
+}
+IL2CPP_EXTERN_C void MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshal_com(const MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120& unmarshaled, MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshaled_com& marshaled)
+{
+	marshaled.___FilePathsData = il2cpp_codegen_com_marshal_safe_array(IL2CPP_VT_I1, unmarshaled.___FilePathsData);
+	marshaled.___TypesData = il2cpp_codegen_com_marshal_safe_array(IL2CPP_VT_I1, unmarshaled.___TypesData);
+	marshaled.___TotalTypes = unmarshaled.___TotalTypes;
+	marshaled.___TotalFiles = unmarshaled.___TotalFiles;
+	marshaled.___IsEditorOnly = static_cast<int32_t>(unmarshaled.___IsEditorOnly);
+}
+IL2CPP_EXTERN_C void MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshal_com_back(const MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshaled_com& marshaled, MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120& unmarshaled)
+{
+	unmarshaled.___FilePathsData = (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)il2cpp_codegen_com_marshal_safe_array_result(IL2CPP_VT_I1, il2cpp_defaults.byte_class, marshaled.___FilePathsData);
+	Il2CppCodeGenWriteBarrier((void**)(&unmarshaled.___FilePathsData), (void*)(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)il2cpp_codegen_com_marshal_safe_array_result(IL2CPP_VT_I1, il2cpp_defaults.byte_class, marshaled.___FilePathsData));
+	unmarshaled.___TypesData = (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)il2cpp_codegen_com_marshal_safe_array_result(IL2CPP_VT_I1, il2cpp_defaults.byte_class, marshaled.___TypesData);
+	Il2CppCodeGenWriteBarrier((void**)(&unmarshaled.___TypesData), (void*)(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)il2cpp_codegen_com_marshal_safe_array_result(IL2CPP_VT_I1, il2cpp_defaults.byte_class, marshaled.___TypesData));
+	int32_t unmarshaledTotalTypes_temp_2 = 0;
+	unmarshaledTotalTypes_temp_2 = marshaled.___TotalTypes;
+	unmarshaled.___TotalTypes = unmarshaledTotalTypes_temp_2;
+	int32_t unmarshaledTotalFiles_temp_3 = 0;
+	unmarshaledTotalFiles_temp_3 = marshaled.___TotalFiles;
+	unmarshaled.___TotalFiles = unmarshaledTotalFiles_temp_3;
+	bool unmarshaledIsEditorOnly_temp_4 = false;
+	unmarshaledIsEditorOnly_temp_4 = static_cast<bool>(marshaled.___IsEditorOnly);
+	unmarshaled.___IsEditorOnly = unmarshaledIsEditorOnly_temp_4;
+}
+IL2CPP_EXTERN_C void MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshal_com_cleanup(MonoScriptData_t14EB74337897CA151C53CDCB14582435DC06A120_marshaled_com& marshaled)
+{
+	il2cpp_codegen_com_destroy_safe_array(marshaled.___FilePathsData);
+	marshaled.___FilePathsData = NULL;
+	il2cpp_codegen_com_destroy_safe_array(marshaled.___TypesData);
+	marshaled.___TypesData = NULL;
+}
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+// Method Definition Index: 70612
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FmodResonanceAudio_UpdateAudioRoom_mE957D662AD9913EC12470386DDC9A65777CF67D2 (FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* ___0_room, bool ___1_roomEnabled, const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&List_1_Add_m15A7EDC9675F1799FB7F8FDE4B54160F08E6B60F_RuntimeMethod_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&List_1_Contains_m514EE87C010065C7B906F04FF956394E51C0BA28_RuntimeMethod_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&List_1_Remove_m488421E36E8DD1FC47D403479508332A6E8E6986_RuntimeMethod_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&List_1_get_Count_mB9ECF5EFC357C7D11539D209275897FC664A456F_RuntimeMethod_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&List_1_get_Item_mFD82115F7E4F9C27FF8E3B802B65CC483EFEAAEA_RuntimeMethod_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Marshal_StructureToPtr_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mBC8CF1A75A5AFF2D73E492F1E38ED0B423116434_RuntimeMethod_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Marshal_tD976A56A90263C3CE2B780D4B1CADADE2E70B4A7_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	intptr_t V_0;
+	memset((&V_0), 0, sizeof(V_0));
+	DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD V_1;
+	memset((&V_1), 0, sizeof(V_1));
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:76>
+		bool L_0 = ___1_roomEnabled;
+		if (!L_0)
+		{
+			goto IL_001d;
+		}
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:78>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* L_1 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___enabledRooms;
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_2 = ___0_room;
+		NullCheck(L_1);
+		bool L_3;
+		L_3 = List_1_Contains_m514EE87C010065C7B906F04FF956394E51C0BA28(L_1, L_2, List_1_Contains_m514EE87C010065C7B906F04FF956394E51C0BA28_RuntimeMethod_var);
+		if (L_3)
+		{
+			goto IL_0029;
+		}
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:80>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* L_4 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___enabledRooms;
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_5 = ___0_room;
+		NullCheck(L_4);
+		List_1_Add_m15A7EDC9675F1799FB7F8FDE4B54160F08E6B60F_inline(L_4, L_5, List_1_Add_m15A7EDC9675F1799FB7F8FDE4B54160F08E6B60F_RuntimeMethod_var);
+		goto IL_0029;
+	}
+
+IL_001d:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:85>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* L_6 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___enabledRooms;
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_7 = ___0_room;
+		NullCheck(L_6);
+		bool L_8;
+		L_8 = List_1_Remove_m488421E36E8DD1FC47D403479508332A6E8E6986(L_6, L_7, List_1_Remove_m488421E36E8DD1FC47D403479508332A6E8E6986_RuntimeMethod_var);
+	}
+
+IL_0029:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:88>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* L_9 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___enabledRooms;
+		NullCheck(L_9);
+		int32_t L_10;
+		L_10 = List_1_get_Count_mB9ECF5EFC357C7D11539D209275897FC664A456F_inline(L_9, List_1_get_Count_mB9ECF5EFC357C7D11539D209275897FC664A456F_RuntimeMethod_var);
+		if ((((int32_t)L_10) <= ((int32_t)0)))
+		{
+			goto IL_0088;
+		}
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:90>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* L_11 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___enabledRooms;
+		List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* L_12 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___enabledRooms;
+		NullCheck(L_12);
+		int32_t L_13;
+		L_13 = List_1_get_Count_mB9ECF5EFC357C7D11539D209275897FC664A456F_inline(L_12, List_1_get_Count_mB9ECF5EFC357C7D11539D209275897FC664A456F_RuntimeMethod_var);
+		NullCheck(L_11);
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_14;
+		L_14 = List_1_get_Item_mFD82115F7E4F9C27FF8E3B802B65CC483EFEAAEA(L_11, ((int32_t)il2cpp_codegen_subtract(L_13, 1)), List_1_get_Item_mFD82115F7E4F9C27FF8E3B802B65CC483EFEAAEA_RuntimeMethod_var);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:91>
+		RoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538 L_15;
+		L_15 = FmodResonanceAudio_GetRoomProperties_m20E941629CDA31D5A1D27028D5EC7E0673BC647F(L_14, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:93>
+		int32_t L_16 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___roomPropertiesSize;
+		il2cpp_codegen_runtime_class_init_inline(Marshal_tD976A56A90263C3CE2B780D4B1CADADE2E70B4A7_il2cpp_TypeInfo_var);
+		intptr_t L_17;
+		L_17 = Marshal_AllocHGlobal_mE1D700DF967E28BE8AB3E0D67C81A96B4FCC8F4F(L_16, NULL);
+		V_0 = L_17;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:94>
+		intptr_t L_18 = V_0;
+		Marshal_StructureToPtr_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mBC8CF1A75A5AFF2D73E492F1E38ED0B423116434(L_15, L_18, (bool)0, Marshal_StructureToPtr_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mBC8CF1A75A5AFF2D73E492F1E38ED0B423116434_RuntimeMethod_var);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:95>
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:96>
+		DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD L_19;
+		L_19 = FmodResonanceAudio_get_ListenerPlugin_mD852E94681203B33FB96E426E51EFC961DE1AAAB(NULL);
+		V_1 = L_19;
+		int32_t L_20 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___roomPropertiesIndex;
+		intptr_t L_21 = V_0;
+		int32_t L_22 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___roomPropertiesSize;
+		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_23;
+		L_23 = FmodResonanceAudio_GetBytes_m118205AD0F68AE69DA396FE804E86630D8BA6365(L_21, L_22, NULL);
+		int32_t L_24;
+		L_24 = DSP_setParameterData_m9F28CFB3C0427D34E2F00EC4F59FAB554AB55C9D((&V_1), L_20, L_23, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:97>
+		intptr_t L_25 = V_0;
+		Marshal_FreeHGlobal_m298EF0650E82E326EDA8048488DC384BB9171EB9(L_25, NULL);
+		return;
+	}
+
+IL_0088:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:102>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD L_26;
+		L_26 = FmodResonanceAudio_get_ListenerPlugin_mD852E94681203B33FB96E426E51EFC961DE1AAAB(NULL);
+		V_1 = L_26;
+		int32_t L_27 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___roomPropertiesIndex;
+		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_28;
+		L_28 = FmodResonanceAudio_GetBytes_m118205AD0F68AE69DA396FE804E86630D8BA6365(0, 0, NULL);
+		int32_t L_29;
+		L_29 = DSP_setParameterData_m9F28CFB3C0427D34E2F00EC4F59FAB554AB55C9D((&V_1), L_27, L_28, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:104>
+		return;
+	}
+}
+// Method Definition Index: 70613
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool FmodResonanceAudio_IsListenerInsideRoom_mF51A6574877EEB05D8496935C40F6B9C50BC495D (FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* ___0_room, const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&RuntimeManager_t8E78AD643D1B838B80E527F55596F997F5B7340D_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	VECTOR_t2970F478E0C7B6D413C80CF3ADCE451A7BB4F41F V_0;
+	memset((&V_0), 0, sizeof(V_0));
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 V_1;
+	memset((&V_1), 0, sizeof(V_1));
+	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 V_2;
+	memset((&V_2), 0, sizeof(V_2));
+	System_t6EFDC3E1FD4233974056B56839DD37F057D7AD20 V_3;
+	memset((&V_3), 0, sizeof(V_3));
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:111>
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:112>
+		il2cpp_codegen_runtime_class_init_inline(RuntimeManager_t8E78AD643D1B838B80E527F55596F997F5B7340D_il2cpp_TypeInfo_var);
+		System_t6EFDC3E1FD4233974056B56839DD37F057D7AD20 L_0;
+		L_0 = RuntimeManager_get_CoreSystem_mB63C5146714D83EBF9DE3B6E17735226BAA0EF18(NULL);
+		V_3 = L_0;
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		int32_t L_1;
+		L_1 = System_get3DListenerAttributes_m06103C27268810A6357FB146F2A894027641896D((&V_3), 0, (&((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPositionFmod), (&V_0), (&V_0), (&V_0), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:113>
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:114>
+		float L_2 = (&((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPositionFmod)->___x;
+		float L_3 = (&((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPositionFmod)->___y;
+		float L_4 = (&((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPositionFmod)->___z;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_5;
+		memset((&L_5), 0, sizeof(L_5));
+		Vector3__ctor_m376936E6B999EF1ECBE57D990A386303E2283DE0_inline((&L_5), L_2, L_3, L_4, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:115>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_6 = ___0_room;
+		NullCheck(L_6);
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_7;
+		L_7 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(L_6, NULL);
+		NullCheck(L_7);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_8;
+		L_8 = Transform_get_position_m69CD5FA214FDAE7BB701552943674846C220FDE1(L_7, NULL);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_9;
+		L_9 = Vector3_op_Subtraction_mE42023FF80067CB44A1D4A27EB7CF2B24CABB828_inline(L_5, L_8, NULL);
+		V_1 = L_9;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:116>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_10 = ___0_room;
+		NullCheck(L_10);
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_11;
+		L_11 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(L_10, NULL);
+		NullCheck(L_11);
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_12;
+		L_12 = Transform_get_rotation_m32AF40CA0D50C797DA639A696F8EAEC7524C179C(L_11, NULL);
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_13;
+		L_13 = Quaternion_Inverse_mD9C060AC626A7B406F4984AC98F8358DC89EF512_inline(L_12, NULL);
+		V_2 = L_13;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:118>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_14 = ___0_room;
+		NullCheck(L_14);
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_15;
+		L_15 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(L_14, NULL);
+		NullCheck(L_15);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_16;
+		L_16 = Transform_get_lossyScale_mFF740DA4BE1489C6882CD2F3A37B7321176E5D07(L_15, NULL);
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_17 = ___0_room;
+		NullCheck(L_17);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_18 = L_17->___Size;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_19;
+		L_19 = Vector3_Scale_m7C3CD199271902D5C00CBF35CD230DEB62B68CAE_inline(L_16, L_18, NULL);
+		Bounds_set_size_m950CFB68CDD1BF409E770509A38B958E1AE68128_inline((&((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___bounds), L_19, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:119>
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_20 = V_2;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_21 = V_1;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_22;
+		L_22 = Quaternion_op_Multiply_mE1EBA73F9173432B50F8F17CE8190C5A7986FB8C(L_20, L_21, NULL);
+		bool L_23;
+		L_23 = Bounds_Contains_m584E9DE0CF9D90C3C4F928BA8F5AD328393F3555_inline((&((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___bounds), L_22, NULL);
+		return L_23;
+	}
+}
+// Method Definition Index: 70614
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD FmodResonanceAudio_get_ListenerPlugin_mD852E94681203B33FB96E426E51EFC961DE1AAAB (const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:170>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		bool L_0;
+		L_0 = DSP_hasHandle_m6B7E68A9F0F07B429C856569EE2578DAB6312723((&((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPlugin), NULL);
+		if (L_0)
+		{
+			goto IL_0016;
+		}
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:172>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD L_1;
+		L_1 = FmodResonanceAudio_Initialize_m6F0D8A464FBAABAD7040F426D3F81FCB0624A5A1(NULL);
+		((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPlugin = L_1;
+	}
+
+IL_0016:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:174>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD L_2 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPlugin;
+		return L_2;
+	}
+}
+// Method Definition Index: 70615
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float FmodResonanceAudio_ConvertAmplitudeFromDb_mB733E1B4458C6EB6342882C0E65FD625FE366A68 (float ___0_db, const RuntimeMethod* method) 
+{
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:181>
+		float L_0 = ___0_db;
+		float L_1;
+		L_1 = powf((10.0f), ((float)il2cpp_codegen_multiply((0.0500000007f), L_0)));
+		return L_1;
+	}
+}
+// Method Definition Index: 70616
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FmodResonanceAudio_ConvertAudioTransformFromUnity_mADC39D21EA0D3A5AE8C304A7041EFB3E3C0AF215 (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___0_position, Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974* ___1_rotation, const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 V_0;
+	memset((&V_0), 0, sizeof(V_0));
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:189>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* L_0 = ___0_position;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = (*(Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*)L_0);
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974* L_2 = ___1_rotation;
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_3 = (*(Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974*)L_2);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4;
+		L_4 = Vector3_get_one_mC9B289F1E15C42C597180C9FE6FB492495B51D02_inline(NULL);
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_5;
+		L_5 = Matrix4x4_TRS_mCC04FD47347234B451ACC6CCD2CE6D02E1E0E1E3_inline(L_1, L_3, L_4, NULL);
+		V_0 = L_5;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:191>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_6 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___flipZ;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_7 = V_0;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_8;
+		L_8 = Matrix4x4_op_Multiply_m75E91775655DCA8DFC8EDE0AB787285BB3935162_inline(L_6, L_7, NULL);
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_9 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___flipZ;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_10;
+		L_10 = Matrix4x4_op_Multiply_m75E91775655DCA8DFC8EDE0AB787285BB3935162_inline(L_8, L_9, NULL);
+		V_0 = L_10;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:193>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* L_11 = ___0_position;
+		Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 L_12;
+		L_12 = Matrix4x4_GetColumn_m5CE079D7A69DE70E3144BADD20A1651C73A8D118_inline((&V_0), 3, NULL);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_13;
+		L_13 = Vector4_op_Implicit_m0217ADDC8CADDB93ACBABB17A50207698DAB0071_inline(L_12, NULL);
+		*(Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*)L_11 = L_13;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:194>
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974* L_14 = ___1_rotation;
+		Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 L_15;
+		L_15 = Matrix4x4_GetColumn_m5CE079D7A69DE70E3144BADD20A1651C73A8D118_inline((&V_0), 2, NULL);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_16;
+		L_16 = Vector4_op_Implicit_m0217ADDC8CADDB93ACBABB17A50207698DAB0071_inline(L_15, NULL);
+		Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 L_17;
+		L_17 = Matrix4x4_GetColumn_m5CE079D7A69DE70E3144BADD20A1651C73A8D118_inline((&V_0), 1, NULL);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_18;
+		L_18 = Vector4_op_Implicit_m0217ADDC8CADDB93ACBABB17A50207698DAB0071_inline(L_17, NULL);
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_19;
+		L_19 = Quaternion_LookRotation_mFB02EDC8F733774DFAC3BEA4B4BB265A228F8307_inline(L_16, L_18, NULL);
+		*(Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974*)L_14 = L_19;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:195>
+		return;
+	}
+}
+// Method Definition Index: 70617
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* FmodResonanceAudio_GetBytes_m118205AD0F68AE69DA396FE804E86630D8BA6365 (intptr_t ___0_ptr, int32_t ___1_length, const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Marshal_tD976A56A90263C3CE2B780D4B1CADADE2E70B4A7_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* V_0 = NULL;
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:200>
+		intptr_t L_0 = ___0_ptr;
+		bool L_1;
+		L_1 = IntPtr_op_Inequality_m90EFC9C4CAD9A33E309F2DDF98EE4E1DD253637B_inline(L_0, 0, NULL);
+		if (!L_1)
+		{
+			goto IL_001f;
+		}
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:202>
+		int32_t L_2 = ___1_length;
+		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_3 = (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)SZArrayNew(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031_il2cpp_TypeInfo_var, (uint32_t)L_2);
+		V_0 = L_3;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:203>
+		intptr_t L_4 = ___0_ptr;
+		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_5 = V_0;
+		int32_t L_6 = ___1_length;
+		il2cpp_codegen_runtime_class_init_inline(Marshal_tD976A56A90263C3CE2B780D4B1CADADE2E70B4A7_il2cpp_TypeInfo_var);
+		Marshal_Copy_mF7402FFDB520EA1B8D1C32B368DBEE4B13F1BE77(L_4, L_5, 0, L_6, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:204>
+		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_7 = V_0;
+		return L_7;
+	}
+
+IL_001f:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:207>
+		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_8 = (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)SZArrayNew(ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031_il2cpp_TypeInfo_var, (uint32_t)1);
+		return L_8;
+	}
+}
+// Method Definition Index: 70618
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538 FmodResonanceAudio_GetRoomProperties_m20E941629CDA31D5A1D27028D5EC7E0673BC647F (FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* ___0_room, const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	RoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538 V_0;
+	memset((&V_0), 0, sizeof(V_0));
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 V_1;
+	memset((&V_1), 0, sizeof(V_1));
+	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 V_2;
+	memset((&V_2), 0, sizeof(V_2));
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 V_3;
+	memset((&V_3), 0, sizeof(V_3));
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:214>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_0 = ___0_room;
+		NullCheck(L_0);
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_1;
+		L_1 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(L_0, NULL);
+		NullCheck(L_1);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_2;
+		L_2 = Transform_get_position_m69CD5FA214FDAE7BB701552943674846C220FDE1(L_1, NULL);
+		V_1 = L_2;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:215>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_3 = ___0_room;
+		NullCheck(L_3);
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_4;
+		L_4 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(L_3, NULL);
+		NullCheck(L_4);
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_5;
+		L_5 = Transform_get_rotation_m32AF40CA0D50C797DA639A696F8EAEC7524C179C(L_4, NULL);
+		V_2 = L_5;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:216>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_6 = ___0_room;
+		NullCheck(L_6);
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_7;
+		L_7 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(L_6, NULL);
+		NullCheck(L_7);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_8;
+		L_8 = Transform_get_lossyScale_mFF740DA4BE1489C6882CD2F3A37B7321176E5D07(L_7, NULL);
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_9 = ___0_room;
+		NullCheck(L_9);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_10 = L_9->___Size;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_11;
+		L_11 = Vector3_Scale_m7C3CD199271902D5C00CBF35CD230DEB62B68CAE_inline(L_8, L_10, NULL);
+		V_3 = L_11;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:217>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		FmodResonanceAudio_ConvertAudioTransformFromUnity_mADC39D21EA0D3A5AE8C304A7041EFB3E3C0AF215((&V_1), (&V_2), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:218>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_12 = V_1;
+		float L_13 = L_12.___x;
+		(&V_0)->___PositionX = L_13;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:219>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_14 = V_1;
+		float L_15 = L_14.___y;
+		(&V_0)->___PositionY = L_15;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:220>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_16 = V_1;
+		float L_17 = L_16.___z;
+		(&V_0)->___PositionZ = L_17;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:221>
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_18 = V_2;
+		float L_19 = L_18.___x;
+		(&V_0)->___RotationX = L_19;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:222>
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_20 = V_2;
+		float L_21 = L_20.___y;
+		(&V_0)->___RotationY = L_21;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:223>
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_22 = V_2;
+		float L_23 = L_22.___z;
+		(&V_0)->___RotationZ = L_23;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:224>
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_24 = V_2;
+		float L_25 = L_24.___w;
+		(&V_0)->___RotationW = L_25;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:225>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_26 = V_3;
+		float L_27 = L_26.___x;
+		(&V_0)->___DimensionsX = L_27;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:226>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_28 = V_3;
+		float L_29 = L_28.___y;
+		(&V_0)->___DimensionsY = L_29;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:227>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_30 = V_3;
+		float L_31 = L_30.___z;
+		(&V_0)->___DimensionsZ = L_31;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:228>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_32 = ___0_room;
+		NullCheck(L_32);
+		int32_t L_33 = L_32->___LeftWall;
+		(&V_0)->___MaterialLeft = L_33;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:229>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_34 = ___0_room;
+		NullCheck(L_34);
+		int32_t L_35 = L_34->___RightWall;
+		(&V_0)->___MaterialRight = L_35;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:230>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_36 = ___0_room;
+		NullCheck(L_36);
+		int32_t L_37 = L_36->___Floor;
+		(&V_0)->___MaterialBottom = L_37;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:231>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_38 = ___0_room;
+		NullCheck(L_38);
+		int32_t L_39 = L_38->___Ceiling;
+		(&V_0)->___MaterialTop = L_39;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:232>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_40 = ___0_room;
+		NullCheck(L_40);
+		int32_t L_41 = L_40->___FrontWall;
+		(&V_0)->___MaterialFront = L_41;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:233>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_42 = ___0_room;
+		NullCheck(L_42);
+		int32_t L_43 = L_42->___BackWall;
+		(&V_0)->___MaterialBack = L_43;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:234>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_44 = ___0_room;
+		NullCheck(L_44);
+		float L_45 = L_44->___ReverbGainDb;
+		float L_46;
+		L_46 = FmodResonanceAudio_ConvertAmplitudeFromDb_mB733E1B4458C6EB6342882C0E65FD625FE366A68(L_45, NULL);
+		(&V_0)->___ReverbGain = L_46;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:235>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_47 = ___0_room;
+		NullCheck(L_47);
+		float L_48 = L_47->___ReverbTime;
+		(&V_0)->___ReverbTime = L_48;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:236>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_49 = ___0_room;
+		NullCheck(L_49);
+		float L_50 = L_49->___ReverbBrightness;
+		(&V_0)->___ReverbBrightness = L_50;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:237>
+		FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* L_51 = ___0_room;
+		NullCheck(L_51);
+		float L_52 = L_51->___Reflectivity;
+		(&V_0)->___ReflectionScalar = L_52;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:238>
+		RoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538 L_53 = V_0;
+		return L_53;
+	}
+}
+// Method Definition Index: 70619
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD FmodResonanceAudio_Initialize_m6F0D8A464FBAABAD7040F426D3F81FCB0624A5A1 (const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&RuntimeManager_t8E78AD643D1B838B80E527F55596F997F5B7340D_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteral04A5492DE7135826F34AFDA6E93B88BA6DCEE868);
+		s_Il2CppMethodInitialized = true;
+	}
+	int32_t V_0 = 0;
+	DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD V_1;
+	memset((&V_1), 0, sizeof(V_1));
+	BankU5BU5D_t58904B47BB60A78AA092F5A615D121CD9EEB6F50* V_2 = NULL;
+	System_t9A51FE13708186A22E9D4454A7EA18347C389FEC V_3;
+	memset((&V_3), 0, sizeof(V_3));
+	int32_t V_4 = 0;
+	int32_t V_5 = 0;
+	BusU5BU5D_t2F3D0F2757F9BABE3649A6E1ADC1EE01585C779A* V_6 = NULL;
+	int32_t V_7 = 0;
+	String_t* V_8 = NULL;
+	ChannelGroup_t8AC73DBE8B58D6B23FCF28C45F3322EF457061AD V_9;
+	memset((&V_9), 0, sizeof(V_9));
+	int32_t V_10 = 0;
+	int32_t V_11 = 0;
+	String_t* V_12 = NULL;
+	int32_t V_13 = 0;
+	uint32_t V_14 = 0;
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:245>
+		V_0 = 0;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:246>
+		il2cpp_codegen_initobj((&V_1), sizeof(DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD));
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:247>
+		V_2 = (BankU5BU5D_t58904B47BB60A78AA092F5A615D121CD9EEB6F50*)NULL;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:248>
+		il2cpp_codegen_runtime_class_init_inline(RuntimeManager_t8E78AD643D1B838B80E527F55596F997F5B7340D_il2cpp_TypeInfo_var);
+		System_t9A51FE13708186A22E9D4454A7EA18347C389FEC L_0;
+		L_0 = RuntimeManager_get_StudioSystem_m783AEDBA088138F0A6929EEE2E628002B5287C57(NULL);
+		V_3 = L_0;
+		int32_t L_1;
+		L_1 = System_getBankCount_m28AF716F1A068059CEF930A8306C5034D6258D7B((&V_3), (&V_0), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:249>
+		System_t9A51FE13708186A22E9D4454A7EA18347C389FEC L_2;
+		L_2 = RuntimeManager_get_StudioSystem_m783AEDBA088138F0A6929EEE2E628002B5287C57(NULL);
+		V_3 = L_2;
+		int32_t L_3;
+		L_3 = System_getBankList_m672E0205A7C39538E10C0BB15365BD54653F058D((&V_3), (&V_2), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:250>
+		V_4 = 0;
+		goto IL_014a;
+	}
+
+IL_0034:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:252>
+		V_5 = 0;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:253>
+		V_6 = (BusU5BU5D_t2F3D0F2757F9BABE3649A6E1ADC1EE01585C779A*)NULL;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:254>
+		BankU5BU5D_t58904B47BB60A78AA092F5A615D121CD9EEB6F50* L_4 = V_2;
+		int32_t L_5 = V_4;
+		NullCheck(L_4);
+		int32_t L_6;
+		L_6 = Bank_getBusCount_mDB4D9767E286CA8952D68CA2E5E6268BAC443861(((L_4)->GetAddressAt(static_cast<il2cpp_array_size_t>(L_5))), (&V_5), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:255>
+		BankU5BU5D_t58904B47BB60A78AA092F5A615D121CD9EEB6F50* L_7 = V_2;
+		int32_t L_8 = V_4;
+		NullCheck(L_7);
+		int32_t L_9;
+		L_9 = Bank_getBusList_m31CC23B28516D03EC240181928C269012D5784B0(((L_7)->GetAddressAt(static_cast<il2cpp_array_size_t>(L_8))), (&V_6), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:256>
+		V_7 = 0;
+		goto IL_013b;
+	}
+
+IL_0062:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:259>
+		V_8 = (String_t*)NULL;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:260>
+		BusU5BU5D_t2F3D0F2757F9BABE3649A6E1ADC1EE01585C779A* L_10 = V_6;
+		int32_t L_11 = V_7;
+		NullCheck(L_10);
+		int32_t L_12;
+		L_12 = Bus_getPath_m1C3BF57DF5A6E3083AE0F763C9816EF8AAF88747(((L_10)->GetAddressAt(static_cast<il2cpp_array_size_t>(L_11))), (&V_8), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:261>
+		il2cpp_codegen_runtime_class_init_inline(RuntimeManager_t8E78AD643D1B838B80E527F55596F997F5B7340D_il2cpp_TypeInfo_var);
+		System_t9A51FE13708186A22E9D4454A7EA18347C389FEC L_13;
+		L_13 = RuntimeManager_get_StudioSystem_m783AEDBA088138F0A6929EEE2E628002B5287C57(NULL);
+		V_3 = L_13;
+		String_t* L_14 = V_8;
+		BusU5BU5D_t2F3D0F2757F9BABE3649A6E1ADC1EE01585C779A* L_15 = V_6;
+		int32_t L_16 = V_7;
+		NullCheck(L_15);
+		int32_t L_17;
+		L_17 = System_getBus_m72A5E19A1084B02B1EF3BB2F71DD87EACFEA40D0((&V_3), L_14, ((L_15)->GetAddressAt(static_cast<il2cpp_array_size_t>(L_16))), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:262>
+		BusU5BU5D_t2F3D0F2757F9BABE3649A6E1ADC1EE01585C779A* L_18 = V_6;
+		int32_t L_19 = V_7;
+		NullCheck(L_18);
+		int32_t L_20;
+		L_20 = Bus_lockChannelGroup_m218261189677988D595DE11884BB8CE785D80139(((L_18)->GetAddressAt(static_cast<il2cpp_array_size_t>(L_19))), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:263>
+		System_t9A51FE13708186A22E9D4454A7EA18347C389FEC L_21;
+		L_21 = RuntimeManager_get_StudioSystem_m783AEDBA088138F0A6929EEE2E628002B5287C57(NULL);
+		V_3 = L_21;
+		int32_t L_22;
+		L_22 = System_flushCommands_mF8141A609F9E327B16CFA51A0DD488CC49CAA68B((&V_3), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:265>
+		BusU5BU5D_t2F3D0F2757F9BABE3649A6E1ADC1EE01585C779A* L_23 = V_6;
+		int32_t L_24 = V_7;
+		NullCheck(L_23);
+		int32_t L_25;
+		L_25 = Bus_getChannelGroup_mAE99D88164967EE1E5056CA68F4A48918B06D60C(((L_23)->GetAddressAt(static_cast<il2cpp_array_size_t>(L_24))), (&V_9), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:266>
+		bool L_26;
+		L_26 = ChannelGroup_hasHandle_m9A0F2D3241B19FB791370DC8539AECFDDB1BD3EF((&V_9), NULL);
+		if (!L_26)
+		{
+			goto IL_0126;
+		}
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:268>
+		V_10 = 0;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:269>
+		int32_t L_27;
+		L_27 = ChannelGroup_getNumDSPs_mF195CCD9228B86502562D548D99B7FB8907CC38E((&V_9), (&V_10), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:270>
+		V_11 = 0;
+		goto IL_0120;
+	}
+
+IL_00d8:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:272>
+		int32_t L_28 = V_11;
+		int32_t L_29;
+		L_29 = ChannelGroup_getDSP_mD799A7E5A919958BC156AF30C790266D68677D3E((&V_9), L_28, (&V_1), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:274>
+		V_13 = 0;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:275>
+		V_14 = 0;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:276>
+		int32_t L_30;
+		L_30 = DSP_getInfo_mB51F9D52E187E2FA6F32A964D22B859AB8C7D38F((&V_1), (&V_12), (&V_14), (&V_13), (&V_13), (&V_13), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:277>
+		String_t* L_31 = V_12;
+		NullCheck(L_31);
+		String_t* L_32;
+		L_32 = VirtualFuncInvoker0< String_t* >::Invoke(3, L_31);
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		String_t* L_33 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPluginName;
+		NullCheck(L_32);
+		bool L_34;
+		L_34 = String_Equals_mCD5F35DEDCAFE51ACD4E033726FC2EF8DF7E9B4D(L_32, L_33, NULL);
+		if (!L_34)
+		{
+			goto IL_011a;
+		}
+	}
+	{
+		bool L_35;
+		L_35 = DSP_hasHandle_m6B7E68A9F0F07B429C856569EE2578DAB6312723((&V_1), NULL);
+		if (!L_35)
+		{
+			goto IL_011a;
+		}
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:279>
+		DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD L_36 = V_1;
+		return L_36;
+	}
+
+IL_011a:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:270>
+		int32_t L_37 = V_11;
+		V_11 = ((int32_t)il2cpp_codegen_add(L_37, 1));
+	}
+
+IL_0120:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:270>
+		int32_t L_38 = V_11;
+		int32_t L_39 = V_10;
+		if ((((int32_t)L_38) < ((int32_t)L_39)))
+		{
+			goto IL_00d8;
+		}
+	}
+
+IL_0126:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:283>
+		BusU5BU5D_t2F3D0F2757F9BABE3649A6E1ADC1EE01585C779A* L_40 = V_6;
+		int32_t L_41 = V_7;
+		NullCheck(L_40);
+		int32_t L_42;
+		L_42 = Bus_unlockChannelGroup_m699B697E38852BFD104DDC8DFD8B08EE29C9F639(((L_40)->GetAddressAt(static_cast<il2cpp_array_size_t>(L_41))), NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:256>
+		int32_t L_43 = V_7;
+		V_7 = ((int32_t)il2cpp_codegen_add(L_43, 1));
+	}
+
+IL_013b:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:256>
+		int32_t L_44 = V_7;
+		int32_t L_45 = V_5;
+		if ((((int32_t)L_44) < ((int32_t)L_45)))
+		{
+			goto IL_0062;
+		}
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:250>
+		int32_t L_46 = V_4;
+		V_4 = ((int32_t)il2cpp_codegen_add(L_46, 1));
+	}
+
+IL_014a:
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:250>
+		int32_t L_47 = V_4;
+		int32_t L_48 = V_0;
+		if ((((int32_t)L_47) < ((int32_t)L_48)))
+		{
+			goto IL_0034;
+		}
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:286>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		String_t* L_49 = ((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPluginName;
+		String_t* L_50;
+		L_50 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(L_49, _stringLiteral04A5492DE7135826F34AFDA6E93B88BA6DCEE868, NULL);
+		RuntimeUtils_DebugLogError_m1C24AAA71793478DCA40E4F4685D18E492E8ADDE(L_50, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:287>
+		DSP_t2B1AC37BB23E46F1608C986888576EDAE43E74AD L_51 = V_1;
+		return L_51;
+	}
+}
+// Method Definition Index: 70620
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FmodResonanceAudio__cctor_m907C588ED1F4CB5FBC03523E1311612A8D7F0C46 (const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&List_1__ctor_mC49CD4F04DE70D42EEA0EBE4E070E85277A71E74_RuntimeMethod_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Marshal_SizeOf_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mAEFADBFCD4F6500CCE4C4C77FAA446531AACA4C2_RuntimeMethod_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Marshal_tD976A56A90263C3CE2B780D4B1CADADE2E70B4A7_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteral560FF11FB71A07916C2C601DFDC9A5A18BE76F6D);
+		s_Il2CppMethodInitialized = true;
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:48>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_0;
+		memset((&L_0), 0, sizeof(L_0));
+		Vector3__ctor_m376936E6B999EF1ECBE57D990A386303E2283DE0_inline((&L_0), (1.0f), (1.0f), (-1.0f), NULL);
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_1;
+		L_1 = Matrix4x4_Scale_m95902D2A889FD6E7B04BBEAE6FAE5D6D8A88E642_inline(L_0, NULL);
+		((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___flipZ = L_1;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:51>
+		((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPluginName = _stringLiteral560FF11FB71A07916C2C601DFDC9A5A18BE76F6D;
+		Il2CppCodeGenWriteBarrier((void**)(&((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPluginName), (void*)_stringLiteral560FF11FB71A07916C2C601DFDC9A5A18BE76F6D);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:54>
+		il2cpp_codegen_runtime_class_init_inline(Marshal_tD976A56A90263C3CE2B780D4B1CADADE2E70B4A7_il2cpp_TypeInfo_var);
+		int32_t L_2;
+		L_2 = Marshal_SizeOf_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mAEFADBFCD4F6500CCE4C4C77FAA446531AACA4C2(Marshal_SizeOf_TisRoomProperties_t4C5F00200CF815F9A30E6192C13DBF7448A51538_mAEFADBFCD4F6500CCE4C4C77FAA446531AACA4C2_RuntimeMethod_var);
+		((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___roomPropertiesSize = L_2;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:57>
+		((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___roomPropertiesIndex = 1;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:60>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_3;
+		L_3 = Vector3_get_zero_m0C1249C3F25B1C70EAD3CC8B31259975A457AE39_inline(NULL);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4;
+		L_4 = Vector3_get_zero_m0C1249C3F25B1C70EAD3CC8B31259975A457AE39_inline(NULL);
+		Bounds_t367E830C64BBF235ED8C3B2F8CF6254FDCAD39C3 L_5;
+		memset((&L_5), 0, sizeof(L_5));
+		Bounds__ctor_mAF7B238B9FBF90C495E5D7951760085A93119C5A_inline((&L_5), L_3, L_4, NULL);
+		((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___bounds = L_5;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:63>
+		List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4* L_6 = (List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4*)il2cpp_codegen_object_new(List_1_t01119EC95ECAFA76FC524F76369EB573C12270E4_il2cpp_TypeInfo_var);
+		List_1__ctor_mC49CD4F04DE70D42EEA0EBE4E070E85277A71E74(L_6, List_1__ctor_mC49CD4F04DE70D42EEA0EBE4E070E85277A71E74_RuntimeMethod_var);
+		((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___enabledRooms = L_6;
+		Il2CppCodeGenWriteBarrier((void**)(&((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___enabledRooms), (void*)L_6);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudio.cs:66>
+		il2cpp_codegen_initobj((&((FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_StaticFields*)il2cpp_codegen_static_fields_for(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var))->___listenerPositionFmod), sizeof(VECTOR_t2970F478E0C7B6D413C80CF3ADCE451A7BB4F41F));
+		return;
+	}
+}
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+// Method Definition Index: 70621
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FmodResonanceAudioRoom_OnEnable_mDB3DCB9E5858B517F47DC52048472F14B452D60C (FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* __this, const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:100>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		bool L_0;
+		L_0 = FmodResonanceAudio_IsListenerInsideRoom_mF51A6574877EEB05D8496935C40F6B9C50BC495D(__this, NULL);
+		FmodResonanceAudio_UpdateAudioRoom_mE957D662AD9913EC12470386DDC9A65777CF67D2(__this, L_0, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:101>
+		return;
+	}
+}
+// Method Definition Index: 70622
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FmodResonanceAudioRoom_OnDisable_mBF54289307047AB8B837917C1E8B70C6837C689F (FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* __this, const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:105>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		FmodResonanceAudio_UpdateAudioRoom_mE957D662AD9913EC12470386DDC9A65777CF67D2(__this, (bool)0, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:106>
+		return;
+	}
+}
+// Method Definition Index: 70623
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FmodResonanceAudioRoom_Update_mB3F39F395CE086C53460FE4A25FDB244B77E73CB (FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* __this, const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:110>
+		il2cpp_codegen_runtime_class_init_inline(FmodResonanceAudio_tB56D3972610A725C4E28946A672D7A10F4E20B35_il2cpp_TypeInfo_var);
+		bool L_0;
+		L_0 = FmodResonanceAudio_IsListenerInsideRoom_mF51A6574877EEB05D8496935C40F6B9C50BC495D(__this, NULL);
+		FmodResonanceAudio_UpdateAudioRoom_mE957D662AD9913EC12470386DDC9A65777CF67D2(__this, L_0, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:111>
+		return;
+	}
+}
+// Method Definition Index: 70624
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FmodResonanceAudioRoom_OnDrawGizmosSelected_m52A7D70F7A63652BA33C68443AB65F11F13E378B (FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* __this, const RuntimeMethod* method) 
+{
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:116>
+		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0;
+		L_0 = Color_get_yellow_m66637FA14383E8D74F24AE256B577CE1D55D469F_inline(NULL);
+		Gizmos_set_color_m53927A2741937484180B20B55F7F20F8F60C5797(L_0, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:117>
+		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_1;
+		L_1 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(__this, NULL);
+		NullCheck(L_1);
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_2;
+		L_2 = Transform_get_localToWorldMatrix_m5D35188766856338DD21DE756F42277C21719E6D(L_1, NULL);
+		Gizmos_set_matrix_m100B4ACA7FBDFF65CE1BD0000E9E0D7566147A15(L_2, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:118>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_3;
+		L_3 = Vector3_get_zero_m0C1249C3F25B1C70EAD3CC8B31259975A457AE39_inline(NULL);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4 = __this->___Size;
+		Gizmos_DrawWireCube_m343533B3955A2D04A8638280D0EF537274A1FD8B(L_3, L_4, NULL);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:119>
+		return;
+	}
+}
+// Method Definition Index: 70625
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FmodResonanceAudioRoom__ctor_m1F848A91D64BC754832CB90A48F3A7A2C8AEB9EA (FmodResonanceAudioRoom_t7078E03ED7F19847733049BD2ACA2CBA5B39BB35* __this, const RuntimeMethod* method) 
+{
+	{
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:56>
+		__this->___LeftWall = 4;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:60>
+		__this->___RightWall = 4;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:64>
+		__this->___Floor = ((int32_t)14);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:68>
+		__this->___Ceiling = ((int32_t)15);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:72>
+		__this->___BackWall = 4;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:76>
+		__this->___FrontWall = 4;
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:80>
+		__this->___Reflectivity = (1.0f);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:92>
+		__this->___ReverbTime = (1.0f);
+		//<source_info:C:/Users/Yan/Documents/GitHub/MATHBLOCK/ProjetoMATHBLOCK/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FmodResonanceAudioRoom.cs:96>
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_0;
+		L_0 = Vector3_get_one_mC9B289F1E15C42C597180C9FE6FB492495B51D02_inline(NULL);
+		__this->___Size = L_0;
+		MonoBehaviour__ctor_m592DB0105CA0BC97AA1C5F4AD27B12D68A3B7C1E(__this, NULL);
+		return;
+	}
+}
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+// Method Definition Index: 34978
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Vector3__ctor_m376936E6B999EF1ECBE57D990A386303E2283DE0_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* __this, float ___0_x, float ___1_y, float ___2_z, const RuntimeMethod* method) 
+{
+	{
+		float L_0 = ___0_x;
+		__this->___x = L_0;
+		float L_1 = ___1_y;
+		__this->___y = L_1;
+		float L_2 = ___2_z;
+		__this->___z = L_2;
+		return;
+	}
+}
+// Method Definition Index: 35015
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector3_op_Subtraction_mE42023FF80067CB44A1D4A27EB7CF2B24CABB828_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_a, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_b, const RuntimeMethod* method) 
+{
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 V_0;
+	memset((&V_0), 0, sizeof(V_0));
+	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_0 = ___0_a;
+		float L_1 = L_0.___x;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_2 = ___1_b;
+		float L_3 = L_2.___x;
+		(&V_0)->___x = ((float)il2cpp_codegen_subtract(L_1, L_3));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4 = ___0_a;
+		float L_5 = L_4.___y;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_6 = ___1_b;
+		float L_7 = L_6.___y;
+		(&V_0)->___y = ((float)il2cpp_codegen_subtract(L_5, L_7));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_8 = ___0_a;
+		float L_9 = L_8.___z;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_10 = ___1_b;
+		float L_11 = L_10.___z;
+		(&V_0)->___z = ((float)il2cpp_codegen_subtract(L_9, L_11));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_12 = V_0;
+		return L_12;
+	}
+}
+// Method Definition Index: 35028
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 Quaternion_Inverse_mD9C060AC626A7B406F4984AC98F8358DC89EF512_inline (Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___0_rotation, const RuntimeMethod* method) 
+{
+	{
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_0;
+		L_0 = Quaternion_Internal_Inverse_m0ABC2C5E4F26053F9F6B8260065D08E264F62566((&___0_rotation), NULL);
+		return L_0;
+	}
+}
+// Method Definition Index: 34980
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector3_Scale_m7C3CD199271902D5C00CBF35CD230DEB62B68CAE_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_a, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_b, const RuntimeMethod* method) 
+{
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 V_0;
+	memset((&V_0), 0, sizeof(V_0));
+	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_0 = ___0_a;
+		float L_1 = L_0.___x;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_2 = ___1_b;
+		float L_3 = L_2.___x;
+		(&V_0)->___x = ((float)il2cpp_codegen_multiply(L_1, L_3));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4 = ___0_a;
+		float L_5 = L_4.___y;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_6 = ___1_b;
+		float L_7 = L_6.___y;
+		(&V_0)->___y = ((float)il2cpp_codegen_multiply(L_5, L_7));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_8 = ___0_a;
+		float L_9 = L_8.___z;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_10 = ___1_b;
+		float L_11 = L_10.___z;
+		(&V_0)->___z = ((float)il2cpp_codegen_multiply(L_9, L_11));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_12 = V_0;
+		return L_12;
+	}
+}
+// Method Definition Index: 33564
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Bounds_set_size_m950CFB68CDD1BF409E770509A38B958E1AE68128_inline (Bounds_t367E830C64BBF235ED8C3B2F8CF6254FDCAD39C3* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_value, const RuntimeMethod* method) 
+{
+	{
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* L_0 = (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*)(&__this->___m_Extents);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = ___0_value;
+		float L_2 = L_1.___x;
+		L_0->___x = ((float)il2cpp_codegen_multiply(L_2, (0.5f)));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* L_3 = (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*)(&__this->___m_Extents);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4 = ___0_value;
+		float L_5 = L_4.___y;
+		L_3->___y = ((float)il2cpp_codegen_multiply(L_5, (0.5f)));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* L_6 = (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*)(&__this->___m_Extents);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_7 = ___0_value;
+		float L_8 = L_7.___z;
+		L_6->___z = ((float)il2cpp_codegen_multiply(L_8, (0.5f)));
+		return;
+	}
+}
+// Method Definition Index: 33584
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool Bounds_Contains_m584E9DE0CF9D90C3C4F928BA8F5AD328393F3555_inline (Bounds_t367E830C64BBF235ED8C3B2F8CF6254FDCAD39C3* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_point, const RuntimeMethod* method) 
+{
+	{
+		bool L_0;
+		L_0 = Bounds_Internal_Contains_m03EAA1D2CE49D2467C621523D403635D33F4D63A(__this, (&___0_point), NULL);
+		return L_0;
+	}
+}
+// Method Definition Index: 35007
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector3_get_one_mC9B289F1E15C42C597180C9FE6FB492495B51D02_inline (const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	{
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_0 = ((Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_StaticFields*)il2cpp_codegen_static_fields_for(Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_il2cpp_TypeInfo_var))->___oneVector;
+		return L_0;
+	}
+}
+// Method Definition Index: 34926
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 Matrix4x4_TRS_mCC04FD47347234B451ACC6CCD2CE6D02E1E0E1E3_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_pos, Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___1_q, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___2_s, const RuntimeMethod* method) 
+{
+	{
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_0;
+		L_0 = Matrix4x4_Internal_TRS_m39AB7D4719528E75EAEC127019A36907AABE52B4((&___0_pos), (&___1_q), (&___2_s), NULL);
+		return L_0;
+	}
+}
+// Method Definition Index: 34948
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 Matrix4x4_op_Multiply_m75E91775655DCA8DFC8EDE0AB787285BB3935162_inline (Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 ___0_lhs, Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 ___1_rhs, const RuntimeMethod* method) 
+{
+	Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 V_0;
+	memset((&V_0), 0, sizeof(V_0));
+	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_0 = ___0_lhs;
+		float L_1 = L_0.___m00;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_2 = ___1_rhs;
+		float L_3 = L_2.___m00;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_4 = ___0_lhs;
+		float L_5 = L_4.___m01;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_6 = ___1_rhs;
+		float L_7 = L_6.___m10;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_8 = ___0_lhs;
+		float L_9 = L_8.___m02;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_10 = ___1_rhs;
+		float L_11 = L_10.___m20;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_12 = ___0_lhs;
+		float L_13 = L_12.___m03;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_14 = ___1_rhs;
+		float L_15 = L_14.___m30;
+		(&V_0)->___m00 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_1, L_3)), ((float)il2cpp_codegen_multiply(L_5, L_7)))), ((float)il2cpp_codegen_multiply(L_9, L_11)))), ((float)il2cpp_codegen_multiply(L_13, L_15))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_16 = ___0_lhs;
+		float L_17 = L_16.___m00;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_18 = ___1_rhs;
+		float L_19 = L_18.___m01;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_20 = ___0_lhs;
+		float L_21 = L_20.___m01;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_22 = ___1_rhs;
+		float L_23 = L_22.___m11;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_24 = ___0_lhs;
+		float L_25 = L_24.___m02;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_26 = ___1_rhs;
+		float L_27 = L_26.___m21;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_28 = ___0_lhs;
+		float L_29 = L_28.___m03;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_30 = ___1_rhs;
+		float L_31 = L_30.___m31;
+		(&V_0)->___m01 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_17, L_19)), ((float)il2cpp_codegen_multiply(L_21, L_23)))), ((float)il2cpp_codegen_multiply(L_25, L_27)))), ((float)il2cpp_codegen_multiply(L_29, L_31))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_32 = ___0_lhs;
+		float L_33 = L_32.___m00;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_34 = ___1_rhs;
+		float L_35 = L_34.___m02;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_36 = ___0_lhs;
+		float L_37 = L_36.___m01;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_38 = ___1_rhs;
+		float L_39 = L_38.___m12;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_40 = ___0_lhs;
+		float L_41 = L_40.___m02;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_42 = ___1_rhs;
+		float L_43 = L_42.___m22;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_44 = ___0_lhs;
+		float L_45 = L_44.___m03;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_46 = ___1_rhs;
+		float L_47 = L_46.___m32;
+		(&V_0)->___m02 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_33, L_35)), ((float)il2cpp_codegen_multiply(L_37, L_39)))), ((float)il2cpp_codegen_multiply(L_41, L_43)))), ((float)il2cpp_codegen_multiply(L_45, L_47))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_48 = ___0_lhs;
+		float L_49 = L_48.___m00;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_50 = ___1_rhs;
+		float L_51 = L_50.___m03;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_52 = ___0_lhs;
+		float L_53 = L_52.___m01;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_54 = ___1_rhs;
+		float L_55 = L_54.___m13;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_56 = ___0_lhs;
+		float L_57 = L_56.___m02;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_58 = ___1_rhs;
+		float L_59 = L_58.___m23;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_60 = ___0_lhs;
+		float L_61 = L_60.___m03;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_62 = ___1_rhs;
+		float L_63 = L_62.___m33;
+		(&V_0)->___m03 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_49, L_51)), ((float)il2cpp_codegen_multiply(L_53, L_55)))), ((float)il2cpp_codegen_multiply(L_57, L_59)))), ((float)il2cpp_codegen_multiply(L_61, L_63))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_64 = ___0_lhs;
+		float L_65 = L_64.___m10;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_66 = ___1_rhs;
+		float L_67 = L_66.___m00;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_68 = ___0_lhs;
+		float L_69 = L_68.___m11;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_70 = ___1_rhs;
+		float L_71 = L_70.___m10;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_72 = ___0_lhs;
+		float L_73 = L_72.___m12;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_74 = ___1_rhs;
+		float L_75 = L_74.___m20;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_76 = ___0_lhs;
+		float L_77 = L_76.___m13;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_78 = ___1_rhs;
+		float L_79 = L_78.___m30;
+		(&V_0)->___m10 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_65, L_67)), ((float)il2cpp_codegen_multiply(L_69, L_71)))), ((float)il2cpp_codegen_multiply(L_73, L_75)))), ((float)il2cpp_codegen_multiply(L_77, L_79))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_80 = ___0_lhs;
+		float L_81 = L_80.___m10;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_82 = ___1_rhs;
+		float L_83 = L_82.___m01;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_84 = ___0_lhs;
+		float L_85 = L_84.___m11;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_86 = ___1_rhs;
+		float L_87 = L_86.___m11;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_88 = ___0_lhs;
+		float L_89 = L_88.___m12;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_90 = ___1_rhs;
+		float L_91 = L_90.___m21;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_92 = ___0_lhs;
+		float L_93 = L_92.___m13;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_94 = ___1_rhs;
+		float L_95 = L_94.___m31;
+		(&V_0)->___m11 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_81, L_83)), ((float)il2cpp_codegen_multiply(L_85, L_87)))), ((float)il2cpp_codegen_multiply(L_89, L_91)))), ((float)il2cpp_codegen_multiply(L_93, L_95))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_96 = ___0_lhs;
+		float L_97 = L_96.___m10;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_98 = ___1_rhs;
+		float L_99 = L_98.___m02;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_100 = ___0_lhs;
+		float L_101 = L_100.___m11;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_102 = ___1_rhs;
+		float L_103 = L_102.___m12;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_104 = ___0_lhs;
+		float L_105 = L_104.___m12;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_106 = ___1_rhs;
+		float L_107 = L_106.___m22;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_108 = ___0_lhs;
+		float L_109 = L_108.___m13;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_110 = ___1_rhs;
+		float L_111 = L_110.___m32;
+		(&V_0)->___m12 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_97, L_99)), ((float)il2cpp_codegen_multiply(L_101, L_103)))), ((float)il2cpp_codegen_multiply(L_105, L_107)))), ((float)il2cpp_codegen_multiply(L_109, L_111))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_112 = ___0_lhs;
+		float L_113 = L_112.___m10;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_114 = ___1_rhs;
+		float L_115 = L_114.___m03;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_116 = ___0_lhs;
+		float L_117 = L_116.___m11;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_118 = ___1_rhs;
+		float L_119 = L_118.___m13;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_120 = ___0_lhs;
+		float L_121 = L_120.___m12;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_122 = ___1_rhs;
+		float L_123 = L_122.___m23;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_124 = ___0_lhs;
+		float L_125 = L_124.___m13;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_126 = ___1_rhs;
+		float L_127 = L_126.___m33;
+		(&V_0)->___m13 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_113, L_115)), ((float)il2cpp_codegen_multiply(L_117, L_119)))), ((float)il2cpp_codegen_multiply(L_121, L_123)))), ((float)il2cpp_codegen_multiply(L_125, L_127))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_128 = ___0_lhs;
+		float L_129 = L_128.___m20;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_130 = ___1_rhs;
+		float L_131 = L_130.___m00;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_132 = ___0_lhs;
+		float L_133 = L_132.___m21;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_134 = ___1_rhs;
+		float L_135 = L_134.___m10;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_136 = ___0_lhs;
+		float L_137 = L_136.___m22;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_138 = ___1_rhs;
+		float L_139 = L_138.___m20;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_140 = ___0_lhs;
+		float L_141 = L_140.___m23;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_142 = ___1_rhs;
+		float L_143 = L_142.___m30;
+		(&V_0)->___m20 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_129, L_131)), ((float)il2cpp_codegen_multiply(L_133, L_135)))), ((float)il2cpp_codegen_multiply(L_137, L_139)))), ((float)il2cpp_codegen_multiply(L_141, L_143))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_144 = ___0_lhs;
+		float L_145 = L_144.___m20;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_146 = ___1_rhs;
+		float L_147 = L_146.___m01;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_148 = ___0_lhs;
+		float L_149 = L_148.___m21;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_150 = ___1_rhs;
+		float L_151 = L_150.___m11;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_152 = ___0_lhs;
+		float L_153 = L_152.___m22;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_154 = ___1_rhs;
+		float L_155 = L_154.___m21;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_156 = ___0_lhs;
+		float L_157 = L_156.___m23;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_158 = ___1_rhs;
+		float L_159 = L_158.___m31;
+		(&V_0)->___m21 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_145, L_147)), ((float)il2cpp_codegen_multiply(L_149, L_151)))), ((float)il2cpp_codegen_multiply(L_153, L_155)))), ((float)il2cpp_codegen_multiply(L_157, L_159))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_160 = ___0_lhs;
+		float L_161 = L_160.___m20;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_162 = ___1_rhs;
+		float L_163 = L_162.___m02;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_164 = ___0_lhs;
+		float L_165 = L_164.___m21;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_166 = ___1_rhs;
+		float L_167 = L_166.___m12;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_168 = ___0_lhs;
+		float L_169 = L_168.___m22;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_170 = ___1_rhs;
+		float L_171 = L_170.___m22;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_172 = ___0_lhs;
+		float L_173 = L_172.___m23;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_174 = ___1_rhs;
+		float L_175 = L_174.___m32;
+		(&V_0)->___m22 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_161, L_163)), ((float)il2cpp_codegen_multiply(L_165, L_167)))), ((float)il2cpp_codegen_multiply(L_169, L_171)))), ((float)il2cpp_codegen_multiply(L_173, L_175))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_176 = ___0_lhs;
+		float L_177 = L_176.___m20;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_178 = ___1_rhs;
+		float L_179 = L_178.___m03;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_180 = ___0_lhs;
+		float L_181 = L_180.___m21;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_182 = ___1_rhs;
+		float L_183 = L_182.___m13;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_184 = ___0_lhs;
+		float L_185 = L_184.___m22;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_186 = ___1_rhs;
+		float L_187 = L_186.___m23;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_188 = ___0_lhs;
+		float L_189 = L_188.___m23;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_190 = ___1_rhs;
+		float L_191 = L_190.___m33;
+		(&V_0)->___m23 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_177, L_179)), ((float)il2cpp_codegen_multiply(L_181, L_183)))), ((float)il2cpp_codegen_multiply(L_185, L_187)))), ((float)il2cpp_codegen_multiply(L_189, L_191))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_192 = ___0_lhs;
+		float L_193 = L_192.___m30;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_194 = ___1_rhs;
+		float L_195 = L_194.___m00;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_196 = ___0_lhs;
+		float L_197 = L_196.___m31;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_198 = ___1_rhs;
+		float L_199 = L_198.___m10;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_200 = ___0_lhs;
+		float L_201 = L_200.___m32;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_202 = ___1_rhs;
+		float L_203 = L_202.___m20;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_204 = ___0_lhs;
+		float L_205 = L_204.___m33;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_206 = ___1_rhs;
+		float L_207 = L_206.___m30;
+		(&V_0)->___m30 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_193, L_195)), ((float)il2cpp_codegen_multiply(L_197, L_199)))), ((float)il2cpp_codegen_multiply(L_201, L_203)))), ((float)il2cpp_codegen_multiply(L_205, L_207))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_208 = ___0_lhs;
+		float L_209 = L_208.___m30;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_210 = ___1_rhs;
+		float L_211 = L_210.___m01;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_212 = ___0_lhs;
+		float L_213 = L_212.___m31;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_214 = ___1_rhs;
+		float L_215 = L_214.___m11;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_216 = ___0_lhs;
+		float L_217 = L_216.___m32;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_218 = ___1_rhs;
+		float L_219 = L_218.___m21;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_220 = ___0_lhs;
+		float L_221 = L_220.___m33;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_222 = ___1_rhs;
+		float L_223 = L_222.___m31;
+		(&V_0)->___m31 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_209, L_211)), ((float)il2cpp_codegen_multiply(L_213, L_215)))), ((float)il2cpp_codegen_multiply(L_217, L_219)))), ((float)il2cpp_codegen_multiply(L_221, L_223))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_224 = ___0_lhs;
+		float L_225 = L_224.___m30;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_226 = ___1_rhs;
+		float L_227 = L_226.___m02;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_228 = ___0_lhs;
+		float L_229 = L_228.___m31;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_230 = ___1_rhs;
+		float L_231 = L_230.___m12;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_232 = ___0_lhs;
+		float L_233 = L_232.___m32;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_234 = ___1_rhs;
+		float L_235 = L_234.___m22;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_236 = ___0_lhs;
+		float L_237 = L_236.___m33;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_238 = ___1_rhs;
+		float L_239 = L_238.___m32;
+		(&V_0)->___m32 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_225, L_227)), ((float)il2cpp_codegen_multiply(L_229, L_231)))), ((float)il2cpp_codegen_multiply(L_233, L_235)))), ((float)il2cpp_codegen_multiply(L_237, L_239))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_240 = ___0_lhs;
+		float L_241 = L_240.___m30;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_242 = ___1_rhs;
+		float L_243 = L_242.___m03;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_244 = ___0_lhs;
+		float L_245 = L_244.___m31;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_246 = ___1_rhs;
+		float L_247 = L_246.___m13;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_248 = ___0_lhs;
+		float L_249 = L_248.___m32;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_250 = ___1_rhs;
+		float L_251 = L_250.___m23;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_252 = ___0_lhs;
+		float L_253 = L_252.___m33;
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_254 = ___1_rhs;
+		float L_255 = L_254.___m33;
+		(&V_0)->___m33 = ((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_241, L_243)), ((float)il2cpp_codegen_multiply(L_245, L_247)))), ((float)il2cpp_codegen_multiply(L_249, L_251)))), ((float)il2cpp_codegen_multiply(L_253, L_255))));
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_256 = V_0;
+		return L_256;
+	}
+}
+// Method Definition Index: 34950
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 Matrix4x4_GetColumn_m5CE079D7A69DE70E3144BADD20A1651C73A8D118_inline (Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6* __this, int32_t ___0_index, const RuntimeMethod* method) 
+{
+	int32_t V_0 = 0;
+	int32_t V_1 = 0;
+	Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 V_2;
+	memset((&V_2), 0, sizeof(V_2));
+	Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 V_3;
+	memset((&V_3), 0, sizeof(V_3));
+	{
+		int32_t L_0 = ___0_index;
+		V_1 = L_0;
+		int32_t L_1 = V_1;
+		V_0 = L_1;
+		int32_t L_2 = V_0;
+		switch (L_2)
+		{
+			case 0:
+			{
+				goto IL_0020;
+			}
+			case 1:
+			{
+				goto IL_0063;
+			}
+			case 2:
+			{
+				goto IL_00a6;
+			}
+			case 3:
+			{
+				goto IL_00e6;
+			}
+		}
+	}
+	{
+		goto IL_0126;
+	}
+
+IL_0020:
+	{
+		il2cpp_codegen_initobj((&V_2), sizeof(Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3));
+		float L_3 = __this->___m00;
+		(&V_2)->___x = L_3;
+		float L_4 = __this->___m10;
+		(&V_2)->___y = L_4;
+		float L_5 = __this->___m20;
+		(&V_2)->___z = L_5;
+		float L_6 = __this->___m30;
+		(&V_2)->___w = L_6;
+		Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 L_7 = V_2;
+		V_3 = L_7;
+		goto IL_0131;
+	}
+
+IL_0063:
+	{
+		il2cpp_codegen_initobj((&V_2), sizeof(Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3));
+		float L_8 = __this->___m01;
+		(&V_2)->___x = L_8;
+		float L_9 = __this->___m11;
+		(&V_2)->___y = L_9;
+		float L_10 = __this->___m21;
+		(&V_2)->___z = L_10;
+		float L_11 = __this->___m31;
+		(&V_2)->___w = L_11;
+		Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 L_12 = V_2;
+		V_3 = L_12;
+		goto IL_0131;
+	}
+
+IL_00a6:
+	{
+		il2cpp_codegen_initobj((&V_2), sizeof(Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3));
+		float L_13 = __this->___m02;
+		(&V_2)->___x = L_13;
+		float L_14 = __this->___m12;
+		(&V_2)->___y = L_14;
+		float L_15 = __this->___m22;
+		(&V_2)->___z = L_15;
+		float L_16 = __this->___m32;
+		(&V_2)->___w = L_16;
+		Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 L_17 = V_2;
+		V_3 = L_17;
+		goto IL_0131;
+	}
+
+IL_00e6:
+	{
+		il2cpp_codegen_initobj((&V_2), sizeof(Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3));
+		float L_18 = __this->___m03;
+		(&V_2)->___x = L_18;
+		float L_19 = __this->___m13;
+		(&V_2)->___y = L_19;
+		float L_20 = __this->___m23;
+		(&V_2)->___z = L_20;
+		float L_21 = __this->___m33;
+		(&V_2)->___w = L_21;
+		Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 L_22 = V_2;
+		V_3 = L_22;
+		goto IL_0131;
+	}
+
+IL_0126:
+	{
+		IndexOutOfRangeException_t7ECB35264FB6CA8FAA516BD958F4B2ADC78E8A82* L_23 = (IndexOutOfRangeException_t7ECB35264FB6CA8FAA516BD958F4B2ADC78E8A82*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&IndexOutOfRangeException_t7ECB35264FB6CA8FAA516BD958F4B2ADC78E8A82_il2cpp_TypeInfo_var)));
+		IndexOutOfRangeException__ctor_mFD06819F05B815BE2D6E826D4E04F4C449D0A425(L_23, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral6FC8A3409851599FCC995B0B63300CE4AA4839CD)), NULL);
+		IL2CPP_RAISE_MANAGED_EXCEPTION(L_23, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&Matrix4x4_GetColumn_m5CE079D7A69DE70E3144BADD20A1651C73A8D118_RuntimeMethod_var)));
+	}
+
+IL_0131:
+	{
+		Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 L_24 = V_3;
+		return L_24;
+	}
+}
+// Method Definition Index: 35237
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector4_op_Implicit_m0217ADDC8CADDB93ACBABB17A50207698DAB0071_inline (Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 ___0_v, const RuntimeMethod* method) 
+{
+	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 V_0;
+	memset((&V_0), 0, sizeof(V_0));
+	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2));
+		Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 L_0 = ___0_v;
+		float L_1 = L_0.___x;
+		(&V_0)->___x = L_1;
+		Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 L_2 = ___0_v;
+		float L_3 = L_2.___y;
+		(&V_0)->___y = L_3;
+		Vector4_t58B63D32F48C0DBF50DE2C60794C4676C80EDBE3 L_4 = ___0_v;
+		float L_5 = L_4.___z;
+		(&V_0)->___z = L_5;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_6 = V_0;
+		return L_6;
+	}
+}
+// Method Definition Index: 35039
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 Quaternion_LookRotation_mFB02EDC8F733774DFAC3BEA4B4BB265A228F8307_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_forward, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_upwards, const RuntimeMethod* method) 
+{
+	{
+		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_0;
+		L_0 = Quaternion_Internal_LookRotation_m489E6A5E916949FFE91C0B11A60C6016D996C1E0((&___0_forward), (&___1_upwards), NULL);
+		return L_0;
+	}
+}
+// Method Definition Index: 15050
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool IntPtr_op_Inequality_m90EFC9C4CAD9A33E309F2DDF98EE4E1DD253637B_inline (intptr_t ___0_value1, intptr_t ___1_value2, const RuntimeMethod* method) 
+{
+	{
+		intptr_t L_0 = ___0_value1;
+		intptr_t L_1 = ___1_value2;
+		return (bool)((((int32_t)((((intptr_t)L_0) == ((intptr_t)L_1))? 1 : 0)) == ((int32_t)0))? 1 : 0);
+	}
+}
+// Method Definition Index: 34957
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 Matrix4x4_Scale_m95902D2A889FD6E7B04BBEAE6FAE5D6D8A88E642_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_vector, const RuntimeMethod* method) 
+{
+	Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 V_0;
+	memset((&V_0), 0, sizeof(V_0));
+	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_0 = ___0_vector;
+		float L_1 = L_0.___x;
+		(&V_0)->___m00 = L_1;
+		(&V_0)->___m01 = (0.0f);
+		(&V_0)->___m02 = (0.0f);
+		(&V_0)->___m03 = (0.0f);
+		(&V_0)->___m10 = (0.0f);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_2 = ___0_vector;
+		float L_3 = L_2.___y;
+		(&V_0)->___m11 = L_3;
+		(&V_0)->___m12 = (0.0f);
+		(&V_0)->___m13 = (0.0f);
+		(&V_0)->___m20 = (0.0f);
+		(&V_0)->___m21 = (0.0f);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4 = ___0_vector;
+		float L_5 = L_4.___z;
+		(&V_0)->___m22 = L_5;
+		(&V_0)->___m23 = (0.0f);
+		(&V_0)->___m30 = (0.0f);
+		(&V_0)->___m31 = (0.0f);
+		(&V_0)->___m32 = (0.0f);
+		(&V_0)->___m33 = (1.0f);
+		Matrix4x4_tDB70CF134A14BA38190C59AA700BCE10E2AED3E6 L_6 = V_0;
+		return L_6;
+	}
+}
+// Method Definition Index: 35006
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector3_get_zero_m0C1249C3F25B1C70EAD3CC8B31259975A457AE39_inline (const RuntimeMethod* method) 
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
+	{
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_0 = ((Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_StaticFields*)il2cpp_codegen_static_fields_for(Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_il2cpp_TypeInfo_var))->___zeroVector;
+		return L_0;
+	}
+}
+// Method Definition Index: 33556
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Bounds__ctor_mAF7B238B9FBF90C495E5D7951760085A93119C5A_inline (Bounds_t367E830C64BBF235ED8C3B2F8CF6254FDCAD39C3* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_center, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_size, const RuntimeMethod* method) 
+{
+	{
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* L_0 = (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*)(&__this->___m_Center);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = ___0_center;
+		float L_2 = L_1.___x;
+		L_0->___x = L_2;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* L_3 = (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*)(&__this->___m_Center);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4 = ___0_center;
+		float L_5 = L_4.___y;
+		L_3->___y = L_5;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* L_6 = (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*)(&__this->___m_Center);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_7 = ___0_center;
+		float L_8 = L_7.___z;
+		L_6->___z = L_8;
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* L_9 = (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*)(&__this->___m_Extents);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_10 = ___1_size;
+		float L_11 = L_10.___x;
+		L_9->___x = ((float)il2cpp_codegen_multiply(L_11, (0.5f)));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* L_12 = (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*)(&__this->___m_Extents);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_13 = ___1_size;
+		float L_14 = L_13.___y;
+		L_12->___y = ((float)il2cpp_codegen_multiply(L_14, (0.5f)));
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* L_15 = (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*)(&__this->___m_Extents);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_16 = ___1_size;
+		float L_17 = L_16.___z;
+		L_15->___z = ((float)il2cpp_codegen_multiply(L_17, (0.5f)));
+		return;
+	}
+}
+// Method Definition Index: 34871
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F Color_get_yellow_m66637FA14383E8D74F24AE256B577CE1D55D469F_inline (const RuntimeMethod* method) 
+{
+	{
+		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0;
+		memset((&L_0), 0, sizeof(L_0));
+		Color__ctor_m3786F0D6E510D9CFA544523A955870BD2A514C8C_inline((&L_0), (1.0f), (0.921568632f), (0.0156862754f), (1.0f), NULL);
+		return L_0;
+	}
+}
+// Method Definition Index: 20800
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void List_1_Add_mEBCF994CC3814631017F46A387B1A192ED6C85C7_gshared_inline (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, RuntimeObject* ___0_item, const RuntimeMethod* method) 
+{
+	ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* V_0 = NULL;
+	int32_t V_1 = 0;
+	{
+		int32_t L_0 = __this->____version;
+		__this->____version = ((int32_t)il2cpp_codegen_add(L_0, 1));
+		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_1 = __this->____items;
+		V_0 = L_1;
+		int32_t L_2 = __this->____size;
+		V_1 = L_2;
+		int32_t L_3 = V_1;
+		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_4 = V_0;
+		NullCheck(L_4);
+		if ((!(((uint32_t)L_3) < ((uint32_t)((int32_t)(((RuntimeArray*)L_4)->max_length))))))
+		{
+			goto IL_0034;
+		}
+	}
+	{
+		int32_t L_5 = V_1;
+		__this->____size = ((int32_t)il2cpp_codegen_add(L_5, 1));
+		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_6 = V_0;
+		int32_t L_7 = V_1;
+		RuntimeObject* L_8 = ___0_item;
+		NullCheck(L_6);
+		(L_6)->SetAt(static_cast<il2cpp_array_size_t>(L_7), (RuntimeObject*)L_8);
+		return;
+	}
+
+IL_0034:
+	{
+		RuntimeObject* L_9 = ___0_item;
+		List_1_AddWithResize_m79A9BF770BEF9C06BE40D5401E55E375F2726CC4(__this, L_9, il2cpp_rgctx_method(method->klass->rgctx_data, 14));
+		return;
+	}
+}
+// Method Definition Index: 20790
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t List_1_get_Count_m4407E4C389F22B8CEC282C15D56516658746C383_gshared_inline (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, const RuntimeMethod* method) 
+{
+	{
+		int32_t L_0 = __this->____size;
+		return L_0;
+	}
+}
+// Method Definition Index: 34834
+IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Color__ctor_m3786F0D6E510D9CFA544523A955870BD2A514C8C_inline (Color_tD001788D726C3A7F1379BEED0260B9591F440C1F* __this, float ___0_r, float ___1_g, float ___2_b, float ___3_a, const RuntimeMethod* method) 
+{
+	{
+		float L_0 = ___0_r;
+		__this->___r = L_0;
+		float L_1 = ___1_g;
+		__this->___g = L_1;
+		float L_2 = ___2_b;
+		__this->___b = L_2;
+		float L_3 = ___3_a;
+		__this->___a = L_3;
+		return;
+	}
+}

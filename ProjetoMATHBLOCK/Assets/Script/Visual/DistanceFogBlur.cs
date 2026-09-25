@@ -22,20 +22,20 @@ public sealed class DistanceFogBlur : MonoBehaviour
     [Header("Distance fog")]
     [SerializeField, Min(0f)] private float startDistance = 24f;
     [SerializeField, Min(0.1f)] private float fullBlurDistance = 85f;
-    [SerializeField, Range(0f, 5f)] private float blurRadius = 2.2f;
-    [SerializeField, Range(0f, 1f)] private float fogColorStrength = 0.12f;
+    [SerializeField, Range(0f, 5f)] private float blurRadius = 1.5f;
+    [SerializeField, Range(0f, 1f)] private float fogColorStrength = 0.08f;
     [SerializeField] private Color fogColor = new Color(0.46f, 0.56f, 0.68f, 1f);
 
     [Header("Subtle dotted character")]
-    [SerializeField, Range(0f, 0.35f)] private float dotStrength = 0.14f;
+    [SerializeField, Range(0f, 0.35f)] private float dotStrength = 0.06f;
     [SerializeField, Range(2f, 24f)] private float dotScale = 7f;
     [SerializeField] private Color dotColor = new Color(0.055f, 0.012f, 0.085f, 1f);
     [SerializeField, Range(2f, 12f)] private float phaseTwoGroundDotScale = 4f;
-    [SerializeField, Range(0f, 1f)] private float phaseTwoGroundDotStrength = 0.32f;
+    [SerializeField, Range(0f, 1f)] private float phaseTwoGroundDotStrength = 0.22f;
 
     [Header("Downward look atmosphere")]
-    [SerializeField, Range(0f, 0.8f)] private float downwardDarkening = 0.52f;
-    [SerializeField, Range(1f, 3f)] private float downwardBlurMultiplier = 1.55f;
+    [SerializeField, Range(0f, 0.8f)] private float downwardDarkening = 0.32f;
+    [SerializeField, Range(1f, 3f)] private float downwardBlurMultiplier = 1.3f;
     [SerializeField, Range(2f, 40f)] private float downwardDotScale = 18f;
 
     [Header("Performance")]
@@ -81,9 +81,7 @@ public sealed class DistanceFogBlur : MonoBehaviour
 
     private static void InstallOnWorldCamera(Scene scene)
     {
-        if (!UserEnabled ||
-            (!scene.name.StartsWith("Fase", System.StringComparison.OrdinalIgnoreCase) &&
-             !scene.name.Equals("MainScene", System.StringComparison.OrdinalIgnoreCase)))
+        if (!UserEnabled || !IsGameplayScene(scene))
             return;
         Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
         Camera worldCamera = null;
@@ -109,7 +107,7 @@ public sealed class DistanceFogBlur : MonoBehaviour
             if (effect != null)
                 effect.enabled = value;
 
-        if (!value || effects.Length > 0)
+        if (!value || effects.Length > 0 || !IsGameplayScene(SceneManager.GetActiveScene()))
             return;
 
         Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
@@ -142,10 +140,19 @@ public sealed class DistanceFogBlur : MonoBehaviour
         if (shader != null && shader.isSupported)
             material = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
         else
+        {
+            Debug.LogError(
+                $"Blur de distância indisponível. Shader principal: {DescribeShader(shader)}.",
+                this);
             enabled = false;
+        }
 
         if (maskShader != null && maskShader.isSupported)
             exclusionMaskMaterial = new Material(maskShader) { hideFlags = HideFlags.HideAndDontSave };
+        else
+            Debug.LogError(
+                $"Máscara de exclusão do blur indisponível: {DescribeShader(maskShader)}.",
+                this);
 
         gravityInteract = FindFirstObjectByType<GravityInteract>();
         RefreshParticleRenderers();
@@ -153,7 +160,7 @@ public sealed class DistanceFogBlur : MonoBehaviour
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        if (material == null || blurRadius <= 0f)
+        if (!IsGameplayScene(SceneManager.GetActiveScene()) || material == null || blurRadius <= 0f)
         {
             Graphics.Blit(source, destination);
             return;
@@ -392,5 +399,17 @@ private void RefreshParticleRenderers()
             DestroyImmediate(material);
         if (exclusionMaskMaterial != null)
             DestroyImmediate(exclusionMaskMaterial);
+    }
+
+    private static string DescribeShader(Shader shader)
+    {
+        return shader == null ? "não encontrado" : $"{shader.name} (suportado={shader.isSupported})";
+    }
+
+    private static bool IsGameplayScene(Scene scene)
+    {
+        return scene.IsValid() &&
+               (scene.name.StartsWith("Fase", System.StringComparison.OrdinalIgnoreCase) ||
+                scene.name.Equals("MainScene", System.StringComparison.OrdinalIgnoreCase));
     }
 }
