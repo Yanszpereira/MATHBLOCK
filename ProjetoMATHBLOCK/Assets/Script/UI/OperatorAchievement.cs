@@ -19,7 +19,10 @@ public sealed class OperatorAchievement : MonoBehaviour
 
     public static void ShowOperatorUnlocked(GravityInteract.PencilOperator operatorType)
     {
-        EnsureInstance().ShowMessage($"Você desbloqueou o operador {GetOperatorName(operatorType)}.\nAgora você pode selecioná-lo com a tecla {GetOperatorKey(operatorType)}.");
+        string message = MobileTouchControls.ShouldShowTouchControls()
+            ? $"Você desbloqueou o operador {GetOperatorName(operatorType)}.\nToque no ícone dele para equipá-lo."
+            : $"Você desbloqueou o operador {GetOperatorName(operatorType)}.\nAgora você pode selecioná-lo com a tecla {GetOperatorKey(operatorType)}.";
+        EnsureInstance().ShowMessage(message);
     }
 
     public static void ShowLockedOperator()
@@ -66,11 +69,17 @@ public sealed class OperatorAchievement : MonoBehaviour
         panel.anchorMin = new Vector2(1f, 1f);
         panel.anchorMax = new Vector2(1f, 1f);
         panel.pivot = new Vector2(1f, 1f);
-        panel.sizeDelta = new Vector2(265f, 106f);
+        panel.sizeDelta = new Vector2(265f, 130f);
         panel.anchoredPosition = new Vector2(HiddenX, PanelY);
 
         Image background = panelObject.GetComponent<Image>();
-        background.color = new Color(0.98f, 0.93f, 0.79f, 0.97f);
+        Sprite noteIcon = Resources.Load<Sprite>("HudImages/IconesPapel/NoteIcon");
+        if (noteIcon != null)
+        {
+            background.sprite = noteIcon;
+            background.preserveAspect = true;
+            background.color = Color.white;
+        }
         background.raycastTarget = false;
 
         canvasGroup = panelObject.GetComponent<CanvasGroup>();
@@ -83,23 +92,29 @@ public sealed class OperatorAchievement : MonoBehaviour
         RectTransform textRect = textObject.GetComponent<RectTransform>();
         textRect.anchorMin = Vector2.zero;
         textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = new Vector2(16f, 12f);
-        textRect.offsetMax = new Vector2(-16f, -12f);
+        textRect.offsetMin = new Vector2(55f, 23f);
+        textRect.offsetMax = new Vector2(-15f, -22f);
 
         messageText = textObject.GetComponent<TextMeshProUGUI>();
         TMP_FontAsset schoolbellFont = Resources.Load<TMP_FontAsset>("Fonts & Materials/Schoolbell-Regular SDF");
         if (schoolbellFont != null)
             messageText.font = schoolbellFont;
-        messageText.fontSize = 20f;
+        messageText.fontSize = 19f;
+        messageText.fontStyle = FontStyles.Bold;
         messageText.enableAutoSizing = true;
-        messageText.fontSizeMin = 12f;
-        messageText.fontSizeMax = 20f;
+        messageText.fontSizeMin = 15f;
+        messageText.fontSizeMax = 19f;
+        messageText.lineSpacing = -4f;
         messageText.enableWordWrapping = true;
         messageText.overflowMode = TextOverflowModes.Truncate;
-        messageText.color = new Color(0.06f, 0.18f, 0.2f, 1f);
-        messageText.alignment = TextAlignmentOptions.Center;
+        messageText.color = new Color(0.02f, 0.11f, 0.13f, 1f);
+        messageText.alignment = TextAlignmentOptions.TopLeft;
         messageText.textWrappingMode = TextWrappingModes.Normal;
         messageText.raycastTarget = false;
+
+        Shadow textShadow = textObject.AddComponent<Shadow>();
+        textShadow.effectColor = new Color(0f, 0.12f, 0.15f, 0.45f);
+        textShadow.effectDistance = new Vector2(1.2f, -1.2f);
     }
 
     private void ShowMessage(string message)
