@@ -88,6 +88,8 @@ public sealed class ElevatorTotemController : MonoBehaviour
     public bool IsMoving => state == ElevatorState.MovingToInitial || state == ElevatorState.MovingToFinal;
     public Vector3 InitialPosition => initialPosition;
     public Vector3 FinalPosition => finalDestination;
+    public event System.Action<Transform> ReachedFinalDestination;
+    public event System.Action InitialCallRequested;
 
     private void Awake()
     {
@@ -148,6 +150,9 @@ public sealed class ElevatorTotemController : MonoBehaviour
             state = IsAtInitial(targetPosition) ? ElevatorState.IdleAtInitial : ElevatorState.IdleAtFinal;
             SetAttachedPassengerPhysics(false);
             StopIslandMovementAudio(true);
+
+            if (IsAtFinal(targetPosition))
+                ReachedFinalDestination?.Invoke(platform);
         }
     }
 
@@ -175,6 +180,7 @@ public sealed class ElevatorTotemController : MonoBehaviour
                 TogglePlatformDirection();
                 break;
             case ElevatorButtonRole.CallInitial:
+                InitialCallRequested?.Invoke();
                 MoveTo(initialPosition);
                 break;
             case ElevatorButtonRole.CallFinal:
@@ -213,11 +219,23 @@ public sealed class ElevatorTotemController : MonoBehaviour
 
         if (IsAtFinal(platform.position))
         {
-            MoveTo(initialPosition);
+            RequestReturnToInitial();
             return;
         }
 
-        MoveTo(state == ElevatorState.MovingToFinal ? initialPosition : finalDestination);
+        if (state == ElevatorState.MovingToFinal)
+        {
+            RequestReturnToInitial();
+            return;
+        }
+
+        MoveTo(finalDestination);
+    }
+
+    private void RequestReturnToInitial()
+    {
+        InitialCallRequested?.Invoke();
+        MoveTo(initialPosition);
     }
 
     private void MoveTo(Vector3 destination)
