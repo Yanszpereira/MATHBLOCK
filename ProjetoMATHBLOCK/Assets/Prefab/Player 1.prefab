@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 318798714629143770}
   - component: {fileID: 5518273818496025232}
   - component: {fileID: 4869927575433410332}
+  - component: {fileID: 7682349876102453210}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -162,6 +163,29 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
+--- !u!114 &7682349876102453210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2121180624521702153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2cb37688790345428124e65ad351c5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SleepAnimation
+  blinkInterval: 5
+  blinkSpeed: 3.5
+  blinkHoldDuration: 0.08
+  blinkOpeningSpeedMultiplier: 0.7
+  finalBlinkSpeed: 0.7
+  initialTurnAngle: 85
+  initialTurnDuration: 5
+  aluno1: {fileID: 0}
+  numero7: {fileID: 0}
+  skylandAnimation: {fileID: 0}
+  sceneToLoad: 
 --- !u!1 &2498392517500646027
 GameObject:
   m_ObjectHideFlags: 0
