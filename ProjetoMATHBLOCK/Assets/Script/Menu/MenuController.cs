@@ -47,8 +47,8 @@ public class MenuController : MonoBehaviour
 
     // =========================================================
 
-    private const string CaminhoCenaFase1 =
-        "Assets/Scenes/Fase 1.unity";
+    private const string CaminhoCenaInicial =
+        "Assets/Scenes/MainScene.unity";
 
     private readonly Dictionary<GameObject, Coroutine> rotinasAtivas =
         new();
@@ -1159,10 +1159,10 @@ public void IniciarJogo()
         TocarSomClique();
         Time.timeScale = 1f;
 
-        int buildIndex = SceneUtility.GetBuildIndexByScenePath(CaminhoCenaFase1);
+        int buildIndex = SceneUtility.GetBuildIndexByScenePath(CaminhoCenaInicial);
         if (buildIndex < 0)
         {
-            Debug.LogError($"Cena '{CaminhoCenaFase1}' nao foi adicionada ao Build Settings ativo.", this);
+            Debug.LogError($"Cena '{CaminhoCenaInicial}' nao foi adicionada ao Build Settings ativo.", this);
             return;
         }
 
