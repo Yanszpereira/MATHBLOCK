@@ -31074,6 +31074,26 @@ PrefabInstance:
       propertyPath: voidFallSoundDelay
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4246532322668890469, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.49280423
+      objectReference: {fileID: 0}
+    - target: {fileID: 4246532322668890469, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4246532322668890469, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.8701403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4246532322668890469, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4246532322668890469, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -120.95
+      objectReference: {fileID: 0}
     - target: {fileID: 4745981285788249604, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11.622923

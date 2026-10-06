@@ -14,6 +14,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
 
     public static SceneTransitionManager Instance { get; private set; }
     public static bool IsTransitioning => Instance != null && Instance.isTransitioning;
+    public static event System.Action FadeInCompleted;
 
     [Header("Fade")]
     [SerializeField, Min(0f)] private float fadeOutDuration = 0.6f;
@@ -68,7 +69,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
         BlockGameplayInput();
         yield return null;
         BlockGameplayInput();
-        yield return FadeTo(0f, fadeInDuration);
+        yield return FadeIn();
         FinishTransition();
     }
 
@@ -151,7 +152,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
         }
 
         yield return LoadSceneAndPrepare(operation);
-        yield return FadeTo(0f, fadeInDuration);
+        yield return FadeIn();
         FinishTransition();
     }
 
@@ -169,7 +170,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
         }
 
         yield return LoadSceneAndPrepare(operation);
-        yield return FadeTo(0f, fadeInDuration);
+        yield return FadeIn();
         FinishTransition();
     }
 
@@ -188,7 +189,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
         }
 
         yield return null;
-        yield return FadeTo(0f, fadeInDuration);
+        yield return FadeIn();
         FinishTransition();
     }
 
@@ -215,7 +216,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
 
     private IEnumerator RecoverFromLoadFailure()
     {
-        yield return FadeTo(0f, fadeInDuration);
+        yield return FadeIn();
         FinishTransition();
     }
 
@@ -243,6 +244,12 @@ public sealed class SceneTransitionManager : MonoBehaviour
         }
 
         SetFadeAlpha(targetAlpha);
+    }
+
+    private IEnumerator FadeIn()
+    {
+        yield return FadeTo(0f, fadeInDuration);
+        FadeInCompleted?.Invoke();
     }
 
     private void BlockGameplayInput()
