@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FMODUnity;
 using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
@@ -92,6 +93,12 @@ public sealed class BalanceScaleController : MonoBehaviour
     [SerializeField, Min(0f)] private float balanceTolerance = 0f;
     [SerializeField, Min(0f)] private float visualStateStabilityTime = 0.3f;
 
+    [Header("Audio FMOD - Balança")]
+    [Tooltip("Som curto tocado quando uma nova distribuição de peso faz a balança se mover.")]
+    [SerializeField] private EventReference movementSound;
+    [Tooltip("Intervalo mínimo entre sons de movimento para evitar repetições durante oscilações rápidas.")]
+    [SerializeField, Min(0f)] private float movementSoundCooldown = 0.25f;
+
     [Header("Events")]
     public UnityEvent OnBalanced = new UnityEvent();
 
@@ -134,6 +141,7 @@ public sealed class BalanceScaleController : MonoBehaviour
     private bool hasBalanceState;
     private bool lastBalanced;
     private bool hasWarnedAboutCombinedMesh;
+    private float lastMovementSoundTime = float.NegativeInfinity;
 
     public bool IsSmallBalance => isSmallBalance;
 
@@ -172,6 +180,7 @@ public sealed class BalanceScaleController : MonoBehaviour
         smoothingTime = Mathf.Max(0.01f, smoothingTime);
         balanceTolerance = Mathf.Max(0f, balanceTolerance);
         visualStateStabilityTime = Mathf.Max(0f, visualStateStabilityTime);
+        movementSoundCooldown = Mathf.Max(0f, movementSoundCooldown);
 
         if (isSmallBalance)
         {
@@ -875,6 +884,17 @@ private Vector3 GetVisualAnchorWorldPosition(Transform visual)
             return;
         visualLeftWeight = pendingVisualLeftWeight;
         visualRightWeight = pendingVisualRightWeight;
+        PlayMovementSound();
+    }
+
+    private void PlayMovementSound()
+    {
+        if (movementSound.IsNull || Time.time < lastMovementSoundTime + movementSoundCooldown)
+            return;
+
+        lastMovementSoundTime = Time.time;
+        GameObject soundSource = apoioBalancas != null ? apoioBalancas.gameObject : gameObject;
+        RuntimeManager.PlayOneShotAttached(movementSound, soundSource);
     }
 
     private void ApplyVisualResponse(float deltaTime)

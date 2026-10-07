@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using FMODUnity;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -41,6 +42,10 @@ public sealed class BridgeSpawnController : MonoBehaviour
     [SerializeField, Range(0.01f, 1f)] private float initialScale = 0.85f;
     [SerializeField] private AnimationCurve movementCurve = CreateEaseOutCubicCurve();
     [SerializeField] private AnimationCurve fadeCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+
+    [Header("Audio FMOD - Ponte")]
+    [Tooltip("Som tocado uma vez quando cada trecho da ponte começa a aparecer.")]
+    [SerializeField] private EventReference sectionBuildSound;
 
     [Header("Spawn Positions")]
     [Tooltip("Randomizes each hidden piece inside a local upper hemisphere around its final position.")]
@@ -381,6 +386,7 @@ public sealed class BridgeSpawnController : MonoBehaviour
         {
             int start = (int)((long)completedSections * pieces.Count / configuredBalanceCount);
             int end = (int)((long)(completedSections + 1) * pieces.Count / configuredBalanceCount);
+            PlaySectionBuildSound(start, end);
             for (int i = start; i < end; i++)
             {
                 activePieceAnimations++;
@@ -396,6 +402,31 @@ public sealed class BridgeSpawnController : MonoBehaviour
         }
         isBuilding = false;
         hasBuilt = completedSections == configuredBalanceCount;
+    }
+
+    private void PlaySectionBuildSound(int start, int end)
+    {
+        if (sectionBuildSound.IsNull)
+            return;
+
+        Vector3 soundPosition = Vector3.zero;
+        int validPieceCount = 0;
+        for (int i = start; i < end && i < pieces.Count; i++)
+        {
+            PieceState piece = pieces[i];
+            if (piece == null || piece.transform == null)
+                continue;
+
+            soundPosition += transform.TransformPoint(piece.targetLocalPosition);
+            validPieceCount++;
+        }
+
+        if (validPieceCount > 0)
+            soundPosition /= validPieceCount;
+        else
+            soundPosition = transform.position;
+
+        RuntimeManager.PlayOneShot(sectionBuildSound, soundPosition);
     }
 
     private IEnumerator AnimatePiece(PieceState piece)
