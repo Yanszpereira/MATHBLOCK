@@ -11,6 +11,9 @@ public class PadMathBlockDetector : MonoBehaviour
     [SerializeField] private string mathBlockTag = DefaultMathBlockTag;
     [SerializeField] private bool acceptExistingProjectTag = true;
     [SerializeField] private GameObject connectedVerifierObject;
+    [Header("Detecção por volume")]
+    [SerializeField, Min(0.1f)] private float detectionHeight = 2f;
+
 
     [Header("Valor esperado")]
     [SerializeField] private int expectedValue = 0;
@@ -21,6 +24,13 @@ public class PadMathBlockDetector : MonoBehaviour
     [SerializeField] private float errorSoundCooldown = 0.35f;
 
     private readonly Dictionary<Collider, int> detectedBlocks = new Dictionary<Collider, int>();
+    private readonly Dictionary<Collider, MathBlockValue> detectedBlockComponents =
+        new Dictionary<Collider, MathBlockValue>();
+
+    private bool lastReportedHasValue;
+    private int lastReportedValue;
+    private MathBlockValue lastReportedBlock;
+
     private DoorValueVerifier connectedVerifier;
 
     /// <summary>
@@ -29,6 +39,27 @@ public class PadMathBlockDetector : MonoBehaviour
     /// listen without pretending to be a door.
     /// </summary>
     public event System.Action<GameObject, int, GameObject> ValueDetected;
+
+    /// <summary>
+    /// Raised whenever this pad changes between empty, ambiguous, or one stable block value.
+    /// A null value means that no single unambiguous MathBlock is currently detected.
+    /// </summary>
+    public event System.Action<PadMathBlockDetector, int?> CurrentValueChanged;
+
+    public bool HasMultipleBlocks => CountUniqueDetectedBlocks() > 1;
+
+    public bool TryGetCurrentValue(out int value)
+    {
+        MathBlockValue block = GetSingleDetectedBlock();
+        if (block == null)
+        {
+            value = 0;
+            return false;
+        }
+
+        value = block.CurrentValue;
+        return true;
+    }
 
     private float lastErrorSoundTime = -999f;
 
@@ -47,6 +78,70 @@ public class PadMathBlockDetector : MonoBehaviour
     {
         NormalizeMathBlockTag();
         CacheConnectedVerifier();
+    }
+
+    private void FixedUpdate()
+    {
+        RefreshDetectedBlocksFromVolume();
+    }
+
+    private void RefreshDetectedBlocksFromVolume()
+    {
+        Collider padCollider = GetComponent<Collider>();
+        if (padCollider == null || !padCollider.enabled)
+            return;
+
+        Bounds bounds = padCollider.bounds;
+        float height = Mathf.Max(0.1f, detectionHeight);
+        Vector3 halfExtents = new Vector3(
+            Mathf.Max(0.01f, bounds.extents.x),
+            height * 0.5f,
+            Mathf.Max(0.01f, bounds.extents.z));
+        Vector3 center = new Vector3(
+            bounds.center.x,
+            bounds.max.y + halfExtents.y,
+            bounds.center.z);
+
+        Collider[] overlaps = Physics.OverlapBox(
+            center,
+            halfExtents,
+            Quaternion.identity,
+            Physics.DefaultRaycastLayers,
+            QueryTriggerInteraction.Collide);
+
+        HashSet<Collider> currentColliders = new HashSet<Collider>();
+        foreach (Collider overlap in overlaps)
+        {
+            if (overlap == null || overlap == padCollider ||
+                overlap.transform.IsChildOf(transform) || !IsMathBlock(overlap))
+            {
+                continue;
+            }
+
+            MathBlockValue blockValue = overlap.GetComponent<MathBlockValue>()
+                ?? overlap.GetComponentInParent<MathBlockValue>();
+            if (blockValue == null)
+                continue;
+
+            currentColliders.Add(overlap);
+            detectedBlocks[overlap] = blockValue.CurrentValue;
+            detectedBlockComponents[overlap] = blockValue;
+        }
+
+        List<Collider> staleColliders = new List<Collider>();
+        foreach (Collider trackedCollider in detectedBlockComponents.Keys)
+        {
+            if (trackedCollider == null || !currentColliders.Contains(trackedCollider))
+                staleColliders.Add(trackedCollider);
+        }
+
+        foreach (Collider staleCollider in staleColliders)
+        {
+            detectedBlocks.Remove(staleCollider);
+            detectedBlockComponents.Remove(staleCollider);
+        }
+
+        NotifyCurrentValueIfChanged();
     }
 
     private void OnValidate()
@@ -84,6 +179,8 @@ public class PadMathBlockDetector : MonoBehaviour
     private void OnCollisionExit(Collision collision)
     {
         detectedBlocks.Remove(collision.collider);
+        detectedBlockComponents.Remove(collision.collider);
+        NotifyCurrentValueIfChanged();
     }
 
     private void TryPrintBlockValue(Collider other, bool forcePrint)
@@ -105,11 +202,15 @@ public class PadMathBlockDetector : MonoBehaviour
         }
 
         int value = blockValue.CurrentValue;
-
-        if (!forcePrint && detectedBlocks.TryGetValue(other, out int lastValue) && lastValue == value)
-            return;
+        bool valueUnchanged =
+            detectedBlocks.TryGetValue(other, out int lastValue) && lastValue == value;
 
         detectedBlocks[other] = value;
+        detectedBlockComponents[other] = blockValue;
+        NotifyCurrentValueIfChanged();
+
+        if (!forcePrint && valueUnchanged)
+            return;
 
         Debug.Log($"Pad {name} detectou bloco {blockValue.name} com valor {value}.");
 
@@ -128,14 +229,79 @@ public class PadMathBlockDetector : MonoBehaviour
 
         if (verifier == null)
         {
-            if (ValueDetected == null)
+            if (ValueDetected == null && CurrentValueChanged == null)
             {
-                Debug.LogWarning($"Pad {name} detectou valor {value}, mas nao possui DoorValueVerifier conectado.");
+                Debug.LogWarning($"Pad {name} detectou valor {value}, mas nao possui consumidor conectado.");
             }
             return;
         }
 
         verifier.ReceiveValueFromPad(gameObject, value, blockValue.gameObject);
+    }
+
+    private void OnDisable()
+    {
+        bool hadTrackedBlocks = detectedBlockComponents.Count > 0;
+        detectedBlocks.Clear();
+        detectedBlockComponents.Clear();
+
+        if (hadTrackedBlocks)
+            NotifyCurrentValueIfChanged();
+    }
+
+    private void NotifyCurrentValueIfChanged()
+    {
+        MathBlockValue block = GetSingleDetectedBlock();
+        bool hasValue = block != null;
+        int value = hasValue ? block.CurrentValue : 0;
+
+        if (lastReportedHasValue == hasValue
+            && (!hasValue || (lastReportedBlock == block && lastReportedValue == value)))
+        {
+            return;
+        }
+
+        lastReportedHasValue = hasValue;
+        lastReportedBlock = block;
+        lastReportedValue = value;
+
+        CurrentValueChanged?.Invoke(this, hasValue ? value : (int?)null);
+    }
+
+    private MathBlockValue GetSingleDetectedBlock()
+    {
+        MathBlockValue singleBlock = null;
+
+        foreach (KeyValuePair<Collider, MathBlockValue> entry in detectedBlockComponents)
+        {
+            MathBlockValue block = entry.Value;
+            if (block == null)
+                continue;
+
+            if (singleBlock == null)
+            {
+                singleBlock = block;
+                continue;
+            }
+
+            if (singleBlock != block)
+                return null;
+        }
+
+        return singleBlock;
+    }
+
+    private int CountUniqueDetectedBlocks()
+    {
+        HashSet<MathBlockValue> uniqueBlocks = new HashSet<MathBlockValue>();
+
+        foreach (KeyValuePair<Collider, MathBlockValue> entry in detectedBlockComponents)
+        {
+            if (entry.Value != null)
+                uniqueBlocks.Add(entry.Value);
+        }
+
+        return uniqueBlocks.Count;
     }
 
     private void PlayErrorSound()

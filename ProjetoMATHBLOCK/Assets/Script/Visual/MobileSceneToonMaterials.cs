@@ -82,6 +82,9 @@
               target is ParticleSystemRenderer || target is TrailRenderer || target is LineRenderer)
               return false;
 
+          if (target.GetComponentInParent<PadMathBlockDetector>() != null)
+              return false;
+
           // Blocos são configurados pelo MathBlockValue. Operadores ficam fora
           // do toon global e mantêm seus materiais próprios.
           if (target.GetComponentInParent<opItem>() != null)
@@ -177,6 +180,9 @@
 
       internal static bool IsGroundSurface(Renderer target)
       {
+          if (target != null && target.GetComponentInParent<PadMathBlockDetector>() != null)
+              return false;
+
           if (target == null || target is ParticleSystemRenderer ||
               target is TrailRenderer || target is LineRenderer ||
               target.GetComponentInParent<Canvas>() != null ||
