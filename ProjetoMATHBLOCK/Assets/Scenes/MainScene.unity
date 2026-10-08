@@ -16023,6 +16023,41 @@ MonoBehaviour:
   blinkHoldDuration: 0.08
   blinkOpeningSpeedMultiplier: 0.335
   finalBlinkSpeed: 1
+  sceneEntryOpeningSpeed: 0.35
+  initialEyeOpeningSpeed: 0.35
+  enableVisionBlur: 1
+  visionBlurRadius: 3
+  decreaseVisionBlurPerBlink: 0
+  visionBlurRadiusDecreasePerBlink: 1.5
+  increaseVisionBlurPerBlink: 1
+  visionBlurRadiusIncreasePerBlink: 2
+  visionBlurShader: {fileID: 4800000, guid: 65cf921fc02e45a6aa34c1f816af3522, type: 3}
+  finalSkipButtonExitDuration: 0.25
+  finalSkipButtonExitDistance: 600
+  finalSkipButtonExitCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   firstTurnEuler: {x: -41, y: 0, z: 10}
   firstTurnDuration: 3.5
   secondTurnEuler: {x: 0, y: 85, z: 30}
