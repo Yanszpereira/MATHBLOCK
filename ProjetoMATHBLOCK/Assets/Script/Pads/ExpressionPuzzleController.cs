@@ -15,6 +15,12 @@ public class ExpressionPuzzleController : MonoBehaviour
         Z
     }
 
+    public enum LayoutDirection
+    {
+        Forward,
+        Reverse
+    }
+
     public enum ArithmeticOperator
     {
         Add,
@@ -85,6 +91,7 @@ public class ExpressionPuzzleController : MonoBehaviour
     [SerializeField] private Vector3 layoutCenter;
     [SerializeField] private Vector3 layoutSize = new Vector3(1f, 1f, 24f);
     [SerializeField] private LayoutAxis layoutAxis = LayoutAxis.Z;
+    [SerializeField] private LayoutDirection layoutDirection = LayoutDirection.Forward;
     [SerializeField, Min(0f)] private float edgePadding = 2f;
     [SerializeField] private bool applyLayoutInEditMode = true;
 
@@ -140,6 +147,7 @@ public class ExpressionPuzzleController : MonoBehaviour
     public ExpressionDefinition CurrentExpression => currentExpression;
     public int TargetValue => targetValue;
     public bool IsSolved => isSolved;
+    public event Action Solved;
     public bool ApplyLayoutInEditMode => applyLayoutInEditMode;
 
     private void OnEnable()
@@ -204,12 +212,15 @@ public class ExpressionPuzzleController : MonoBehaviour
             if (pads[i] == null)
                 continue;
 
+            int layoutIndex = layoutDirection == LayoutDirection.Forward
+                ? i
+                : pads.Length - 1 - i;
             Vector3 localPosition = CalculatePadLocalPosition(
                 layoutCenter,
                 layoutSize,
                 layoutAxis,
                 edgePadding,
-                i,
+                layoutIndex,
                 pads.Length);
 
             pads[i].transform.position = transform.TransformPoint(localPosition);
@@ -273,6 +284,7 @@ public class ExpressionPuzzleController : MonoBehaviour
             isSolved = true;
             PlayVerifierSolvedEffect();
             onSolved?.Invoke();
+            Solved?.Invoke();
         }
     }
 
@@ -516,12 +528,6 @@ public class ExpressionPuzzleController : MonoBehaviour
             displayText.color,
             verifierSolvedColor,
             verifierTurnOnDuration);
-
-        yield return FadeTextColor(
-            displayText,
-            verifierSolvedColor,
-            verifierIdleColor,
-            verifierTurnOffDuration);
 
         verifierColorRoutine = null;
     }

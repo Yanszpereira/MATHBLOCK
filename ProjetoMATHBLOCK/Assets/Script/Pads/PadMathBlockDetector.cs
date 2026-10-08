@@ -11,6 +11,9 @@ public class PadMathBlockDetector : MonoBehaviour
     [SerializeField] private string mathBlockTag = DefaultMathBlockTag;
     [SerializeField] private bool acceptExistingProjectTag = true;
     [SerializeField] private GameObject connectedVerifierObject;
+    [Header("Detecção por volume")]
+    [SerializeField, Min(0.1f)] private float detectionHeight = 2f;
+
 
     [Header("Valor esperado")]
     [SerializeField] private int expectedValue = 0;
@@ -75,6 +78,70 @@ public class PadMathBlockDetector : MonoBehaviour
     {
         NormalizeMathBlockTag();
         CacheConnectedVerifier();
+    }
+
+    private void FixedUpdate()
+    {
+        RefreshDetectedBlocksFromVolume();
+    }
+
+    private void RefreshDetectedBlocksFromVolume()
+    {
+        Collider padCollider = GetComponent<Collider>();
+        if (padCollider == null || !padCollider.enabled)
+            return;
+
+        Bounds bounds = padCollider.bounds;
+        float height = Mathf.Max(0.1f, detectionHeight);
+        Vector3 halfExtents = new Vector3(
+            Mathf.Max(0.01f, bounds.extents.x),
+            height * 0.5f,
+            Mathf.Max(0.01f, bounds.extents.z));
+        Vector3 center = new Vector3(
+            bounds.center.x,
+            bounds.max.y + halfExtents.y,
+            bounds.center.z);
+
+        Collider[] overlaps = Physics.OverlapBox(
+            center,
+            halfExtents,
+            Quaternion.identity,
+            Physics.DefaultRaycastLayers,
+            QueryTriggerInteraction.Collide);
+
+        HashSet<Collider> currentColliders = new HashSet<Collider>();
+        foreach (Collider overlap in overlaps)
+        {
+            if (overlap == null || overlap == padCollider ||
+                overlap.transform.IsChildOf(transform) || !IsMathBlock(overlap))
+            {
+                continue;
+            }
+
+            MathBlockValue blockValue = overlap.GetComponent<MathBlockValue>()
+                ?? overlap.GetComponentInParent<MathBlockValue>();
+            if (blockValue == null)
+                continue;
+
+            currentColliders.Add(overlap);
+            detectedBlocks[overlap] = blockValue.CurrentValue;
+            detectedBlockComponents[overlap] = blockValue;
+        }
+
+        List<Collider> staleColliders = new List<Collider>();
+        foreach (Collider trackedCollider in detectedBlockComponents.Keys)
+        {
+            if (trackedCollider == null || !currentColliders.Contains(trackedCollider))
+                staleColliders.Add(trackedCollider);
+        }
+
+        foreach (Collider staleCollider in staleColliders)
+        {
+            detectedBlocks.Remove(staleCollider);
+            detectedBlockComponents.Remove(staleCollider);
+        }
+
+        NotifyCurrentValueIfChanged();
     }
 
     private void OnValidate()
