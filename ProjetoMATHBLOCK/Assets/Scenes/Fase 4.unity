@@ -2432,11 +2432,11 @@ MonoBehaviour:
   playErrorSoundWhenWrong: 1
   errorSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -1402069544
+      Data2: 1230858852
+      Data3: -1520451928
+      Data4: 127955640
+    Path: event:/erroOperation
   errorSoundCooldown: 0.35
 --- !u!65 &661611550
 BoxCollider:
@@ -3787,6 +3787,26 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 149855798}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Path
+      value: event:/erroOperation
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data1
+      value: -1402069544
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data2
+      value: 1230858852
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data3
+      value: -1520451928
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data4
+      value: 127955640
+      objectReference: {fileID: 0}
     - target: {fileID: 8528070529391789379, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
       propertyPath: m_Name
       value: "pad2 - Primeira opera\xE7\xE3o"
@@ -5607,11 +5627,11 @@ MonoBehaviour:
   playErrorSoundWhenWrong: 1
   errorSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -1402069544
+      Data2: 1230858852
+      Data3: -1520451928
+      Data4: 127955640
+    Path: event:/erroOperation
   errorSoundCooldown: 0.35
 --- !u!65 &1519406045
 BoxCollider:
@@ -5971,6 +5991,26 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 1123591928}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Path
+      value: event:/erroOperation
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data1
+      value: -1402069544
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data2
+      value: 1230858852
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data3
+      value: -1520451928
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data4
+      value: 127955640
+      objectReference: {fileID: 0}
     - target: {fileID: 8528070529391789379, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
       propertyPath: m_Name
       value: "pad1 - Primeira opera\xE7\xE3o"
@@ -7767,6 +7807,26 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 2060149835}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Path
+      value: event:/erroOperation
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data1
+      value: -1402069544
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data2
+      value: 1230858852
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data3
+      value: -1520451928
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data4
+      value: 127955640
+      objectReference: {fileID: 0}
     - target: {fileID: 8528070529391789379, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
       propertyPath: m_Name
       value: "pad3 - Primeira opera\xE7\xE3o"
@@ -7926,11 +7986,11 @@ MonoBehaviour:
   playErrorSoundWhenWrong: 1
   errorSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -1402069544
+      Data2: 1230858852
+      Data3: -1520451928
+      Data4: 127955640
+    Path: event:/erroOperation
   errorSoundCooldown: 0.35
 --- !u!65 &2056463616
 BoxCollider:

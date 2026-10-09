@@ -34,6 +34,9 @@ public class VoidRespawner : MonoBehaviour
     private Quaternion initialPlayerRotation;
     private bool hasCapturedPlayerSpawn;
 
+    public event System.Action<PlayerMovement> PlayerRespawnStarted;
+    public event System.Action<PlayerMovement> PlayerRespawnCompleted;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneLoadedHandler()
     {
@@ -150,18 +153,31 @@ public class VoidRespawner : MonoBehaviour
         return true;
     }
 
+    public bool RequestPlayerRespawn(PlayerMovement player)
+    {
+        return TryBeginPlayerRespawn(player, false);
+    }
+
     private void RespawnPlayer(PlayerMovement player)
     {
-        if (SceneTransitionManager.IsTransitioning)
-            return;
+        TryBeginPlayerRespawn(player, true);
+    }
+
+    private bool TryBeginPlayerRespawn(PlayerMovement player, bool playFallSound)
+    {
+        if (player == null || !isActiveAndEnabled || SceneTransitionManager.IsTransitioning)
+            return false;
 
         int instanceId = player.gameObject.GetInstanceID();
         if (respawningPlayers.Contains(instanceId) || !CanRespawn(instanceId))
-            return;
+            return false;
 
         respawningPlayers.Add(instanceId);
-        player.PlayVoidFallSound();
+        if (playFallSound)
+            player.PlayVoidFallSound();
+        PlayerRespawnStarted?.Invoke(player);
         StartCoroutine(RespawnPlayerWithFade(player, instanceId));
+        return true;
     }
 
     private IEnumerator RespawnPlayerWithFade(PlayerMovement player, int instanceId)
@@ -180,6 +196,7 @@ public class VoidRespawner : MonoBehaviour
             Destroy(fade.gameObject);
 
         respawningPlayers.Remove(instanceId);
+        PlayerRespawnCompleted?.Invoke(player);
     }
 
     private void TeleportPlayer(PlayerMovement player)
