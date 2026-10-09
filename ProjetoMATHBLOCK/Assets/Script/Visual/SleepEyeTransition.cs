@@ -1,13 +1,23 @@
 using System.Collections;
+using FMOD.Studio;
+using FMODUnity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public sealed class SleepEyeTransition : MonoBehaviour
 {
+    private const string PhaseOneSceneName = "Fase 1";
+    private const string CutsceneAmbienceEventPath = "event:/SaladeAula";
+    private const string PhaseOneMusicEventPath = "event:/MusicaFase1Certa";
+    private const float MaximumFadeDeltaTime = 1f / 30f;
+
     private RectTransform upperLid;
     private RectTransform lowerLid;
     private float openingSpeed;
+    private float phaseOneMusicFadeInDuration;
     private bool waitingForScene;
+    private bool fadeInPhaseOneMusicAfterLoad;
+    private bool phaseOneMusicFadeInRunning;
 
     public void Initialize(RectTransform upper, RectTransform lower)
     {
@@ -41,6 +51,30 @@ public sealed class SleepEyeTransition : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    public void BeginAudioCrossfade(
+        string targetScene,
+        float ambienceFadeOutDuration,
+        float musicFadeInDuration)
+    {
+        if (!string.Equals(targetScene, PhaseOneSceneName, System.StringComparison.OrdinalIgnoreCase))
+            return;
+
+        fadeInPhaseOneMusicAfterLoad = true;
+        phaseOneMusicFadeInDuration = Mathf.Max(0f, musicFadeInDuration);
+
+        StudioEventEmitter ambienceEmitter = FindEmitter(
+            SceneManager.GetActiveScene(),
+            CutsceneAmbienceEventPath);
+        if (ambienceEmitter != null)
+        {
+            StartCoroutine(FadeEmitterVolume(
+                ambienceEmitter,
+                0f,
+                Mathf.Max(0f, ambienceFadeOutDuration),
+                true));
+        }
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (!waitingForScene)
@@ -48,7 +82,106 @@ public sealed class SleepEyeTransition : MonoBehaviour
 
         waitingForScene = false;
         SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        if (fadeInPhaseOneMusicAfterLoad &&
+            string.Equals(scene.name, PhaseOneSceneName, System.StringComparison.OrdinalIgnoreCase))
+        {
+            fadeInPhaseOneMusicAfterLoad = false;
+            phaseOneMusicFadeInRunning = true;
+            StartCoroutine(FadeInPhaseOneMusic(scene));
+        }
+
         StartCoroutine(OpenEyes());
+    }
+
+    private IEnumerator FadeInPhaseOneMusic(Scene scene)
+    {
+        StudioEventEmitter musicEmitter = FindEmitter(scene, PhaseOneMusicEventPath);
+        if (musicEmitter == null)
+        {
+            phaseOneMusicFadeInRunning = false;
+            yield break;
+        }
+
+        if (!musicEmitter.EventInstance.isValid())
+            musicEmitter.Play();
+        if (!musicEmitter.EventInstance.isValid())
+        {
+            phaseOneMusicFadeInRunning = false;
+            yield break;
+        }
+
+        musicEmitter.EventInstance.setVolume(0f);
+        yield return null;
+
+        yield return FadeEmitterVolume(
+            musicEmitter,
+            1f,
+            phaseOneMusicFadeInDuration,
+            false);
+        phaseOneMusicFadeInRunning = false;
+    }
+
+    private static IEnumerator FadeEmitterVolume(
+        StudioEventEmitter emitter,
+        float targetVolume,
+        float duration,
+        bool stopAtEnd)
+    {
+        if (emitter == null || !emitter.EventInstance.isValid())
+            yield break;
+
+        EventInstance instance = emitter.EventInstance;
+        instance.getVolume(out float startVolume, out _);
+
+        if (duration <= 0f)
+        {
+            instance.setVolume(targetVolume);
+        }
+        else
+        {
+            float elapsed = 0f;
+            while (elapsed < duration && emitter != null && instance.isValid())
+            {
+                elapsed += Mathf.Min(Time.unscaledDeltaTime, MaximumFadeDeltaTime);
+                float progress = Mathf.Clamp01(elapsed / duration);
+                instance.setVolume(Mathf.Lerp(startVolume, targetVolume, progress));
+                yield return null;
+            }
+
+            if (instance.isValid())
+                instance.setVolume(targetVolume);
+        }
+
+        if (stopAtEnd && emitter != null)
+            emitter.Stop();
+    }
+
+    private static StudioEventEmitter FindEmitter(Scene scene, string eventPath)
+    {
+        FMOD.GUID eventGuid;
+        try
+        {
+            eventGuid = RuntimeManager.PathToGUID(eventPath);
+        }
+        catch (EventNotFoundException)
+        {
+            return null;
+        }
+
+        foreach (StudioEventEmitter emitter in FindObjectsByType<StudioEventEmitter>(
+                     FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
+        {
+            if (emitter != null &&
+                emitter.gameObject.scene == scene &&
+                emitter.EventReference.Guid == eventGuid)
+            {
+                return emitter;
+            }
+        }
+
+        return null;
     }
 
     private IEnumerator OpenEyes()
@@ -65,6 +198,8 @@ public sealed class SleepEyeTransition : MonoBehaviour
         }
 
         SetClosedAmount(0f);
+        while (phaseOneMusicFadeInRunning)
+            yield return null;
         Destroy(gameObject);
     }
 

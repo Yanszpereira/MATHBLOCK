@@ -27,6 +27,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 96
+--- !u!114 &-8917620722549363875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/MusicaFase3
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/MusicaFase3
+  Guid:
+    Data1: 1279379995
+    Data2: 1201438208
+    Data3: -1839543930
+    Data4: 1751907841
+  Banks:
+  - {fileID: -674522909012312754}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 174300
 --- !u!114 &-8779194659313850213
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,6 +325,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 167
+--- !u!114 &-3638405857677309658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/balancamexendo 2
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/balancamexendo 2
+  Guid:
+    Data1: 1529756884
+    Data2: 1333886954
+    Data3: -1335190604
+    Data4: -1678754601
+  Banks:
+  - {fileID: -674522909012312754}
+  IsStream: 0
+  Is3D: 1
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 1240
 --- !u!114 &-2548363644228676317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,6 +379,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 255
+--- !u!114 &-1855006032136847886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/balancamexendo
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/balancamexendo
+  Guid:
+    Data1: 172333954
+    Data2: 1218445455
+    Data3: -1715050618
+    Data4: 1684173675
+  Banks:
+  - {fileID: -674522909012312754}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 1080
 --- !u!114 &-859729746509968605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -394,10 +475,10 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639271050207755735
+  lastModified: 639271071973761514
   FileSizes:
   - Name: Desktop
-    Value: 12835136
+    Value: 14720928
   Exists: 1
 --- !u!114 &-626385693957101261
 MonoBehaviour:
@@ -414,38 +495,11 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639271050207770770
+  lastModified: 639271071973776645
   FileSizes:
   - Name: Desktop
-    Value: 2284
+    Value: 2372
   Exists: 1
---- !u!114 &-602466905980334559
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PegaBloco 2
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/PegaBloco 2
-  Guid:
-    Data1: 750272900
-    Data2: 1324672721
-    Data3: 2041804977
-    Data4: -3149281
-  Banks:
-  - {fileID: -674522909012312754}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 260
 --- !u!114 &-420814139615248411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -503,7 +557,6 @@ MonoBehaviour:
   - {fileID: 8818974283630275636}
   - {fileID: -8779194659313850213}
   - {fileID: 1569302637660478147}
-  - {fileID: -602466905980334559}
   - {fileID: -7884120301264809034}
   - {fileID: -848746439560551545}
   - {fileID: 90871432400512908}
@@ -514,7 +567,6 @@ MonoBehaviour:
   - {fileID: -3652529330526021753}
   - {fileID: 4511319752075979941}
   - {fileID: -8556655076225808569}
-  - {fileID: 4954079881763861382}
   - {fileID: 4744453539678409048}
   - {fileID: 3634771259767819481}
   - {fileID: 314026437358653813}
@@ -522,13 +574,17 @@ MonoBehaviour:
   - {fileID: 8419565123058157867}
   - {fileID: 6398986919469830178}
   - {fileID: -4418973530283534448}
+  - {fileID: -8917620722549363875}
+  - {fileID: 1301850366311799166}
+  - {fileID: -1855006032136847886}
+  - {fileID: -3638405857677309658}
   EditorParameters: []
   MasterBanks:
   - {fileID: -674522909012312754}
   StringsBanks:
   - {fileID: -626385693957101261}
   cacheVersion: 131859
-  cacheTime: 639271050207770770
+  cacheTime: 639271071973776645
   SerializableEventsDict:
   - key: event:/divisao
     index: 0
@@ -556,44 +612,48 @@ MonoBehaviour:
     index: 11
   - key: event:/Ilha Parando
     index: 12
-  - key: event:/PegaBloco 2
-    index: 13
   - key: event:/blocoNooutro
-    index: 14
+    index: 13
   - key: event:/PortaAbre
-    index: 15
+    index: 14
   - key: event:/796080__colinleblancsound__levelbgm
-    index: 16
+    index: 15
   - key: event:/Multiplication
-    index: 17
+    index: 16
   - key: event:/Subtracao
-    index: 18
+    index: 17
   - key: event:/jump
-    index: 19
+    index: 18
   - key: event:/Passos1
-    index: 20
+    index: 19
   - key: event:/erro 2
-    index: 21
+    index: 20
   - key: event:/erroOperation
-    index: 22
+    index: 21
   - key: event:/Massive_floating_sto_#4-1789011124880
-    index: 23
-  - key: event:/Fase3Music
-    index: 24
+    index: 22
   - key: event:/MusicaFase1Certa
-    index: 25
+    index: 23
   - key: event:/Pontesurgindo2
-    index: 26
+    index: 24
   - key: event:/Sombalanca
-    index: 27
+    index: 25
   - key: event:/Ponteaparecendo
-    index: 28
+    index: 26
   - key: event:/PegaBloco
-    index: 29
+    index: 27
   - key: event:/Pontesurgindo
-    index: 30
+    index: 28
   - key: event:/SaladeAula
+    index: 29
+  - key: event:/MusicaFase3
+    index: 30
+  - key: event:/Fase4Music
     index: 31
+  - key: event:/balancamexendo
+    index: 32
+  - key: event:/balancamexendo 2
+    index: 33
 --- !u!114 &90871432400512908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -702,6 +762,33 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 202
+--- !u!114 &1301850366311799166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Fase4Music
+  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
+  Path: event:/Fase4Music
+  Guid:
+    Data1: 377368396
+    Data2: 1313976052
+    Data3: 1210019487
+    Data4: 475121515
+  Banks:
+  - {fileID: 5029244412301817789}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 84480
 --- !u!114 &1569302637660478147
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -755,7 +842,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 170
+  Length: 282
 --- !u!114 &4410245847698936302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -836,34 +923,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 248000
---- !u!114 &4954079881763861382
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/Fase3Music
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/Fase3Music
-  Guid:
-    Data1: 377368396
-    Data2: 1313976052
-    Data3: 1210019487
-    Data4: 475121515
-  Banks:
-  - {fileID: 5029244412301817789}
-  IsStream: 1
-  Is3D: 0
-  IsOneShot: 0
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 84480
+  Length: 84600
 --- !u!114 &5029244412301817789
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -879,7 +939,7 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Musica.bank
   Name: Musica
   StudioPath: bank:/Musica
-  lastModified: 639269339240953037
+  lastModified: 639271057792566084
   FileSizes:
   - Name: Desktop
     Value: 12827840
@@ -1006,10 +1066,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
   Path: event:/PegaBloco
   Guid:
-    Data1: -1393829811
-    Data2: 1197661281
-    Data3: 1763972002
-    Data4: 747695939
+    Data1: 750272900
+    Data2: 1324672721
+    Data3: 2041804977
+    Data4: -3149281
   Banks:
   - {fileID: -674522909012312754}
   IsStream: 0
@@ -1018,7 +1078,7 @@ MonoBehaviour:
   Parameters: []
   MinDistance: 1
   MaxDistance: 20
-  Length: 320
+  Length: 260
 --- !u!114 &8818974283630275636
 MonoBehaviour:
   m_ObjectHideFlags: 0

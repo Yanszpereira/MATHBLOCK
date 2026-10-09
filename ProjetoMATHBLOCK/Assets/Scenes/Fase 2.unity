@@ -11323,7 +11323,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: grabBlockSound.Path
-      value: event:/PegaBloco 2
+      value: event:/PegaBloco
       objectReference: {fileID: 0}
     - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: grabBlockSound.Guid.Data1

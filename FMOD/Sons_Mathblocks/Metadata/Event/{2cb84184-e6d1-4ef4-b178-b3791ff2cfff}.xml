@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.03.00">
 	<object class="Event" id="{2cb84184-e6d1-4ef4-b178-b3791ff2cfff}">
 		<property name="name">
-			<value>PegaBloco 2</value>
+			<value>PegaBloco</value>
 		</property>
 		<property name="outputFormat">
 			<value>1</value>
@@ -100,6 +100,9 @@
 		</relationship>
 	</object>
 	<object class="EventMixerGroup" id="{143db232-c408-4aa5-9b6d-7d2948a7305e}">
+		<property name="volume">
+			<value>-7.5</value>
+		</property>
 		<property name="name">
 			<value>Audio 1</value>
 		</property>

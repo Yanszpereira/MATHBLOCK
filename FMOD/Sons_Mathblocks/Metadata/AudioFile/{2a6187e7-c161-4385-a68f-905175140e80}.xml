@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{2a6187e7-c161-4385-a68f-905175140e80}">
 		<property name="assetPath">
-			<value>789558__timouse__220804-music-theme.wav</value>
+			<value>MusicaFase3.wav</value>
 		</property>
 		<property name="isStreaming">
 			<value>true</value>

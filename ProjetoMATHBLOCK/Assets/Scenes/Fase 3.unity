@@ -3517,7 +3517,12 @@ MonoBehaviour:
       Data3: 0
       Data4: 0
     Path: 
-  movementSoundCooldown: 0.25
+  minimumMovementPitch: 0.96
+  maximumMovementPitch: 1.04
+  pitchVariationInterval: 0.4
+  pitchChangeSpeed: 0.12
+  movementAngleThreshold: 0.001
+  movementSoundStopDelay: 0.12
   OnBalanced:
     m_PersistentCalls:
       m_Calls: []
@@ -3935,12 +3940,17 @@ MonoBehaviour:
   visualStateStabilityTime: 0.3
   movementSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
-  movementSoundCooldown: 0.25
+      Data1: 172333954
+      Data2: 1218445455
+      Data3: -1715050618
+      Data4: 1684173675
+    Path: event:/balancamexendo
+  minimumMovementPitch: 0.96
+  maximumMovementPitch: 1.04
+  pitchVariationInterval: 0.4
+  pitchChangeSpeed: 0.12
+  movementAngleThreshold: 0.001
+  movementSoundStopDelay: 0.12
   OnBalanced:
     m_PersistentCalls:
       m_Calls: []
@@ -4480,6 +4490,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Path
+      value: event:/PegaBloco
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data1
+      value: 750272900
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data2
+      value: 1324672721
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data3
+      value: 2041804977
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data4
+      value: -3149281
+      objectReference: {fileID: 0}
     - target: {fileID: 4745981285788249604, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -12.316054
@@ -5316,11 +5346,11 @@ MonoBehaviour:
   CollisionTag: 
   EventReference:
     Guid:
-      Data1: 377368396
-      Data2: 1313976052
-      Data3: 1210019487
-      Data4: 475121515
-    Path: event:/Fase3Music
+      Data1: 1279379995
+      Data2: 1201438208
+      Data3: -1839543930
+      Data4: 1751907841
+    Path: event:/MusicaFase3
   Event: 
   EventPlayTrigger: 1
   EventStopTrigger: 0
@@ -5420,7 +5450,7 @@ MonoBehaviour:
   balances:
   - {fileID: 1460716221}
   - {fileID: 1053136629}
-  buildOnStart: 1
+  buildOnStart: 0
   pieceDuration: 0.2
   delayBetweenPieces: 0.15
   initialScale: 0.644
@@ -5656,12 +5686,17 @@ MonoBehaviour:
   visualStateStabilityTime: 0.3
   movementSound:
     Guid:
-      Data1: -1951870173
-      Data2: 1324219799
-      Data3: 43125947
-      Data4: 1293944635
-    Path: event:/Sombalanca
-  movementSoundCooldown: 0.25
+      Data1: 172333954
+      Data2: 1218445455
+      Data3: -1715050618
+      Data4: 1684173675
+    Path: event:/balancamexendo
+  minimumMovementPitch: 0.96
+  maximumMovementPitch: 1.069
+  pitchVariationInterval: 0.4
+  pitchChangeSpeed: 0.12
+  movementAngleThreshold: 0.01
+  movementSoundStopDelay: 0.12
   OnBalanced:
     m_PersistentCalls:
       m_Calls: []
@@ -5727,7 +5762,12 @@ MonoBehaviour:
       Data3: 0
       Data4: 0
     Path: 
-  movementSoundCooldown: 0.25
+  minimumMovementPitch: 0.96
+  maximumMovementPitch: 1.04
+  pitchVariationInterval: 0.4
+  pitchChangeSpeed: 0.12
+  movementAngleThreshold: 0.001
+  movementSoundStopDelay: 0.12
   OnBalanced:
     m_PersistentCalls:
       m_Calls: []

@@ -63,6 +63,12 @@ public class SleepAnimation : MonoBehaviour
     [Header("Cena após a terceira piscada")]
     [SerializeField] private string sceneToLoad;
 
+    [Header("Transição de áudio para a Fase 1")]
+    [SerializeField, Min(0f), Tooltip("Duração do fade out da ambiência da cutscene.")]
+    private float ambienceFadeOutDuration = 0.6f;
+    [SerializeField, Min(0f), Tooltip("Duração do fade in da música da Fase 1.")]
+    private float phaseOneMusicFadeInDuration = 1.5f;
+
     private RectTransform upperLid;
     private RectTransform lowerLid;
     private RectTransform skipButtonRect;
@@ -571,6 +577,10 @@ public class SleepAnimation : MonoBehaviour
         }
 
         eyeTransition.OpenEyesAfterNextScene(sceneEntryOpeningSpeed);
+        eyeTransition.BeginAudioCrossfade(
+            targetScene,
+            ambienceFadeOutDuration,
+            phaseOneMusicFadeInDuration);
         return true;
     }
 

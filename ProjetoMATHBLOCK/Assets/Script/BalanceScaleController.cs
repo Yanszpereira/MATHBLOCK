@@ -95,15 +95,19 @@ public sealed class BalanceScaleController : MonoBehaviour
     [SerializeField, Min(0f)] private float visualStateStabilityTime = 0.3f;
 
     [Header("Audio FMOD - Balança")]
-    [Tooltip("Som de movimento que permanece ativo somente enquanto a balança está se inclinando.")]
+    [Tooltip("Som em loop que permanece ativo somente enquanto a balança está se inclinando.")]
     [SerializeField] private EventReference movementSound;
-    [Tooltip("Menor pitch sorteado no início de cada movimento.")]
+    [Tooltip("Menor pitch usado durante o movimento.")]
     [SerializeField, Range(0.5f, 1.5f)] private float minimumMovementPitch = 0.96f;
-    [Tooltip("Maior pitch sorteado no início de cada movimento.")]
+    [Tooltip("Maior pitch usado durante o movimento.")]
     [SerializeField, Range(0.5f, 1.5f)] private float maximumMovementPitch = 1.04f;
+    [Tooltip("Tempo entre novos alvos aleatórios de pitch enquanto a balança se move.")]
+    [SerializeField, Min(0.05f)] private float pitchVariationInterval = 0.4f;
+    [Tooltip("Velocidade da transição entre os valores de pitch, evitando mudanças bruscas.")]
+    [SerializeField, Min(0f)] private float pitchChangeSpeed = 0.12f;
     [Tooltip("Menor variação angular, em graus por quadro de física, considerada movimento real.")]
     [SerializeField, Min(0f)] private float movementAngleThreshold = 0.001f;
-    [Tooltip("Pequena tolerância antes de interromper o áudio, evitando cortes entre quadros.")]
+    [Tooltip("Pequena tolerância antes de encerrar o loop, evitando cortes entre quadros.")]
     [SerializeField, Min(0f)] private float movementSoundStopDelay = 0.12f;
 
     [Header("Events")]
@@ -150,6 +154,9 @@ public sealed class BalanceScaleController : MonoBehaviour
     private bool hasWarnedAboutCombinedMesh;
     private EventInstance movementSoundInstance;
     private float lastMovementTime = float.NegativeInfinity;
+    private float currentMovementPitch = 1f;
+    private float targetMovementPitch = 1f;
+    private float nextPitchVariationTime;
 
     public bool IsSmallBalance => isSmallBalance;
 
@@ -195,6 +202,8 @@ public sealed class BalanceScaleController : MonoBehaviour
         visualStateStabilityTime = Mathf.Max(0f, visualStateStabilityTime);
         minimumMovementPitch = Mathf.Clamp(minimumMovementPitch, 0.5f, 1.5f);
         maximumMovementPitch = Mathf.Clamp(maximumMovementPitch, minimumMovementPitch, 1.5f);
+        pitchVariationInterval = Mathf.Max(0.05f, pitchVariationInterval);
+        pitchChangeSpeed = Mathf.Max(0f, pitchChangeSpeed);
         movementAngleThreshold = Mathf.Max(0f, movementAngleThreshold);
         movementSoundStopDelay = Mathf.Max(0f, movementSoundStopDelay);
 
@@ -902,18 +911,20 @@ private Vector3 GetVisualAnchorWorldPosition(Transform visual)
         visualRightWeight = pendingVisualRightWeight;
     }
 
-    private void UpdateMovementSound(bool isMoving)
+    private void UpdateMovementSound(bool isMoving, float deltaTime)
     {
-        // Ao concluir a balança, OnBalanced já inicia o feedback da solução
-        // (por exemplo, o som da ponte). Evita tocar os dois eventos juntos.
-        if (isMoving && !IsBalanced)
+        ReleaseCompletedMovementSound();
+
+        if (isMoving)
         {
             lastMovementTime = Time.time;
             StartMovementSound();
+            UpdateMovementPitch(deltaTime);
             return;
         }
 
-        if (movementSoundInstance.isValid() && Time.time >= lastMovementTime + movementSoundStopDelay)
+        if (movementSoundInstance.isValid() &&
+            Time.time >= lastMovementTime + movementSoundStopDelay)
             StopMovementSound(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
     }
 
@@ -927,7 +938,10 @@ private Vector3 GetVisualAnchorWorldPosition(Transform visual)
             movementSoundInstance = RuntimeManager.CreateInstance(movementSound);
             GameObject soundSource = apoioBalancas != null ? apoioBalancas.gameObject : gameObject;
             RuntimeManager.AttachInstanceToGameObject(movementSoundInstance, soundSource);
-            movementSoundInstance.setPitch(UnityEngine.Random.Range(minimumMovementPitch, maximumMovementPitch));
+            currentMovementPitch = UnityEngine.Random.Range(minimumMovementPitch, maximumMovementPitch);
+            targetMovementPitch = currentMovementPitch;
+            nextPitchVariationTime = Time.time + pitchVariationInterval;
+            movementSoundInstance.setPitch(currentMovementPitch);
             movementSoundInstance.start();
         }
         catch (EventNotFoundException exception)
@@ -935,6 +949,37 @@ private Vector3 GetVisualAnchorWorldPosition(Transform visual)
             Debug.LogWarning($"{name}: evento de movimento da balança não encontrado. {exception.Message}", this);
             movementSoundInstance.clearHandle();
         }
+    }
+
+    private void UpdateMovementPitch(float deltaTime)
+    {
+        if (!movementSoundInstance.isValid())
+            return;
+
+        if (Time.time >= nextPitchVariationTime)
+        {
+            targetMovementPitch = UnityEngine.Random.Range(minimumMovementPitch, maximumMovementPitch);
+            nextPitchVariationTime = Time.time + pitchVariationInterval;
+        }
+
+        currentMovementPitch = Mathf.MoveTowards(
+            currentMovementPitch,
+            targetMovementPitch,
+            pitchChangeSpeed * deltaTime);
+        movementSoundInstance.setPitch(currentMovementPitch);
+    }
+
+    private void ReleaseCompletedMovementSound()
+    {
+        if (!movementSoundInstance.isValid())
+            return;
+
+        movementSoundInstance.getPlaybackState(out PLAYBACK_STATE playbackState);
+        if (playbackState != PLAYBACK_STATE.STOPPED)
+            return;
+
+        movementSoundInstance.release();
+        movementSoundInstance.clearHandle();
     }
 
     private void StopMovementSound(FMOD.Studio.STOP_MODE stopMode)
@@ -997,7 +1042,7 @@ private Vector3 GetVisualAnchorWorldPosition(Transform visual)
             }
             moved |= ApplyTrayVisual(combinedTrays, originalCombinedTraySupportPosition, originalCombinedTrayRotation, 0f);
         }
-        UpdateMovementSound(supportIsMoving);
+        UpdateMovementSound(supportIsMoving, deltaTime);
         if (moved)
             Physics.SyncTransforms();
     }
