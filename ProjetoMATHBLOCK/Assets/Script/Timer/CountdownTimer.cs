@@ -29,8 +29,17 @@ public class CountdownTimer : MonoBehaviour
 
     private float tempoAtual;
     private bool contando = true;
+    private bool externallyPaused;
     private bool resetStarted;
     private CanvasGroup fadeGroup;
+
+    public bool IsPaused => externallyPaused;
+
+    /// <summary>Optional scene-scoped pause for challenges with their own timer; false preserves the global timer's original behavior.</summary>
+    public void SetPaused(bool paused)
+    {
+        externallyPaused = paused;
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetSharedClock()
@@ -114,11 +123,12 @@ public class CountdownTimer : MonoBehaviour
             tempoInicial = clockAuthority.tempoInicial;
             tempoAtual = clockAuthority.tempoAtual;
             contando = clockAuthority.contando;
+            externallyPaused = clockAuthority.externallyPaused;
             AtualizarTexto();
             return;
         }
 
-        if (!contando || resetStarted)
+        if (!contando || resetStarted || externallyPaused)
             return;
 
         tempoAtual -= Time.deltaTime;

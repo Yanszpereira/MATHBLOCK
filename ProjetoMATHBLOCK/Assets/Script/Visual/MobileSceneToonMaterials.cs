@@ -41,6 +41,10 @@
                        FindObjectsInactive.Include,
                        FindObjectsSortMode.None))
           {
+
+              if (BelongsToPhaseFourSecondHalf(target))
+                  continue;
+
               // A geometria da Fase 2 deve conservar integralmente os materiais
               // e cores definidos na cena, mas sem reflexos nem ToonShader.
               if (BelongsToPhaseTwoScenarioGeometry(target))
@@ -456,4 +460,21 @@
                   Destroy(runtimeMaterials[i]);
           }
       }
-  }
+  
+
+
+      private static bool BelongsToPhaseFourSecondHalf(Renderer target)
+      {
+          if (target == null ||
+              !target.gameObject.scene.name.Equals("Fase 4", System.StringComparison.OrdinalIgnoreCase))
+              return false;
+
+          for (Transform current = target.transform; current != null; current = current.parent)
+          {
+              if (current.name.Equals("Fase4_SegundaMetade", System.StringComparison.OrdinalIgnoreCase))
+                  return true;
+          }
+
+          return false;
+      }
+}
