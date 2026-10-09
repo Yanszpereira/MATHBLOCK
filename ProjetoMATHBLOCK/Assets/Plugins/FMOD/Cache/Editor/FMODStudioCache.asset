@@ -135,33 +135,6 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 4660
---- !u!114 &-7334490837324530394
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
-  m_Name: event:/PegaBloco
-  m_EditorClassIdentifier: FMODUnityEditor::FMODUnity.EditorEventRef
-  Path: event:/PegaBloco
-  Guid:
-    Data1: -1393829811
-    Data2: 1197661281
-    Data3: 1763972002
-    Data4: 747695939
-  Banks:
-  - {fileID: -674522909012312754}
-  IsStream: 0
-  Is3D: 0
-  IsOneShot: 1
-  Parameters: []
-  MinDistance: 1
-  MaxDistance: 20
-  Length: 320
 --- !u!114 &-4952237038525497817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,10 +340,10 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639269199752578017
+  lastModified: 639269339216122056
   FileSizes:
   - Name: Desktop
-    Value: 11258752
+    Value: 11245600
   Exists: 1
 --- !u!114 &-626385693957101261
 MonoBehaviour:
@@ -387,10 +360,10 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639263151156276523
+  lastModified: 639269339216147144
   FileSizes:
   - Name: Desktop
-    Value: 2044
+    Value: 2002
   Exists: 1
 --- !u!114 &-602466905980334559
 MonoBehaviour:
@@ -473,7 +446,6 @@ MonoBehaviour:
   - {fileID: -7717096532663815095}
   - {fileID: -4454840408577244567}
   - {fileID: 7816285391888774579}
-  - {fileID: -7334490837324530394}
   - {fileID: 8818974283630275636}
   - {fileID: -8779194659313850213}
   - {fileID: 1569302637660478147}
@@ -496,7 +468,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: -626385693957101261}
   cacheVersion: 131859
-  cacheTime: 639269199753787429
+  cacheTime: 639269339240953037
   SerializableEventsDict:
   - key: event:/divisao
     index: 0
@@ -518,40 +490,38 @@ MonoBehaviour:
     index: 8
   - key: event:/HoverMenu
     index: 9
-  - key: event:/PegaBloco
-    index: 10
   - key: event:/Soma
-    index: 11
+    index: 10
   - key: event:/quedavoid
-    index: 12
+    index: 11
   - key: event:/Ilha Parando
-    index: 13
+    index: 12
   - key: event:/PegaBloco 2
-    index: 14
+    index: 13
   - key: event:/blocoNooutro
-    index: 15
+    index: 14
   - key: event:/PortaAbre
-    index: 16
+    index: 15
   - key: event:/796080__colinleblancsound__levelbgm
-    index: 17
+    index: 16
   - key: event:/Multiplication
-    index: 18
+    index: 17
   - key: event:/Subtracao
-    index: 19
+    index: 18
   - key: event:/jump
-    index: 20
+    index: 19
   - key: event:/Passos1
-    index: 21
+    index: 20
   - key: event:/erro 2
-    index: 22
+    index: 21
   - key: event:/erroOperation
-    index: 23
+    index: 22
   - key: event:/Massive_floating_sto_#4-1789011124880
-    index: 24
+    index: 23
   - key: event:/Fase3Music
-    index: 25
+    index: 24
   - key: event:/MusicaFase1Certa
-    index: 26
+    index: 25
 --- !u!114 &90871432400512908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -783,10 +753,10 @@ MonoBehaviour:
   Path: ../FMOD/Sons_Mathblocks/Build/Desktop/Musica.bank
   Name: Musica
   StudioPath: bank:/Musica
-  lastModified: 639269199753787429
+  lastModified: 639269339240953037
   FileSizes:
   - Name: Desktop
-    Value: 12827808
+    Value: 12827840
   Exists: 1
 --- !u!114 &5678138577801510505
 MonoBehaviour:

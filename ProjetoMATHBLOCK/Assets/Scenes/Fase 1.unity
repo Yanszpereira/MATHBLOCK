@@ -23871,7 +23871,7 @@ MonoBehaviour:
     Path: event:/MusicaFase1Certa
   Event: 
   EventPlayTrigger: 1
-  EventStopTrigger: 0
+  EventStopTrigger: 2
   AllowFadeout: 0
   TriggerOnce: 0
   Preload: 0
