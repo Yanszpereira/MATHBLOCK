@@ -10,6 +10,7 @@ public sealed class DeveloperModeController : MonoBehaviour
     private const string DeveloperStatusText = "mod dev ativo";
 
     private static bool developerModeActive;
+    public static bool IsDeveloperModeActive => developerModeActive;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetDeveloperModeState()
@@ -41,6 +42,14 @@ public sealed class DeveloperModeController : MonoBehaviour
             return;
         }
 
+        // The same 7234 sequence toggles the mode off. The leading Numpad7
+        // reserves the following digits for the code instead of phase shortcuts.
+        if (activationProgress > 0 || WasPressed(keyboard.numpad7Key))
+        {
+            ProcessActivationInput(keyboard);
+            return;
+        }
+
         if (WasPressed(keyboard.numpad1Key))
             LoadPhase("Fase 1");
         else if (WasPressed(keyboard.numpad2Key))
@@ -58,7 +67,7 @@ public sealed class DeveloperModeController : MonoBehaviour
         {
             activationProgress++;
             if (activationProgress >= ActivationCode.Length)
-                ActivateDeveloperMode();
+                ToggleDeveloperMode();
             return;
         }
 
@@ -87,12 +96,25 @@ public sealed class DeveloperModeController : MonoBehaviour
         return keyboardKey != null && keyboardKey.wasPressedThisFrame;
     }
 
-    private void ActivateDeveloperMode()
+    private void ToggleDeveloperMode()
     {
-        developerModeActive = true;
         activationProgress = 0;
-        EnsureStatusText();
-        Debug.Log("Modo desenvolvedor ativado.", this);
+        developerModeActive = !developerModeActive;
+        if (developerModeActive)
+        {
+            EnsureStatusText();
+            Debug.Log("Modo desenvolvedor ativado.", this);
+            return;
+        }
+
+        if (statusText != null)
+        {
+            Transform canvas = statusText.transform.parent;
+            statusText = null;
+            if (canvas != null)
+                Destroy(canvas.gameObject);
+        }
+        Debug.Log("Modo desenvolvedor desativado.", this);
     }
 
     private void LoadPhase(string sceneName)

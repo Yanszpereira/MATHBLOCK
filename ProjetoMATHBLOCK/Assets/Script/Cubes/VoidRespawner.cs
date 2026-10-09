@@ -13,6 +13,8 @@ public class VoidRespawner : MonoBehaviour
     [Header("Respawn")]
     [SerializeField] private Vector3 respawnCenter = Vector3.zero;
     [SerializeField] private Vector3 playerRespawnOffset = new Vector3(0f, 5f, 0f);
+    [SerializeField] private Transform playerRespawnTarget;
+
     [SerializeField] private Vector3 blockRespawnOffset = new Vector3(0f, 10f, 0f);
     [SerializeField] private bool resetBlockRotation = true;
     [SerializeField] private float respawnCooldown = 0.25f;
@@ -33,6 +35,11 @@ public class VoidRespawner : MonoBehaviour
     private Vector3 initialPlayerPosition;
     private Quaternion initialPlayerRotation;
     private bool hasCapturedPlayerSpawn;
+
+    /// <summary>Raised immediately before this Void starts the existing player fade.</summary>
+    public event System.Action<PlayerMovement> PlayerRespawnStarted;
+    /// <summary>Raised after the player has been teleported and the fade-in has completed.</summary>
+    public event System.Action<PlayerMovement> PlayerRespawnCompleted;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneLoadedHandler()
@@ -150,17 +157,25 @@ public class VoidRespawner : MonoBehaviour
         return true;
     }
 
-    private void RespawnPlayer(PlayerMovement player)
+    private bool RespawnPlayer(PlayerMovement player)
     {
         if (SceneTransitionManager.IsTransitioning)
-            return;
+            return false;
 
         int instanceId = player.gameObject.GetInstanceID();
         if (respawningPlayers.Contains(instanceId) || !CanRespawn(instanceId))
-            return;
+            return false;
 
         respawningPlayers.Add(instanceId);
+        PlayerRespawnStarted?.Invoke(player);
         StartCoroutine(RespawnPlayerWithFade(player, instanceId));
+        return true;
+    }
+
+    /// <summary>Routes a scoped Fase 4 failure through the same fade, checkpoint and cooldown as a physical Void fall.</summary>
+    public bool RequestPlayerRespawn(PlayerMovement player)
+    {
+        return player != null && RespawnPlayer(player);
     }
 
     private IEnumerator RespawnPlayerWithFade(PlayerMovement player, int instanceId)
@@ -179,6 +194,8 @@ public class VoidRespawner : MonoBehaviour
             Destroy(fade.gameObject);
 
         respawningPlayers.Remove(instanceId);
+        if (player != null)
+            PlayerRespawnCompleted?.Invoke(player);
     }
 
     private void TeleportPlayer(PlayerMovement player)
@@ -199,9 +216,14 @@ public class VoidRespawner : MonoBehaviour
         if (!hasCapturedPlayerSpawn)
             CaptureInitialPlayerSpawn(player);
 
-        Vector3 targetPosition = hasCapturedPlayerSpawn
-            ? initialPlayerPosition
-            : GetRespawnPosition(playerRespawnOffset);
+        Vector3 targetPosition = playerRespawnTarget != null
+            ? playerRespawnTarget.position
+            : hasCapturedPlayerSpawn
+                ? initialPlayerPosition
+                : GetRespawnPosition(playerRespawnOffset);
+        Quaternion targetRotation = playerRespawnTarget != null
+            ? playerRespawnTarget.rotation
+            : initialPlayerRotation;
         CharacterController controller = player.controller != null
             ? player.controller
             : player.GetComponent<CharacterController>();
@@ -211,12 +233,12 @@ public class VoidRespawner : MonoBehaviour
         if (controller != null)
         {
             controller.enabled = false;
-            controller.transform.SetPositionAndRotation(targetPosition, initialPlayerRotation);
+            controller.transform.SetPositionAndRotation(targetPosition, targetRotation);
             controller.enabled = true;
         }
         else
         {
-            player.transform.SetPositionAndRotation(targetPosition, initialPlayerRotation);
+            player.transform.SetPositionAndRotation(targetPosition, targetRotation);
         }
 
         if (player.TryGetComponent(out Rigidbody rb))
@@ -286,6 +308,30 @@ public class VoidRespawner : MonoBehaviour
         if (!CanRespawn(instanceId))
             return;
 
+        // Blocos gerados pelo desafio da Fase 4 retornam à origem registrada
+        // da tentativa. Todos os outros MathBlocks mantêm o respawn global
+        // existente, inclusive blocos carregados pelo jogador.
+        Fase4SpawnedMathBlock fase4Block = block.GetComponent<Fase4SpawnedMathBlock>();
+        if (fase4Block != null && fase4Block.TryGetReturnPose(out Vector3 origin, out Quaternion originRotation))
+        {
+            Transform ownedTransform = block.transform;
+            if (block.TryGetComponent(out Rigidbody ownedBody))
+            {
+                ownedBody.linearVelocity = Vector3.zero;
+                ownedBody.angularVelocity = Vector3.zero;
+                ownedBody.position = origin;
+                ownedBody.rotation = originRotation;
+                ownedBody.WakeUp();
+            }
+            else
+            {
+                ownedTransform.SetPositionAndRotation(origin, originRotation);
+            }
+
+            Physics.SyncTransforms();
+            return;
+        }
+
         Vector3 targetPosition = GetRespawnPosition(blockRespawnOffset);
         Transform blockTransform = block.transform;
 
@@ -340,6 +386,13 @@ public class VoidRespawner : MonoBehaviour
         initialPlayerRotation = player.transform.rotation;
         hasCapturedPlayerSpawn = true;
     }
+
+    /// <summary>Sets the optional player destination used by this Void. A null target restores the scene-start fallback.</summary>
+    public void SetPlayerRespawnTarget(Transform target)
+    {
+        playerRespawnTarget = target;
+    }
+
 
     private bool TryGetRandomGroundPoint(out Vector3 point)
     {
