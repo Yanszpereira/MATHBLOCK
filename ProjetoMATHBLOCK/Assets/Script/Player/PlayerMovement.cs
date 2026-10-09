@@ -30,11 +30,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float footstepInterval = 0.42f;
     [SerializeField] private float minMoveInputForFootsteps = 0.1f;
 
-    [Header("Som de queda no void")]
-    [SerializeField] private float voidFallSoundDelay = 0.2f;
-    [SerializeField] private float voidFallSoundY = -5f;
-    [SerializeField] private bool requireVoidHeightToPlayFallSound = true;
-
     private InputAction jumpAction;
     private float horizontalInput;
     private float verticalInput;
@@ -46,7 +41,6 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 velocity;
 
     private float footstepTimer;
-    private float voidFallTimer;
     private bool hasPlayedVoidFallSound;
     private bool uiJumpRequested;
     private int maximumBlockDuplications;
@@ -124,7 +118,6 @@ public class PlayerMovement : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
 
         HandleFootstepSound(isGrounded);
-        HandleVoidFallSound(isGrounded);
     }
 
     private void HandleFootstepSound(bool isGrounded)
@@ -171,42 +164,15 @@ public class PlayerMovement : MonoBehaviour
         RuntimeManager.PlayOneShotAttached(jumpSound, gameObject);
     }
 
-    private void HandleVoidFallSound(bool isGrounded)
+    public void PlayVoidFallSound()
     {
-        if (!playMovementSounds)
-            return;
-
-        if (isGrounded)
-        {
-            ResetVoidFallSoundState();
-            return;
-        }
-
-        if (hasPlayedVoidFallSound)
-            return;
-
-        bool isFalling = verticalVelocity < 0f;
-        bool isBelowVoidHeight = !requireVoidHeightToPlayFallSound || transform.position.y <= voidFallSoundY;
-
-        if (!isFalling || !isBelowVoidHeight)
-        {
-            voidFallTimer = 0f;
-            return;
-        }
-
-        voidFallTimer += Time.deltaTime;
-
-        if (voidFallTimer < voidFallSoundDelay)
-            return;
-
-        if (voidFallSound.IsNull)
+        if (!playMovementSounds || hasPlayedVoidFallSound || voidFallSound.IsNull)
             return;
 
         hasPlayedVoidFallSound = true;
 
-        // O player continua caindo depois que o som dispara. PlayOneShot em uma
-        // posicao fixa deixaria a fonte acima dele; Attached faz o SFX acompanhar
-        // o player durante toda a queda.
+        // O evento atual e 3D. Mantê-lo anexado ao jogador garante que ele seja
+        // ouvido durante o fade e tambem funciona caso o evento vire 2D no FMOD.
         RuntimeManager.PlayOneShotAttached(voidFallSound, gameObject);
     }
 
@@ -217,7 +183,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void ResetVoidFallSoundState()
     {
-        voidFallTimer = 0f;
         hasPlayedVoidFallSound = false;
     }
 

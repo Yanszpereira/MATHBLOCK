@@ -382,9 +382,6 @@ MonoBehaviour:
     Path: event:/quedavoid
   footstepInterval: 0.42
   minMoveInputForFootsteps: 0.1
-  voidFallSoundDelay: 0.2
-  voidFallSoundY: -5
-  requireVoidHeightToPlayFallSound: 1
 --- !u!143 &8851233623974187797
 CharacterController:
   m_ObjectHideFlags: 0

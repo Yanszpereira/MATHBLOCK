@@ -31186,14 +31186,6 @@ PrefabInstance:
       propertyPath: grabBlockSound.Guid.Data4
       value: 747695939
       objectReference: {fileID: 0}
-    - target: {fileID: 1391884967048770114, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: voidFallSoundY
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1391884967048770114, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
-      propertyPath: voidFallSoundDelay
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4246532322668890469, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.49280423

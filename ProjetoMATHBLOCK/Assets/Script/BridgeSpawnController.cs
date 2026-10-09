@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
 using UnityEngine.Events;
@@ -44,7 +45,7 @@ public sealed class BridgeSpawnController : MonoBehaviour
     [SerializeField] private AnimationCurve fadeCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     [Header("Audio FMOD - Ponte")]
-    [Tooltip("Som tocado uma vez quando cada trecho da ponte começa a aparecer.")]
+    [Tooltip("Som em loop durante a construcao de cada trecho da ponte.")]
     [SerializeField] private EventReference sectionBuildSound;
 
     [Header("Spawn Positions")]
@@ -67,6 +68,7 @@ public sealed class BridgeSpawnController : MonoBehaviour
     private int completedSections;
     private int configuredBalanceCount;
     private bool configurationValid;
+    private EventInstance sectionBuildSoundInstance;
     private readonly HashSet<BalanceScaleController> resolvedBalances = new HashSet<BalanceScaleController>();
     private readonly Dictionary<BalanceScaleController, UnityAction> subscriptions =
         new Dictionary<BalanceScaleController, UnityAction>();
@@ -94,6 +96,7 @@ public sealed class BridgeSpawnController : MonoBehaviour
 
     private void OnDisable()
     {
+        StopSectionBuildSound(FMOD.Studio.STOP_MODE.IMMEDIATE);
         DisconnectBalances();
         if (Application.isPlaying && isInitialized)
         {
@@ -386,7 +389,7 @@ public sealed class BridgeSpawnController : MonoBehaviour
         {
             int start = (int)((long)completedSections * pieces.Count / configuredBalanceCount);
             int end = (int)((long)(completedSections + 1) * pieces.Count / configuredBalanceCount);
-            PlaySectionBuildSound(start, end);
+            StartSectionBuildSound();
             for (int i = start; i < end; i++)
             {
                 activePieceAnimations++;
@@ -398,35 +401,40 @@ public sealed class BridgeSpawnController : MonoBehaviour
             }
             while (activePieceAnimations > 0)
                 yield return null;
+            StopSectionBuildSound(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
             completedSections++;
         }
         isBuilding = false;
         hasBuilt = completedSections == configuredBalanceCount;
     }
 
-    private void PlaySectionBuildSound(int start, int end)
+    private void StartSectionBuildSound()
     {
         if (sectionBuildSound.IsNull)
             return;
 
-        Vector3 soundPosition = Vector3.zero;
-        int validPieceCount = 0;
-        for (int i = start; i < end && i < pieces.Count; i++)
+        StopSectionBuildSound(FMOD.Studio.STOP_MODE.IMMEDIATE);
+        try
         {
-            PieceState piece = pieces[i];
-            if (piece == null || piece.transform == null)
-                continue;
-
-            soundPosition += transform.TransformPoint(piece.targetLocalPosition);
-            validPieceCount++;
+            sectionBuildSoundInstance = RuntimeManager.CreateInstance(sectionBuildSound);
+            RuntimeManager.AttachInstanceToGameObject(sectionBuildSoundInstance, gameObject);
+            sectionBuildSoundInstance.start();
         }
+        catch (EventNotFoundException exception)
+        {
+            Debug.LogWarning($"{name}: evento de construcao da ponte nao encontrado. {exception.Message}", this);
+            sectionBuildSoundInstance.clearHandle();
+        }
+    }
 
-        if (validPieceCount > 0)
-            soundPosition /= validPieceCount;
-        else
-            soundPosition = transform.position;
+    private void StopSectionBuildSound(FMOD.Studio.STOP_MODE stopMode)
+    {
+        if (!sectionBuildSoundInstance.isValid())
+            return;
 
-        RuntimeManager.PlayOneShot(sectionBuildSound, soundPosition);
+        sectionBuildSoundInstance.stop(stopMode);
+        sectionBuildSoundInstance.release();
+        sectionBuildSoundInstance.clearHandle();
     }
 
     private IEnumerator AnimatePiece(PieceState piece)

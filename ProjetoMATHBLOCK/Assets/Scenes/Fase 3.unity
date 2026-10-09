@@ -3510,6 +3510,14 @@ MonoBehaviour:
   smoothingTime: 1.5
   balanceTolerance: 0
   visualStateStabilityTime: 0.3
+  movementSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  movementSoundCooldown: 0.25
   OnBalanced:
     m_PersistentCalls:
       m_Calls: []
@@ -3925,6 +3933,14 @@ MonoBehaviour:
   smoothingTime: 1.5
   balanceTolerance: 0
   visualStateStabilityTime: 0.3
+  movementSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  movementSoundCooldown: 0.25
   OnBalanced:
     m_PersistentCalls:
       m_Calls: []
@@ -5404,9 +5420,9 @@ MonoBehaviour:
   balances:
   - {fileID: 1460716221}
   - {fileID: 1053136629}
-  buildOnStart: 0
-  pieceDuration: 0.4
-  delayBetweenPieces: 0.08
+  buildOnStart: 1
+  pieceDuration: 0.2
+  delayBetweenPieces: 0.15
   initialScale: 0.644
   movementCurve:
     serializedVersion: 2
@@ -5456,6 +5472,13 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  sectionBuildSound:
+    Guid:
+      Data1: -490249210
+      Data2: 1244165491
+      Data3: -1878078042
+      Data4: -361587640
+    Path: event:/Pontesurgindo2
   useRandomSpawnPositions: 1
   randomSpawnRadius: 2.3
   spawnOffset: {x: 0, y: -1.25, z: 0}
@@ -5631,6 +5654,14 @@ MonoBehaviour:
   smoothingTime: 1.5
   balanceTolerance: 0
   visualStateStabilityTime: 0.3
+  movementSound:
+    Guid:
+      Data1: -1951870173
+      Data2: 1324219799
+      Data3: 43125947
+      Data4: 1293944635
+    Path: event:/Sombalanca
+  movementSoundCooldown: 0.25
   OnBalanced:
     m_PersistentCalls:
       m_Calls: []
@@ -5689,6 +5720,14 @@ MonoBehaviour:
   smoothingTime: 1.5
   balanceTolerance: 0
   visualStateStabilityTime: 0.3
+  movementSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  movementSoundCooldown: 0.25
   OnBalanced:
     m_PersistentCalls:
       m_Calls: []

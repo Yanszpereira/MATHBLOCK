@@ -160,6 +160,7 @@ public class VoidRespawner : MonoBehaviour
             return;
 
         respawningPlayers.Add(instanceId);
+        player.PlayVoidFallSound();
         StartCoroutine(RespawnPlayerWithFade(player, instanceId));
     }
 
