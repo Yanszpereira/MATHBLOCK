@@ -61,26 +61,6 @@ public class PadMathBlockDetector : MonoBehaviour
         return true;
     }
 
-    /// <summary>Returns the sole unambiguous block currently detected by the pad volume.</summary>
-    public bool TryGetCurrentBlock(out MathBlockValue block)
-    {
-        block = GetSingleDetectedBlock();
-        return block != null;
-    }
-
-    /// <summary>Used by the Fase 4 receptacle to release duplicate-submit locks after a block leaves its volume.</summary>
-    public bool IsBlockCurrentlyDetected(MathBlockValue block)
-    {
-        if (block == null)
-            return false;
-
-        foreach (MathBlockValue detected in detectedBlockComponents.Values)
-            if (detected == block)
-                return true;
-
-        return false;
-    }
-
     private float lastErrorSoundTime = -999f;
 
     private void Reset()

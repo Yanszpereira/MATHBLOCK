@@ -16,13 +16,6 @@ public sealed class BlockSpawnPop : MonoBehaviour
     }
 
     private Coroutine animationRoutine;
-    private bool isPaused;
-    public bool IsAnimating => animationRoutine != null;
-
-    public void SetPaused(bool paused)
-    {
-        isPaused = paused;
-    }
 
     private void StartPop(float duration)
     {
@@ -43,13 +36,10 @@ public sealed class BlockSpawnPop : MonoBehaviour
 
         if (body != null)
         {
-            if (!body.isKinematic)
-            {
-                body.linearVelocity = Vector3.zero;
-                body.angularVelocity = Vector3.zero;
-            }
             body.isKinematic = true;
             body.useGravity = false;
+            body.linearVelocity = Vector3.zero;
+            body.angularVelocity = Vector3.zero;
         }
         for (int i = 0; i < colliders.Length; i++)
         {
@@ -61,12 +51,6 @@ public sealed class BlockSpawnPop : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < duration)
         {
-            if (isPaused)
-            {
-                yield return null;
-                continue;
-            }
-
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
             float shifted = t - 1f;

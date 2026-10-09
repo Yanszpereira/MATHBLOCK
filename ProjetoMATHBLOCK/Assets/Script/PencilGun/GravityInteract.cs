@@ -4,7 +4,6 @@ using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 using System.Collections;
 using System.Collections.Generic;
-using System;
 using FMODUnity;
 
 public class GravityInteract : MonoBehaviour
@@ -83,7 +82,6 @@ public class GravityInteract : MonoBehaviour
     public bool IsHoldingBlock => IsHoldingObject;
     public Transform HeldBlock => IsHoldingBlock ? grabbedObject : null;
     public float GrabDistance => Mathf.Max(0f, grabDistance);
-    public event Action InteractionRequested;
 
     private void Awake()
     {
@@ -218,7 +216,6 @@ public class GravityInteract : MonoBehaviour
     {
         if (context.performed)
         {
-            InteractionRequested?.Invoke();
             TryHandleGrabOrDrop();
         }
     }
@@ -235,7 +232,6 @@ public class GravityInteract : MonoBehaviour
         if (operatorInteraction != null && operatorInteraction.TryInteractWithOperatorFromUI())
             return;
 
-        InteractionRequested?.Invoke();
         TryHandleGrabOrDrop();
     }
 
@@ -409,7 +405,7 @@ public class GravityInteract : MonoBehaviour
         {
             RaycastHit candidateHit = hits[hitIndex];
             Collider candidateCollider = candidateHit.collider;
-            if (candidateCollider == null || !candidateCollider.CompareTag("MathBlock") || IsFase4BlockLocked(candidateCollider))
+            if (candidateCollider == null || !candidateCollider.CompareTag("MathBlock"))
                 continue;
 
             if (IsColliderFromGrabbedObject(candidateCollider))
@@ -459,7 +455,7 @@ public class GravityInteract : MonoBehaviour
         {
             RaycastHit candidateHit = hits[hitIndex];
             Collider candidateCollider = candidateHit.collider;
-            if (candidateCollider == null || !candidateCollider.CompareTag("MathBlock") || IsFase4BlockLocked(candidateCollider))
+            if (candidateCollider == null || !candidateCollider.CompareTag("MathBlock"))
                 continue;
 
             if (IsColliderFromGrabbedObject(candidateCollider))
@@ -483,14 +479,6 @@ public class GravityInteract : MonoBehaviour
 
         Transform targetTransform = targetCollider.transform;
         return targetTransform == grabbedObject || targetTransform.IsChildOf(grabbedObject);
-    }
-
-    private static bool IsFase4BlockLocked(Collider targetCollider)
-    {
-        Fase4SpawnedMathBlock spawnedBlock = targetCollider != null
-            ? targetCollider.GetComponentInParent<Fase4SpawnedMathBlock>()
-            : null;
-        return spawnedBlock != null && !spawnedBlock.InteractionEnabled;
     }
 
     private void HandleOperatorApplication(RaycastHit hit)
@@ -887,9 +875,6 @@ public class GravityInteract : MonoBehaviour
 
     public void Pegar(RaycastHit hit)
     {
-        if (hit.collider != null && IsFase4BlockLocked(hit.collider))
-            return;
-
         RestoreCarriedBlockCollisions();
 
         ResizableBlockAirAnchor airAnchor = hit.collider != null
