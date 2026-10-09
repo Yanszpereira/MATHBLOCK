@@ -10,9 +10,6 @@ public class PlayerMovement : MonoBehaviour
     public float gravity = -9.81f;
     public float jumpHeight = 1.6f;
 
-    [Header("Jump Feedback")]
-    [SerializeField, Min(0f)] private float jumpCooldown = 1f;
-
     [Header("Ground Check")]
 
     [Header("Ground Check")]
@@ -43,7 +40,6 @@ public class PlayerMovement : MonoBehaviour
     private float verticalInput;
     private float verticalVelocity;
     private bool jumpWasPressed;
-    private float nextJumpAllowedTime;
     private Look playerLook;
     private GravityInteract gravityInteract;
     private readonly RaycastHit[] groundHits = new RaycastHit[8];
@@ -102,13 +98,11 @@ public class PlayerMovement : MonoBehaviour
         bool jumpPressed = IsJumpPressed();
 
         bool isHoldingBlock = gravityInteract != null && gravityInteract.IsHoldingBlock;
-        if (isGrounded && !isHoldingBlock && jumpPressed && !jumpWasPressed &&
-            Time.time >= nextJumpAllowedTime)
+        if (isGrounded && !isHoldingBlock && jumpPressed && !jumpWasPressed)
         {
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
             isGrounded = false;
             isGroundedThisFrame = false;
-            nextJumpAllowedTime = Time.time + Mathf.Max(0f, jumpCooldown);
 
             PlayJumpSound();
             playerLook?.PlayJumpShake();
@@ -302,7 +296,6 @@ public class PlayerMovement : MonoBehaviour
         verticalVelocity = 0f;
         velocity = Vector3.zero;
         jumpWasPressed = false;
-        nextJumpAllowedTime = 0f;
         ResetFootstepTimer();
         ResetVoidFallSoundState();
     }

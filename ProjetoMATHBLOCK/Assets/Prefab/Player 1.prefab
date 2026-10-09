@@ -179,7 +179,7 @@ MonoBehaviour:
   blinkSpeed: 3.5
   blinkHoldDuration: 0.08
   blinkOpeningSpeedMultiplier: 0.7
-  finalBlinkSpeed: 0.7
+  sceneEntryOpeningSpeed: 0.35
   firstTurnEuler: {x: 0, y: 85, z: 0}
   firstTurnDuration: 5
   secondTurnEuler: {x: 0, y: 85, z: 0}

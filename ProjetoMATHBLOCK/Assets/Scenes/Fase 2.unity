@@ -9192,6 +9192,7 @@ MonoBehaviour:
   mathBlockTag: MathBlock
   acceptExistingProjectTag: 1
   connectedVerifierObject: {fileID: 0}
+  detectionHeight: 2.5
   expectedValue: 15
   playErrorSoundWhenWrong: 0
   errorSound:
@@ -10087,6 +10088,7 @@ MonoBehaviour:
   mathBlockTag: MathBlock
   acceptExistingProjectTag: 1
   connectedVerifierObject: {fileID: 0}
+  detectionHeight: 2.5
   expectedValue: 15
   playErrorSoundWhenWrong: 1
   errorSound:

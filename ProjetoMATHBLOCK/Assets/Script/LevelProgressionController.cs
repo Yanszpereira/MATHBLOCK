@@ -67,6 +67,7 @@ public sealed class LevelProgressionController : MonoBehaviour
     {
         transitionStarted = true;
         ShowTransitionMessage();
+
         yield return new WaitForSecondsRealtime(TransitionDelay);
 
         string nextScene = GetNextScene(SceneManager.GetActiveScene().name);
