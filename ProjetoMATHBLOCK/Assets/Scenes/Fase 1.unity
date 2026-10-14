@@ -10947,6 +10947,10 @@ PrefabInstance:
       propertyPath: m_fontSize
       value: 70
       objectReference: {fileID: 0}
+    - target: {fileID: 2399139265838320610, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -2.855774
+      objectReference: {fileID: 0}
     - target: {fileID: 2718885612973798828, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0.5
@@ -11474,13 +11478,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 452814224}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: 0.1117249, w: 0.9937392}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 8.9009285, y: 4.9716945, z: 4.910315}
+  m_LocalScale: {x: 9, y: 5, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 402293855}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 12.83}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -11536,6 +11540,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6701c1d76738844589000afeb507120, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WinScreenController
+  initialScale: {x: 40, y: 20, z: 20}
+  finalScale: {x: 9, y: 5, z: 5}
+  shrinkSpeed: 2
 --- !u!1001 &453995272
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public sealed class LevelProgressionController : MonoBehaviour
 {
@@ -66,7 +65,12 @@ public sealed class LevelProgressionController : MonoBehaviour
     private IEnumerator LoadNextScene()
     {
         transitionStarted = true;
-        ShowTransitionMessage();
+        WinScreenController winScreen = FindWinScreen();
+        if (winScreen != null)
+        {
+            winScreen.gameObject.SetActive(false);
+            winScreen.gameObject.SetActive(true);
+        }
 
         yield return new WaitForSecondsRealtime(TransitionDelay);
 
@@ -74,6 +78,9 @@ public sealed class LevelProgressionController : MonoBehaviour
         Time.timeScale = 1f;
         Cursor.lockState = nextScene == "MainMenu" ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = nextScene == "MainMenu";
+
+        if (winScreen != null)
+            winScreen.gameObject.SetActive(false);
 
         SceneTransitionManager.TryTransitionToScene(nextScene, this);
     }
@@ -88,32 +95,20 @@ public sealed class LevelProgressionController : MonoBehaviour
         }
     }
 
-    private static void ShowTransitionMessage()
+    private static WinScreenController FindWinScreen()
     {
-        GameObject canvasObject = new GameObject("Level Complete Canvas", typeof(Canvas), typeof(CanvasScaler));
-        Canvas canvas = canvasObject.GetComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 32000;
+        WinScreenController[] screens = FindObjectsByType<WinScreenController>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
 
-        CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        foreach (WinScreenController screen in screens)
+        {
+            if (screen.gameObject.name == "WinScreen")
+                return screen;
+        }
 
-        GameObject textObject = new GameObject("Message", typeof(RectTransform), typeof(Text));
-        textObject.transform.SetParent(canvasObject.transform, false);
-        RectTransform rect = textObject.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0.5f, 0.5f);
-        rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = new Vector2(760f, 120f);
-
-        Text text = textObject.GetComponent<Text>();
-        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        text.text = "FASE CONCLUÍDA!";
-        text.fontSize = 52;
-        text.fontStyle = FontStyle.Bold;
-        text.alignment = TextAnchor.MiddleCenter;
-        text.color = new Color(0.86f, 1f, 0.96f, 1f);
-        text.raycastTarget = false;
+        Debug.LogError(
+            $"A cena '{SceneManager.GetActiveScene().name}' não contém um objeto chamado 'WinScreen' com WinScreenController.");
+        return null;
     }
 }
