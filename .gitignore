@@ -32,6 +32,9 @@
 # IL2CPP generated backups
 *BackUpThisFolder_ButDontShipItWithYourGame/
 
+# FMOD Studio generated build cache (project/source assets remain tracked)
+/FMOD/Sons_Mathblocks/.cache/
+
 # Local audit artifacts
 /.codex-merge-audit-*/
 
