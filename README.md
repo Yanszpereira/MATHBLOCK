@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="./banner.png" alt="MATHBLOCK — Educational Puzzle Game" width="100%">
+</p>
 
 <div align="center">
 
