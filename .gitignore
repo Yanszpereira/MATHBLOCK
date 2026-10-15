@@ -32,9 +32,22 @@
 # IL2CPP generated backups
 *BackUpThisFolder_ButDontShipItWithYourGame/
 
+# FMOD Studio generated build cache (project/source assets remain tracked)
+/FMOD/Sons_Mathblocks/.cache/
+
 # Local audit artifacts
 /.codex-merge-audit-*/
 
 # Operating system files
 .DS_Store
 Thumbs.db
+
+# MATHBLOCK - generated builds
+/ProjetoMATHBLOCK/MathblockBuildado/
+/ProjetoMATHBLOCK/BuildsMobile/
+
+# Unity IL2CPP generated backup files
+**/*_BackUpThisFolder_ButDontShipItWithYourGame/
+
+# Unity build debug information
+**/*_BurstDebugInformation_DoNotShip/
