@@ -1,0 +1,40 @@
+
+# Unity - generated directories
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# Unity generated directories in nested projects
+**/[Ll]ibrary/
+**/[Tt]emp/
+**/[Oo]bj/
+**/[Ll]ogs/
+**/[Uu]ser[Ss]ettings/
+
+# IDE and development tools
+.vs/
+.idea/
+.vscode/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.tmp
+*.log
+
+# IL2CPP generated backups
+*BackUpThisFolder_ButDontShipItWithYourGame/
+
+# Local audit artifacts
+/.codex-merge-audit-*/
+
+# Operating system files
+.DS_Store
+Thumbs.db
