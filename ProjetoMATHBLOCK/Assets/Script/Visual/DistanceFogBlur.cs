@@ -30,13 +30,13 @@ public sealed class DistanceFogBlur : MonoBehaviour
     [SerializeField, Range(0f, 0.35f)] private float dotStrength = 0.06f;
     [SerializeField, Range(2f, 24f)] private float dotScale = 7f;
     [SerializeField] private Color dotColor = new Color(0.055f, 0.012f, 0.085f, 1f);
-    [SerializeField, Range(2f, 12f)] private float phaseTwoGroundDotScale = 4f;
+    [SerializeField, Range(2f, 12f)] private float groundDotScale = 4f;
     [SerializeField, Range(0f, 1f)] private float phaseTwoGroundDotStrength = 0.22f;
 
     [Header("Downward look atmosphere")]
     [SerializeField, Range(0f, 0.8f)] private float downwardDarkening = 0.32f;
     [SerializeField, Range(1f, 3f)] private float downwardBlurMultiplier = 1.3f;
-    [SerializeField, Range(2f, 40f)] private float downwardDotScale = 18f;
+    [SerializeField, Range(2f, 24f)] private float downwardDotScale = 7f;
 
     [Header("Performance")]
     [SerializeField, Range(1, 4)] private int desktopDownsample = 1;
@@ -183,7 +183,7 @@ public sealed class DistanceFogBlur : MonoBehaviour
         material.SetFloat(DotStrengthId, dotStrength);
         material.SetFloat(DotScaleId, Mathf.Lerp(dotScale, downwardDotScale, downLook));
         material.SetColor(DotColorId, dotColor);
-        material.SetFloat(GroundDotScaleId, phaseTwoGroundDotScale);
+        material.SetFloat(GroundDotScaleId, groundDotScale);
         material.SetFloat(GroundDotStrengthId, phaseTwoGroundDotStrength);
         material.SetFloat(DownLookId, downLook);
         material.SetFloat(DownDarkeningId, downwardDarkening);
