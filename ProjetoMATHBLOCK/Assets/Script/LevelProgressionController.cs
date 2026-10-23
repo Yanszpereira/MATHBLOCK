@@ -65,6 +65,14 @@ public sealed class LevelProgressionController : MonoBehaviour
     private IEnumerator LoadNextScene()
     {
         transitionStarted = true;
+        string currentScene = SceneManager.GetActiveScene().name;
+
+        if (currentScene != "Fase 4" && ProgressoAprendizado.Instance != null &&
+            ProgressoAprendizado.Instance.ConcluirFase(currentScene))
+        {
+            yield return ResultadosAprendizadoUI.Mostrar(currentScene);
+        }
+
         WinScreenController winScreen = FindWinScreen();
         if (winScreen != null)
         {
@@ -74,7 +82,7 @@ public sealed class LevelProgressionController : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(TransitionDelay);
 
-        string nextScene = GetNextScene(SceneManager.GetActiveScene().name);
+        string nextScene = GetNextScene(currentScene);
         Time.timeScale = 1f;
         Cursor.lockState = nextScene == "MainMenu" ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = nextScene == "MainMenu";

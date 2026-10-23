@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c264b056f67fedf478475fb57c298ca7, type: 3}
+  m_Name: ConfiguracaoAprendizado
+  m_EditorClassIdentifier: Assembly-CSharp::ConfiguracaoAprendizado
+  subfases:
+  - id: fase1_porta1
+    cena: Fase 1
+    nome: Adicao e Subtracao
+    gatilho: 0
+    indiceNaCena: 0
+    conteudos:
+    - conteudo: 0
+      peso: 0.55
+  - id: fase1_porta2
+    cena: Fase 1
+    nome: Operacoes com Multiplicacao
+    gatilho: 0
+    indiceNaCena: 1
+    conteudos:
+    - conteudo: 0
+      peso: 0.7
+  - id: fase1_porta3
+    cena: Fase 1
+    nome: Operacoes com Divisao
+    gatilho: 0
+    indiceNaCena: 2
+    conteudos:
+    - conteudo: 0
+      peso: 0.85
+  - id: fase2_elevador
+    cena: Fase 2
+    nome: Numero, Escala e Espaco
+    gatilho: 1
+    indiceNaCena: 0
+    conteudos:
+    - conteudo: 1
+      peso: 1
+  - id: fase3_balanca1
+    cena: Fase 3
+    nome: Igualdade e Equilibrio I
+    gatilho: 2
+    indiceNaCena: 0
+    conteudos:
+    - conteudo: 2
+      peso: 0.85
+  - id: fase3_balanca2
+    cena: Fase 3
+    nome: Igualdade e Equilibrio II
+    gatilho: 2
+    indiceNaCena: 1
+    conteudos:
+    - conteudo: 2
+      peso: 1

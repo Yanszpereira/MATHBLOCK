@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 [RequireComponent(typeof(BoxCollider))]
 public sealed class SceneTransitionTrigger : MonoBehaviour
@@ -34,7 +35,7 @@ public sealed class SceneTransitionTrigger : MonoBehaviour
         if (transitionStarted || other == null || !IsPlayer(other))
             return;
 
-        LoadDestinationScene();
+        StartCoroutine(LoadDestinationScene());
     }
 
     private bool IsPlayer(Collider other)
@@ -43,12 +44,17 @@ public sealed class SceneTransitionTrigger : MonoBehaviour
                (other.transform.root != null && other.transform.root.CompareTag(PlayerTag));
     }
 
-    private void LoadDestinationScene()
+    private IEnumerator LoadDestinationScene()
     {
-        if (!TryLoadScene(destinationSceneName, this))
-            return;
-
         transitionStarted = true;
+        string cenaAtual = SceneManager.GetActiveScene().name;
+        if (cenaAtual != "Fase 4" && cenaAtual.StartsWith("Fase") &&
+            ProgressoAprendizado.Instance != null &&
+            ProgressoAprendizado.Instance.ConcluirFase(cenaAtual))
+            yield return ResultadosAprendizadoUI.Mostrar(cenaAtual);
+
+        if (!TryLoadScene(destinationSceneName, this))
+            transitionStarted = false;
     }
 
     public static bool TryLoadScene(string destinationSceneName, Object logContext = null)

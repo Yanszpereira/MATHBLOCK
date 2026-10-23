@@ -1,9 +1,11 @@
 using UnityEngine;
 using FMODUnity;
 using TMPro;
+using System;
 
 public class DoorValueVerifier : MonoBehaviour
 {
+    public static event Action<DoorValueVerifier, bool> RespostaAvaliada;
     [Header("Valor exigido")]
     [SerializeField] private int requiredValue = 1;
     [SerializeField, HideInInspector] private bool useRequiredRange;
@@ -113,6 +115,7 @@ public class DoorValueVerifier : MonoBehaviour
 
             PlayErrorSound(sourcePad);
             ShowFeedback(wrongFeedbackObject);
+            RespostaAvaliada?.Invoke(this, false);
 
             return;
         }
@@ -146,6 +149,7 @@ public class DoorValueVerifier : MonoBehaviour
         ShowFeedback(correctFeedbackObject);    
 
         GameManager.Instance?.RegisterCorrectDoorValue(sourcePad, receivedValue, sourceBlock, this);
+        RespostaAvaliada?.Invoke(this, true);
 
         if (doorOpener == null)
         {
@@ -226,7 +230,7 @@ public class DoorValueVerifier : MonoBehaviour
         successParticleObject.transform.position = particlePosition;
     }
 
-    private static string ObjectName(Object target)
+    private static string ObjectName(UnityEngine.Object target)
     {
         return target != null ? target.name : "null";
     }

@@ -10,6 +10,7 @@ using FMODUnity;
 /// </summary>
 public sealed class ElevatorTotemController : MonoBehaviour
 {
+    public static event System.Action<ElevatorTotemController, bool> RespostaAvaliada;
     private enum ElevatorState
     {
         Locked,
@@ -195,9 +196,13 @@ public sealed class ElevatorTotemController : MonoBehaviour
             return;
 
         if (!requiredValueIsValid || value != requiredValue)
+        {
+            RespostaAvaliada?.Invoke(this, false);
             return;
+        }
 
         buttonsUnlocked = true;
+        RespostaAvaliada?.Invoke(this, true);
         state = IsAtInitial(platform != null ? platform.position : initialPosition)
             ? ElevatorState.IdleAtInitial
             : ElevatorState.IdleAtFinal;
