@@ -84,6 +84,7 @@ public sealed class LevelProgressionController : MonoBehaviour
         {
             case "Fase 1": return "Fase 2";
             case "Fase 2": return "Fase 3";
+            case "Fase 3": return "Fase 4";
             default: return "MainMenu";
         }
     }
