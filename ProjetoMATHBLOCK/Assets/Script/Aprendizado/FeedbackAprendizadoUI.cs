@@ -166,10 +166,15 @@ public sealed class FeedbackAprendizadoUI : MonoBehaviour
 
         Image trilho = UIAprendizadoUtil.CriarImagem(raiz, "Vazio", new Color(.42f, .44f, .48f, .36f), true);
         UIAprendizadoUtil.DefinirRetangulo(trilho.rectTransform, new Vector2(30f, 5f), new Vector2(Largura, 28f), new Vector2(0f, 0f));
-        preenchimentoImagem = UIAprendizadoUtil.CriarImagem(trilho.transform, "Progresso", Color.green, true);
-        preenchimento = preenchimentoImagem.rectTransform;
+        Image mascara = UIAprendizadoUtil.CriarImagem(trilho.transform, "Mascara do progresso", Color.white, true);
+        preenchimento = mascara.rectTransform;
         preenchimento.anchorMin = new Vector2(0f, 0f); preenchimento.anchorMax = new Vector2(0f, 1f);
         preenchimento.pivot = new Vector2(0f, .5f); preenchimento.anchoredPosition = Vector2.zero; preenchimento.sizeDelta = Vector2.zero;
+        Mask mask = mascara.gameObject.AddComponent<Mask>(); mask.showMaskGraphic = false;
+        preenchimentoImagem = UIAprendizadoUtil.CriarImagem(mascara.transform, "Progresso pontilhado", Color.green);
+        preenchimentoImagem.sprite = UIAprendizadoUtil.ObterSpritePontilhado(); preenchimentoImagem.type = Image.Type.Tiled;
+        preenchimentoImagem.rectTransform.anchorMin = Vector2.zero; preenchimentoImagem.rectTransform.anchorMax = Vector2.one;
+        preenchimentoImagem.rectTransform.offsetMin = preenchimentoImagem.rectTransform.offsetMax = Vector2.zero;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         CriarBotaoDev();
@@ -247,6 +252,7 @@ public static class RotulosConteudo
 public static class UIAprendizadoUtil
 {
     private static Sprite arredondado;
+    private static Sprite pontilhado;
     public static RectTransform CriarRetangulo(Transform pai, string nome, Vector2 tamanho)
     {
         GameObject go = new GameObject(nome, typeof(RectTransform)); go.transform.SetParent(pai, false);
@@ -270,6 +276,23 @@ public static class UIAprendizadoUtil
     }
     public static void DefinirRetangulo(RectTransform r, Vector2 posicao, Vector2 tamanho, Vector2 ancora)
     { r.anchorMin = r.anchorMax = r.pivot = ancora; r.anchoredPosition = posicao; r.sizeDelta = tamanho; }
+    public static Sprite ObterSpritePontilhado()
+    {
+        if (pontilhado != null) return pontilhado;
+        const int tamanho = 16;
+        Texture2D tex = new Texture2D(tamanho, tamanho, TextureFormat.RGBA32, false)
+        {
+            name = "Pontilhado UI Runtime",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Repeat
+        };
+        Vector2 centro = new Vector2((tamanho - 1) * .5f, (tamanho - 1) * .5f);
+        for (int y = 0; y < tamanho; y++) for (int x = 0; x < tamanho; x++)
+            tex.SetPixel(x, y, Vector2.Distance(new Vector2(x, y), centro) <= 4.1f ? Color.white : Color.clear);
+        tex.Apply();
+        pontilhado = Sprite.Create(tex, new Rect(0, 0, tamanho, tamanho), new Vector2(.5f, .5f), 100f);
+        return pontilhado;
+    }
     private static Sprite ObterSpriteArredondado()
     {
         if (arredondado != null) return arredondado;

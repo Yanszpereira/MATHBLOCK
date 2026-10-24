@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 /// <summary>Resultado compacto: apresenta um conteudo por vez, nunca uma lista gigante.</summary>
@@ -16,6 +17,11 @@ public sealed class ResultadosAprendizadoUI : MonoBehaviour
     private TMP_Text materia;
     private TMP_Text percentual;
     private bool continuar;
+    private readonly List<PlayerInput> entradasBloqueadas = new();
+    private float escalaAnterior = 1f;
+    private CursorLockMode travaAnterior;
+    private bool cursorAnterior;
+    private bool apresentacaoAtiva;
     private const float Largura = 500f;
 
     public static IEnumerator Mostrar(string cena)
@@ -44,10 +50,12 @@ public sealed class ResultadosAprendizadoUI : MonoBehaviour
 
     private IEnumerator Executar(string cena)
     {
-        float escalaAnterior = Time.timeScale;
-        CursorLockMode travaAnterior = Cursor.lockState;
-        bool cursorAnterior = Cursor.visible;
+        escalaAnterior = Time.timeScale;
+        travaAnterior = Cursor.lockState;
+        cursorAnterior = Cursor.visible;
+        apresentacaoAtiva = true;
         Time.timeScale = 0f; Cursor.lockState = CursorLockMode.None; Cursor.visible = true;
+        BloquearJogador();
         Construir();
 
         List<ConteudoMatematico> conteudos = IntegradorAprendizadoCena.Configuracao.ObterDaCena(cena)
@@ -70,7 +78,7 @@ public sealed class ResultadosAprendizadoUI : MonoBehaviour
         botao.gameObject.SetActive(false);
         for (float t = 0; t < .35f; t += Time.unscaledDeltaTime) { grupo.alpha = 1f - t / .35f; yield return null; }
 
-        Time.timeScale = escalaAnterior; Cursor.lockState = travaAnterior; Cursor.visible = cursorAnterior;
+        RestaurarJogador();
     }
 
     private IEnumerator AnimarConteudo(ConteudoMatematico conteudo, float destino, float espera)
@@ -119,10 +127,41 @@ public sealed class ResultadosAprendizadoUI : MonoBehaviour
         UIAprendizadoUtil.DefinirRetangulo(percentual.rectTransform, new Vector2(2, 18), new Vector2(70, 30), new Vector2(1, 0));
         Image trilho = UIAprendizadoUtil.CriarImagem(toast, "Trilho", new Color(0.02f, .03f, .07f, .82f), true);
         UIAprendizadoUtil.DefinirRetangulo(trilho.rectTransform, new Vector2(35, 20), new Vector2(Largura, 15), new Vector2(0, 0));
-        fillImage = UIAprendizadoUtil.CriarImagem(trilho.transform, "Preenchimento", Color.green, true); fill = fillImage.rectTransform;
+        Image mascara = UIAprendizadoUtil.CriarImagem(trilho.transform, "Mascara do preenchimento", Color.white, true);
+        fill = mascara.rectTransform;
         fill.anchorMin = new Vector2(0, 0); fill.anchorMax = new Vector2(0, 1); fill.pivot = new Vector2(0, .5f);
         fill.anchoredPosition = Vector2.zero; fill.sizeDelta = Vector2.zero;
+        Mask mask = mascara.gameObject.AddComponent<Mask>(); mask.showMaskGraphic = false;
+        fillImage = UIAprendizadoUtil.CriarImagem(mascara.transform, "Preenchimento pontilhado", Color.green);
+        fillImage.sprite = UIAprendizadoUtil.ObterSpritePontilhado(); fillImage.type = Image.Type.Tiled;
+        fillImage.rectTransform.anchorMin = Vector2.zero; fillImage.rectTransform.anchorMax = Vector2.one;
+        fillImage.rectTransform.offsetMin = fillImage.rectTransform.offsetMax = Vector2.zero;
     }
+
+    private void BloquearJogador()
+    {
+        foreach (PlayerInput entrada in FindObjectsByType<PlayerInput>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (entrada == null || !entrada.inputIsActive) continue;
+            entrada.DeactivateInput();
+            entradasBloqueadas.Add(entrada);
+        }
+    }
+
+    private void RestaurarJogador()
+    {
+        if (!apresentacaoAtiva) return;
+        foreach (PlayerInput entrada in entradasBloqueadas)
+            if (entrada != null && entrada.enabled && entrada.gameObject.activeInHierarchy)
+                entrada.ActivateInput();
+        entradasBloqueadas.Clear();
+        Time.timeScale = escalaAnterior;
+        Cursor.lockState = travaAnterior;
+        Cursor.visible = cursorAnterior;
+        apresentacaoAtiva = false;
+    }
+
+    private void OnDestroy() => RestaurarJogador();
 
     private Button CriarBotao()
     {
