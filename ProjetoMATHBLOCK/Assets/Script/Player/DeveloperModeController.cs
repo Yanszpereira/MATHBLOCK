@@ -56,6 +56,8 @@ public sealed class DeveloperModeController : MonoBehaviour
             LoadPhase("Fase 2");
         else if (WasPressed(keyboard.numpad3Key))
             LoadPhase("Fase 3");
+        else if (WasPressed(keyboard.numpad4Key))
+            LoadPhase("Fase 4");
     }
 
     private void ProcessActivationInput(Keyboard keyboard)
