@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
@@ -32,8 +33,9 @@ public sealed class FeedbackAprendizadoUI : MonoBehaviour
     private void Update()
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-        if (ctrl && Input.GetKeyDown(KeyCode.D) && painelDev != null)
+        Keyboard teclado = Keyboard.current;
+        bool ctrl = teclado != null && (teclado.leftCtrlKey.isPressed || teclado.rightCtrlKey.isPressed);
+        if (ctrl && teclado.dKey.wasPressedThisFrame && painelDev != null)
             painelDev.SetActive(!painelDev.activeSelf);
 #endif
     }
