@@ -6,6 +6,7 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 using FMODUnity;
 
 /// <summary>
@@ -128,6 +129,8 @@ public class MenuController : MonoBehaviour
         RepararEventSystem();
 
         PrepararMenus();
+
+        CriarBotaoProgresso();
 
         RepairAllHudButtonCalls();
 
@@ -852,6 +855,9 @@ public class MenuController : MonoBehaviour
     {
         TocarSomClique();
 
+        if (PainelProgressoAprendizadoUI.FecharAberto())
+            return;
+
         if (!AlgumMenuAberto())
         {
             AbrirMenu(menuInicial);
@@ -905,6 +911,42 @@ public class MenuController : MonoBehaviour
         TocarSomClique();
 
         AbrirMenu(menuSair);
+    }
+
+    private void CriarBotaoProgresso()
+    {
+        if (menuInicial == null || menuInicial.transform.Find("Botao Meu Progresso") != null)
+            return;
+
+        Image fundo = UIAprendizadoUtil.CriarImagem(
+            menuInicial.transform,
+            "Botao Meu Progresso",
+            new Color(.055f, .07f, .11f, .88f),
+            true);
+        RectTransform rect = fundo.rectTransform;
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, 0f);
+        rect.anchoredPosition = new Vector2(0f, 38f);
+        rect.sizeDelta = new Vector2(270f, 46f);
+
+        Button botao = fundo.gameObject.AddComponent<Button>();
+        botao.targetGraphic = fundo;
+        botao.onClick.AddListener(() =>
+        {
+            TocarSomClique();
+            PainelProgressoAprendizadoUI.Mostrar();
+        });
+
+        TMP_Text texto = UIAprendizadoUtil.CriarTexto(
+            fundo.transform,
+            "Texto",
+            "★ MEU PROGRESSO",
+            20f,
+            TMPro.TextAlignmentOptions.Center);
+        texto.rectTransform.anchorMin = Vector2.zero;
+        texto.rectTransform.anchorMax = Vector2.one;
+        texto.rectTransform.offsetMin = texto.rectTransform.offsetMax = Vector2.zero;
+
+        PrepararBotoes(menuInicial);
     }
 
     // =========================================================
