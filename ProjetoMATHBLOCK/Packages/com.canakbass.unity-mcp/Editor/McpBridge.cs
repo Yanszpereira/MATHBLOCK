@@ -29,12 +29,35 @@ namespace McpUnity
     {
         const int Port = 6400;
 
-        static TcpListener _listener;
-        static Thread _listenThread;
-        static volatile bool _running;
+        // Each generation owns its sockets. A thread from a previous restart must
+        // never read the listener or running flag of the replacement generation.
+        sealed class ServerSession
+        {
+            public readonly TcpListener Listener = new TcpListener(IPAddress.Loopback, Port);
+            public readonly HashSet<TcpClient> Clients = new HashSet<TcpClient>();
+            public Thread Thread;
+            public volatile bool Running;
+        }
+
+        static ServerSession _session;
+
+#if UNITY_EDITOR_WIN
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool SetHandleInformation(IntPtr handle, uint mask, uint flags);
+#endif
+
+        static void PreventSocketInheritance(Socket socket)
+        {
+#if UNITY_EDITOR_WIN
+            // The Editor launches compilers and external editors. An inherited
+            // listener keeps the port bound even after Unity releases its copy.
+            if (!SetHandleInformation(socket.Handle, 1, 0))
+                throw new System.ComponentModel.Win32Exception(System.Runtime.InteropServices.Marshal.GetLastWin32Error());
+#endif
+        }
 
         /// <summary>True while the TCP listener is accepting connections.</summary>
-        public static bool IsRunning => _running;
+        public static bool IsRunning => _session != null && _session.Running;
 
         class Pending
         {
@@ -68,8 +91,9 @@ namespace McpUnity
             EditorApplication.update += ProcessQueue;
             AssemblyReloadEvents.beforeAssemblyReload += Stop;
             EditorApplication.quitting += Stop;
-            Start();
             AppDomain.CurrentDomain.DomainUnload += (s, e) => Stop();
+            // Wait until the previous AppDomain has finished releasing sockets.
+            EditorApplication.delayCall += Start;
         }
 
         static void OnLog(string message, string stack, LogType type)
@@ -119,63 +143,83 @@ namespace McpUnity
 
         static void Start()
         {
-            if (_running) return;
+            if (IsRunning) return;
             Exception lastError = null;
             for (int attempt = 0; attempt < 5; attempt++)
             {
+                var session = new ServerSession();
                 try
                 {
-                    _listener = new TcpListener(IPAddress.Loopback, Port);
                     // Only one Editor process may own the bridge. ReuseAddress
                     // lets multiple Windows processes bind the same port and
                     // makes requests land in an arbitrary Unity instance.
-                    _listener.Server.ExclusiveAddressUse = true;
-                    _listener.Start();
-                    _running = true;
-                    _listenThread = new Thread(ListenLoop) { IsBackground = true, Name = "McpBridgeListener" };
-                    _listenThread.Start();
+                    session.Listener.Server.ExclusiveAddressUse = true;
+                    PreventSocketInheritance(session.Listener.Server);
+                    session.Listener.Start();
+                    session.Running = true;
+                    _session = session;
+                    session.Thread = new Thread(() => ListenLoop(session)) { IsBackground = true, Name = "McpBridgeListener" };
+                    session.Thread.Start();
                     Debug.Log($"[MCP Bridge] Listening on 127.0.0.1:{Port}");
                     return;
                 }
                 catch (Exception e)
                 {
                     lastError = e;
-                    try { _listener?.Stop(); } catch { }
-                    _listener = null;
+                    session.Running = false;
+                    try { session.Listener.Stop(); } catch { }
+                    if (ReferenceEquals(_session, session)) _session = null;
                     if (attempt < 4) Thread.Sleep(150);
                 }
             }
 
-            Debug.LogError($"[MCP Bridge] Nao foi possivel iniciar (porta {Port} em uso por outro processo): {lastError?.Message}");
+            Debug.LogError($"[MCP Bridge] Nao foi possivel abrir 127.0.0.1:{Port}: {lastError?.Message}");
         }
 
         static void Stop()
         {
-            _running = false;
-            try { _listener?.Stop(); } catch { }
-            _listener = null;
+            ServerSession session = Interlocked.Exchange(ref _session, null);
+            if (session == null) return;
+            session.Running = false;
+            // Closing only the listening socket leaves clients blocked in ReadLine
+            // across a domain reload. Close all accepted sockets as well.
+            try { session.Listener.Server?.Dispose(); } catch { }
+            try { session.Listener.Stop(); } catch { }
+            lock (session.Clients)
+            {
+                foreach (TcpClient client in session.Clients)
+                    try { client.Close(); } catch { }
+                session.Clients.Clear();
+            }
 
-            Thread thread = _listenThread;
-            _listenThread = null;
+            while (Queue.TryDequeue(out _)) { }
+            Thread thread = session.Thread;
             if (thread != null && thread != Thread.CurrentThread && thread.IsAlive)
             {
                 try { thread.Join(1000); } catch { }
             }
         }
 
-        static void ListenLoop()
+        static void ListenLoop(ServerSession session)
         {
-            while (_running)
+            while (session.Running)
             {
                 TcpClient client = null;
-                try { client = _listener.AcceptTcpClient(); }
+                try { client = session.Listener.AcceptTcpClient(); }
                 catch { break; }
-                var t = new Thread(() => ClientLoop(client)) { IsBackground = true };
+                try { PreventSocketInheritance(client.Client); }
+                catch { client.Close(); continue; }
+                lock (session.Clients)
+                {
+                    if (!session.Running) { client.Close(); break; }
+                    session.Clients.Add(client);
+                }
+                var t = new Thread(() => ClientLoop(session, client)) { IsBackground = true };
                 t.Start();
             }
         }
 
-        static void ClientLoop(TcpClient client)
+        static void ClientLoop(ServerSession session, TcpClient client)
         {
             try
             {
@@ -186,8 +230,9 @@ namespace McpUnity
                 {
                     var writeLock = new object();
                     string line;
-                    while (_running && (line = reader.ReadLine()) != null)
+                    while (session.Running && (line = reader.ReadLine()) != null)
                     {
+                        if (!session.Running) break;
                         if (string.IsNullOrWhiteSpace(line)) continue;
                         JObject req;
                         try { req = JObject.Parse(line); }
@@ -205,6 +250,7 @@ namespace McpUnity
                 }
             }
             catch { /* baglanti koptu */ }
+            finally { lock (session.Clients) session.Clients.Remove(client); }
         }
 
         static void ProcessQueue()

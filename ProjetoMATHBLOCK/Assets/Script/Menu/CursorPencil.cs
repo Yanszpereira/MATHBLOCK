@@ -19,6 +19,13 @@ public class PencilCursor : MonoBehaviour
             return;
         }
 
+        Canvas cursorCanvas = GetComponent<Canvas>();
+        if (cursorCanvas == null)
+            cursorCanvas = gameObject.AddComponent<Canvas>();
+
+        cursorCanvas.overrideSorting = true;
+        cursorCanvas.sortingOrder = 30000;
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = false;
     }

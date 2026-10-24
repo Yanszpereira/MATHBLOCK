@@ -17,6 +17,7 @@ public class MenuController : MonoBehaviour
     private const string MenuMusicEventPath = "event:/796080__colinleblancsound__levelbgm";
 
     private bool gameplayPaused;
+    private float escalaTempoAntesDoMenu = 1f;
     private bool IsMainMenu => SceneManager.GetActiveScene().name == "MainMenu";
 
     [Header("Folha inicial")]
@@ -27,6 +28,9 @@ public class MenuController : MonoBehaviour
     [SerializeField] private GameObject menuCreditos;
     [SerializeField] private GameObject menuOpcoes;
     [SerializeField] private GameObject menuSair;
+
+    [Header("Progresso")]
+    [SerializeField] private Button botaoProgresso;
 
     [Header("Blocker")]
     [SerializeField] private GameObject blocker;
@@ -129,8 +133,6 @@ public class MenuController : MonoBehaviour
         RepararEventSystem();
 
         PrepararMenus();
-
-        CriarBotaoProgresso();
 
         RepairAllHudButtonCalls();
 
@@ -532,6 +534,9 @@ public class MenuController : MonoBehaviour
         menuInicial ??=
             FindSceneObject("MenuPaper");
 
+        if (IsMainMenu && menuInicial == null)
+            menuInicial = FindSceneObject("StartPaper");
+
         menuCreditos ??=
             FindSceneObject("CreditsMenu");
 
@@ -831,9 +836,14 @@ public class MenuController : MonoBehaviour
     {
         if (IsMainMenu)
         {
+            // O lapis do menu possui sua propria camada acima do painel.
             DefinirCursor(false, false);
             return;
         }
+
+        // A recuperacao de uma transicao pode restaurar o tempo um frame depois de abrir o menu.
+        if (gameplayPaused && (AlgumMenuAberto() || PainelProgressoAprendizadoUI.EstaAberto))
+            Time.timeScale = 0f;
 
         if (
             gameplayPaused &&
@@ -913,77 +923,26 @@ public class MenuController : MonoBehaviour
         AbrirMenu(menuSair);
     }
 
-    private void CriarBotaoProgresso()
+    public void AbrirProgresso()
     {
-        if (menuInicial == null || menuInicial.transform.Find("Progress") != null)
+        if (menuInicial == null || PainelProgressoAprendizadoUI.EstaAberto)
             return;
-
-        Button opcoes = menuInicial.transform.Find("Options")?.GetComponent<Button>();
-        Button voltar = menuInicial.transform.Find("Back")?.GetComponent<Button>();
-        Button creditos = menuInicial.transform.Find("Credits")?.GetComponent<Button>();
-        Button sair = menuInicial.transform.Find("Exit")?.GetComponent<Button>();
-        if (opcoes == null || voltar == null || creditos == null || sair == null)
-            return;
-
-        GameObject copia = Instantiate(opcoes.gameObject, menuInicial.transform);
-        copia.name = "Progress";
-        copia.transform.SetSiblingIndex(opcoes.transform.GetSiblingIndex() + 1);
-        Button botao = copia.GetComponent<Button>();
-        botao.onClick = new Button.ButtonClickedEvent();
-        botao.onClick.AddListener(() =>
+        Button voltar = (menuInicial.transform.Find("Back") ?? menuInicial.transform.Find("Start"))?.GetComponent<Button>();
+        TocarSomClique();
+        CanvasGroup grupoMenu = canvasGroups[menuInicial];
+        grupoMenu.alpha = 0f;
+        grupoMenu.interactable = false;
+        grupoMenu.blocksRaycasts = false;
+        Image papel = menuInicial.transform.Find("Image")?.GetComponent<Image>();
+        PainelProgressoAprendizadoUI.Mostrar(voltar, papel, () =>
         {
-            TocarSomClique();
-            PainelProgressoAprendizadoUI.Mostrar();
+            if (grupoMenu == null) return;
+            grupoMenu.alpha = 1f;
+            grupoMenu.interactable = true;
+            grupoMenu.blocksRaycasts = true;
+            if (EventSystem.current != null && botaoProgresso != null)
+                EventSystem.current.SetSelectedGameObject(botaoProgresso.gameObject);
         });
-
-        TMP_Text texto = copia.GetComponentInChildren<TMP_Text>(true);
-        if (texto != null)
-        {
-            string original = texto.text.Trim();
-            string marcador = original.Length > 0 ? original.Substring(0, 1) : "=";
-            texto.text = marcador + " PROGRESSO";
-        }
-
-        RectTransform rVoltar = voltar.GetComponent<RectTransform>();
-        RectTransform rOpcoes = opcoes.GetComponent<RectTransform>();
-        RectTransform rProgresso = copia.GetComponent<RectTransform>();
-        RectTransform rCreditos = creditos.GetComponent<RectTransform>();
-        RectTransform rSair = sair.GetComponent<RectTransform>();
-        float centroY = (rVoltar.anchoredPosition.y + rSair.anchoredPosition.y) * .5f;
-        float centroX = (rOpcoes.anchoredPosition.x + rCreditos.anchoredPosition.x) * .5f;
-        const float espacamento = 64f;
-
-        OrganizarOpcao(rVoltar, centroX, centroY + espacamento * 2f);
-        OrganizarOpcao(rOpcoes, centroX, centroY + espacamento);
-        OrganizarOpcao(rProgresso, centroX, centroY);
-        OrganizarOpcao(rCreditos, centroX, centroY - espacamento);
-        OrganizarOpcao(rSair, centroX, centroY - espacamento * 2f);
-
-        PrepararBotoes(menuInicial);
-    }
-
-    private static void OrganizarOpcao(RectTransform opcao, float x, float y)
-    {
-        opcao.anchoredPosition = new Vector2(x, y);
-        opcao.sizeDelta = new Vector2(350f, 52f);
-
-        TMP_Text texto = opcao.GetComponentInChildren<TMP_Text>(true);
-        if (texto == null)
-            return;
-
-        RectTransform textoRect = texto.rectTransform;
-        textoRect.anchorMin = Vector2.zero;
-        textoRect.anchorMax = Vector2.one;
-        textoRect.pivot = new Vector2(.5f, .5f);
-        textoRect.anchoredPosition = Vector2.zero;
-        textoRect.sizeDelta = Vector2.zero;
-        textoRect.localRotation = Quaternion.identity;
-        textoRect.localScale = Vector3.one;
-
-        texto.enableAutoSizing = true;
-        texto.fontSizeMin = 60f;
-        texto.fontSizeMax = 72f;
-        texto.alignment = TextAlignmentOptions.Center;
     }
 
     // =========================================================
@@ -1308,6 +1267,9 @@ public void VoltarMenuPrincipal()
         if (IsMainMenu)
             return;
 
+        if (!gameplayPaused)
+            escalaTempoAntesDoMenu = Time.timeScale;
+
         gameplayPaused =
             true;
 
@@ -1332,7 +1294,7 @@ public void VoltarMenuPrincipal()
             false;
 
         Time.timeScale =
-            1f;
+            escalaTempoAntesDoMenu;
 
         globalCrosshair?
             .SetVisible(true);

@@ -22,6 +22,13 @@ public class HoverScale : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private void Awake()
     {
+        ReconfigurarBaseVisual();
+    }
+
+    // Reaplica a base depois de um botao ser clonado ou receber um novo layout.
+    public void ReconfigurarBaseVisual()
+    {
+        cursorSobre = false;
         escalaOriginal = transform.localScale;
         escalaAlvo = escalaOriginal;
         graphic = GetComponent<Selectable>()?.targetGraphic ?? GetComponent<Graphic>();
@@ -32,8 +39,10 @@ public class HoverScale : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private void OnEnable()
     {
         cursorSobre = false;
+        transform.localScale = escalaOriginal;
         escalaAlvo = escalaOriginal;
         corAlvo = corOriginal;
+        if (graphic != null) graphic.color = corOriginal;
     }
 
     private void Update()
