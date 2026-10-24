@@ -8,6 +8,7 @@ using UnityEngine.UI;
 /// <summary>Tela consultavel com o progresso global de todas as materias.</summary>
 public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
 {
+    private const float LarguraBarra = 590f;
     private sealed class Linha
     {
         public ConteudoMatematico conteudo;
@@ -66,37 +67,27 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
         AplicarArteDoPapel(fundo);
         cartao = fundo.rectTransform;
         cartao.anchorMin = cartao.anchorMax = cartao.pivot = new Vector2(.5f, .5f);
-        cartao.sizeDelta = new Vector2(780f, 610f);
+        cartao.sizeDelta = new Vector2(700f, 760f);
         grupo = cartao.gameObject.AddComponent<CanvasGroup>();
 
         TMP_Text titulo = UIAprendizadoUtil.CriarTexto(cartao, "Titulo", "MEU PROGRESSO", 40f, TextAlignmentOptions.Center);
         titulo.color = new Color(.09f, .075f, .07f, 1f);
-        UIAprendizadoUtil.DefinirRetangulo(titulo.rectTransform, new Vector2(0f, -30f), new Vector2(700f, 55f), new Vector2(.5f, 1f));
+        UIAprendizadoUtil.DefinirRetangulo(titulo.rectTransform, new Vector2(0f, -55f), new Vector2(620f, 55f), new Vector2(.5f, 1f));
         TMP_Text subtitulo = UIAprendizadoUtil.CriarTexto(cartao, "Subtitulo", "TUDO O QUE VOCÊ APRENDEU ATÉ AGORA", 18f, TextAlignmentOptions.Center);
         subtitulo.color = new Color(.12f, .1f, .09f, .68f);
-        UIAprendizadoUtil.DefinirRetangulo(subtitulo.rectTransform, new Vector2(0f, -84f), new Vector2(700f, 28f), new Vector2(.5f, 1f));
+        UIAprendizadoUtil.DefinirRetangulo(subtitulo.rectTransform, new Vector2(0f, -110f), new Vector2(620f, 28f), new Vector2(.5f, 1f));
 
-        float y = -145f;
+        float y = -180f;
         foreach (ConteudoMatematico conteudo in Enum.GetValues(typeof(ConteudoMatematico)))
         {
             CriarLinha(conteudo, y);
-            y -= 92f;
+            y -= 105f;
         }
 
         overall = UIAprendizadoUtil.CriarTexto(cartao, "Overall", "PROGRESSO GERAL  0%", 22f, TextAlignmentOptions.Center);
         overall.color = new Color(.45f, .26f, .06f, 1f);
-        UIAprendizadoUtil.DefinirRetangulo(overall.rectTransform, new Vector2(0f, 67f), new Vector2(500f, 32f), new Vector2(.5f, 0f));
-
-        Image fundoFechar = UIAprendizadoUtil.CriarImagem(cartao, "Fechar", new Color(.18f, .13f, .09f, .1f), true);
-        UIAprendizadoUtil.DefinirRetangulo(fundoFechar.rectTransform, new Vector2(0f, 18f), new Vector2(170f, 40f), new Vector2(.5f, 0f));
-        Button botaoFechar = fundoFechar.gameObject.AddComponent<Button>();
-        botaoFechar.targetGraphic = fundoFechar;
-        botaoFechar.onClick.AddListener(Fechar);
-        TMP_Text textoFechar = UIAprendizadoUtil.CriarTexto(fundoFechar.transform, "Texto", "> VOLTAR", 19f, TextAlignmentOptions.Center);
-        textoFechar.color = new Color(.09f, .075f, .07f, 1f);
-        textoFechar.rectTransform.anchorMin = Vector2.zero;
-        textoFechar.rectTransform.anchorMax = Vector2.one;
-        textoFechar.rectTransform.offsetMin = textoFechar.rectTransform.offsetMax = Vector2.zero;
+        UIAprendizadoUtil.DefinirRetangulo(overall.rectTransform, new Vector2(0f, 92f), new Vector2(500f, 32f), new Vector2(.5f, 0f));
+        CriarBotaoVoltarOriginal();
     }
 
     private void CriarLinha(ConteudoMatematico conteudo, float y)
@@ -104,14 +95,14 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
         Color cor = RotulosConteudo.Cor(conteudo);
         TMP_Text nome = UIAprendizadoUtil.CriarTexto(cartao, $"Nome {conteudo}", RotulosConteudo.Obter(conteudo).ToUpperInvariant(), 22f, TextAlignmentOptions.Left);
         nome.color = cor;
-        UIAprendizadoUtil.DefinirRetangulo(nome.rectTransform, new Vector2(52f, y), new Vector2(520f, 30f), new Vector2(0f, 1f));
+        UIAprendizadoUtil.DefinirRetangulo(nome.rectTransform, new Vector2(55f, y), new Vector2(460f, 30f), new Vector2(0f, 1f));
 
         TMP_Text percentual = UIAprendizadoUtil.CriarTexto(cartao, $"Percentual {conteudo}", "0%", 20f, TextAlignmentOptions.Right);
         percentual.color = cor;
-        UIAprendizadoUtil.DefinirRetangulo(percentual.rectTransform, new Vector2(-52f, y), new Vector2(100f, 30f), new Vector2(1f, 1f));
+        UIAprendizadoUtil.DefinirRetangulo(percentual.rectTransform, new Vector2(-55f, y), new Vector2(90f, 30f), new Vector2(1f, 1f));
 
         Image trilho = UIAprendizadoUtil.CriarImagem(cartao, $"Trilho {conteudo}", new Color(.16f, .13f, .11f, .2f), true);
-        UIAprendizadoUtil.DefinirRetangulo(trilho.rectTransform, new Vector2(52f, y - 42f), new Vector2(676f, 25f), new Vector2(0f, 1f));
+        UIAprendizadoUtil.DefinirRetangulo(trilho.rectTransform, new Vector2(55f, y - 42f), new Vector2(LarguraBarra, 25f), new Vector2(0f, 1f));
         Image mascara = UIAprendizadoUtil.CriarImagem(trilho.transform, "Mascara", Color.white, true);
         RectTransform preenchimento = mascara.rectTransform;
         preenchimento.anchorMin = new Vector2(0f, 0f); preenchimento.anchorMax = new Vector2(0f, 1f);
@@ -143,6 +134,42 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
         }
     }
 
+    private void CriarBotaoVoltarOriginal()
+    {
+        Button origem = null;
+        foreach (Button candidato in FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (candidato != null && candidato.name.Equals("Back", StringComparison.OrdinalIgnoreCase))
+            {
+                origem = candidato;
+                break;
+            }
+        }
+
+        if (origem == null)
+        {
+            Image fundo = UIAprendizadoUtil.CriarImagem(cartao, "Voltar", Color.clear);
+            UIAprendizadoUtil.DefinirRetangulo(fundo.rectTransform, new Vector2(0f, 28f), new Vector2(190f, 48f), new Vector2(.5f, 0f));
+            Button simples = fundo.gameObject.AddComponent<Button>();
+            simples.targetGraphic = fundo;
+            simples.onClick.AddListener(Fechar);
+            TMP_Text texto = UIAprendizadoUtil.CriarTexto(fundo.transform, "Texto", "> VOLTAR", 22f, TextAlignmentOptions.Center);
+            texto.color = new Color(.09f, .075f, .07f, 1f);
+            texto.rectTransform.anchorMin = Vector2.zero; texto.rectTransform.anchorMax = Vector2.one;
+            texto.rectTransform.offsetMin = texto.rectTransform.offsetMax = Vector2.zero;
+            return;
+        }
+
+        GameObject copia = Instantiate(origem.gameObject, cartao);
+        copia.name = "Voltar";
+        RectTransform rect = copia.GetComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, 0f);
+        rect.anchoredPosition = new Vector2(0f, 20f);
+        Button botao = copia.GetComponent<Button>();
+        botao.onClick = new Button.ButtonClickedEvent();
+        botao.onClick.AddListener(Fechar);
+    }
+
     private IEnumerator AnimarEntrada()
     {
         grupo.alpha = 0f;
@@ -171,12 +198,12 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
         for (float t = 0f; t < .42f; t += Time.unscaledDeltaTime)
         {
             float p = Mathf.SmoothStep(0f, 1f, t / .42f);
-            linha.preenchimento.sizeDelta = new Vector2(676f * linha.valor * p, 0f);
+            linha.preenchimento.sizeDelta = new Vector2(LarguraBarra * linha.valor * p, 0f);
             linha.percentual.text = Mathf.RoundToInt(linha.valor * p * 100f) + "%";
             linha.pontilhado.color = Color.Lerp(baseColor, Color.white, Mathf.Sin(p * Mathf.PI) * .45f);
             yield return null;
         }
-        linha.preenchimento.sizeDelta = new Vector2(676f * linha.valor, 0f);
+        linha.preenchimento.sizeDelta = new Vector2(LarguraBarra * linha.valor, 0f);
         linha.percentual.text = Mathf.RoundToInt(linha.valor * 100f) + "%";
         linha.pontilhado.color = baseColor;
         yield return new WaitForSecondsRealtime(.08f);
