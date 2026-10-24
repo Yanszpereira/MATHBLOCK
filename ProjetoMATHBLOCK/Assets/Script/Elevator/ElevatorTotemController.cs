@@ -278,7 +278,7 @@ public sealed class ElevatorTotemController : MonoBehaviour
             return;
 
         islandMoveInstance = RuntimeManager.CreateInstance(islandMoveSfx);
-        RuntimeManager.AttachInstanceToGameObject(islandMoveInstance, platform);
+        RuntimeManager.AttachInstanceToGameObject(islandMoveInstance, platform.gameObject);
         islandMoveInstance.start();
     }
 

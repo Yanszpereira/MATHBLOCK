@@ -76,6 +76,7 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
                 linha.corBase ??= linha.preenchimento.Find("Cor da materia")?.GetComponent<Image>();
                 if (linha.corBase != null) linha.corBase.color = linha.cor;
                 linha.pontilhado.color = Color.black;
+                linha.pontilhado.pixelsPerUnitMultiplier = 2f;
                 linha.valor = ProgressoAprendizado.Instance != null
                     ? Mathf.Clamp01(ProgressoAprendizado.Instance.Obter(linha.conteudo).valor) : 0f;
                 linha.preenchimento.sizeDelta = Vector2.zero;

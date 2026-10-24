@@ -32,6 +32,9 @@ public sealed class SceneTransitionTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // Nas fases com recompensa, apenas o gatilho salvo na porta final pode
+        // iniciar a conclusao. O portal antigo nao pode pular a apresentacao.
+        if (FindFirstObjectByType<GatilhoConclusaoFase>(FindObjectsInactive.Include) != null) return;
         if (transitionStarted || other == null || !IsPlayer(other))
             return;
 

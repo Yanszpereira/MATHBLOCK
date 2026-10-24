@@ -49,7 +49,6 @@ public sealed class BlockResizeGizmo : MonoBehaviour
     [SerializeField] private BlockResizeHandle bottomHandle;
     [SerializeField] private BlockResizeHandle leftHandle;
     [SerializeField] private BlockResizeHandle rightHandle;
-    [SerializeField, Min(0f)] private float bottomHandleGroundClearance = 0.18f;
     [SerializeField] private float surfaceOffset = 0.03f;
 
     private ResizableBlock target;

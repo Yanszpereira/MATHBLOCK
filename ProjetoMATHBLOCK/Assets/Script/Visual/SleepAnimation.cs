@@ -476,7 +476,7 @@ public class SleepAnimation : MonoBehaviour
         label.enableAutoSizing = true;
         label.fontSizeMin = 15f;
         label.fontSizeMax = 19f;
-        label.enableWordWrapping = true;
+        label.textWrappingMode = TextWrappingModes.Normal;
         label.alignment = TextAlignmentOptions.Center;
         label.color = new Color(0.02f, 0.11f, 0.13f, 1f);
         label.raycastTarget = false;

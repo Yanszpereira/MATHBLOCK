@@ -142,6 +142,17 @@ public sealed class ToonCloudSkyGenerator : MonoBehaviour
         cloudMaterial.enableInstancing = true;
     }
 
+    /// <summary>Muda apenas a tinta; conserva modelo, movimento e iluminacao toon.</summary>
+    public void AplicarPaleta(Color cor, Color sombra)
+    {
+        if (cloudMaterial == null) return;
+        SetColor("_BaseColor", cor);
+        SetColor("_Color", cor);
+        SetColor("_ShadeColor", sombra);
+        SetColor("_RimColor", Color.Lerp(cor, Color.white, .18f));
+        SetColor("_OutlineColor", Color.Lerp(sombra, Color.black, .45f));
+    }
+
     private void ApplyToonMaterial(GameObject cloud)
     {
         foreach (Renderer targetRenderer in cloud.GetComponentsInChildren<Renderer>(true))

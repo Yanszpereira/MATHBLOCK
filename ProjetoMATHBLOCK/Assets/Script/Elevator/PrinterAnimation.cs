@@ -13,7 +13,7 @@ public class PrinterAnimation : MonoBehaviour
     [SerializeField] private Vector3 paperRotationAxis = Vector3.right;
     [SerializeField, Min(0.01f)] private float paperRotationDuration = 0.3f;
 
-    private Coroutine animation;
+    private Coroutine animacaoAtual;
     private bool hasEjectedPaper;
     private Vector3 printerStartPosition;
     private Quaternion printerStartRotation;
@@ -49,10 +49,10 @@ public class PrinterAnimation : MonoBehaviour
             elevator.InitialCallRequested -= OnInitialCallRequested;
         }
 
-        if (animation != null)
+        if (animacaoAtual != null)
         {
-            StopCoroutine(animation);
-            animation = null;
+            StopCoroutine(animacaoAtual);
+            animacaoAtual = null;
         }
     }
 
@@ -61,10 +61,10 @@ public class PrinterAnimation : MonoBehaviour
         if (platform == null)
             return;
 
-        if (animation != null)
-            StopCoroutine(animation);
+        if (animacaoAtual != null)
+            StopCoroutine(animacaoAtual);
 
-        animation = StartCoroutine(MovePrinterAndEjectPaper(platform));
+        animacaoAtual = StartCoroutine(MovePrinterAndEjectPaper(platform));
     }
 
     private void OnInitialCallRequested()
@@ -72,10 +72,10 @@ public class PrinterAnimation : MonoBehaviour
         if (!hasEjectedPaper && transform.position == printerStartPosition)
             return;
 
-        if (animation != null)
-            StopCoroutine(animation);
+        if (animacaoAtual != null)
+            StopCoroutine(animacaoAtual);
 
-        animation = StartCoroutine(ReturnPrinterAndPaper());
+        animacaoAtual = StartCoroutine(ReturnPrinterAndPaper());
     }
 
     private IEnumerator MovePrinterAndEjectPaper(Transform platform)
@@ -103,7 +103,7 @@ public class PrinterAnimation : MonoBehaviour
             yield return EjectPaper();
         }
 
-        animation = null;
+        animacaoAtual = null;
     }
 
     private IEnumerator EjectPaper()
@@ -184,6 +184,6 @@ public class PrinterAnimation : MonoBehaviour
         }
 
         hasEjectedPaper = false;
-        animation = null;
+        animacaoAtual = null;
     }
 }

@@ -105,7 +105,7 @@ public sealed class OperatorAchievement : MonoBehaviour
         messageText.fontSizeMin = 15f;
         messageText.fontSizeMax = 19f;
         messageText.lineSpacing = -4f;
-        messageText.enableWordWrapping = true;
+        messageText.textWrappingMode = TextWrappingModes.Normal;
         messageText.overflowMode = TextOverflowModes.Truncate;
         messageText.color = new Color(0.02f, 0.11f, 0.13f, 1f);
         messageText.alignment = TextAlignmentOptions.TopLeft;

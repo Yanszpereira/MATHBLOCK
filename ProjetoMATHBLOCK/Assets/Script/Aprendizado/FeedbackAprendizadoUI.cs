@@ -258,6 +258,7 @@ public static class UIAprendizadoUtil
         pontos = CriarImagem(baseCor.transform, "Pontilhado", Color.black);
         pontos.sprite = ObterSpritePontilhado();
         pontos.type = Image.Type.Tiled;
+        pontos.pixelsPerUnitMultiplier = 2f;
         EsticarPreenchimento(pontos);
         return baseCor;
     }

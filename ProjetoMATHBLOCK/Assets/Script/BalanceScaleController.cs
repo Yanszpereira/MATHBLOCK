@@ -270,7 +270,7 @@ private TextMeshPro GetOrCreateSmallBalanceText(Transform parent, string textNam
             textMesh = textTransform.gameObject.AddComponent<TextMeshPro>();
 
         textMesh.alignment = TextAlignmentOptions.Center;
-        textMesh.enableWordWrapping = false;
+        textMesh.textWrappingMode = TextWrappingModes.NoWrap;
         textMesh.fontSize = Mathf.Max(1, smallBalanceTextFontSize);
         textMesh.color = smallBalanceEqualColor;
         ApplySmallBalanceTextOutline(textMesh);

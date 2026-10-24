@@ -85,7 +85,7 @@ public sealed class PortalParticleEffect : MonoBehaviour
     private readonly List<Material> runtimeMaterials = new List<Material>();
 
     private BoxCollider portalCollider;
-    private ParticleSystem particleSystem;
+    private ParticleSystem particulasPrincipais;
     private ParticleSystem[] particleSystems;
     private ParticleSystemRenderer[] particleRenderers;
     private ParticleSystem.Particle[][] particleBuffers;
@@ -191,13 +191,13 @@ public sealed class PortalParticleEffect : MonoBehaviour
         if (portalCollider == null)
             portalCollider = GetComponent<BoxCollider>();
 
-        if (particleSystem == null)
-            particleSystem = GetComponent<ParticleSystem>();
+        if (particulasPrincipais == null)
+            particulasPrincipais = GetComponent<ParticleSystem>();
     }
 
     private void ConfigureParticleSystems()
     {
-        if (particleSystem == null)
+        if (particulasPrincipais == null)
             return;
 
         particleSystems = new ParticleSystem[LightTextureCount];
@@ -205,7 +205,7 @@ public sealed class PortalParticleEffect : MonoBehaviour
         particleBuffers = new ParticleSystem.Particle[LightTextureCount][];
         particleCounts = new int[LightTextureCount];
 
-        particleSystems[0] = particleSystem;
+        particleSystems[0] = particulasPrincipais;
 
         for (int i = 1; i < LightTextureCount; i++)
             particleSystems[i] = GetOrCreateParticleSystem(i);

@@ -45,6 +45,11 @@
               if (BelongsToPhaseFourSecondHalf(target))
                   continue;
 
+              // O ceu possui seu proprio shader e transicao de paleta.
+              // Nao clonar esses materiais depois que o fade ja os vinculou.
+              if (target != null && BelongsToSky(target.transform))
+                  continue;
+
               // A geometria da Fase 2 deve conservar integralmente os materiais
               // e cores definidos na cena, mas sem reflexos nem ToonShader.
               if (BelongsToPhaseTwoScenarioGeometry(target))

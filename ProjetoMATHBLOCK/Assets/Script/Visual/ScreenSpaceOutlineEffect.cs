@@ -8,16 +8,20 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
 {
     [SerializeField] private Color outlineColor = new Color(0.028f, 0.006f, 0.045f, 0.62f);
     [SerializeField, Range(0.5f, 8f)] private float thicknessPixels = 1f;
+    [SerializeField, Range(1f, 2f)] private float espessuraBlocos = 1.3f;
     [SerializeField, Range(0.001f, 0.2f)] private float depthSensitivity = 0.025f;
     private Camera targetCamera;
     private Material outlineMaterial, maskMaterial;
     private GravityInteract gravityInteract;
     private readonly HashSet<Renderer> renderers = new HashSet<Renderer>();
+    private readonly HashSet<Renderer> blocos = new HashSet<Renderer>();
     private float nextRefresh;
     private static readonly int ColorId = Shader.PropertyToID("_OutlineColor");
     private static readonly int ThicknessId = Shader.PropertyToID("_OutlineThickness");
     private static readonly int SensitivityId = Shader.PropertyToID("_DepthSensitivity");
     private static readonly int MaskId = Shader.PropertyToID("_OutlineObjectMask");
+    private static readonly int BlockMaskId = Shader.PropertyToID("_MathBlockOutlineMask");
+    private static readonly int BlockThicknessId = Shader.PropertyToID("_MathBlockOutlineScale");
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install() => GlobalSceneBootstrap.Register(OnSceneLoaded, -50);
@@ -59,6 +63,7 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
         RenderTexture mask = BuildMask(source.width, source.height);
         outlineMaterial.SetColor(ColorId, outlineColor);
         outlineMaterial.SetFloat(ThicknessId, thicknessPixels);
+        outlineMaterial.SetFloat(BlockThicknessId, espessuraBlocos);
         outlineMaterial.SetFloat(SensitivityId, depthSensitivity);
         outlineMaterial.SetTexture(MaskId, mask);
         Graphics.Blit(source, destination, outlineMaterial);
@@ -77,8 +82,10 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
         {
             if (target == null || !target.enabled || !target.gameObject.activeInHierarchy || IsHeld(target)) continue;
             int count = Mathf.Max(1, target.sharedMaterials.Length);
+            commands.SetGlobalFloat(BlockMaskId, blocos.Contains(target) ? 1f : 0f);
             for (int i = 0; i < count; i++) commands.DrawRenderer(target, maskMaterial, i, 0);
         }
+        commands.SetGlobalFloat(BlockMaskId, 0f);
         Graphics.ExecuteCommandBuffer(commands); CommandBufferPool.Release(commands);
         return mask;
     }
@@ -86,8 +93,13 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
     private void RefreshRenderers()
     {
         renderers.Clear();
+        blocos.Clear();
         foreach (Renderer target in FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            if (CanOutline(target)) renderers.Add(target);
+            if (CanOutline(target))
+            {
+                renderers.Add(target);
+                if (target.GetComponentInParent<MathBlockValue>() != null) blocos.Add(target);
+            }
         nextRefresh = Time.unscaledTime + 1f;
     }
 

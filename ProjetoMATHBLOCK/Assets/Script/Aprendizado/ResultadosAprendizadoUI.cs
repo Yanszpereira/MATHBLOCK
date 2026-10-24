@@ -6,136 +6,188 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-/// <summary>Resultado compacto: apresenta um conteudo por vez, nunca uma lista gigante.</summary>
+/// <summary>Recompensa da fase: bolinha sobe, desamassa, apresenta barras e desaparece.</summary>
 public sealed class ResultadosAprendizadoUI : MonoBehaviour
 {
-    private CanvasGroup grupo;
-    private RectTransform toast;
-    private RectTransform fill;
-    private Image fillImage;
-    private TMP_Text chamada;
-    private TMP_Text materia;
-    private TMP_Text percentual;
-    private bool continuar;
+    private sealed class Linha
+    {
+        public RectTransform raiz, preenchimento;
+        public Image cor;
+        public TMP_Text percentual;
+        public Color tinta;
+        public float destino;
+    }
+    private readonly List<Linha> linhas = new();
     private readonly List<PlayerInput> entradasBloqueadas = new();
+    private readonly Dictionary<PlayerInput, string> mapasAnteriores = new();
     private float escalaAnterior = 1f;
     private CursorLockMode travaAnterior;
-    private bool cursorAnterior;
-    private bool apresentacaoAtiva;
-    private const float Largura = 500f;
+    private bool cursorAnterior, apresentacaoAtiva;
+    private RectTransform folha;
+    private CanvasGroup grupo, conteudo;
+    private PapelDesamassandoUI papel;
+    private const float Largura = 420f;
+    public string EtapaAtual { get; private set; }
 
     public static IEnumerator Mostrar(string cena)
     {
-        GameObject go = new GameObject("Resultado de Aprendizado");
-        ResultadosAprendizadoUI ui = go.AddComponent<ResultadosAprendizadoUI>();
-        yield return ui.Executar(cena);
-        Destroy(go);
+        while (FindFirstObjectByType<ResultadosAprendizadoUI>() != null) yield return null;
+        GameObject objeto = new GameObject("Recompensa de Aprendizado");
+        var ui = objeto.AddComponent<ResultadosAprendizadoUI>();
+        try { yield return ui.Executar(cena); }
+        finally { if (objeto != null) Destroy(objeto); }
     }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static void MostrarDev(string cena)
     {
         if (FindFirstObjectByType<ResultadosAprendizadoUI>() != null) return;
-        GameObject go = new GameObject("Resultado de Aprendizado DEV");
-        ResultadosAprendizadoUI ui = go.AddComponent<ResultadosAprendizadoUI>();
+        var objeto = new GameObject("Recompensa de Aprendizado DEV");
+        var ui = objeto.AddComponent<ResultadosAprendizadoUI>();
         ui.StartCoroutine(ui.ExecutarDev(cena));
     }
-
     private IEnumerator ExecutarDev(string cena)
     {
-        yield return Executar(cena);
-        Destroy(gameObject);
+        try { yield return Executar(cena); }
+        finally { Destroy(gameObject); }
     }
 #endif
 
     private IEnumerator Executar(string cena)
     {
-        escalaAnterior = Time.timeScale;
-        travaAnterior = Cursor.lockState;
-        cursorAnterior = Cursor.visible;
+        escalaAnterior = Time.timeScale; travaAnterior = Cursor.lockState; cursorAnterior = Cursor.visible;
         apresentacaoAtiva = true;
-        Time.timeScale = 0f; Cursor.lockState = CursorLockMode.None; Cursor.visible = true;
+        Time.timeScale = 0f;
         BloquearJogador();
-        Construir();
-
-        List<ConteudoMatematico> conteudos = IntegradorAprendizadoCena.Configuracao.ObterDaCena(cena)
-            .SelectMany(s => s.conteudos).Select(p => p.conteudo).Distinct().ToList();
-        foreach (ConteudoMatematico conteudo in conteudos)
+        if (!Construir(cena)) { RestaurarJogador(); yield break; }
+        try
         {
-            chamada.text = "FASE CONCLUÍDA • VOCÊ MANDOU BEM EM";
-            materia.text = RotulosConteudo.Obter(conteudo).ToUpperInvariant();
-            yield return AnimarConteudo(conteudo, ProgressoAprendizado.Instance.Obter(conteudo).valor, 1.05f);
+            EtapaAtual = "Bolinha subindo";
+            papel.MostrarQuadro(0); conteudo.alpha = 0f; grupo.alpha = 0f;
+            folha.localRotation = Quaternion.identity;
+            double inicio = Time.realtimeSinceStartupAsDouble;
+            const int quadrosSubida = 10;
+            while (Time.realtimeSinceStartupAsDouble - inicio < (double)quadrosSubida / PapelDesamassandoUI.QuadrosPorSegundo)
+            {
+                int quadro = Mathf.Min(quadrosSubida, (int)((Time.realtimeSinceStartupAsDouble - inicio) * PapelDesamassandoUI.QuadrosPorSegundo));
+                float p = (float)quadro / quadrosSubida, suave = 1f - Mathf.Pow(1f - p, 3f);
+                folha.anchoredPosition = Vector2.Lerp(new Vector2(0, -760f), new Vector2(0, -28f), suave);
+                grupo.alpha = Mathf.Clamp01(p * 3f);
+                yield return null;
+            }
+            EtapaAtual = "Papel 2D - 15 FPS";
+            inicio = Time.realtimeSinceStartupAsDouble;
+            while (Time.realtimeSinceStartupAsDouble - inicio < (double)papel.QuantidadeQuadros / PapelDesamassandoUI.QuadrosPorSegundo)
+            {
+                int quadro = Mathf.Min(papel.QuantidadeQuadros - 1,
+                    (int)((Time.realtimeSinceStartupAsDouble - inicio) * PapelDesamassandoUI.QuadrosPorSegundo));
+                papel.MostrarQuadro(quadro);
+                float p = (float)quadro / Mathf.Max(1, papel.QuantidadeQuadros - 1);
+                folha.anchoredPosition = Vector2.Lerp(new Vector2(0, -28f), Vector2.zero, p);
+                conteudo.alpha = quadro == papel.QuantidadeQuadros - 1 ? 1f : 0f;
+                yield return null;
+            }
+            papel.MostrarQuadro(papel.QuantidadeQuadros - 1); grupo.alpha = conteudo.alpha = 1f;
+            folha.anchoredPosition = Vector2.zero; folha.localRotation = Quaternion.identity;
+            EtapaAtual = "Mostrando progresso";
+            foreach (Linha linha in linhas) yield return AnimarLinha(linha);
+
+            // Todos os conteudos ja foram apresentados: devolve camera e movimento
+            // antes da espera final, sem exigir outro clique para voltar a jogar.
+            RestaurarJogador();
+            EtapaAtual = "Progresso completo";
+            yield return new WaitForSecondsRealtime(1.35f);
+            EtapaAtual = "Fade out";
+            for (float t = 0; t < .55f; t += Time.unscaledDeltaTime)
+            {
+                float p = Mathf.Clamp01(t / .55f);
+                grupo.alpha = 1f - Mathf.SmoothStep(0, 1, p);
+                folha.anchoredPosition = Vector2.up * (p * 28f);
+                yield return null;
+            }
+            grupo.alpha = 0f;
         }
-
-        chamada.text = "SEU DESEMPENHO NESTA FASE";
-        materia.text = "PROGRESSO GERAL";
-        yield return AnimarConteudo(conteudos.Count > 0 ? conteudos[0] : ConteudoMatematico.Operadores,
-            ProgressoAprendizado.Instance.ObterOverall(conteudos), 1.2f);
-
-        Button botao = CriarBotao();
-        float limite = Time.realtimeSinceStartup + 3.5f;
-        while (!continuar && Time.realtimeSinceStartup < limite) yield return null;
-        botao.gameObject.SetActive(false);
-        for (float t = 0; t < .35f; t += Time.unscaledDeltaTime) { grupo.alpha = 1f - t / .35f; yield return null; }
-
-        RestaurarJogador();
+        finally { RestaurarJogador(); }
     }
 
-    private IEnumerator AnimarConteudo(ConteudoMatematico conteudo, float destino, float espera)
+    private IEnumerator AnimarLinha(Linha linha)
     {
-        Color cor = RotulosConteudo.Cor(conteudo); fillImage.color = cor; percentual.color = cor;
-        grupo.alpha = 0f; toast.localScale = Vector3.one * .93f; toast.anchoredPosition = new Vector2(0, 22f); Aplicar(0f);
-        for (float t = 0; t < .3f; t += Time.unscaledDeltaTime)
+        for (float t = 0; t < .85f; t += Time.unscaledDeltaTime)
         {
-            float p = 1f - Mathf.Pow(1f - Mathf.Clamp01(t / .3f), 3f); grupo.alpha = p;
-            toast.localScale = Vector3.Lerp(Vector3.one * .93f, Vector3.one, p);
-            toast.anchoredPosition = Vector2.Lerp(new Vector2(0, 22f), Vector2.zero, p); yield return null;
-        }
-        for (float t = 0; t < .8f; t += Time.unscaledDeltaTime)
-        {
-            float p = Mathf.SmoothStep(0, 1, t / .8f); Aplicar(destino * p);
-            fillImage.color = Color.Lerp(cor, Color.white, (Mathf.Sin(t * 15f) + 1f) * .2f);
+            float p = Mathf.Clamp01(t / .85f);
+            Aplicar(linha, linha.destino * Mathf.SmoothStep(0, 1, p));
+            linha.cor.color = Color.Lerp(linha.tinta, Color.white, (Mathf.Sin(p * 17f) + 1f) * .2f);
+            linha.raiz.localRotation = Quaternion.Euler(0, 0, Mathf.Sin(p * 50f) * Mathf.Sin(p * Mathf.PI) * .55f);
             yield return null;
         }
-        Aplicar(destino);
-        fillImage.color = cor;
-        for (float t = 0; t < .22f; t += Time.unscaledDeltaTime)
-        { toast.anchoredPosition = Vector2.right * Mathf.Sin(t * 90f) * (1f - t / .22f) * 5f; yield return null; }
-        toast.anchoredPosition = Vector2.zero;
-        yield return new WaitForSecondsRealtime(espera);
-        for (float t = 0; t < .25f; t += Time.unscaledDeltaTime) { grupo.alpha = 1f - t / .25f; yield return null; }
+        Aplicar(linha, linha.destino); linha.cor.color = linha.tinta;
+        linha.raiz.localRotation = Quaternion.identity;
+        yield return new WaitForSecondsRealtime(.1f);
     }
 
-    private void Aplicar(float valor)
+    private static void Aplicar(Linha linha, float valor)
     {
-        valor = Mathf.Clamp01(valor); fill.sizeDelta = new Vector2(Largura * valor, 0f);
-        percentual.text = Mathf.RoundToInt(valor * 100f) + "%";
+        valor = Mathf.Clamp01(valor);
+        linha.preenchimento.sizeDelta = new Vector2(Largura * valor, 0f);
+        linha.percentual.text = Mathf.RoundToInt(valor * 100f) + "%";
     }
 
-    private void Construir()
+    private bool Construir(string cena)
     {
-        Canvas canvas = gameObject.AddComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 500;
-        CanvasScaler scaler = gameObject.AddComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080); gameObject.AddComponent<GraphicRaycaster>();
+        GameObject modelo = Resources.Load<GameObject>("Aprendizado/RecompensaPapel");
+        if (modelo == null) { Debug.LogError("Prefab RecompensaPapel nao configurado.", this); return false; }
+        Canvas canvas = gameObject.AddComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 5000;
+        CanvasScaler escala = gameObject.AddComponent<CanvasScaler>();
+        escala.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        escala.referenceResolution = new Vector2(1920, 1080); escala.matchWidthOrHeight = .5f;
+        folha = Instantiate(modelo, transform, false).GetComponent<RectTransform>();
+        grupo = folha.GetComponent<CanvasGroup>();
+        papel = folha.GetComponent<PapelDesamassandoUI>();
+        RectTransform area = folha.Find("Conteudo").GetComponent<RectTransform>();
+        conteudo = area.GetComponent<CanvasGroup>();
+        Texto(area, "Parabens", "Parabéns!", 48f, new Vector2(0, 245f), new Vector2(440, 64));
+        Texto(area, "Fase", cena.ToUpperInvariant() + " CONCLUÍDA", 26f, new Vector2(0, 191f), new Vector2(440, 42));
+        Texto(area, "Mensagem", "Olha o quanto você avançou", 23f, new Vector2(0, 139f), new Vector2(440, 42));
+        List<ConteudoMatematico> conteudos = IntegradorAprendizadoCena.Configuracao.ObterDaCena(cena)
+            .SelectMany(s => s.conteudos).Select(p => p.conteudo).Distinct().ToList();
+        float y = 55f;
+        foreach (ConteudoMatematico item in conteudos)
+        {
+            CriarLinha(area, RotulosConteudo.Obter(item), RotulosConteudo.Cor(item),
+                ProgressoAprendizado.Instance.Obter(item).valor, y);
+            y -= 110f;
+        }
+        CriarLinha(area, "Progresso geral", new Color(.22f, .38f, .48f),
+            ProgressoAprendizado.Instance.ObterOverall(conteudos), y - 30f);
+        return true;
+    }
 
-        toast = UIAprendizadoUtil.CriarRetangulo(transform, "Resumo compacto", new Vector2(570, 150));
-        toast.anchorMin = toast.anchorMax = toast.pivot = new Vector2(.5f, .5f);
-        grupo = toast.gameObject.AddComponent<CanvasGroup>();
-        chamada = UIAprendizadoUtil.CriarTexto(toast, "Chamada", "FASE CONCLUÍDA", 19, TextAlignmentOptions.Center);
-        chamada.color = new Color(1, 1, 1, .78f);
-        UIAprendizadoUtil.DefinirRetangulo(chamada.rectTransform, new Vector2(0, -4), new Vector2(560, 28), new Vector2(.5f, 1));
-        materia = UIAprendizadoUtil.CriarTexto(toast, "Materia", "MATEMÁTICA", 38, TextAlignmentOptions.Center);
-        UIAprendizadoUtil.DefinirRetangulo(materia.rectTransform, new Vector2(0, -32), new Vector2(560, 50), new Vector2(.5f, 1));
-        percentual = UIAprendizadoUtil.CriarTexto(toast, "Percentual", "0%", 25, TextAlignmentOptions.Right);
-        UIAprendizadoUtil.DefinirRetangulo(percentual.rectTransform, new Vector2(2, 18), new Vector2(70, 30), new Vector2(1, 0));
-        Image trilho = UIAprendizadoUtil.CriarImagem(toast, "Trilho", new Color(0.02f, .03f, .07f, .82f), true);
-        UIAprendizadoUtil.DefinirRetangulo(trilho.rectTransform, new Vector2(35, 20), new Vector2(Largura, 15), new Vector2(0, 0));
-        Image mascara = UIAprendizadoUtil.CriarImagem(trilho.transform, "Mascara do preenchimento", Color.white, true);
-        fill = mascara.rectTransform;
-        fill.anchorMin = new Vector2(0, 0); fill.anchorMax = new Vector2(0, 1); fill.pivot = new Vector2(0, .5f);
+    private void CriarLinha(RectTransform pai, string nome, Color cor, float destino, float y)
+    {
+        RectTransform raiz = UIAprendizadoUtil.CriarRetangulo(pai, nome, new Vector2(Largura, 88));
+        raiz.anchoredPosition = new Vector2(0, y);
+        TMP_Text rotulo = Texto(raiz, "Materia", nome, 31f, new Vector2(-35, 20), new Vector2(350, 48));
+        rotulo.alignment = TextAlignmentOptions.Left; rotulo.color = Color.Lerp(cor, Color.black, .25f);
+        TMP_Text percentual = Texto(raiz, "Percentual", "0%", 25f, new Vector2(177, 20), new Vector2(68, 44));
+        percentual.alignment = TextAlignmentOptions.Right;
+        Image trilho = UIAprendizadoUtil.CriarImagem(raiz, "Trilho", new Color(.2f, .22f, .24f, .16f), true);
+        trilho.rectTransform.sizeDelta = new Vector2(Largura, 22f); trilho.rectTransform.anchoredPosition = new Vector2(0, -17);
+        Image mascara = UIAprendizadoUtil.CriarImagem(trilho.transform, "Preenchimento", Color.white, true);
+        RectTransform fill = mascara.rectTransform;
+        fill.anchorMin = Vector2.zero; fill.anchorMax = new Vector2(0, 1); fill.pivot = new Vector2(0, .5f);
         fill.anchoredPosition = Vector2.zero; fill.sizeDelta = Vector2.zero;
-        Mask mask = mascara.gameObject.AddComponent<Mask>(); mask.showMaskGraphic = false;
-        fillImage = UIAprendizadoUtil.CriarPreenchimentoPontilhado(mascara.transform, Color.green, out _);
+        mascara.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+        Image tinta = UIAprendizadoUtil.CriarPreenchimentoPontilhado(fill, cor, out _);
+        linhas.Add(new Linha { raiz = raiz, preenchimento = fill, cor = tinta, percentual = percentual, tinta = cor, destino = destino });
+    }
+
+    private static TMP_Text Texto(Transform pai, string nome, string valor, float tamanho, Vector2 posicao, Vector2 dimensoes)
+    {
+        TMP_Text texto = UIAprendizadoUtil.CriarTexto(pai, nome, valor, tamanho, TextAlignmentOptions.Center);
+        texto.color = new Color(.19f, .16f, .13f); texto.raycastTarget = false;
+        texto.rectTransform.sizeDelta = dimensoes; texto.rectTransform.anchoredPosition = posicao;
+        Shadow sombra = texto.GetComponent<Shadow>(); if (sombra != null) sombra.enabled = false;
+        return texto;
     }
 
     private void BloquearJogador()
@@ -143,8 +195,8 @@ public sealed class ResultadosAprendizadoUI : MonoBehaviour
         foreach (PlayerInput entrada in FindObjectsByType<PlayerInput>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             if (entrada == null || !entrada.inputIsActive) continue;
-            entrada.DeactivateInput();
-            entradasBloqueadas.Add(entrada);
+            mapasAnteriores[entrada] = entrada.currentActionMap?.name;
+            entrada.DeactivateInput(); entradasBloqueadas.Add(entrada);
         }
     }
 
@@ -153,24 +205,15 @@ public sealed class ResultadosAprendizadoUI : MonoBehaviour
         if (!apresentacaoAtiva) return;
         foreach (PlayerInput entrada in entradasBloqueadas)
             if (entrada != null && entrada.enabled && entrada.gameObject.activeInHierarchy)
+            {
                 entrada.ActivateInput();
-        entradasBloqueadas.Clear();
-        Time.timeScale = escalaAnterior;
-        Cursor.lockState = travaAnterior;
-        Cursor.visible = cursorAnterior;
+                if (mapasAnteriores.TryGetValue(entrada, out string mapa) && !string.IsNullOrEmpty(mapa))
+                    entrada.SwitchCurrentActionMap(mapa);
+            }
+        entradasBloqueadas.Clear(); mapasAnteriores.Clear();
+        Time.timeScale = escalaAnterior; Cursor.lockState = travaAnterior; Cursor.visible = cursorAnterior;
         apresentacaoAtiva = false;
     }
-
     private void OnDestroy() => RestaurarJogador();
-
-    private Button CriarBotao()
-    {
-        Image imagem = UIAprendizadoUtil.CriarImagem(toast, "Continuar", new Color(1, 1, 1, .12f), true);
-        UIAprendizadoUtil.DefinirRetangulo(imagem.rectTransform, new Vector2(0, -18), new Vector2(145, 38), new Vector2(.5f, 0));
-        Button b = imagem.gameObject.AddComponent<Button>(); b.targetGraphic = imagem; b.onClick.AddListener(() => continuar = true);
-        TMP_Text texto = UIAprendizadoUtil.CriarTexto(imagem.transform, "Texto", "CONTINUAR", 18, TextAlignmentOptions.Center);
-        texto.rectTransform.anchorMin = Vector2.zero; texto.rectTransform.anchorMax = Vector2.one;
-        texto.rectTransform.offsetMin = texto.rectTransform.offsetMax = Vector2.zero;
-        return b;
-    }
+    private void OnDisable() => RestaurarJogador();
 }

@@ -33,6 +33,9 @@ public sealed class LevelProgressionController : MonoBehaviour
 
     private void Update()
     {
+        // Fases completas usam exclusivamente o collider da porta final.
+        // A Fase 4 conserva seu fluxo legado enquanto esta em desenvolvimento.
+        if (SceneManager.GetActiveScene().name != "Fase 4") return;
         if (transitionStarted || Time.unscaledTime < nextCheckTime)
             return;
         nextCheckTime = Time.unscaledTime + CheckInterval;
@@ -62,25 +65,35 @@ public sealed class LevelProgressionController : MonoBehaviour
         doors = FindObjectsByType<DoorOpener>(FindObjectsInactive.Include, FindObjectsSortMode.None);
     }
 
+    public bool ConcluirPorAproximacao(GatilhoConclusaoFase gatilho)
+    {
+        if (transitionStarted || gatilho == null || gatilho.PortaFinal == null ||
+            !gatilho.PortaFinal.HasOpened || gatilho.gameObject.scene != gameObject.scene)
+            return false;
+        transitionStarted = true;
+        StartCoroutine(LoadNextScene());
+        return true;
+    }
+
     private IEnumerator LoadNextScene()
     {
         transitionStarted = true;
         string currentScene = SceneManager.GetActiveScene().name;
 
-        if (currentScene != "Fase 4" && ProgressoAprendizado.Instance != null &&
-            ProgressoAprendizado.Instance.ConcluirFase(currentScene))
+        if (currentScene != "Fase 4" && ProgressoAprendizado.Instance != null)
         {
+            ProgressoAprendizado.Instance.ConcluirFase(currentScene);
             yield return ResultadosAprendizadoUI.Mostrar(currentScene);
         }
 
-        WinScreenController winScreen = FindWinScreen();
+        WinScreenController winScreen = currentScene == "Fase 4" ? FindWinScreen() : null;
         if (winScreen != null)
         {
             winScreen.gameObject.SetActive(false);
             winScreen.gameObject.SetActive(true);
         }
 
-        yield return new WaitForSecondsRealtime(TransitionDelay);
+        if (currentScene == "Fase 4") yield return new WaitForSecondsRealtime(TransitionDelay);
 
         string nextScene = GetNextScene(currentScene);
         Time.timeScale = 1f;

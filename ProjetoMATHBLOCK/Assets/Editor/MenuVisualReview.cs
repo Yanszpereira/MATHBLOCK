@@ -43,6 +43,7 @@ public static class MenuVisualReview
             Image pontos = (Image)linha.FindPropertyRelative("pontilhado").objectReferenceValue;
             baseCor.color = linha.FindPropertyRelative("cor").colorValue;
             pontos.color = Color.black;
+            pontos.pixelsPerUnitMultiplier = 2f;
             linha.FindPropertyRelative("corBase").objectReferenceValue = baseCor;
             RegistrarAlteracao(baseCor); RegistrarAlteracao(pontos);
         }
