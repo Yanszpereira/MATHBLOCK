@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.canakbass.unity-mcp": "file:com.canakbass.unity-mcp",
     "com.unity.ai.inference": "2.6.1",
     "com.unity.collab-proxy": "2.11.3",
     "com.unity.feature.development": "1.0.2",
