@@ -93,9 +93,12 @@ public sealed class ResultadosAprendizadoUI : MonoBehaviour
         }
         for (float t = 0; t < .8f; t += Time.unscaledDeltaTime)
         {
-            float p = Mathf.SmoothStep(0, 1, t / .8f); Aplicar(destino * p); yield return null;
+            float p = Mathf.SmoothStep(0, 1, t / .8f); Aplicar(destino * p);
+            fillImage.color = Color.Lerp(cor, Color.white, (Mathf.Sin(t * 15f) + 1f) * .2f);
+            yield return null;
         }
         Aplicar(destino);
+        fillImage.color = cor;
         for (float t = 0; t < .22f; t += Time.unscaledDeltaTime)
         { toast.anchoredPosition = Vector2.right * Mathf.Sin(t * 90f) * (1f - t / .22f) * 5f; yield return null; }
         toast.anchoredPosition = Vector2.zero;
@@ -132,10 +135,7 @@ public sealed class ResultadosAprendizadoUI : MonoBehaviour
         fill.anchorMin = new Vector2(0, 0); fill.anchorMax = new Vector2(0, 1); fill.pivot = new Vector2(0, .5f);
         fill.anchoredPosition = Vector2.zero; fill.sizeDelta = Vector2.zero;
         Mask mask = mascara.gameObject.AddComponent<Mask>(); mask.showMaskGraphic = false;
-        fillImage = UIAprendizadoUtil.CriarImagem(mascara.transform, "Preenchimento pontilhado", Color.green);
-        fillImage.sprite = UIAprendizadoUtil.ObterSpritePontilhado(); fillImage.type = Image.Type.Tiled;
-        fillImage.rectTransform.anchorMin = Vector2.zero; fillImage.rectTransform.anchorMax = Vector2.one;
-        fillImage.rectTransform.offsetMin = fillImage.rectTransform.offsetMax = Vector2.zero;
+        fillImage = UIAprendizadoUtil.CriarPreenchimentoPontilhado(mascara.transform, Color.green, out _);
     }
 
     private void BloquearJogador()

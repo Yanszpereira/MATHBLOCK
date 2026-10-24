@@ -14,10 +14,13 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
     private const float DuracaoAnimacaoPainel = .25f;
     private const float EscalaInicialPainel = .96f;
     private static readonly Color Tinta = new Color(.15f, .12f, .10f, 1f);
+    [Serializable]
     private sealed class Linha
     {
+        public ConteudoMatematico conteudo;
         public RectTransform preenchimento;
         public Image pontilhado;
+        public Image corBase;
         public TMP_Text percentual;
         public Color cor;
         public float valor;
@@ -25,11 +28,13 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
 
     private static PainelProgressoAprendizadoUI aberto;
     public static bool EstaAberto => aberto != null;
-    private readonly List<Linha> linhas = new();
+    [SerializeField] private bool usaFolhaDaCena;
+    [SerializeField] private MenuController controladorMenu;
+    [SerializeField] private List<Linha> linhas = new();
     private CanvasGroup grupo;
     private RectTransform cartao;
     private RectTransform canvasRect;
-    private TMP_Text overall;
+    [SerializeField] private TMP_Text overall;
     private Button voltar;
     private Button origemVoltar;
     private Image origemPapel;
@@ -62,6 +67,24 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
 
     private void OnEnable()
     {
+        if (usaFolhaDaCena)
+        {
+            aberto = this;
+            fechando = false;
+            foreach (Linha linha in linhas)
+            {
+                linha.corBase ??= linha.preenchimento.Find("Cor da materia")?.GetComponent<Image>();
+                if (linha.corBase != null) linha.corBase.color = linha.cor;
+                linha.pontilhado.color = Color.black;
+                linha.valor = ProgressoAprendizado.Instance != null
+                    ? Mathf.Clamp01(ProgressoAprendizado.Instance.Obter(linha.conteudo).valor) : 0f;
+                linha.preenchimento.sizeDelta = Vector2.zero;
+                linha.percentual.text = "0%";
+            }
+            overall.text = "PROGRESSO GERAL  0%";
+            animacao = StartCoroutine(AnimarFolhaDaCena());
+            return;
+        }
         Construir();
         animacao = StartCoroutine(AnimarEntrada());
     }
@@ -131,18 +154,10 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
         preenchimento.anchoredPosition = Vector2.zero;
         preenchimento.sizeDelta = Vector2.zero;
         mascara.gameObject.AddComponent<Mask>().showMaskGraphic = false;
-        Image baseCor = UIAprendizadoUtil.CriarImagem(mascara.transform, "Cor da materia",
-            new Color(cor.r, cor.g, cor.b, .24f));
-        Esticar(baseCor.rectTransform);
-        baseCor.raycastTarget = false;
-        Image pontos = UIAprendizadoUtil.CriarImagem(mascara.transform, "Pontilhado", cor);
-        pontos.sprite = UIAprendizadoUtil.ObterSpritePontilhado();
-        pontos.type = Image.Type.Tiled;
-        pontos.raycastTarget = false;
-        Esticar(pontos.rectTransform);
+        Image baseCor = UIAprendizadoUtil.CriarPreenchimentoPontilhado(mascara.transform, cor, out Image pontos);
 
         float valor = ProgressoAprendizado.Instance != null ? ProgressoAprendizado.Instance.Obter(conteudo).valor : 0f;
-        linhas.Add(new Linha { preenchimento = preenchimento, pontilhado = pontos,
+        linhas.Add(new Linha { conteudo = conteudo, preenchimento = preenchimento, pontilhado = pontos, corBase = baseCor,
             percentual = percentual, valor = Mathf.Clamp01(valor), cor = cor });
     }
 
@@ -243,7 +258,7 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
 
     private void LateUpdate()
     {
-        AjustarAoEspaco();
+        if (!usaFolhaDaCena) AjustarAoEspaco();
         // No menu principal nao existe a acao de pausa usada pelas fases.
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "MainMenu" &&
             ((Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) ||
@@ -270,6 +285,18 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
         }
         grupo.alpha = 1f;
         fatorEntrada = 1f;
+        yield return AnimarBarras();
+    }
+
+    private IEnumerator AnimarFolhaDaCena()
+    {
+        // A folha permanece fixa; OpenPaper pertence ao menu principal.
+        yield return new WaitForSecondsRealtime(1f);
+        yield return AnimarBarras();
+    }
+
+    private IEnumerator AnimarBarras()
+    {
         float soma = 0f;
         foreach (Linha linha in linhas)
         {
@@ -287,12 +314,13 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
             float p = Mathf.SmoothStep(0f, 1f, t / .38f);
             linha.preenchimento.sizeDelta = new Vector2(LarguraBarra * linha.valor * p, 0f);
             linha.percentual.text = Mathf.RoundToInt(linha.valor * p * 100f) + "%";
-            linha.pontilhado.color = Color.Lerp(linha.cor, Color.white, Mathf.Sin(p * Mathf.PI) * .3f);
+            linha.corBase.color = Color.Lerp(linha.cor, Color.white, Mathf.Sin(p * Mathf.PI) * .3f);
             yield return null;
         }
         linha.preenchimento.sizeDelta = new Vector2(LarguraBarra * linha.valor, 0f);
         linha.percentual.text = Mathf.RoundToInt(linha.valor * 100f) + "%";
-        linha.pontilhado.color = linha.cor;
+        linha.corBase.color = linha.cor;
+        linha.pontilhado.color = Color.black;
         yield return new WaitForSecondsRealtime(.06f);
     }
 
@@ -300,6 +328,11 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
     {
         if (fechando) return;
         fechando = true;
+        if (usaFolhaDaCena)
+        {
+            controladorMenu.FecharProgresso();
+            return;
+        }
         if (animacao != null) StopCoroutine(animacao);
         grupo.interactable = false;
         animacao = StartCoroutine(AnimarSaida());
@@ -324,5 +357,13 @@ public sealed class PainelProgressoAprendizadoUI : MonoBehaviour
         if (aberto == this) aberto = null;
         if (papelRecortado != null) Destroy(papelRecortado);
         aoFechar?.Invoke();
+    }
+
+    private void OnDisable()
+    {
+        if (!usaFolhaDaCena) return;
+        StopAllCoroutines();
+        animacao = null;
+        if (aberto == this) aberto = null;
     }
 }

@@ -23,6 +23,183 @@ public static class MenuVisualReview
     private static string Pasta => EditorPrefs.GetString("MATHBLOCK.RevisaoVisual.Pasta",
         @"C:\Users\arbustim\Documents\Codex\2026-08-14\d");
 
+    [MenuItem(Menu + "Aplicar barras solidas e centralizar Sair")]
+    public static void AplicarAcabamento()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Saia de Play antes de salvar o acabamento.");
+        Transform[] objetos = SceneManager.GetActiveScene().GetRootGameObjects()
+            .SelectMany(r => r.GetComponentsInChildren<Transform>(true)).ToArray();
+        Transform menu = objetos.First(t => t.name == "StartPaper");
+        CentralizarSair(menu);
+        var painel = objetos.Select(t => t.GetComponent<PainelProgressoAprendizadoUI>()).First(p => p != null);
+        var dados = new SerializedObject(painel);
+        SerializedProperty linhas = dados.FindProperty("linhas");
+        for (int i = 0; i < linhas.arraySize; i++)
+        {
+            SerializedProperty linha = linhas.GetArrayElementAtIndex(i);
+            var preenchimento = (RectTransform)linha.FindPropertyRelative("preenchimento").objectReferenceValue;
+            Image baseCor = preenchimento.Find("Cor da materia").GetComponent<Image>();
+            Image pontos = (Image)linha.FindPropertyRelative("pontilhado").objectReferenceValue;
+            baseCor.color = linha.FindPropertyRelative("cor").colorValue;
+            pontos.color = Color.black;
+            linha.FindPropertyRelative("corBase").objectReferenceValue = baseCor;
+            RegistrarAlteracao(baseCor); RegistrarAlteracao(pontos);
+        }
+        dados.ApplyModifiedPropertiesWithoutUndo();
+        EditorSceneManager.MarkSceneDirty(menu.gameObject.scene);
+        EditorSceneManager.SaveScene(menu.gameObject.scene);
+    }
+
+    private static void CentralizarSair(Transform menu)
+    {
+        TMP_Text creditos = menu.Find("Credits").GetComponentInChildren<TMP_Text>(true);
+        RectTransform botao = (RectTransform)menu.Find("Exit");
+        TMP_Text sair = botao.GetComponentInChildren<TMP_Text>(true);
+        sair.text = "× SAIR";
+        sair.margin = Vector4.zero;
+        sair.alignment = TextAlignmentOptions.Midline;
+        creditos.ForceMeshUpdate(true, true);
+        sair.ForceMeshUpdate(true, true);
+        // Centraliza pela tinta visivel dos textos, nao pelas caixas de mesma largura.
+        Vector3 centroCreditos = menu.InverseTransformPoint(creditos.transform.TransformPoint(creditos.textBounds.center));
+        Vector3 centroSair = menu.InverseTransformPoint(sair.transform.TransformPoint(sair.textBounds.center));
+        botao.anchoredPosition += new Vector2(centroCreditos.x - centroSair.x, 0f);
+        RegistrarAlteracao(botao); RegistrarAlteracao(sair);
+    }
+
+    [MenuItem(Menu + "Testar feedback visual")]
+    public static void TestarFeedback() => Executar(() =>
+    {
+        FeedbackAprendizadoUI.GarantirInstancia();
+        var feedback = UnityEngine.Object.FindFirstObjectByType<FeedbackAprendizadoUI>();
+        typeof(FeedbackAprendizadoUI).GetMethod("Enfileirar", Flags)
+            .Invoke(feedback, new object[] { ConteudoMatematico.Operadores, .25f, .6f });
+    });
+
+    [MenuItem(Menu + "Integrar folha Progresso no menu principal")]
+    public static void IntegrarFolhaProgresso()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Saia de Play antes de editar o menu.");
+        if (!EditorSceneManager.SaveOpenScenes()) return;
+        Scene cena = EditorSceneManager.OpenScene("Assets/Scenes/MainMenu.unity", OpenSceneMode.Single);
+        Transform[] objetos = cena.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true)).ToArray();
+        if (objetos.Any(t => t.name == "ProgressMenu"))
+            throw new InvalidOperationException("ProgressMenu ja existe. Ajuste a folha existente no Inspector.");
+        Transform opcoes = objetos.First(t => t.name == "OptionsMenu");
+        MenuController controlador = objetos.Select(t => t.GetComponent<MenuController>()).First(c => c != null);
+        GameObject folha = UnityEngine.Object.Instantiate(opcoes.gameObject, opcoes.parent);
+        folha.name = "ProgressMenu";
+        folha.SetActive(false);
+        folha.transform.SetSiblingIndex(opcoes.GetSiblingIndex());
+        // Conserva exatamente a folha e o Voltar originais; retira apenas copias dos controles de Opcoes.
+        foreach (Transform filho in folha.transform.Cast<Transform>().ToArray())
+            if (filho.name != "Image" && filho.name != "Back") UnityEngine.Object.DestroyImmediate(filho.gameObject);
+        Button voltar = folha.transform.Find("Back").GetComponent<Button>();
+        // DistanceBlurOptionUI normaliza o Back de Opcoes em (-8,-35) + (0,-167), escala 1.
+        RectTransform rectVoltar = voltar.GetComponent<RectTransform>();
+        rectVoltar.anchoredPosition = new Vector2(-8f, -202f);
+        rectVoltar.sizeDelta = new Vector2(300f, 72f);
+        rectVoltar.localScale = Vector3.one;
+        voltar.onClick = new Button.ButtonClickedEvent();
+        UnityEventTools.AddPersistentListener(voltar.onClick, controlador.FecharProgresso);
+        TMP_FontAsset fonte = voltar.GetComponentInChildren<TMP_Text>(true).font;
+        var painel = folha.AddComponent<PainelProgressoAprendizadoUI>();
+        var dados = new SerializedObject(painel);
+        dados.FindProperty("usaFolhaDaCena").boolValue = true;
+        dados.FindProperty("controladorMenu").objectReferenceValue = controlador;
+
+        RectTransform conteudo = UIAprendizadoUtil.CriarRetangulo(folha.transform, "Conteudo Progresso", new Vector2(540f, 600f));
+        conteudo.anchorMin = conteudo.anchorMax = conteudo.pivot = new Vector2(.5f, .5f);
+        conteudo.anchoredPosition = Vector2.zero;
+        Color tinta = new Color(.15f, .12f, .10f, 1f);
+        TextoNaFolha(conteudo, fonte, "Titulo", "MEU PROGRESSO", 38f, tinta, 0f, 315f, 540f, TextAlignmentOptions.Center);
+        TextoNaFolha(conteudo, fonte, "Subtitulo", "Tudo o que você aprendeu até agora", 21f, tinta, 0f, 275f, 540f, TextAlignmentOptions.Center);
+        Sprite pontos = PersistirSprite(UIAprendizadoUtil.ObterSpritePontilhado(), "PontosBarraMenu");
+        Sprite capsula = PersistirSprite((Sprite)typeof(UIAprendizadoUtil).GetMethod("ObterSpriteArredondado", Flags).Invoke(null, null), "CapsulaBarraMenu");
+        ConteudoMatematico[] materias = (ConteudoMatematico[])Enum.GetValues(typeof(ConteudoMatematico));
+        SerializedProperty linhas = dados.FindProperty("linhas");
+        linhas.arraySize = materias.Length;
+        for (int i = 0; i < materias.Length; i++)
+        {
+            ConteudoMatematico materia = materias[i];
+            float y = 200f - i * 88f;
+            Color cor = RotulosConteudo.Cor(materia);
+            Color corTexto = Color.Lerp(tinta, cor, .48f);
+            TextoNaFolha(conteudo, fonte, "Nome " + materia, RotulosConteudo.Obter(materia).ToUpperInvariant(), 28f, corTexto, -45f, y, 450f, TextAlignmentOptions.MidlineLeft);
+            TMP_Text percentual = TextoNaFolha(conteudo, fonte, "Percentual " + materia, "0%", 26f, corTexto, 230f, y, 80f, TextAlignmentOptions.MidlineRight);
+            Image trilho = UIAprendizadoUtil.CriarImagem(conteudo, "Trilho " + materia, new Color(.22f, .18f, .15f, .13f));
+            trilho.sprite = capsula; trilho.type = Image.Type.Sliced; trilho.raycastTarget = false;
+            RectTransform rect = trilho.rectTransform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
+            rect.anchoredPosition = new Vector2(0f, y - 27f); rect.sizeDelta = new Vector2(540f, 20f);
+            Image mascara = UIAprendizadoUtil.CriarImagem(trilho.transform, "Mascara", Color.white);
+            mascara.sprite = capsula; mascara.type = Image.Type.Sliced; mascara.raycastTarget = false;
+            RectTransform preenchimento = mascara.rectTransform;
+            preenchimento.anchorMin = Vector2.zero; preenchimento.anchorMax = new Vector2(0f, 1f);
+            preenchimento.pivot = new Vector2(0f, .5f); preenchimento.anchoredPosition = preenchimento.sizeDelta = Vector2.zero;
+            mascara.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+            Image baseCor = UIAprendizadoUtil.CriarImagem(mascara.transform, "Cor da materia", cor);
+            EsticarNaFolha(baseCor);
+            Image pontilhado = UIAprendizadoUtil.CriarImagem(mascara.transform, "Pontilhado", Color.black);
+            pontilhado.sprite = pontos; pontilhado.type = Image.Type.Tiled; EsticarNaFolha(pontilhado);
+            SerializedProperty linha = linhas.GetArrayElementAtIndex(i);
+            linha.FindPropertyRelative("conteudo").enumValueIndex = (int)materia;
+            linha.FindPropertyRelative("preenchimento").objectReferenceValue = preenchimento;
+            linha.FindPropertyRelative("pontilhado").objectReferenceValue = pontilhado;
+            linha.FindPropertyRelative("corBase").objectReferenceValue = baseCor;
+            linha.FindPropertyRelative("percentual").objectReferenceValue = percentual;
+            linha.FindPropertyRelative("cor").colorValue = cor;
+            linha.FindPropertyRelative("valor").floatValue = 0f;
+        }
+        dados.FindProperty("overall").objectReferenceValue = TextoNaFolha(conteudo, fonte, "Overall", "PROGRESSO GERAL  0%", 24f, tinta, 0f, -133f, 540f, TextAlignmentOptions.Center);
+        dados.ApplyModifiedPropertiesWithoutUndo();
+        var referencias = new SerializedObject(controlador);
+        referencias.FindProperty("menuProgresso").objectReferenceValue = folha;
+        referencias.ApplyModifiedPropertiesWithoutUndo();
+        RegistrarAlteracao(controlador);
+        EditorSceneManager.MarkSceneDirty(cena);
+        EditorSceneManager.SaveScene(cena);
+        Selection.activeGameObject = folha;
+        Debug.Log("[Revisao visual] ProgressMenu salvo com a folha, posicao, escala e Voltar de OptionsMenu. Usa OpenPaper do menu principal.");
+    }
+
+    private static TMP_Text TextoNaFolha(Transform pai, TMP_FontAsset fonte, string nome, string legenda, float tamanho, Color cor, float x, float y, float largura, TextAlignmentOptions alinhamento)
+    {
+        TMP_Text texto = UIAprendizadoUtil.CriarTexto(pai, nome, legenda, tamanho, alinhamento);
+        texto.font = fonte; texto.color = cor; texto.raycastTarget = false;
+        texto.enableAutoSizing = false; texto.textWrappingMode = TextWrappingModes.NoWrap;
+        foreach (Shadow sombra in texto.GetComponents<Shadow>()) UnityEngine.Object.DestroyImmediate(sombra);
+        RectTransform rect = texto.rectTransform;
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
+        rect.anchoredPosition = new Vector2(x, y); rect.sizeDelta = new Vector2(largura, 44f);
+        return texto;
+    }
+
+    private static void EsticarNaFolha(Image imagem)
+    {
+        imagem.raycastTarget = false;
+        RectTransform rect = imagem.rectTransform;
+        rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
+    }
+
+    private static Sprite PersistirSprite(Sprite origem, string nome)
+    {
+        string caminho = "Assets/Resources/Aprendizado/" + nome + ".asset";
+        Sprite salvo = AssetDatabase.LoadAssetAtPath<Sprite>(caminho);
+        if (salvo != null) return salvo;
+        Texture2D textura = UnityEngine.Object.Instantiate(origem.texture);
+        textura.name = nome;
+        AssetDatabase.CreateAsset(textura, caminho);
+        Sprite sprite = Sprite.Create(textura, origem.rect, new Vector2(.5f, .5f), origem.pixelsPerUnit, 0, SpriteMeshType.FullRect, origem.border);
+        sprite.name = nome;
+        AssetDatabase.AddObjectToAsset(sprite, textura);
+        AssetDatabase.SaveAssets();
+        return sprite;
+    }
+
     [MenuItem(Menu + "Salvar opcao Progresso nas cenas")]
     public static void SalvarOpcaoNasCenas()
     {
@@ -93,7 +270,7 @@ public static class MenuVisualReview
             RectTransform rect = (RectTransform)menu.Find(nomes[i]);
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
             rect.anchoredPosition = new Vector2(centroX, centroY + (2 - i) * espacamento);
-            rect.localRotation = Quaternion.identity;
+            rect.localRotation = inicial ? Quaternion.Euler(0f, 0f, 1.768f) : Quaternion.identity;
             rect.localScale = new Vector3(escala, escala, 1f);
             rect.sizeDelta = new Vector2(380f, 72f);
             RegistrarAlteracao(rect);
@@ -111,6 +288,7 @@ public static class MenuVisualReview
             textoRect.localRotation = Quaternion.identity; textoRect.localScale = Vector3.one;
             RegistrarAlteracao(textoRect); RegistrarAlteracao(texto);
         }
+        if (inicial) CentralizarSair(menu);
     }
 
     private static void RegistrarAlteracao(UnityEngine.Object objeto)
@@ -149,7 +327,8 @@ public static class MenuVisualReview
         foreach (object linha in linhas)
             linha.GetType().GetField("valor", Flags).SetValue(linha, Mathf.Min(1f, ++indice * .25f));
         // Apenas valores de apresentacao: nao altera o servico nem o save do jogador.
-        var rotina = (System.Collections.IEnumerator)typeof(PainelProgressoAprendizadoUI).GetMethod("AnimarEntrada", Flags).Invoke(painel, null);
+        bool folhaDaCena = (bool)typeof(PainelProgressoAprendizadoUI).GetField("usaFolhaDaCena", Flags).GetValue(painel);
+        var rotina = (System.Collections.IEnumerator)typeof(PainelProgressoAprendizadoUI).GetMethod(folhaDaCena ? "AnimarBarras" : "AnimarEntrada", Flags).Invoke(painel, null);
         painel.StartCoroutine(rotina);
     });
 
@@ -176,8 +355,8 @@ public static class MenuVisualReview
         };
         foreach (var raiz in UnityEngine.Object.FindObjectsByType<RectTransform>(FindObjectsSortMode.None))
         {
-            if (raiz.name != "MenuPaper" && raiz.name != "StartPaper" && raiz.GetComponent<PainelProgressoAprendizadoUI>() == null) continue;
-            RectTransform papel = raiz.name == "MenuPaper" || raiz.name == "StartPaper"
+            if (raiz.name != "MenuPaper" && raiz.name != "StartPaper" && raiz.name != "OptionsMenu" && raiz.GetComponent<PainelProgressoAprendizadoUI>() == null) continue;
+            RectTransform papel = raiz.name == "MenuPaper" || raiz.name == "StartPaper" || raiz.name == "OptionsMenu" || raiz.name == "ProgressMenu"
                 ? raiz.Find("Image") as RectTransform
                 : raiz.GetComponentsInChildren<Image>().FirstOrDefault(i => i.name == "Folha de progresso")?.rectTransform;
             if (papel == null) continue;
@@ -198,6 +377,7 @@ public static class MenuVisualReview
                     foraDoRetanguloDoPapel = area.xMin < areaPapel.xMin - 1f || area.xMax > areaPapel.xMax + 1f
                         || area.yMin < areaPapel.yMin - 1f || area.yMax > areaPapel.yMax + 1f,
                     texto = texto != null ? texto.text : null,
+                    centroVisualNoMenu = texto != null ? (Vector2)raiz.InverseTransformPoint(texto.transform.TransformPoint(texto.textBounds.center)) : Vector2.zero,
                     fonte = texto != null && texto.font != null ? texto.font.name : null,
                     tamanhoFonte = texto != null ? texto.fontSize : 0f,
                     autoTamanho = texto != null && texto.enableAutoSizing,
@@ -334,7 +514,7 @@ public static class MenuVisualReview
     private static Button Botao(string nome, bool painel)
     {
         var botao = UnityEngine.Object.FindObjectsByType<Button>(FindObjectsSortMode.None).FirstOrDefault(b =>
-            b.name == nome && b.IsInteractable() && (!painel || b.GetComponentInParent<PainelProgressoAprendizadoUI>() != null));
+            (b.name == nome || (painel && nome == "Voltar" && b.name == "Back")) && b.IsInteractable() && (!painel || b.GetComponentInParent<PainelProgressoAprendizadoUI>() != null));
         return botao ?? throw new InvalidOperationException("Botao ativo nao encontrado: " + nome);
     }
 
@@ -376,7 +556,7 @@ public static class MenuVisualReview
     {
         public string caminho, texto, fonte;
         public Rect area;
-        public Vector2 posicao, tamanho, ancoraMin, ancoraMax, pivo;
+        public Vector2 posicao, tamanho, ancoraMin, ancoraMax, pivo, centroVisualNoMenu;
         public Vector3 escala, rotacao;
         public float tamanhoFonte;
         public bool foraDoRetanguloDoPapel, autoTamanho, interativo;

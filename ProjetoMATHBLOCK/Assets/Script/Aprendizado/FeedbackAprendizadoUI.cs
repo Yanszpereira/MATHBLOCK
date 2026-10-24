@@ -171,10 +171,7 @@ public sealed class FeedbackAprendizadoUI : MonoBehaviour
         preenchimento.anchorMin = new Vector2(0f, 0f); preenchimento.anchorMax = new Vector2(0f, 1f);
         preenchimento.pivot = new Vector2(0f, .5f); preenchimento.anchoredPosition = Vector2.zero; preenchimento.sizeDelta = Vector2.zero;
         Mask mask = mascara.gameObject.AddComponent<Mask>(); mask.showMaskGraphic = false;
-        preenchimentoImagem = UIAprendizadoUtil.CriarImagem(mascara.transform, "Progresso pontilhado", Color.green);
-        preenchimentoImagem.sprite = UIAprendizadoUtil.ObterSpritePontilhado(); preenchimentoImagem.type = Image.Type.Tiled;
-        preenchimentoImagem.rectTransform.anchorMin = Vector2.zero; preenchimentoImagem.rectTransform.anchorMax = Vector2.one;
-        preenchimentoImagem.rectTransform.offsetMin = preenchimentoImagem.rectTransform.offsetMax = Vector2.zero;
+        preenchimentoImagem = UIAprendizadoUtil.CriarPreenchimentoPontilhado(mascara.transform, Color.green, out _);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         CriarBotaoDev();
@@ -253,6 +250,25 @@ public static class UIAprendizadoUtil
 {
     private static Sprite arredondado;
     private static Sprite pontilhado;
+    // A cor da materia ocupa todo o preenchimento; o pontilhado preto fica em uma camada independente.
+    public static Image CriarPreenchimentoPontilhado(Transform pai, Color cor, out Image pontos)
+    {
+        Image baseCor = CriarImagem(pai, "Cor da materia", cor);
+        EsticarPreenchimento(baseCor);
+        pontos = CriarImagem(baseCor.transform, "Pontilhado", Color.black);
+        pontos.sprite = ObterSpritePontilhado();
+        pontos.type = Image.Type.Tiled;
+        EsticarPreenchimento(pontos);
+        return baseCor;
+    }
+
+    private static void EsticarPreenchimento(Image imagem)
+    {
+        imagem.raycastTarget = false;
+        RectTransform rect = imagem.rectTransform;
+        rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
+    }
     public static RectTransform CriarRetangulo(Transform pai, string nome, Vector2 tamanho)
     {
         GameObject go = new GameObject(nome, typeof(RectTransform)); go.transform.SetParent(pai, false);

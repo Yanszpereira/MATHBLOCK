@@ -31,6 +31,7 @@ public class MenuController : MonoBehaviour
 
     [Header("Progresso")]
     [SerializeField] private Button botaoProgresso;
+    [SerializeField] private GameObject menuProgresso;
 
     [Header("Blocker")]
     [SerializeField] private GameObject blocker;
@@ -394,6 +395,9 @@ public class MenuController : MonoBehaviour
                 sortingOrder++
             );
 
+            if (IsMainMenu && menu == menuProgresso)
+                menu.GetComponent<Canvas>().sortingOrder = 1999;
+
             PrepararBotoes(menu);
 
             menu.SetActive(manterAberto);
@@ -545,6 +549,9 @@ public class MenuController : MonoBehaviour
 
         menuSair ??=
             FindSceneObject("ExitMenu");
+
+        if (IsMainMenu)
+            menuProgresso ??= FindSceneObject("ProgressMenu");
 
         blocker ??=
             FindSceneObject("Blocker");
@@ -826,6 +833,7 @@ public class MenuController : MonoBehaviour
         yield return menuCreditos;
         yield return menuOpcoes;
         yield return menuSair;
+        yield return menuProgresso;
     }
 
     // =========================================================
@@ -878,7 +886,8 @@ public class MenuController : MonoBehaviour
         if (
             EstaAberto(menuCreditos) ||
             EstaAberto(menuOpcoes) ||
-            EstaAberto(menuSair)
+            EstaAberto(menuSair) ||
+            EstaAberto(menuProgresso)
         )
         {
             FecharTodosOsSubmenus();
@@ -925,6 +934,12 @@ public class MenuController : MonoBehaviour
 
     public void AbrirProgresso()
     {
+        if (menuProgresso != null)
+        {
+            TocarSomClique();
+            AbrirMenu(menuProgresso);
+            return;
+        }
         if (menuInicial == null || PainelProgressoAprendizadoUI.EstaAberto)
             return;
         Button voltar = (menuInicial.transform.Find("Back") ?? menuInicial.transform.Find("Start"))?.GetComponent<Button>();
@@ -970,6 +985,12 @@ public class MenuController : MonoBehaviour
         FecharMenu(menuOpcoes);
     }
 
+    public void FecharProgresso()
+    {
+        TocarSomClique();
+        FecharMenu(menuProgresso);
+    }
+
     public void FecharSair()
     {
         TocarSomClique();
@@ -987,6 +1008,20 @@ public class MenuController : MonoBehaviour
     {
         if (menu == null)
             return;
+
+        if (IsMainMenu && menu != menuInicial)
+        {
+            // As folhas compartilham o mesmo espaco da mesa: somente uma fica exposta.
+            foreach (GameObject outro in TodosOsMenus())
+            {
+                if (outro == null || outro == menuInicial || outro == menu || !outro.activeSelf) continue;
+                if (rotinasAtivas.TryGetValue(outro, out Coroutine rotina) && rotina != null)
+                    StopCoroutine(rotina);
+                CanvasGroup grupo = canvasGroups[outro];
+                grupo.alpha = 0f; grupo.interactable = false; grupo.blocksRaycasts = false;
+                outro.SetActive(false);
+            }
+        }
 
         PausarJogo();
 
@@ -1348,7 +1383,8 @@ public void VoltarMenuPrincipal()
             EstaAberto(menuInicial) ||
             EstaAberto(menuCreditos) ||
             EstaAberto(menuOpcoes) ||
-            EstaAberto(menuSair);
+            EstaAberto(menuSair) ||
+            EstaAberto(menuProgresso);
     }
 
     private void AtualizarEstadoDoMenu()
@@ -1375,6 +1411,7 @@ public void VoltarMenuPrincipal()
 
     private void FecharTodosOsSubmenus()
     {
+        FecharMenu(menuProgresso);
         FecharMenu(
             menuCreditos
         );

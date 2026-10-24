@@ -6,6 +6,7 @@
   <Project Path="FMODUnityEditor.csproj" />
   <Project Path="FMODUnity.csproj" />
   <Project Path="FMODUnityHaptics.csproj" />
+  <Project Path="CanAkbass.UnityMcp.Editor.csproj" />
   <Project Path="FMODUnityResonance.csproj" />
   <Project Path="MathBlock.Resize.PlayModeTests.csproj" />
 </Solution>
