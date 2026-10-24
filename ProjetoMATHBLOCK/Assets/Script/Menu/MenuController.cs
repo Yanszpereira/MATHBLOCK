@@ -949,25 +949,41 @@ public class MenuController : MonoBehaviour
         RectTransform rProgresso = copia.GetComponent<RectTransform>();
         RectTransform rCreditos = creditos.GetComponent<RectTransform>();
         RectTransform rSair = sair.GetComponent<RectTransform>();
-        float topo = rVoltar.anchoredPosition.y;
-        float baseLista = rSair.anchoredPosition.y;
-        float passo = (topo - baseLista) / 4f;
-        PosicionarOpcao(rVoltar, topo);
-        PosicionarOpcao(rOpcoes, topo - passo);
-        Vector2 posicaoProgresso = rProgresso.anchoredPosition;
-        posicaoProgresso.x = (rOpcoes.anchoredPosition.x + rCreditos.anchoredPosition.x) * .5f;
-        rProgresso.anchoredPosition = new Vector2(posicaoProgresso.x, topo - passo * 2f);
-        PosicionarOpcao(rCreditos, topo - passo * 3f);
-        PosicionarOpcao(rSair, baseLista);
+        float centroY = (rVoltar.anchoredPosition.y + rSair.anchoredPosition.y) * .5f;
+        float centroX = (rOpcoes.anchoredPosition.x + rCreditos.anchoredPosition.x) * .5f;
+        const float espacamento = 64f;
+
+        OrganizarOpcao(rVoltar, centroX, centroY + espacamento * 2f);
+        OrganizarOpcao(rOpcoes, centroX, centroY + espacamento);
+        OrganizarOpcao(rProgresso, centroX, centroY);
+        OrganizarOpcao(rCreditos, centroX, centroY - espacamento);
+        OrganizarOpcao(rSair, centroX, centroY - espacamento * 2f);
 
         PrepararBotoes(menuInicial);
     }
 
-    private static void PosicionarOpcao(RectTransform opcao, float y)
+    private static void OrganizarOpcao(RectTransform opcao, float x, float y)
     {
-        Vector2 posicao = opcao.anchoredPosition;
-        posicao.y = y;
-        opcao.anchoredPosition = posicao;
+        opcao.anchoredPosition = new Vector2(x, y);
+        opcao.sizeDelta = new Vector2(350f, 52f);
+
+        TMP_Text texto = opcao.GetComponentInChildren<TMP_Text>(true);
+        if (texto == null)
+            return;
+
+        RectTransform textoRect = texto.rectTransform;
+        textoRect.anchorMin = Vector2.zero;
+        textoRect.anchorMax = Vector2.one;
+        textoRect.pivot = new Vector2(.5f, .5f);
+        textoRect.anchoredPosition = Vector2.zero;
+        textoRect.sizeDelta = Vector2.zero;
+        textoRect.localRotation = Quaternion.identity;
+        textoRect.localScale = Vector3.one;
+
+        texto.enableAutoSizing = true;
+        texto.fontSizeMin = 60f;
+        texto.fontSizeMax = 72f;
+        texto.alignment = TextAlignmentOptions.Center;
     }
 
     // =========================================================
