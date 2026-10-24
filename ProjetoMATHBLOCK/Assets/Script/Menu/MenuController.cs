@@ -915,38 +915,59 @@ public class MenuController : MonoBehaviour
 
     private void CriarBotaoProgresso()
     {
-        if (menuInicial == null || menuInicial.transform.Find("Botao Meu Progresso") != null)
+        if (menuInicial == null || menuInicial.transform.Find("Progress") != null)
             return;
 
-        Image fundo = UIAprendizadoUtil.CriarImagem(
-            menuInicial.transform,
-            "Botao Meu Progresso",
-            new Color(.055f, .07f, .11f, .88f),
-            true);
-        RectTransform rect = fundo.rectTransform;
-        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, 0f);
-        rect.anchoredPosition = new Vector2(0f, 38f);
-        rect.sizeDelta = new Vector2(270f, 46f);
+        Button opcoes = menuInicial.transform.Find("Options")?.GetComponent<Button>();
+        Button voltar = menuInicial.transform.Find("Back")?.GetComponent<Button>();
+        Button creditos = menuInicial.transform.Find("Credits")?.GetComponent<Button>();
+        Button sair = menuInicial.transform.Find("Exit")?.GetComponent<Button>();
+        if (opcoes == null || voltar == null || creditos == null || sair == null)
+            return;
 
-        Button botao = fundo.gameObject.AddComponent<Button>();
-        botao.targetGraphic = fundo;
+        GameObject copia = Instantiate(opcoes.gameObject, menuInicial.transform);
+        copia.name = "Progress";
+        copia.transform.SetSiblingIndex(opcoes.transform.GetSiblingIndex() + 1);
+        Button botao = copia.GetComponent<Button>();
+        botao.onClick = new Button.ButtonClickedEvent();
         botao.onClick.AddListener(() =>
         {
             TocarSomClique();
             PainelProgressoAprendizadoUI.Mostrar();
         });
 
-        TMP_Text texto = UIAprendizadoUtil.CriarTexto(
-            fundo.transform,
-            "Texto",
-            "★ MEU PROGRESSO",
-            20f,
-            TMPro.TextAlignmentOptions.Center);
-        texto.rectTransform.anchorMin = Vector2.zero;
-        texto.rectTransform.anchorMax = Vector2.one;
-        texto.rectTransform.offsetMin = texto.rectTransform.offsetMax = Vector2.zero;
+        TMP_Text texto = copia.GetComponentInChildren<TMP_Text>(true);
+        if (texto != null)
+        {
+            string original = texto.text.Trim();
+            string marcador = original.Length > 0 ? original.Substring(0, 1) : "=";
+            texto.text = marcador + " PROGRESSO";
+        }
+
+        RectTransform rVoltar = voltar.GetComponent<RectTransform>();
+        RectTransform rOpcoes = opcoes.GetComponent<RectTransform>();
+        RectTransform rProgresso = copia.GetComponent<RectTransform>();
+        RectTransform rCreditos = creditos.GetComponent<RectTransform>();
+        RectTransform rSair = sair.GetComponent<RectTransform>();
+        float topo = rVoltar.anchoredPosition.y;
+        float baseLista = rSair.anchoredPosition.y;
+        float passo = (topo - baseLista) / 4f;
+        PosicionarOpcao(rVoltar, topo);
+        PosicionarOpcao(rOpcoes, topo - passo);
+        Vector2 posicaoProgresso = rProgresso.anchoredPosition;
+        posicaoProgresso.x = (rOpcoes.anchoredPosition.x + rCreditos.anchoredPosition.x) * .5f;
+        rProgresso.anchoredPosition = new Vector2(posicaoProgresso.x, topo - passo * 2f);
+        PosicionarOpcao(rCreditos, topo - passo * 3f);
+        PosicionarOpcao(rSair, baseLista);
 
         PrepararBotoes(menuInicial);
+    }
+
+    private static void PosicionarOpcao(RectTransform opcao, float y)
+    {
+        Vector2 posicao = opcao.anchoredPosition;
+        posicao.y = y;
+        opcao.anchoredPosition = posicao;
     }
 
     // =========================================================
