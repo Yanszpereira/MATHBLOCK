@@ -143,6 +143,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
         BeginTransition();
         yield return FadeTo(1f, fadeOutDuration);
 
+        PararAudioDaCenaAntesDeCarregar();
         AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
         if (operation == null)
         {
@@ -161,6 +162,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
         BeginTransition();
         yield return FadeTo(1f, fadeOutDuration);
 
+        PararAudioDaCenaAntesDeCarregar();
         AsyncOperation operation = SceneManager.LoadSceneAsync(buildIndex, LoadSceneMode.Single);
         if (operation == null)
         {
@@ -172,6 +174,25 @@ public sealed class SceneTransitionManager : MonoBehaviour
         yield return LoadSceneAndPrepare(operation);
         yield return FadeIn();
         FinishTransition();
+    }
+
+    private static void PararAudioDaCenaAntesDeCarregar()
+    {
+        // Emissores com StopEvent=None continuam vivos no FMOD mesmo apos
+        // destruir a cena. Para-los atras do fade, antes de iniciar a nova
+        // musica, evita vazamentos sem silenciar o bus global ou a cena nova.
+        Scene origem = SceneManager.GetActiveScene();
+        foreach (FMODUnity.StudioEventEmitter emissor in FindObjectsByType<FMODUnity.StudioEventEmitter>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (emissor == null || emissor.gameObject.scene != origem) continue;
+            bool permitirFade = emissor.AllowFadeout;
+            emissor.AllowFadeout = false;
+            emissor.Stop();
+            emissor.AllowFadeout = permitirFade;
+        }
+        foreach (AudioSource fonte in FindObjectsByType<AudioSource>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            if (fonte != null && fonte.gameObject.scene == origem) fonte.Stop();
     }
 
     private IEnumerator FadeActionRoutine(System.Action action)

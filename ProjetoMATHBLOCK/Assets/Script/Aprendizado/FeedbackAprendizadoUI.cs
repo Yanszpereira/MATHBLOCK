@@ -2,22 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 /// <summary>Barra capsular global, discreta e nao bloqueante.</summary>
 public sealed class FeedbackAprendizadoUI : MonoBehaviour
 {
     private readonly Queue<(ConteudoMatematico conteudo, float anterior, float atual)> fila = new();
+    [Header("Frequencia dos avisos (nao altera o progresso real)")]
+    [SerializeField, Min(2)] private int avancosPorAviso = 2;
+    [SerializeField, Min(0f)] private float intervaloMinimoEntreAvisos = 45f;
+    private readonly Dictionary<ConteudoMatematico, (float anterior, int avancos)> pendentes = new();
+    private float proximoAvisoPermitido;
     private CanvasGroup grupo;
     private RectTransform raiz;
     private RectTransform preenchimento;
     private Image preenchimentoImagem;
     private TMP_Text materia;
     private TMP_Text percentual;
+    private TMP_Text aumento;
     private Coroutine rotina;
-    private GameObject painelDev;
     private const float Largura = 560f;
 
     public static void GarantirInstancia()
@@ -30,18 +33,21 @@ public sealed class FeedbackAprendizadoUI : MonoBehaviour
     private void OnEnable() => ProgressoAprendizado.OnProgressoAtualizado += Enfileirar;
     private void OnDisable() => ProgressoAprendizado.OnProgressoAtualizado -= Enfileirar;
 
-    private void Update()
-    {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        Keyboard teclado = Keyboard.current;
-        bool ctrl = teclado != null && (teclado.leftCtrlKey.isPressed || teclado.rightCtrlKey.isPressed);
-        if (ctrl && teclado.dKey.wasPressedThisFrame && painelDev != null)
-            painelDev.SetActive(!painelDev.activeSelf);
-#endif
-    }
-
     private void Enfileirar(ConteudoMatematico conteudo, float anterior, float atual)
     {
+        if (atual <= anterior) return;
+        // Acumula ganhos silenciosamente. So novos acertos podem disparar
+        // o aviso; nao interrompe o jogador com um popup atrasado no timer.
+        if (!pendentes.TryGetValue(conteudo, out var acumulado))
+            acumulado = (anterior, 0);
+        acumulado.avancos++;
+        pendentes[conteudo] = acumulado;
+        if (acumulado.avancos < Mathf.Max(2, avancosPorAviso) ||
+            Time.time < proximoAvisoPermitido || rotina != null)
+            return;
+        anterior = acumulado.anterior;
+        pendentes.Remove(conteudo);
+        proximoAvisoPermitido = Time.time + intervaloMinimoEntreAvisos;
         fila.Enqueue((conteudo, anterior, atual));
         if (rotina == null) rotina = StartCoroutine(ExibirFila());
     }
@@ -55,6 +61,8 @@ public sealed class FeedbackAprendizadoUI : MonoBehaviour
             preenchimentoImagem.color = cor;
             string corHex = ColorUtility.ToHtmlStringRGB(cor);
             materia.text = $"SEU PROGRESSO EM: <color=#{corHex}><b>{RotulosConteudo.Obter(item.conteudo).ToUpperInvariant()}</b></color>";
+            aumento.text = $"+{((item.atual - item.anterior) * 100f).ToString("0.#", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))} p.p.";
+            aumento.color = cor;
             grupo.alpha = 0f;
             raiz.anchoredPosition = new Vector2(0f, -35f);
             raiz.localScale = Vector3.one * .96f;
@@ -163,6 +171,8 @@ public sealed class FeedbackAprendizadoUI : MonoBehaviour
         percentual = UIAprendizadoUtil.CriarTexto(raiz, "Percentual", "0%", 17f, TextAlignmentOptions.Right);
         percentual.color = new Color(1f, 1f, 1f, .8f);
         UIAprendizadoUtil.DefinirRetangulo(percentual.rectTransform, new Vector2(-30f, -2f), new Vector2(80f, 24f), new Vector2(1f, 1f));
+        aumento = UIAprendizadoUtil.CriarTexto(raiz, "Ganho acumulado", "", 17f, TextAlignmentOptions.Right);
+        UIAprendizadoUtil.DefinirRetangulo(aumento.rectTransform, new Vector2(-30f, -68f), new Vector2(140f, 24f), new Vector2(1f, 1f));
 
         Image trilho = UIAprendizadoUtil.CriarImagem(raiz, "Vazio", new Color(.42f, .44f, .48f, .36f), true);
         UIAprendizadoUtil.DefinirRetangulo(trilho.rectTransform, new Vector2(30f, 5f), new Vector2(Largura, 28f), new Vector2(0f, 0f));
@@ -173,54 +183,7 @@ public sealed class FeedbackAprendizadoUI : MonoBehaviour
         Mask mask = mascara.gameObject.AddComponent<Mask>(); mask.showMaskGraphic = false;
         preenchimentoImagem = UIAprendizadoUtil.CriarPreenchimentoPontilhado(mascara.transform, Color.green, out _);
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        CriarBotaoDev();
-#endif
     }
-
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-    private void CriarBotaoDev()
-    {
-        RectTransform painel = UIAprendizadoUtil.CriarRetangulo(transform, "Painel DEV", new Vector2(170f, 210f));
-        painelDev = painel.gameObject;
-        painel.anchorMin = painel.anchorMax = painel.pivot = new Vector2(0f, 1f);
-        painel.anchoredPosition = new Vector2(16f, -16f);
-
-        CriarBotaoDev(painel, "OPERADORES +10%", 0f,
-            () => AdicionarDev(ConteudoMatematico.Operadores));
-        CriarBotaoDev(painel, "ESCALA +10%", -41f,
-            () => AdicionarDev(ConteudoMatematico.EscalaEEspaco));
-        CriarBotaoDev(painel, "EQUAÇÕES +10%", -82f,
-            () => AdicionarDev(ConteudoMatematico.Equacoes));
-        CriarBotaoDev(painel, "EXPRESSÕES +10%", -123f,
-            () => AdicionarDev(ConteudoMatematico.Expressoes));
-        CriarBotaoDev(painel, "TESTAR MENU", -169f,
-            () => ResultadosAprendizadoUI.MostrarDev(SceneManager.GetActiveScene().name));
-        painelDev.SetActive(false);
-    }
-
-    private static void AdicionarDev(ConteudoMatematico conteudo)
-    {
-        if (ProgressoAprendizado.Instance != null)
-            ProgressoAprendizado.Instance.AdicionarProgressoDev(conteudo, .1f);
-    }
-
-    private static void CriarBotaoDev(Transform pai, string rotulo, float y, UnityEngine.Events.UnityAction acao)
-    {
-        Image fundo = UIAprendizadoUtil.CriarImagem(pai, rotulo, new Color(.08f, .09f, .13f, .86f), true);
-        RectTransform r = fundo.rectTransform;
-        r.anchorMin = r.anchorMax = r.pivot = new Vector2(0f, 1f);
-        r.anchoredPosition = new Vector2(0f, y);
-        r.sizeDelta = new Vector2(164f, 35f);
-        Button botao = fundo.gameObject.AddComponent<Button>();
-        botao.targetGraphic = fundo;
-        botao.onClick.AddListener(acao);
-        TMP_Text texto = UIAprendizadoUtil.CriarTexto(fundo.transform, "Texto", rotulo, 14f, TextAlignmentOptions.Center);
-        texto.rectTransform.anchorMin = Vector2.zero;
-        texto.rectTransform.anchorMax = Vector2.one;
-        texto.rectTransform.offsetMin = texto.rectTransform.offsetMax = Vector2.zero;
-    }
-#endif
 
     private static float Suave(float t) { t = Mathf.Clamp01(t); return t * t * (3f - 2f * t); }
 }

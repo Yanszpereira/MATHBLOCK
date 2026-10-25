@@ -76,5 +76,22 @@ public sealed class Fase1DoorAntiParkourBarriers : MonoBehaviour
         collider.isTrigger = false;
         collider.center = Vector3.zero;
         collider.size = Vector3.one;
+
+        // Apenas a primeira porta recebe a brincadeira; as demais mantem
+        // exatamente o bloqueio existente. O sensor nao modifica o collider solido.
+        if (door.name == "porta1")
+        {
+            var sensor = new GameObject("Sensor de tentativa de atalho");
+            sensor.layer = barrier.layer;
+            sensor.transform.SetParent(barrier.transform, false);
+            BoxCollider area = sensor.AddComponent<BoxCollider>();
+            area.isTrigger = true;
+            Vector3 escala = sensor.transform.lossyScale;
+            area.size = Vector3.one + new Vector3(.3f / Mathf.Abs(escala.x), .3f / Mathf.Abs(escala.y), .3f / Mathf.Abs(escala.z));
+            Rigidbody corpo = sensor.AddComponent<Rigidbody>();
+            corpo.isKinematic = true;
+            corpo.useGravity = false;
+            sensor.AddComponent<AvisoAntiAtalho>().Configurar(door.GetComponent<DoorOpener>());
+        }
     }
 }

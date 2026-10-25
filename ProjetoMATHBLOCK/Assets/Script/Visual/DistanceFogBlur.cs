@@ -32,6 +32,7 @@ public sealed class DistanceFogBlur : MonoBehaviour
     [SerializeField] private Color dotColor = new Color(0.055f, 0.012f, 0.085f, 1f);
     [SerializeField, Range(2f, 12f)] private float groundDotScale = 4f;
     [SerializeField, Range(0f, 1f)] private float phaseTwoGroundDotStrength = 0.22f;
+    [SerializeField, Range(0f, 1f)] private float phaseThreeGroundDotStrength = 0.65f;
 
     [Header("Downward look atmosphere")]
     [SerializeField, Range(0f, 0.8f)] private float downwardDarkening = 0.32f;
@@ -52,7 +53,7 @@ public sealed class DistanceFogBlur : MonoBehaviour
     private Renderer[] phaseOneCubeRenderers;
     private Renderer[] mathBlockRenderers;
     private Renderer[] countdownTimerRenderers;
-    private Renderer[] phaseTwoScenarioRenderers;
+    private Renderer[] groundDotRenderers;
     private float nextParticleRefreshTime;
     private readonly HashSet<Renderer> exclusionRenderers = new HashSet<Renderer>();
     private readonly Dictionary<Renderer, int> submalhas = new Dictionary<Renderer, int>();
@@ -189,7 +190,8 @@ public sealed class DistanceFogBlur : MonoBehaviour
         material.SetFloat(DotScaleId, Mathf.Lerp(dotScale, downwardDotScale, downLook));
         material.SetColor(DotColorId, dotColor);
         material.SetFloat(GroundDotScaleId, groundDotScale);
-        material.SetFloat(GroundDotStrengthId, phaseTwoGroundDotStrength);
+        material.SetFloat(GroundDotStrengthId, gameObject.scene.name == "Fase 3"
+            ? phaseThreeGroundDotStrength : phaseTwoGroundDotStrength);
         material.SetFloat(DownLookId, downLook);
         material.SetFloat(DownDarkeningId, downwardDarkening);
         material.SetFloat(MobileQualityId, mobile ? 1f : 0f);
@@ -229,7 +231,7 @@ public sealed class DistanceFogBlur : MonoBehaviour
     private RenderTexture BuildDotExclusionMask(int width, int height)
     {
         if (exclusionMaskMaterial == null || targetCamera == null ||
-            phaseTwoScenarioRenderers == null || phaseTwoScenarioRenderers.Length == 0)
+            groundDotRenderers == null || groundDotRenderers.Length == 0)
             return null;
 
         RenderTexture mask = RenderTexture.GetTemporary(
@@ -240,12 +242,12 @@ public sealed class DistanceFogBlur : MonoBehaviour
             RenderTextureReadWrite.Linear);
         mask.filterMode = FilterMode.Bilinear;
 
-        CommandBuffer commands = CommandBufferPool.Get("MathBlock Phase 2 Dot Exclusions");
+        CommandBuffer commands = CommandBufferPool.Get("MathBlock Ground Dot Mask");
         commands.SetRenderTarget(mask);
         commands.ClearRenderTarget(false, true, Color.black);
         commands.SetViewProjectionMatrices(targetCamera.worldToCameraMatrix, targetCamera.projectionMatrix);
 
-        foreach (Renderer targetRenderer in phaseTwoScenarioRenderers)
+        foreach (Renderer targetRenderer in groundDotRenderers)
         {
             if (targetRenderer == null || !targetRenderer.enabled || !targetRenderer.gameObject.activeInHierarchy ||
                 !GeometryUtility.TestPlanesAABB(planosVisiveis, targetRenderer.bounds))
@@ -406,14 +408,18 @@ public sealed class DistanceFogBlur : MonoBehaviour
                 timerRenderers.AddRange(timer.GetComponentsInChildren<Renderer>(true));
         countdownTimerRenderers = timerRenderers.ToArray();
 
-        List<Renderer> phaseTwoRenderers = new List<Renderer>();
+        List<Renderer> groundRenderers = new List<Renderer>();
         foreach (Renderer candidate in sceneRenderers)
         {
-            if (MobileSceneToonMaterials.BelongsToPhaseTwoScenarioGeometry(candidate)
+            // Reaproveita a mascara existente: pontos menores apenas no piso
+            // da Fase 3, sem alterar ceu, blocos, fontes ou outras fases.
+            if (candidate != null && candidate.gameObject.scene == gameObject.scene
+                && (gameObject.scene.name == "Fase 3" || MobileSceneToonMaterials.BelongsToPhaseTwoScenarioGeometry(candidate))
+                && candidate.GetComponentInParent<TMPro.TMP_Text>() == null
                 && MobileSceneToonMaterials.IsGroundSurface(candidate))
-                phaseTwoRenderers.Add(candidate);
+                groundRenderers.Add(candidate);
         }
-        phaseTwoScenarioRenderers = phaseTwoRenderers.ToArray();
+        groundDotRenderers = groundRenderers.ToArray();
 
         nextParticleRefreshTime = Time.unscaledTime + 2f;
     }

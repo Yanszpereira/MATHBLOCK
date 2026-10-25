@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-/// <summary>Apresenta a introdução aos operadores no início da primeira fase.</summary>
+/// <summary>Apresenta operadores na Fase 1 e redimensionamento na Fase 2, com a mesma identidade visual.</summary>
 public sealed class DoorHintPresenter : MonoBehaviour
 {
     private const float InitialDelay = 5f;
@@ -15,10 +15,11 @@ public sealed class DoorHintPresenter : MonoBehaviour
 
     // Papel claro com a identidade teal preservada na borda e no glow.
     private static readonly Color FillTop = new Color(1f, 1f, 0.985f, 0.98f);
-    private static readonly Color FillBottom = new Color(0.90f, 0.97f, 0.955f, 0.98f);
-    private static readonly Color BorderColor = new Color(0.16f, 1f, 0.78f, 1f);
-    private static readonly Color GlowColor = new Color(0.05f, 1f, 0.78f, 0.28f);
-    private static readonly Color TitleColor = new Color(0.025f, 0.34f, 0.29f, 1f);
+    private bool IsResizeHint => gameObject.scene.name == "Fase 2";
+    private Color FillBottom => IsResizeHint ? new Color(0.90f, 0.94f, 1f, 0.98f) : new Color(0.90f, 0.97f, 0.955f, 0.98f);
+    private Color BorderColor => IsResizeHint ? RotulosConteudo.Cor(ConteudoMatematico.EscalaEEspaco) : new Color(0.16f, 1f, 0.78f, 1f);
+    private Color GlowColor => IsResizeHint ? new Color(0.20f, 0.55f, 1f, 0.28f) : new Color(0.05f, 1f, 0.78f, 0.28f);
+    private Color TitleColor => IsResizeHint ? new Color(0.055f, 0.22f, 0.48f, 1f) : new Color(0.025f, 0.34f, 0.29f, 1f);
     private static readonly Color BodyColor = new Color(0.055f, 0.11f, 0.13f, 0.94f);
 
     private RectTransform balloon;
@@ -35,7 +36,7 @@ public sealed class DoorHintPresenter : MonoBehaviour
 
     private static void InstallAtGameStart(Scene scene)
     {
-        if (scene.name != "Fase 1")
+        if (scene.name != "Fase 1" && scene.name != "Fase 2")
             return;
 
         DoorHintPresenter presenter = EnsureInstance();
@@ -45,6 +46,43 @@ public sealed class DoorHintPresenter : MonoBehaviour
     public static void NotifyDoorPassed()
     {
         // Mantido para não quebrar chamadas antigas das portas/spawners.
+    }
+
+    public static void MostrarAvisoAtalho()
+    {
+        DoorHintPresenter presenter = EnsureInstance();
+        presenter.StartCoroutine(presenter.AnimarAvisoAtalho());
+    }
+
+    private IEnumerator AnimarAvisoAtalho()
+    {
+        // Reutiliza papel, borda e fonte da dica. Fica embaixo para nao
+        // disputar espaco com a introducao e nao bloqueia os controles.
+        var aviso = new GameObject("Aviso de tentativa de atalho", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(CanvasGroup));
+        aviso.transform.SetParent(transform, false);
+        var rect = aviso.GetComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, 0f);
+        rect.sizeDelta = new Vector2(680f, 150f);
+        Image fundoAviso = aviso.GetComponent<Image>();
+        fundoAviso.sprite = CreateBalloonSprite();
+        fundoAviso.type = Image.Type.Sliced;
+        fundoAviso.raycastTarget = false;
+        var grupoAviso = aviso.GetComponent<CanvasGroup>();
+        grupoAviso.blocksRaycasts = grupoAviso.interactable = false;
+        AddText(aviso.transform, "BOA TENTATIVA!", 28f, FontStyles.Bold, TitleColor,
+            new Vector2(36f, -57f), new Vector2(-36f, -20f), TextAlignmentOptions.Center);
+        AddText(aviso.transform, "A matemática não pula etapas.\nVolta lá e resolve a conta!", 23f, FontStyles.Normal, BodyColor,
+            new Vector2(36f, -125f), new Vector2(-36f, -59f), TextAlignmentOptions.Center);
+        const float entrada = .3f, leitura = 4.5f, saida = .4f;
+        for (float t = 0f; t < entrada + leitura + saida; t += Time.unscaledDeltaTime)
+        {
+            float visivel = t < entrada ? Mathf.SmoothStep(0f, 1f, t / entrada)
+                : 1f - Mathf.SmoothStep(0f, 1f, (t - entrada - leitura) / saida);
+            grupoAviso.alpha = visivel;
+            rect.anchoredPosition = new Vector2(0f, Mathf.Lerp(5f, 25f, visivel));
+            yield return null;
+        }
+        Destroy(aviso);
     }
 
     private static DoorHintPresenter EnsureInstance()
@@ -100,7 +138,7 @@ public sealed class DoorHintPresenter : MonoBehaviour
         scaler.referenceResolution = new Vector2(1280f, 720f);
         scaler.matchWidthOrHeight = 0.5f;
 
-        GameObject panelObject = new GameObject("Operator Hint Balloon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(CanvasGroup));
+        GameObject panelObject = new GameObject(IsResizeHint ? "Resize Hint Balloon" : "Operator Hint Balloon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(CanvasGroup));
         panelObject.transform.SetParent(transform, false);
         balloon = panelObject.GetComponent<RectTransform>();
         balloon.anchorMin = new Vector2(0.5f, 1f);
@@ -123,7 +161,7 @@ public sealed class DoorHintPresenter : MonoBehaviour
 
         AddBackdropLayer(panelObject.transform, "Outer Glow", new Vector2(24f, 24f), GlowColor, 0);
         AddBackdropLayer(panelObject.transform, "Bright Border", new Vector2(10f, 10f),
-            new Color(0.08f, 0.85f, 0.68f, 0.52f), 1);
+            IsResizeHint ? new Color(0.20f, 0.55f, 1f, 0.52f) : new Color(0.08f, 0.85f, 0.68f, 0.52f), 1);
 
         GameObject accentObject = new GameObject("Accent Divider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         accentObject.transform.SetParent(panelObject.transform, false);
@@ -136,27 +174,30 @@ public sealed class DoorHintPresenter : MonoBehaviour
         accent.color = new Color(BorderColor.r, BorderColor.g, BorderColor.b, 0.55f);
         accent.raycastTarget = false;
 
-        AddText(panelObject.transform, "DICA  •  OPERADORES", 32f, FontStyles.Bold, TitleColor,
+        AddText(panelObject.transform, IsResizeHint ? "DICA  •  ESCALA E ESPAÇO" : "DICA  •  OPERADORES", IsResizeHint ? 28f : 32f, FontStyles.Bold, TitleColor,
             new Vector2(354f, -76f), new Vector2(-38f, -24f), TextAlignmentOptions.Left);
         AddText(panelObject.transform,
-            "Pegue um operador e aplique-o entre dois MathBlocks.\n\nCada símbolo transforma os valores de uma maneira diferente.",
+            IsResizeHint
+                ? "Mire em um bloco e ative o redimensionamento.\n\nArraste as setas azuis para ajustar largura, altura e profundidade."
+                : "Pegue um operador e aplique-o entre dois MathBlocks.\n\nCada símbolo transforma os valores de uma maneira diferente.",
             21f, FontStyles.Normal, BodyColor, new Vector2(354f, -226f), new Vector2(-42f, -88f), TextAlignmentOptions.Left);
 
-        GameObject imageObject = new GameObject("Operator Illustration", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+        GameObject imageObject = new GameObject(IsResizeHint ? "Resize Illustration" : "Operator Illustration", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
         imageObject.transform.SetParent(panelObject.transform, false);
         RectTransform imageRect = imageObject.GetComponent<RectTransform>();
         imageRect.anchorMin = new Vector2(0.5f, 1f);
         imageRect.anchorMax = new Vector2(0.5f, 1f);
         imageRect.pivot = new Vector2(0.5f, 1f);
-        imageRect.anchoredPosition = new Vector2(-218f, -82f);
-        imageRect.sizeDelta = new Vector2(270f, 96f);
+        imageRect.anchoredPosition = new Vector2(-218f, IsResizeHint ? -55f : -82f);
+        // Mantem a captura enviada inteira e na proporcao original, sem esticar o bloco.
+        imageRect.sizeDelta = IsResizeHint ? new Vector2(280f, 280f * 768f / 1366f) : new Vector2(270f, 96f);
         RawImage illustration = imageObject.GetComponent<RawImage>();
-        illustration.texture = Resources.Load<Texture2D>("Tutorial/operator_hint");
+        illustration.texture = Resources.Load<Texture2D>(IsResizeHint ? "Tutorial/resize_hint" : "Tutorial/operator_hint");
         illustration.uvRect = new Rect(0f, 0f, 1f, 1f);
         illustration.raycastTarget = false;
     }
 
-    private static void AddBackdropLayer(Transform panel, string layerName, Vector2 expansion, Color color, int siblingIndex)
+    private void AddBackdropLayer(Transform panel, string layerName, Vector2 expansion, Color color, int siblingIndex)
     {
         GameObject layerObject = new GameObject(layerName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         layerObject.transform.SetParent(panel, false);
@@ -203,7 +244,7 @@ public sealed class DoorHintPresenter : MonoBehaviour
     private IEnumerator AnimateBalloon()
     {
         yield return Slide(hiddenY, VisibleY, 0f, 0.98f, SlideDuration);
-        yield return new WaitForSecondsRealtime(ReadingDuration);
+        yield return new WaitForSecondsRealtime(IsResizeHint ? 8f : ReadingDuration);
         yield return Slide(VisibleY, hiddenY, 0.98f, 0f, SlideDuration * 0.9f);
         canvasGroup.alpha = 0f;
         animationRoutine = null;
@@ -241,7 +282,7 @@ public sealed class DoorHintPresenter : MonoBehaviour
         return outsideDistance + insideDistance - cornerRadius;
     }
 
-    private static Sprite CreateBalloonSprite()
+    private Sprite CreateBalloonSprite()
     {
         const int size = 200;
         const float shadowBlur = 18f;

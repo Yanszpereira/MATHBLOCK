@@ -48,6 +48,15 @@
                        FindObjectsSortMode.None))
           {
 
+              // O piso importado da Fase 4 inclui laterais altas na mesma malha.
+              // Seus bounds nao parecem um piso: identificar tambem o material
+              // "chao", preservando cores/texturas e retirando apenas o brilho.
+              if (IsPhaseFourGround(target))
+              {
+                  RemoveReflectionsPreservingAppearance(target, true);
+                  continue;
+              }
+
               if (BelongsToPhaseFourSecondHalf(target))
                   continue;
 
@@ -251,7 +260,22 @@
           return false;
       }
 
-      private void RemoveReflectionsPreservingAppearance(Renderer target)
+      private static bool IsPhaseFourGround(Renderer target)
+      {
+          if (target == null || target.gameObject.scene.name != "Fase 4") return false;
+          if (IsGroundSurface(target) && target.GetComponentInParent<TMPro.TMP_Text>() == null)
+              return true;
+          for (Transform current = target.transform; current != null; current = current.parent)
+          {
+              if (!current.name.Equals("fase4", System.StringComparison.OrdinalIgnoreCase)) continue;
+              foreach (Material material in target.sharedMaterials)
+                  if (material != null && material.name.Equals("chao", System.StringComparison.OrdinalIgnoreCase))
+                      return true;
+          }
+          return false;
+      }
+
+      private void RemoveReflectionsPreservingAppearance(Renderer target, bool removerBrilhoToon = false)
       {
           if (target == null || target.sharedMaterials == null)
               return;
@@ -279,6 +303,12 @@
               if (replacement.HasProperty("_EnvironmentReflections")) replacement.SetFloat("_EnvironmentReflections", 0f);
               replacement.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
               replacement.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
+              if (removerBrilhoToon)
+              {
+                  if (replacement.HasProperty("_GlossyReflections")) replacement.SetFloat("_GlossyReflections", 0f);
+                  replacement.DisableKeyword("_SPECULAR_ON");
+                  replacement.DisableKeyword("_RIM_ON");
+              }
               replacements[i] = replacement;
               runtimeMaterials.Add(replacement);
               if (compartilhar) materiaisCompartilhados[(source, 0)] = replacement;
