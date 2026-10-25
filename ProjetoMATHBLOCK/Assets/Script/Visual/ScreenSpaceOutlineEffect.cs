@@ -15,6 +15,9 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
     private GravityInteract gravityInteract;
     private readonly HashSet<Renderer> renderers = new HashSet<Renderer>();
     private readonly HashSet<Renderer> blocos = new HashSet<Renderer>();
+    private readonly HashSet<Renderer> interioresPortais = new HashSet<Renderer>();
+    private readonly Dictionary<Renderer, int> submalhas = new Dictionary<Renderer, int>();
+    private readonly Plane[] planosVisiveis = new Plane[6];
     private float nextRefresh;
     private static readonly int ColorId = Shader.PropertyToID("_OutlineColor");
     private static readonly int ThicknessId = Shader.PropertyToID("_OutlineThickness");
@@ -22,6 +25,7 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
     private static readonly int MaskId = Shader.PropertyToID("_OutlineObjectMask");
     private static readonly int BlockMaskId = Shader.PropertyToID("_MathBlockOutlineMask");
     private static readonly int BlockThicknessId = Shader.PropertyToID("_MathBlockOutlineScale");
+    private static readonly int PortalMaskId = Shader.PropertyToID("_PortalOutlineExclude");
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install() => GlobalSceneBootstrap.Register(OnSceneLoaded, -50);
@@ -60,6 +64,7 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
             Graphics.Blit(source, destination);
             return;
         }
+        // Mantem contornos dos blocos em resolucao integral, inclusive no Android.
         RenderTexture mask = BuildMask(source.width, source.height);
         outlineMaterial.SetColor(ColorId, outlineColor);
         outlineMaterial.SetFloat(ThicknessId, thicknessPixels);
@@ -78,14 +83,27 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
         CommandBuffer commands = CommandBufferPool.Get("MathBlock New Outline");
         commands.SetRenderTarget(mask); commands.ClearRenderTarget(false, true, Color.black);
         commands.SetViewProjectionMatrices(targetCamera.worldToCameraMatrix, targetCamera.projectionMatrix);
+        commands.SetGlobalFloat(PortalMaskId, 0f);
+        GeometryUtility.CalculateFrustumPlanes(targetCamera, planosVisiveis);
+        Transform segurado = gravityInteract != null && gravityInteract.IsHoldingObject ? gravityInteract.GrabbedObject : null;
         foreach (Renderer target in renderers)
         {
-            if (target == null || !target.enabled || !target.gameObject.activeInHierarchy || IsHeld(target)) continue;
-            int count = Mathf.Max(1, target.sharedMaterials.Length);
+            if (target == null || !target.enabled || !target.gameObject.activeInHierarchy ||
+                !GeometryUtility.TestPlanesAABB(planosVisiveis, target.bounds) ||
+                (segurado != null && (target.transform == segurado || target.transform.IsChildOf(segurado)))) continue;
+            int count = submalhas[target];
             commands.SetGlobalFloat(BlockMaskId, blocos.Contains(target) ? 1f : 0f);
             for (int i = 0; i < count; i++) commands.DrawRenderer(target, maskMaterial, i, 0);
         }
         commands.SetGlobalFloat(BlockMaskId, 0f);
+        // O interior luminoso nao recebe linhas de geometria que esta atras dele.
+        // A moldura e os blocos na frente conservam seus contornos originais.
+        commands.SetGlobalFloat(PortalMaskId, 1f);
+        foreach (Renderer interior in interioresPortais)
+            if (interior != null && interior.enabled && interior.gameObject.activeInHierarchy &&
+                GeometryUtility.TestPlanesAABB(planosVisiveis, interior.bounds))
+                commands.DrawRenderer(interior, maskMaterial, 0, 0);
+        commands.SetGlobalFloat(PortalMaskId, 0f);
         Graphics.ExecuteCommandBuffer(commands); CommandBufferPool.Release(commands);
         return mask;
     }
@@ -94,12 +112,20 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
     {
         renderers.Clear();
         blocos.Clear();
+        interioresPortais.Clear();
+        submalhas.Clear();
+        if (gravityInteract == null) gravityInteract = FindFirstObjectByType<GravityInteract>();
         foreach (Renderer target in FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (target is MeshRenderer && target.gameObject.scene == targetCamera.gameObject.scene &&
+                target.GetComponentInParent<PortalParticleEffect>() != null) interioresPortais.Add(target);
             if (CanOutline(target))
             {
                 renderers.Add(target);
+                submalhas[target] = Mathf.Max(1, target.sharedMaterials.Length);
                 if (target.GetComponentInParent<MathBlockValue>() != null) blocos.Add(target);
             }
+        }
         nextRefresh = Time.unscaledTime + 1f;
     }
 
@@ -120,14 +146,6 @@ public sealed class ScreenSpaceOutlineEffect : MonoBehaviour
                 current.CompareTag("Cloud")) return false;
         }
         return target.sharedMaterials != null && target.sharedMaterials.Length > 0;
-    }
-
-    private bool IsHeld(Renderer target)
-    {
-        if (gravityInteract == null) gravityInteract = FindFirstObjectByType<GravityInteract>();
-        if (gravityInteract == null || !gravityInteract.IsHoldingObject || gravityInteract.GrabbedObject == null) return false;
-        Transform held = gravityInteract.GrabbedObject;
-        return target.transform == held || target.transform.IsChildOf(held);
     }
 
     private void OnDestroy()

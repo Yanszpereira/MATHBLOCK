@@ -40,7 +40,6 @@ public sealed class DistanceFogBlur : MonoBehaviour
 
     [Header("Performance")]
     [SerializeField, Range(1, 4)] private int desktopDownsample = 1;
-    [SerializeField, Range(1, 4)] private int androidDownsample = 2;
     [SerializeField] private bool disableOnVeryLowMemoryAndroid = true;
     [SerializeField, Min(512)] private int minimumMemoryMb = 1800;
 
@@ -56,6 +55,10 @@ public sealed class DistanceFogBlur : MonoBehaviour
     private Renderer[] phaseTwoScenarioRenderers;
     private float nextParticleRefreshTime;
     private readonly HashSet<Renderer> exclusionRenderers = new HashSet<Renderer>();
+    private readonly Dictionary<Renderer, int> submalhas = new Dictionary<Renderer, int>();
+    private readonly Plane[] planosVisiveis = new Plane[6];
+    private Transform objetoSegurado;
+    private Renderer[] renderizadoresSegurados;
 
     private static readonly int StartDistanceId = Shader.PropertyToID("_StartDistance");
     private static readonly int FullDistanceId = Shader.PropertyToID("_FullDistance");
@@ -166,8 +169,10 @@ public sealed class DistanceFogBlur : MonoBehaviour
             return;
         }
 
-        bool mobile = Application.platform == RuntimePlatform.Android;
-        int downsample = Mathf.Max(1, mobile ? androidDownsample : desktopDownsample);
+        bool mobile = PerfilDesempenhoMobile.Ativo;
+        // Reduzir a imagem de entrada borrava tambem os numeros excluidos do blur.
+        // Android preserva a imagem integral e simplifica apenas as amostras do fog distante.
+        int downsample = mobile ? 1 : Mathf.Max(1, desktopDownsample);
 
         material.SetFloat(StartDistanceId, startDistance);
         material.SetFloat(FullDistanceId, Mathf.Max(startDistance + 0.1f, fullBlurDistance));
@@ -189,8 +194,12 @@ public sealed class DistanceFogBlur : MonoBehaviour
         material.SetFloat(DownDarkeningId, downwardDarkening);
         material.SetFloat(MobileQualityId, mobile ? 1f : 0f);
 
-        RenderTexture exclusionMask = BuildExclusionMask(source.width, source.height);
-        RenderTexture dotExclusionMask = BuildDotExclusionMask(source.width, source.height);
+        GeometryUtility.CalculateFrustumPlanes(targetCamera, planosVisiveis);
+        int divisorMascara = mobile ? 2 : 1;
+        int larguraMascara = Mathf.Max(1, source.width / divisorMascara);
+        int alturaMascara = Mathf.Max(1, source.height / divisorMascara);
+        RenderTexture exclusionMask = BuildExclusionMask(larguraMascara, alturaMascara);
+        RenderTexture dotExclusionMask = BuildDotExclusionMask(larguraMascara, alturaMascara);
         material.SetTexture(ExclusionMaskId, exclusionMask != null ? exclusionMask : Texture2D.blackTexture);
         material.SetTexture(DotExclusionMaskId, dotExclusionMask != null ? dotExclusionMask : Texture2D.blackTexture);
 
@@ -238,10 +247,11 @@ public sealed class DistanceFogBlur : MonoBehaviour
 
         foreach (Renderer targetRenderer in phaseTwoScenarioRenderers)
         {
-            if (targetRenderer == null || !targetRenderer.enabled || !targetRenderer.gameObject.activeInHierarchy)
+            if (targetRenderer == null || !targetRenderer.enabled || !targetRenderer.gameObject.activeInHierarchy ||
+                !GeometryUtility.TestPlanesAABB(planosVisiveis, targetRenderer.bounds))
                 continue;
 
-            int materialCount = Mathf.Max(1, targetRenderer.sharedMaterials.Length);
+            int materialCount = ContarSubmalhas(targetRenderer);
             for (int materialIndex = 0; materialIndex < materialCount; materialIndex++)
                 commands.DrawRenderer(targetRenderer, exclusionMaskMaterial, materialIndex, 0);
         }
@@ -294,13 +304,15 @@ public sealed class DistanceFogBlur : MonoBehaviour
                     exclusionRenderers.Add(targetRenderer);
         }
 
-        if (gravityInteract == null)
-            gravityInteract = FindFirstObjectByType<GravityInteract>();
-
-        if (gravityInteract != null && gravityInteract.IsHoldingObject)
+        Transform segurado = gravityInteract != null && gravityInteract.IsHoldingObject ? gravityInteract.GrabbedObject : null;
+        if (segurado != objetoSegurado)
         {
-            Renderer[] heldRenderers = gravityInteract.GrabbedObject.GetComponentsInChildren<Renderer>(true);
-            foreach (Renderer heldRenderer in heldRenderers)
+            objetoSegurado = segurado;
+            renderizadoresSegurados = segurado != null ? segurado.GetComponentsInChildren<Renderer>(true) : null;
+        }
+        if (renderizadoresSegurados != null)
+        {
+            foreach (Renderer heldRenderer in renderizadoresSegurados)
                 if (heldRenderer != null)
                     exclusionRenderers.Add(heldRenderer);
         }
@@ -322,7 +334,8 @@ public sealed class DistanceFogBlur : MonoBehaviour
 
         foreach (Renderer targetRenderer in exclusionRenderers)
         {
-            int materialCount = Mathf.Max(1, targetRenderer.sharedMaterials.Length);
+            if (!GeometryUtility.TestPlanesAABB(planosVisiveis, targetRenderer.bounds)) continue;
+            int materialCount = ContarSubmalhas(targetRenderer);
             for (int materialIndex = 0; materialIndex < materialCount; materialIndex++)
                 commands.DrawRenderer(targetRenderer, exclusionMaskMaterial, materialIndex, 0);
         }
@@ -342,8 +355,20 @@ public sealed class DistanceFogBlur : MonoBehaviour
                 exclusionRenderers.Add(targetRenderer);
     }
 
-private void RefreshParticleRenderers()
+    private int ContarSubmalhas(Renderer renderizador)
     {
+        if (!submalhas.TryGetValue(renderizador, out int quantidade))
+        {
+            quantidade = Mathf.Max(1, renderizador.sharedMaterials.Length);
+            submalhas[renderizador] = quantidade;
+        }
+        return quantidade;
+    }
+
+    private void RefreshParticleRenderers()
+    {
+        submalhas.Clear();
+        if (gravityInteract == null) gravityInteract = FindFirstObjectByType<GravityInteract>();
         // Particulas transparentes devem receber o fog do pos-processamento.
         // Exclusoes continuam sendo opt-in via DistanceFogBlurExclude.
         particleRenderers = null;

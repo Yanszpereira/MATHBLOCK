@@ -55,6 +55,9 @@ Shader "Hidden/MathBlock/DistanceFogBlur"
                 fog *= 1.0 - saturate(exclusion);
                 half localDownLook = _DownLook * (1.0h - saturate(exclusion));
 
+                // Blocos protegidos permanecem nitidos e dispensam as amostras do blur.
+                if (fog <= 0.001 && localDownLook <= 0.001) return center;
+
                 float2 offset = _MainTex_TexelSize.xy * _BlurRadius * fog;
 
                 half4 blurred = center * 0.32h;

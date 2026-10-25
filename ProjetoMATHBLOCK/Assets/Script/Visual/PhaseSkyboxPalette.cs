@@ -67,6 +67,8 @@ public sealed class PhaseSkyboxPalette : MonoBehaviour
         tempo = Time.timeSinceLevelLoad;
         FracaoTransicao = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((tempo - esperaInicial) / duracaoFade));
         Aplicar(FracaoTransicao);
+        // O gerador continua animando as nuvens; nao reenvia cores ja estabilizadas.
+        if (FracaoTransicao >= 1f && nuvens != null) enabled = false;
     }
 
     private void Aplicar(float fracao)

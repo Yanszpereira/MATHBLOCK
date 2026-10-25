@@ -39,6 +39,12 @@ public class Look : MonoBehaviour
     [SerializeField] private float pencilHorizontalAmplitude = 0.05f;
     [SerializeField] private float pencilRotationAmplitude = 4f;
 
+    [Header("Energia dos portais")]
+    [SerializeField, Min(0f)] private float portalShakeStrength = 0.045f;
+    [SerializeField, Min(0f)] private float portalShakeRotation = 0.75f;
+    private Vector3 lastPortalShakeOffset;
+    private float currentPortalPitch, currentPortalRoll, portalIntensity;
+
     private float xRotation;
     private Vector2 mouseInput;
     private Vector2 touchInput;
@@ -108,9 +114,11 @@ public class Look : MonoBehaviour
     private void OnDisable()
     {
         if (cameraTransform != null)
-            cameraTransform.localPosition -= lastJumpShakeOffset + lastFallShakeOffset;
+            cameraTransform.localPosition -= lastJumpShakeOffset + lastFallShakeOffset + lastPortalShakeOffset;
         lastJumpShakeOffset = Vector3.zero;
         lastFallShakeOffset = Vector3.zero;
+        lastPortalShakeOffset = Vector3.zero;
+        currentPortalPitch = currentPortalRoll = portalIntensity = 0f;
         jumpShakeActive = false;
         currentJumpPitch = 0f;
         currentJumpRoll = 0f;
@@ -182,11 +190,14 @@ public class Look : MonoBehaviour
         lastJumpShakeOffset = Vector3.zero;
         cameraTransform.localPosition -= lastFallShakeOffset;
         lastFallShakeOffset = Vector3.zero;
+        cameraTransform.localPosition -= lastPortalShakeOffset;
+        lastPortalShakeOffset = Vector3.zero;
 
         if (!enableWalkBob || controller == null)
         {
             ApplyJumpShake();
             ApplyFallShake();
+            ApplyPortalShake();
             return;
         }
 
@@ -208,6 +219,7 @@ public class Look : MonoBehaviour
             cameraTransform.localPosition = defaultCameraLocalPosition + bobOffset;
             ApplyJumpShake();
             ApplyFallShake();
+            ApplyPortalShake();
             currentCameraTilt = horizontalWave * cameraTiltAmplitude;
             ApplyCameraRotation();
             ApplyPencilBob(verticalWave, horizontalWave);
@@ -222,6 +234,7 @@ public class Look : MonoBehaviour
         );
         ApplyJumpShake();
         ApplyFallShake();
+        ApplyPortalShake();
         currentCameraTilt = Mathf.Lerp(currentCameraTilt, 0f, bobReturnSpeed * Time.deltaTime);
         ApplyCameraRotation();
         ResetPencilBob();
@@ -294,9 +307,30 @@ public class Look : MonoBehaviour
         }
 
         cameraTransform.localRotation = Quaternion.Euler(
-            xRotation + currentJumpPitch + currentFallPitch,
+            xRotation + currentJumpPitch + currentFallPitch + currentPortalPitch,
             0f,
-            currentCameraTilt + currentJumpRoll + currentFallRoll);
+            currentCameraTilt + currentJumpRoll + currentFallRoll + currentPortalRoll);
+    }
+
+    private void ApplyPortalShake()
+    {
+        if (cameraTransform == null) return;
+        if (Time.timeScale <= 0f)
+        {
+            currentPortalPitch = currentPortalRoll = portalIntensity = 0f;
+            ApplyCameraRotation();
+            return;
+        }
+        float alvo = PortalParticleEffect.IntensidadeProxima(cameraTransform.position);
+        portalIntensity = Mathf.MoveTowards(portalIntensity, alvo, Time.deltaTime * 3f);
+        float fase = Time.time * 22f;
+        float x = Mathf.PerlinNoise(fase, 2.71f) * 2f - 1f;
+        float y = Mathf.PerlinNoise(7.23f, fase * 1.17f) * 2f - 1f;
+        lastPortalShakeOffset = new Vector3(x, y, 0f) * portalShakeStrength * portalIntensity;
+        cameraTransform.localPosition += lastPortalShakeOffset;
+        currentPortalPitch = y * portalShakeRotation * portalIntensity;
+        currentPortalRoll = x * portalShakeRotation * portalIntensity;
+        ApplyCameraRotation();
     }
 
     private void ApplyPencilBob(float verticalWave, float horizontalWave)

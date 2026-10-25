@@ -7,6 +7,12 @@
   {
       private const string ToonShaderName = "Custom/URPToonShader";
       private readonly List<Material> runtimeMaterials = new List<Material>();
+      // Materiais identicos de cenario podem ser compartilhados. Blocos e operadores
+      // mantem instancias isoladas porque suas animacoes alteram cores em runtime.
+      private readonly Dictionary<(Material, int), Material> materiaisCompartilhados = new();
+
+      private static bool PodeCompartilhar(Renderer target) =>
+          target.GetComponentInParent<MathBlockValue>() == null && target.GetComponentInParent<opItem>() == null;
 
       [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
       private static void Install()
@@ -47,7 +53,8 @@
 
               // O ceu possui seu proprio shader e transicao de paleta.
               // Nao clonar esses materiais depois que o fade ja os vinculou.
-              if (target != null && BelongsToSky(target.transform))
+              if (target != null && (BelongsToSky(target.transform) ||
+                  target.GetComponentInParent<PortalParticleEffect>() != null))
                   continue;
 
               // A geometria da Fase 2 deve conservar integralmente os materiais
@@ -251,12 +258,15 @@
 
           Material[] originals = target.sharedMaterials;
           Material[] replacements = new Material[originals.Length];
+          bool compartilhar = PodeCompartilhar(target);
           for (int i = 0; i < originals.Length; i++)
           {
               Material source = originals[i];
               if (source == null)
                   continue;
 
+              if (compartilhar && materiaisCompartilhados.TryGetValue((source, 0), out Material existente))
+              { replacements[i] = existente; continue; }
               Material replacement = new Material(source)
               {
                   name = source.name + " (No Reflections)",
@@ -271,6 +281,7 @@
               replacement.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
               replacements[i] = replacement;
               runtimeMaterials.Add(replacement);
+              if (compartilhar) materiaisCompartilhados[(source, 0)] = replacement;
           }
           target.sharedMaterials = replacements;
       }
@@ -288,11 +299,14 @@
               return;
 
           Material[] converted = new Material[originals.Length];
+          bool compartilhar = PodeCompartilhar(target);
           for (int i = 0; i < originals.Length; i++)
           {
               Material source = originals[i];
               if (source == null) continue;
 
+              if (compartilhar && materiaisCompartilhados.TryGetValue((source, 1), out Material existente))
+              { converted[i] = existente; continue; }
               Material replacement = new Material(matteShader)
               {
                   name = source.name + " (Matte Ground)",
@@ -335,6 +349,7 @@
 
               converted[i] = replacement;
               runtimeMaterials.Add(replacement);
+              if (compartilhar) materiaisCompartilhados[(source, 1)] = replacement;
           }
 
           target.sharedMaterials = converted;
@@ -354,12 +369,15 @@
           }
 
           Material[] converted = new Material[originals.Length];
+          bool compartilhar = PodeCompartilhar(target);
           for (int i = 0; i < originals.Length; i++)
           {
               Material source = originals[i];
               if (source == null)
                   continue;
 
+              if (compartilhar && materiaisCompartilhados.TryGetValue((source, 2), out Material existente))
+              { converted[i] = existente; continue; }
               Material replacement = new Material(dottedShader)
               {
                   name = source.name + " (Subtle Dotted Matte)",
@@ -378,6 +396,7 @@
 
               converted[i] = replacement;
               runtimeMaterials.Add(replacement);
+              if (compartilhar) materiaisCompartilhados[(source, 2)] = replacement;
           }
 
           target.sharedMaterials = converted;
@@ -391,10 +410,15 @@
       {
           Material[] originals = target.sharedMaterials;
           Material[] converted = new Material[originals.Length];
+          bool compartilhar = PodeCompartilhar(target);
+          int variante = 3 + (isGround ? 1 : 0) + (enableLegacyOutline ? 2 : 0);
 
           for (int i = 0; i < originals.Length; i++)
           {
               Material source = originals[i];
+              if (source == null) continue;
+              if (compartilhar && materiaisCompartilhados.TryGetValue((source, variante), out Material existente))
+              { converted[i] = existente; continue; }
               string textureProperty = source.HasProperty("_MainTex")
                   ? "_MainTex"
                   : source.HasProperty("_BaseMap") ? "_BaseMap" : null;
@@ -452,6 +476,7 @@
               }
               converted[i] = toon;
               runtimeMaterials.Add(toon);
+              if (compartilhar) materiaisCompartilhados[(source, variante)] = toon;
           }
 
           target.sharedMaterials = converted;

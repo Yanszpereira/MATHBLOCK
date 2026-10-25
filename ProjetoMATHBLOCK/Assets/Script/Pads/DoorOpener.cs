@@ -25,6 +25,8 @@ public class DoorOpener : MonoBehaviour
     private readonly List<PlayableGraph> activeGraphs = new List<PlayableGraph>();
 
     public bool HasOpened => hasOpened;
+    private float aberturaCompletaEm = float.PositiveInfinity;
+    public bool IsFullyOpen => hasOpened && Time.time >= aberturaCompletaEm;
 
     public bool TryGetDoorBounds(out Bounds bounds)
     {
@@ -61,6 +63,7 @@ public class DoorOpener : MonoBehaviour
     private void Awake()
     {
         hasOpened = false;
+        aberturaCompletaEm = float.PositiveInfinity;
         PrepareDoorForManualPlayback(rightDoorAnimator, "direita");
         PrepareDoorForManualPlayback(leftDoorAnimator, "esquerda");
     }
@@ -74,6 +77,8 @@ public class DoorOpener : MonoBehaviour
         }
 
         hasOpened = true;
+        aberturaCompletaEm = Time.time + Mathf.Max(rightDoorOpeningClip != null ? rightDoorOpeningClip.length : 0f,
+            leftDoorOpeningClip != null ? leftDoorOpeningClip.length : 0f);
 
         bool openedRight = PlayDoorClip(rightDoorAnimator, rightDoorOpeningClip, "direita");
         bool openedLeft = PlayDoorClip(leftDoorAnimator, leftDoorOpeningClip, "esquerda");

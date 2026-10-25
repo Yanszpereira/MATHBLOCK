@@ -18,33 +18,66 @@ public sealed class PortalParticleEffect : MonoBehaviour
         YZ
     }
 
-    private static readonly Gradient PortalColorGradient = CreatePortalColorGradient();
-
-    private static Gradient CreatePortalColorGradient()
+    private static readonly Gradient PortalColorGradient = CriarPaleta();
+    private static Gradient CriarPaleta()
     {
-        Gradient gradient = new Gradient();
-        gradient.SetKeys(
-            new[]
-            {
-                new GradientColorKey(new Color(0.08f, 0.42f, 1f), 0f),
-                new GradientColorKey(Color.white, 0.25f),
-                new GradientColorKey(new Color(0.48f, 0.52f, 0.58f), 0.5f),
-                new GradientColorKey(Color.white, 0.75f),
-                new GradientColorKey(new Color(0.08f, 0.42f, 1f), 1f)
-            },
-            new[]
-            {
-                new GradientAlphaKey(1f, 0f),
-                new GradientAlphaKey(1f, 1f)
-            });
+        var gradiente = new Gradient();
+        gradiente.SetKeys(new[] {
+            new GradientColorKey(new Color(0.42f, 0.18f, 1f), 0f),
+            new GradientColorKey(Color.white, 0.20f),
+            new GradientColorKey(new Color(0.12f, 0.42f, 1f), 0.40f),
+            new GradientColorKey(Color.white, 0.58f),
+            new GradientColorKey(Color.white, 0.82f),
+            new GradientColorKey(new Color(0.50f, 0.22f, 1f), 1f)
+        }, new[] { new GradientAlphaKey(0.5f, 0f), new GradientAlphaKey(0.5f, 1f) });
+        return gradiente;
+    }
 
-        return gradient;
+    private static readonly HashSet<PortalParticleEffect> portaisAtivos = new();
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void LimparPortais() => portaisAtivos.Clear();
+
+    [Header("Tremor por proximidade")]
+    [SerializeField, Min(0.1f)] private float raioTremor = 4.5f;
+    [SerializeField] private DoorOpener portaFinal;
+    public static float IntensidadeProxima(Vector3 posicao)
+    {
+        float intensidade = 0f;
+        foreach (var portal in portaisAtivos)
+        {
+            if (portal == null || !portal.isActiveAndEnabled || portal.portaFinal == null || !portal.portaFinal.IsFullyOpen) continue;
+            float distancia = Vector3.Distance(posicao, portal.CentroInteriorMundo);
+            intensidade = Mathf.Max(intensidade, Mathf.SmoothStep(0f, 1f,
+                1f - Mathf.InverseLerp(0.8f, portal.raioTremor, distancia)));
+        }
+        return intensidade;
     }
 
     [Header("Área do portal")]
     [SerializeField]
     [Tooltip("Plano 2D usado para desenhar o portal dentro do BoxCollider.")]
     private PortalPlane plane = PortalPlane.XY;
+
+    [Header("Interior da porta (sem alterar o collider de transicao)")]
+    [SerializeField] private Vector3 centroInterior;
+    [SerializeField] private Vector2 tamanhoInterior;
+    [SerializeField] private float deslocamentoFundo = 0.035f;
+    private Mesh malhaFundo;
+    private GameObject fundo;
+
+    public void ConfigurarInterior(Vector3 centro, Vector2 tamanho, PortalPlane plano, float sentidoNormal, DoorOpener porta)
+    {
+        centroInterior = centro;
+        tamanhoInterior = tamanho;
+        plane = plano;
+        deslocamentoFundo = Mathf.Sign(sentidoNormal) * 0.035f;
+        portaFinal = porta;
+    }
+
+    public Vector3 CentroInteriorMundo
+    {
+        get { GetPlaneAxes(out Vector3 centro, out _, out _, out _); return transform.TransformPoint(centro); }
+    }
 
     [Header("Partículas")]
     [SerializeField, Min(1)]
@@ -99,18 +132,30 @@ public sealed class PortalParticleEffect : MonoBehaviour
         public float lifetime;
         public float size;
         public int lightIndex;
+        public bool rajada;
     }
 
     private void Awake()
     {
         CacheComponents();
         ConfigureParticleSystems();
+        CriarFundoRetangular();
+        int aquecimento = Mathf.Min(maxParticles, Mathf.CeilToInt(emissionRate * particleLifetime));
+        for (int i = 0; i < aquecimento; i++)
+        {
+            PortalParticle particula = CreateParticle();
+            particula.age = Random.value * particula.lifetime;
+            particles.Add(particula);
+        }
     }
 
     private void OnEnable()
     {
+        portaisAtivos.Add(this);
         if (particleSystems == null)
             return;
+
+        if (fundo != null) fundo.SetActive(true);
 
         for (int i = 0; i < particleSystems.Length; i++)
         {
@@ -135,6 +180,8 @@ public sealed class PortalParticleEffect : MonoBehaviour
 
     private void OnDisable()
     {
+        portaisAtivos.Remove(this);
+        if (fundo != null) fundo.SetActive(false);
         particles.Clear();
         emissionAccumulator = 0f;
 
@@ -157,6 +204,41 @@ public sealed class PortalParticleEffect : MonoBehaviour
         }
 
         runtimeMaterials.Clear();
+        if (malhaFundo != null) Destroy(malhaFundo);
+    }
+
+    private void CriarFundoRetangular()
+    {
+        Shader shader = Resources.Load<Shader>("Portal/PortalEspiralRetangular");
+        if (shader == null || !shader.isSupported)
+        {
+            Debug.LogError("Shader do interior do portal indisponivel.", this);
+            return;
+        }
+        GetPlaneAxes(out Vector3 centro, out Vector3 eixoU, out Vector3 eixoV, out Vector2 metade);
+        Vector3 normal = Vector3.Cross(eixoU, eixoV);
+        centro += normal * deslocamentoFundo;
+        malhaFundo = new Mesh { name = "Interior retangular do portal" };
+        malhaFundo.vertices = new[] {
+            centro - eixoU * metade.x - eixoV * metade.y, centro + eixoU * metade.x - eixoV * metade.y,
+            centro + eixoU * metade.x + eixoV * metade.y, centro - eixoU * metade.x + eixoV * metade.y };
+        malhaFundo.uv = new[] { Vector2.zero, Vector2.right, Vector2.one, Vector2.up };
+        malhaFundo.triangles = new[] { 0, 1, 2, 0, 2, 3 };
+        malhaFundo.RecalculateNormals();
+        malhaFundo.RecalculateBounds();
+        fundo = new GameObject("Interior espiral - opaco");
+        fundo.layer = gameObject.layer;
+        fundo.transform.SetParent(transform, false);
+        fundo.AddComponent<MeshFilter>().sharedMesh = malhaFundo;
+        MeshRenderer renderizador = fundo.AddComponent<MeshRenderer>();
+        var material = new Material(shader) { name = "Portal branco, roxo e azul", hideFlags = HideFlags.HideAndDontSave };
+        renderizador.sharedMaterial = material;
+        renderizador.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        renderizador.receiveShadows = false;
+        renderizador.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
+        renderizador.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
+        runtimeMaterials.Add(material);
+        fundo.AddComponent<DistanceFogBlurExclude>();
     }
 
     private void Reset()
@@ -258,6 +340,7 @@ public sealed class PortalParticleEffect : MonoBehaviour
         main.startSize = particleSize;
         main.startColor = Color.white;
         main.gravityModifier = 0f;
+        main.cullingMode = ParticleSystemCullingMode.AlwaysSimulate;
 
         ParticleSystem.EmissionModule emission = target.emission;
         emission.enabled = false;
@@ -273,6 +356,11 @@ public sealed class PortalParticleEffect : MonoBehaviour
         renderer.renderMode = ParticleSystemRenderMode.Billboard;
         renderer.alignment = ParticleSystemRenderSpace.View;
         renderer.maxParticleSize = 0.5f;
+        GetPlaneAxes(out Vector3 centro, out Vector3 eixoU, out Vector3 eixoV, out Vector2 metade);
+        Vector3 tamanho = Abs(eixoU) * (metade.x * 2f + 0.5f) + Abs(eixoV) * (metade.y * 2f + 0.5f)
+            + Abs(Vector3.Cross(eixoU, eixoV)) * 5f;
+        renderer.localBounds = new Bounds(centro, tamanho);
+        renderer.allowOcclusionWhenDynamic = false;
 
         Material material = CreateParticleMaterial(lightIndex);
 
@@ -309,7 +397,7 @@ public sealed class PortalParticleEffect : MonoBehaviour
 
     private static Material CreateDefaultParticleMaterial()
     {
-        Shader shader = Shader.Find("Particles/Additive");
+        Shader shader = Resources.Load<Shader>("Portal/ParticulasEnergia");
 
         if (shader == null)
             shader = Shader.Find("Legacy Shaders/Particles/Additive");
@@ -344,6 +432,8 @@ public sealed class PortalParticleEffect : MonoBehaviour
         return material;
     }
 
+    private static Vector3 Abs(Vector3 valor) => new Vector3(Mathf.Abs(valor.x), Mathf.Abs(valor.y), Mathf.Abs(valor.z));
+
     private Texture2D GetLightTexture(int lightIndex)
     {
         if (lightTextures == null ||
@@ -361,7 +451,8 @@ public sealed class PortalParticleEffect : MonoBehaviour
         if (particleSystems == null)
             return;
 
-        int bufferSize = Mathf.Max(1, maxParticles);
+        // A cena antiga reservava 50 mil posicoes por textura para cerca de 2 mil particulas vivas.
+        int bufferSize = Mathf.Max(1, Mathf.Min(maxParticles, Mathf.CeilToInt(emissionRate * particleLifetime * 1.2f) + 1));
 
         if (particleBuffers == null || particleBuffers.Length != LightTextureCount)
             particleBuffers = new ParticleSystem.Particle[LightTextureCount][];
@@ -372,7 +463,7 @@ public sealed class PortalParticleEffect : MonoBehaviour
                 particleBuffers[i] = new ParticleSystem.Particle[bufferSize];
 
             ParticleSystem.MainModule main = particleSystems[i].main;
-            main.maxParticles = bufferSize;
+            if (main.maxParticles != bufferSize) main.maxParticles = bufferSize;
         }
 
         if (particleCounts == null || particleCounts.Length != LightTextureCount)
@@ -405,13 +496,17 @@ public sealed class PortalParticleEffect : MonoBehaviour
 
         Vector2 startOffset = GetRandomPointOnRectangleBorder(halfSize);
         float size = Mathf.Max(0.001f, particleSize + Random.Range(-particleSizeVariation, particleSizeVariation));
+        // Rajadas adicionais. A espiral e as texturas originais continuam intactas.
+        bool rajada = portaFinal != null && portaFinal.IsFullyOpen &&
+            Mathf.Repeat(Time.time, 1.1f) < 0.18f && Random.value < 0.7f;
 
         return new PortalParticle
         {
             startOffset = startOffset,
             age = 0f,
-            lifetime = particleLifetime * Random.Range(0.8f, 1.2f),
+            lifetime = rajada ? Random.Range(0.8f, 1.3f) : particleLifetime * Random.Range(0.8f, 1.2f),
             size = size,
+            rajada = rajada,
             lightIndex = Random.Range(0, LightTextureCount)
         };
     }
@@ -436,6 +531,8 @@ public sealed class PortalParticleEffect : MonoBehaviour
     private void RenderParticles()
     {
         GetPlaneAxes(out Vector3 center, out Vector3 axisU, out Vector3 axisV, out _);
+        Vector3 normal = Vector3.Cross(axisU, axisV);
+        float escalaNormal = Mathf.Max(0.01f, transform.TransformVector(normal).magnitude);
         System.Array.Clear(particleCounts, 0, particleCounts.Length);
 
         for (int i = 0; i < particles.Count; i++)
@@ -451,12 +548,21 @@ public sealed class PortalParticleEffect : MonoBehaviour
             float contraction = 1f - progress;
             float direction = clockwise ? -1f : 1f;
             float angle = direction * progress * spiralRevolutions * Mathf.PI * 2f;
+            // Trajetoria original: a rotacao livre deixa a energia vazar pela moldura.
             Vector2 rotatedOffset = Rotate(portalParticle.startOffset * contraction, angle);
+            float profundidade = 0f;
+            if (portalParticle.rajada)
+            {
+                rotatedOffset = Rotate(portalParticle.startOffset * (0.35f + progress * 0.85f), angle);
+                profundidade = -Mathf.Sign(deslocamentoFundo) * (0.1f + progress * 2f) / escalaNormal;
+            }
 
             ParticleSystem.Particle particle = particleBuffers[lightIndex][particleIndex];
-            particle.position = center + axisU * rotatedOffset.x + axisV * rotatedOffset.y;
-            particle.startColor = PortalColorGradient.Evaluate(progress);
-            particle.startSize = portalParticle.size;
+            particle.position = center + axisU * rotatedOffset.x + axisV * rotatedOffset.y + normal * profundidade;
+            Color cor = PortalColorGradient.Evaluate(progress);
+            if (portalParticle.rajada) cor.a *= 1f - progress;
+            particle.startColor = cor;
+            particle.startSize = portalParticle.size * (portalParticle.rajada ? 1f + progress * 0.65f : 1f);
             particle.startLifetime = portalParticle.lifetime;
             particle.remainingLifetime = portalParticle.lifetime - portalParticle.age;
             particle.rotation3D = Vector3.zero;
@@ -536,6 +642,11 @@ public sealed class PortalParticleEffect : MonoBehaviour
                     ? new Vector2(portalCollider.size.x, portalCollider.size.y) * 0.5f
                     : Vector2.one * 0.5f;
                 break;
+        }
+        if (tamanhoInterior.x > 0f && tamanhoInterior.y > 0f)
+        {
+            center = centroInterior;
+            halfSize = tamanhoInterior * 0.5f;
         }
     }
 

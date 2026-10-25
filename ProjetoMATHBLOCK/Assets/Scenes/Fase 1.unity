@@ -17495,7 +17495,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50b96b0be5e4f224f88869ef82f4c208, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PortalParticleEffect
+  raioTremor: 4.5
+  portaFinal: {fileID: 288433775}
   plane: 0
+  centroInterior: {x: 1.0923128, y: 1.2050185, z: -0.45604172}
+  tamanhoInterior: {x: 2.5812426, y: 4.609394}
+  deslocamentoFundo: 0.035
   maxParticles: 50000
   emissionRate: 600
   particleLifetime: 2.8

@@ -4,13 +4,14 @@ Shader "Hidden/MathBlock/ScreenSpaceOutlineMask"
     {
         Pass
         {
-            Cull Off ZWrite Off ZTest Always ColorMask RG
+            Cull Off ZWrite Off ZTest Always ColorMask RGB
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
             sampler2D _CameraDepthNormalsTexture;
             float _MathBlockOutlineMask;
+            float _PortalOutlineExclude;
             struct A { float4 vertex:POSITION; };
             struct V { float4 pos:SV_POSITION; float4 screen:TEXCOORD0; float eye:TEXCOORD1; };
             V vert(A i) { V o; o.pos=UnityObjectToClipPos(i.vertex); o.screen=ComputeScreenPos(o.pos); o.eye=-UnityObjectToViewPos(i.vertex).z; return o; }
@@ -20,7 +21,7 @@ Shader "Hidden/MathBlock/ScreenSpaceOutlineMask"
                 DecodeDepthNormal(tex2D(_CameraDepthNormalsTexture,uv),depth,normal);
                 float scene=depth*_ProjectionParams.z;
                 clip(scene+max(0.03,scene*0.002)-i.eye);
-                return fixed4(1,_MathBlockOutlineMask,0,1);
+                return fixed4(1.0-_PortalOutlineExclude,_MathBlockOutlineMask,_PortalOutlineExclude,1);
             }
             ENDCG
         }

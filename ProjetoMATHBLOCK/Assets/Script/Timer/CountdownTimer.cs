@@ -169,7 +169,23 @@ public class CountdownTimer : MonoBehaviour
 
         TimerResetFadeCompletion.Attach(fadeGroup, fadeInDuration);
         BlockResizeController.ExitAllForSceneTransition();
+        PararAudioDaCena(activeScene);
         SceneManager.LoadScene(resetSceneName, LoadSceneMode.Single);
+    }
+
+    private static void PararAudioDaCena(Scene cena)
+    {
+        // Para somente os emissores da fase antiga, quando a tela ja esta preta.
+        // Nao interrompe o bus global nem a musica da fase que sera carregada.
+        foreach (FMODUnity.StudioEventEmitter emissor in FindObjectsByType<FMODUnity.StudioEventEmitter>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (emissor == null || emissor.gameObject.scene != cena) continue;
+            bool permitirFade = emissor.AllowFadeout;
+            emissor.AllowFadeout = false;
+            emissor.Stop();
+            emissor.AllowFadeout = permitirFade;
+        }
     }
 
     private void EnsureFadeOverlay(float initialAlpha)

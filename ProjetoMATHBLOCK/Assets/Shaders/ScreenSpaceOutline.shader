@@ -34,7 +34,8 @@ Shader "Hidden/MathBlock/ScreenSpaceOutline"
                     max(max(tex2D(_OutlineObjectMask,uv-float2(o.x,0)).r,tex2D(_OutlineObjectMask,uv+float2(o.x,0)).r),
                         max(tex2D(_OutlineObjectMask,uv-float2(0,o.y)).r,tex2D(_OutlineObjectMask,uv+float2(0,o.y)).r)));
                 fixed4 scene = tex2D(_MainTex,uv);
-                return lerp(scene,fixed4(_OutlineColor.rgb,scene.a),edge*saturate(selected*2)*_OutlineColor.a);
+                float interiorPortal = tex2D(_OutlineObjectMask,uv).b;
+                return lerp(scene,fixed4(_OutlineColor.rgb,scene.a),edge*saturate(selected*2)*_OutlineColor.a*(1.0-interiorPortal));
             }
             ENDCG
         }

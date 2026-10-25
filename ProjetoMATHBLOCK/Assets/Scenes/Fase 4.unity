@@ -2099,6 +2099,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MathBlockSpawner
       objectReference: {fileID: 0}
+    - target: {fileID: 2862294720460524906, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: generateOnStart
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.6666665
@@ -4172,6 +4176,10 @@ PrefabInstance:
     - target: {fileID: 773854038520820487, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
       propertyPath: m_Name
       value: MathBlockSpawner
+      objectReference: {fileID: 0}
+    - target: {fileID: 2862294720460524906, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
+      propertyPath: generateOnStart
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
       propertyPath: m_LocalScale.x
