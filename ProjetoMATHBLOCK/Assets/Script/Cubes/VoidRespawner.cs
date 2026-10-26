@@ -308,9 +308,8 @@ public class VoidRespawner : MonoBehaviour
         if (!CanRespawn(instanceId))
             return;
 
-        // Blocos gerados pelo desafio da Fase 4 retornam à origem registrada
-        // da tentativa. Todos os outros MathBlocks mantêm o respawn global
-        // existente, inclusive blocos carregados pelo jogador.
+        // Blocos gerados pela arena matematica mantem o respawn especial
+        // na origem registrada durante a tentativa.
         Fase4SpawnedMathBlock fase4Block = block.GetComponent<Fase4SpawnedMathBlock>();
         if (fase4Block != null && fase4Block.TryGetReturnPose(out Vector3 origin, out Quaternion originRotation))
         {
@@ -332,7 +331,14 @@ public class VoidRespawner : MonoBehaviour
             return;
         }
 
-        Vector3 targetPosition = GetRespawnPosition(blockRespawnOffset);
+        // Blocos do ProceduralMathBlockSpawner retornam a um novo ponto
+        // dentro da area X/Z do spawner que os gerou. Outros MathBlocks
+        // continuam utilizando o respawn global anterior.
+        SpawnerOwnedMathBlock ownership = block.GetComponent<SpawnerOwnedMathBlock>();
+        ProceduralMathBlockSpawner owner = ownership != null ? ownership.Owner : null;
+        Vector3 targetPosition = owner != null
+            ? owner.GetRandomBlockRespawnPosition()
+            : GetRespawnPosition(blockRespawnOffset);
         Transform blockTransform = block.transform;
 
         if (block.TryGetComponent(out Rigidbody rb))
