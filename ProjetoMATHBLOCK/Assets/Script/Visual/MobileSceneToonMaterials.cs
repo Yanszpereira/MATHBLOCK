@@ -471,7 +471,8 @@
 
           for (Transform current = target.transform; current != null; current = current.parent)
           {
-              if (current.name.Equals("Fase4_SegundaMetade", System.StringComparison.OrdinalIgnoreCase))
+              if (current.name.Equals("Fase4_SegundaMetade", System.StringComparison.OrdinalIgnoreCase) ||
+                    current.name.Equals("Cenariofase4v2", System.StringComparison.OrdinalIgnoreCase))
                   return true;
           }
 

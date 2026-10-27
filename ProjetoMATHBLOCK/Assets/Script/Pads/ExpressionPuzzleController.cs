@@ -119,7 +119,7 @@ public class ExpressionPuzzleController : MonoBehaviour
             ArithmeticOperator.Add,
             ExpressionGrouping.Left)
     };
-    [SerializeField] private int minimumTarget;
+    [SerializeField, Min(1)] private int minimumTarget = 1;
     [SerializeField] private int maximumTarget = 20;
     [SerializeField] private bool randomizeOnStart = true;
     [SerializeField] private bool useFixedSeed;
@@ -168,7 +168,7 @@ public class ExpressionPuzzleController : MonoBehaviour
         else
         {
             currentExpression = GetFirstValidExpression();
-            targetValue = minimumTarget;
+            targetValue = Mathf.Max(1, minimumTarget);
             RefreshPresentation();
             EvaluateCurrentState();
         }
@@ -189,6 +189,8 @@ public class ExpressionPuzzleController : MonoBehaviour
         verifierTurnOnDuration = Mathf.Max(0f, verifierTurnOnDuration);
         verifierTurnOffDuration = Mathf.Max(0f, verifierTurnOffDuration);
 
+        minimumTarget = Mathf.Max(1, minimumTarget);
+
         if (maximumTarget < minimumTarget)
             maximumTarget = minimumTarget;
     }
@@ -196,7 +198,9 @@ public class ExpressionPuzzleController : MonoBehaviour
     public void RandomizePuzzle()
     {
         currentExpression = GetRandomExpression();
-        targetValue = NextInclusive(minimumTarget, maximumTarget);
+        int effectiveMinimumTarget = Mathf.Max(1, minimumTarget);
+        int effectiveMaximumTarget = Mathf.Max(effectiveMinimumTarget, maximumTarget);
+        targetValue = NextInclusive(effectiveMinimumTarget, effectiveMaximumTarget);
         isSolved = false;
 
         RefreshPresentation();
