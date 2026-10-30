@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using FMODUnity;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -136,6 +137,10 @@ public class ExpressionPuzzleController : MonoBehaviour
     [SerializeField] private Color verifierSolvedColor = Color.green;
     [SerializeField, Min(0f)] private float verifierTurnOnDuration = 0.12f;
     [SerializeField, Min(0f)] private float verifierTurnOffDuration = 0.75f;
+
+    [Header("Som de acerto")]
+    [SerializeField] private bool playCorrectSound = true;
+    [SerializeField] private EventReference correctSound;
 
     private TMP_Text expressionText;
     private Coroutine verifierColorRoutine;
@@ -287,6 +292,7 @@ public class ExpressionPuzzleController : MonoBehaviour
         {
             isSolved = true;
             PlayVerifierSolvedEffect();
+            PlayCorrectSound();
             onSolved?.Invoke();
             Solved?.Invoke();
         }
@@ -523,6 +529,20 @@ public class ExpressionPuzzleController : MonoBehaviour
             StopCoroutine(verifierColorRoutine);
 
         verifierColorRoutine = StartCoroutine(AnimateVerifierSolvedColor(displayText));
+    }
+
+    private void PlayCorrectSound()
+    {
+        if (!playCorrectSound)
+            return;
+
+        if (correctSound.IsNull)
+        {
+            Debug.LogWarning($"{name}: som de acerto FMOD nao configurado.", this);
+            return;
+        }
+
+        RuntimeManager.PlayOneShot(correctSound, transform.position);
     }
 
     private IEnumerator AnimateVerifierSolvedColor(TMP_Text displayText)

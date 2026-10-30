@@ -380,6 +380,7 @@ MonoBehaviour:
       Data3: 599173805
       Data4: 1987817330
     Path: event:/quedavoid
+  jumpPitchVariation: 0.06
   footstepInterval: 0.42
   minMoveInputForFootsteps: 0.1
 --- !u!143 &8851233623974187797

@@ -6957,11 +6957,11 @@ MonoBehaviour:
   playErrorSoundWhenWrong: 1
   errorSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -1402069544
+      Data2: 1230858852
+      Data3: -1520451928
+      Data4: 127955640
+    Path: event:/erroOperation
   errorSoundCooldown: 0.35
 --- !u!65 &661611550
 BoxCollider:
@@ -15401,6 +15401,69 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1662431553}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1017517100
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1017517101}
+  - component: {fileID: 1017517102}
+  m_Layer: 0
+  m_Name: Emissor de musica
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1017517101
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1017517100}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1941264989}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1017517102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1017517100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 377368396
+      Data2: 1313976052
+      Data3: 1210019487
+      Data4: 475121515
+    Path: event:/Fase4Music
+  Event: 
+  EventPlayTrigger: 1
+  EventStopTrigger: 2
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!4 &1019765769 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 42e35f4104410a544ad23393dcdc6b07, type: 3}
@@ -15934,6 +15997,26 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 149855798}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Path
+      value: event:/erroOperation
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data1
+      value: -1402069544
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data2
+      value: 1230858852
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data3
+      value: -1520451928
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data4
+      value: 127955640
+      objectReference: {fileID: 0}
     - target: {fileID: 8528070529391789379, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
       propertyPath: m_Name
       value: "pad2 - Primeira opera\xE7\xE3o"
@@ -20888,11 +20971,11 @@ MonoBehaviour:
   playErrorSoundWhenWrong: 1
   errorSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -1402069544
+      Data2: 1230858852
+      Data3: -1520451928
+      Data4: 127955640
+    Path: event:/erroOperation
   errorSoundCooldown: 0.35
 --- !u!65 &1519406045
 BoxCollider:
@@ -22899,6 +22982,26 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 1123591928}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Path
+      value: event:/erroOperation
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data1
+      value: -1402069544
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data2
+      value: 1230858852
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data3
+      value: -1520451928
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data4
+      value: 127955640
+      objectReference: {fileID: 0}
     - target: {fileID: 8528070529391789379, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
       propertyPath: m_Name
       value: "pad1 - Primeira opera\xE7\xE3o"
@@ -23463,6 +23566,14 @@ MonoBehaviour:
   verifierSolvedColor: {r: 0, g: 1, b: 0, a: 1}
   verifierTurnOnDuration: 0.12
   verifierTurnOffDuration: 0.75
+  playCorrectSound: 1
+  correctSound:
+    Guid:
+      Data1: -291252969
+      Data2: 1154478309
+      Data3: -327878502
+      Data4: -51084846
+    Path: event:/Acertou
 --- !u!4 &1686658794
 Transform:
   m_ObjectHideFlags: 0
@@ -24830,6 +24941,14 @@ MonoBehaviour:
   verifierSolvedColor: {r: 0, g: 1, b: 0, a: 1}
   verifierTurnOnDuration: 0.12
   verifierTurnOffDuration: 0.75
+  playCorrectSound: 1
+  correctSound:
+    Guid:
+      Data1: -291252969
+      Data2: 1154478309
+      Data3: -327878502
+      Data4: -51084846
+    Path: event:/Acertou
 --- !u!4 &1842595499
 Transform:
   m_ObjectHideFlags: 0
@@ -26070,6 +26189,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -5281746887125203575, guid: 42e35f4104410a544ad23393dcdc6b07, type: 3}
+--- !u!4 &1941264989 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4745981285788249604, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+  m_PrefabInstance: {fileID: 2145099757}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1945242398 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -1380733502612589075, guid: 42e35f4104410a544ad23393dcdc6b07, type: 3}
@@ -26661,6 +26785,26 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 2060149835}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Path
+      value: event:/erroOperation
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data1
+      value: -1402069544
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data2
+      value: 1230858852
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data3
+      value: -1520451928
+      objectReference: {fileID: 0}
+    - target: {fileID: 7148445436422103479, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
+      propertyPath: errorSound.Guid.Data4
+      value: 127955640
+      objectReference: {fileID: 0}
     - target: {fileID: 8528070529391789379, guid: a3b776fd59aebaf41be18a44f168b33a, type: 3}
       propertyPath: m_Name
       value: "pad3 - Primeira opera\xE7\xE3o"
@@ -26908,11 +27052,11 @@ MonoBehaviour:
   playErrorSoundWhenWrong: 1
   errorSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 377368396
+      Data2: 1313976052
+      Data3: 1210019487
+      Data4: 475121515
+    Path: event:/Fase4Music
   errorSoundCooldown: 0.35
 --- !u!65 &2056463616
 BoxCollider:
@@ -27869,6 +28013,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Path
+      value: event:/PegaBloco
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data1
+      value: 750272900
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data2
+      value: 1324672721
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data3
+      value: 2041804977
+      objectReference: {fileID: 0}
+    - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: grabBlockSound.Guid.Data4
+      value: -3149281
+      objectReference: {fileID: 0}
     - target: {fileID: 1451812414015702587, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: m_Material
       value: 
@@ -27931,7 +28095,10 @@ PrefabInstance:
       objectReference: {fileID: 1824656167}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4745981285788249604, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1017517101}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
 --- !u!1660057539 &9223372036854775807
