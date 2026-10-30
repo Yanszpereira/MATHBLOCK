@@ -119,7 +119,7 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
         rounds.ChallengeCompleted += OnChallengeCompleted;
         spawner.SpawnPreparationCompleted += OnSpawnPreparationCompleted;
         receptacleDetector.CurrentValueChanged += OnReceptacleContentsChanged;
-        interaction.InteractionRequested += OnInteractionRequested;
+
         voidRespawner.PlayerRespawnStarted += OnPlayerRespawnStarted;
         voidRespawner.PlayerRespawnCompleted += OnPlayerRespawnCompleted;
 
@@ -136,41 +136,39 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
         SetIndicatorColor(WaitingBlue);
     }
 
-    private void OnDestroy()
+private void OnDestroy()
+{
+    if (rounds != null)
     {
-        if (rounds != null)
-        {
-            rounds.StateChanged -= OnRoundStateChanged;
-            rounds.ExpressionSelected -= OnExpressionSelected;
-            rounds.TimeChanged -= OnTimeChanged;
-            rounds.WrongAnswerRecorded -= OnWrongAnswerRecorded;
-            rounds.PistonsActivated -= OnPistonsActivated;
-            rounds.ChallengeCompleted -= OnChallengeCompleted;
-        }
-
-        if (spawner != null)
-            spawner.SpawnPreparationCompleted -= OnSpawnPreparationCompleted;
-        if (receptacleDetector != null)
-            receptacleDetector.CurrentValueChanged -= OnReceptacleContentsChanged;
-        if (interaction != null)
-            interaction.InteractionRequested -= OnInteractionRequested;
-        UnsubscribeFromReceptacleAction();
-        if (voidRespawner != null)
-        {
-            voidRespawner.PlayerRespawnStarted -= OnPlayerRespawnStarted;
-            voidRespawner.PlayerRespawnCompleted -= OnPlayerRespawnCompleted;
-        }
-
-        if (candidateRoutine != null) StopCoroutine(candidateRoutine);
-        if (failureRoutine != null) StopCoroutine(failureRoutine);
-        RestoreIndicatorState();
-        if (ownsGlobalTimerPause && globalCountdown != null)
-            globalCountdown.SetPaused(originalGlobalTimerPaused);
-        if (wrongTone != null) Destroy(wrongTone);
-        if (correctTone != null) Destroy(correctTone);
-        if (obstacleController != null)
-            obstacleController.Shutdown();
+        rounds.StateChanged -= OnRoundStateChanged;
+        rounds.ExpressionSelected -= OnExpressionSelected;
+        rounds.TimeChanged -= OnTimeChanged;
+        rounds.WrongAnswerRecorded -= OnWrongAnswerRecorded;
+        rounds.PistonsActivated -= OnPistonsActivated;
+        rounds.ChallengeCompleted -= OnChallengeCompleted;
     }
+
+    if (spawner != null)
+        spawner.SpawnPreparationCompleted -= OnSpawnPreparationCompleted;
+    if (receptacleDetector != null)
+        receptacleDetector.CurrentValueChanged -= OnReceptacleContentsChanged;
+    UnsubscribeFromReceptacleAction();
+    if (voidRespawner != null)
+    {
+        voidRespawner.PlayerRespawnStarted -= OnPlayerRespawnStarted;
+        voidRespawner.PlayerRespawnCompleted -= OnPlayerRespawnCompleted;
+    }
+
+    if (candidateRoutine != null) StopCoroutine(candidateRoutine);
+    if (failureRoutine != null) StopCoroutine(failureRoutine);
+    RestoreIndicatorState();
+    if (ownsGlobalTimerPause && globalCountdown != null)
+        globalCountdown.SetPaused(originalGlobalTimerPaused);
+    if (wrongTone != null) Destroy(wrongTone);
+    if (correctTone != null) Destroy(correctTone);
+    if (obstacleController != null)
+        obstacleController.Shutdown();
+}
 
     private void OnEnable()
     {
@@ -300,10 +298,7 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
         return valid;
     }
 
-    private void OnInteractionRequested()
-    {
-        TryStartFromInteraction();
-    }
+
 
     private void OnReceptacleInteractPerformed(InputAction.CallbackContext context)
     {
@@ -329,7 +324,7 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
             CancelCandidate();
     }
 
-    /// <summary>Entry point for the existing player interaction and future UI adapters.</summary>
+    /// <summary>Entry point for the existing E action.</summary>
     public bool TryStartFromInteraction()
     {
         if (!isActiveAndEnabled || rounds == null || rounds.State != Fase4RoundManager.RoundState.AwaitingInteraction ||
@@ -339,27 +334,35 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
         return spawner.RequestAttempt();
     }
 
-    private bool IsPlayerWithinReceptacleRange()
+    private static Vector3 GetReceptacleClosestPoint(Collider collider, Vector3 position)
     {
-        if (player == null || receptacleRoot == null)
-            return false;
+        if (collider is MeshCollider meshCollider && !meshCollider.convex)
+            return collider.bounds.ClosestPoint(position);
 
-        Vector3 playerPosition = player.transform.position;
-        float nearestDistanceSquared = float.PositiveInfinity;
-        foreach (Collider collider in receptacleColliders)
-        {
-            if (collider == null || !collider.enabled || !collider.gameObject.activeInHierarchy || collider.isTrigger)
-                continue;
-
-            Vector3 closestPoint = collider.ClosestPoint(playerPosition);
-            nearestDistanceSquared = Mathf.Min(nearestDistanceSquared, (closestPoint - playerPosition).sqrMagnitude);
-        }
-
-        if (float.IsPositiveInfinity(nearestDistanceSquared))
-            nearestDistanceSquared = (receptacleRoot.position - playerPosition).sqrMagnitude;
-
-        return nearestDistanceSquared <= receptacleInteractionDistance * receptacleInteractionDistance;
+        return collider.ClosestPoint(position);
     }
+
+private bool IsPlayerWithinReceptacleRange()
+{
+    if (player == null || receptacleRoot == null)
+        return false;
+
+    Vector3 playerPosition = player.transform.position;
+    float nearestDistanceSquared = float.PositiveInfinity;
+    foreach (Collider collider in receptacleColliders)
+    {
+        if (collider == null || !collider.enabled || !collider.gameObject.activeInHierarchy || collider.isTrigger)
+            continue;
+
+        Vector3 closestPoint = GetReceptacleClosestPoint(collider, playerPosition);
+        nearestDistanceSquared = Mathf.Min(nearestDistanceSquared, (closestPoint - playerPosition).sqrMagnitude);
+    }
+
+    if (float.IsPositiveInfinity(nearestDistanceSquared))
+        nearestDistanceSquared = (receptacleRoot.position - playerPosition).sqrMagnitude;
+
+    return nearestDistanceSquared <= receptacleInteractionDistance * receptacleInteractionDistance;
+}
 
     private void RefreshWaitingPrompt()
     {
@@ -481,8 +484,10 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
         SetIndicatorColor(WaitingBlue);
     }
 
-    private void OnRoundStateChanged(Fase4RoundManager.RoundState state)
+private void OnRoundStateChanged(Fase4RoundManager.RoundState state)
     {
+        SetBlackboardMotionForState(state);
+
         switch (state)
         {
             case Fase4RoundManager.RoundState.Preparing:
@@ -539,6 +544,18 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
         }
     }
 
+private void SetBlackboardMotionForState(Fase4RoundManager.RoundState state)
+    {
+        Fase4BlackboardMotion motion = blackboard != null ? blackboard.GetComponent<Fase4BlackboardMotion>() : null;
+        bool challengeInProgress =
+            state == Fase4RoundManager.RoundState.Preparing ||
+            state == Fase4RoundManager.RoundState.Active ||
+            state == Fase4RoundManager.RoundState.InterRoundTransition;
+        if (motion != null)
+            motion.SetChallengeActive(challengeInProgress);
+    }
+
+
     private void OnTimeChanged(float seconds)
     {
         blackboard.SetTimer(seconds);
@@ -572,8 +589,9 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
             blackboard.SetStatus(string.Empty);
     }
 
-    private void OnPlayerRespawnStarted(PlayerMovement respawningPlayer)
+private void OnPlayerRespawnStarted(PlayerMovement respawningPlayer)
     {
+        SetBlackboardMotionForState(Fase4RoundManager.RoundState.AwaitingInteraction);
         obstacleController?.NotifyPlayerRespawnStarted();
         if (rounds == null)
             return;
@@ -599,7 +617,7 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
         }
     }
 
-    private void OnPlayerRespawnCompleted(PlayerMovement respawnedPlayer)
+private void OnPlayerRespawnCompleted(PlayerMovement respawnedPlayer)
     {
         if (rounds == null)
             return;
@@ -619,6 +637,7 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
         {
             resumeProgressionAfterRespawn = false;
             spawner.SetProgressionPaused(false);
+            SetBlackboardMotionForState(rounds.State);
         }
     }
 

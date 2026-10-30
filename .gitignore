@@ -35,6 +35,9 @@
 # FMOD Studio generated build cache (project/source assets remain tracked)
 /FMOD/Sons_Mathblocks/.cache/
 
+# FMOD Unity - cache generated locally
+/ProjetoMATHBLOCK/Assets/Plugins/FMOD/Cache/
+
 # Local audit artifacts
 /.codex-merge-audit-*/
 
