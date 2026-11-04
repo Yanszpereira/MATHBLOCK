@@ -8255,6 +8255,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.002
       objectReference: {fileID: 0}
+    - target: {fileID: 915402392438297909, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
+      propertyPath: resetSceneName
+      value: Fase 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8229083528831542561, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
       propertyPath: m_Name
       value: Cronometro (1)
@@ -12417,7 +12421,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 493192785256983466, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.002
+      value: -0.001
+      objectReference: {fileID: 0}
+    - target: {fileID: 915402392438297909, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
+      propertyPath: resetSceneName
+      value: Fase 2
       objectReference: {fileID: 0}
     - target: {fileID: 8229083528831542561, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
       propertyPath: m_Name
@@ -13546,7 +13554,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -13584,7 +13592,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a6701c1d76738844589000afeb507120, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WinScreenController
   initialScale: {x: 40, y: 20, z: 20}
   finalScale: {x: 9, y: 5, z: 5}
@@ -13617,17 +13625,17 @@ RectTransform:
   m_GameObject: {fileID: 6653464006240410784}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6653464006240410780}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 0}
 --- !u!223 &6653464006240410786
 Canvas:
   m_ObjectHideFlags: 0
@@ -13661,7 +13669,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
@@ -13684,7 +13692,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
   m_IgnoreReversedGraphics: 1
   m_BlockingObjects: 0

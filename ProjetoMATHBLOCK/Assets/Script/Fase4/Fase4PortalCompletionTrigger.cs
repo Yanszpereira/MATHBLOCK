@@ -18,18 +18,10 @@ public sealed class Fase4PortalCompletionTrigger : MonoBehaviour
             Debug.LogError("Fase4PortalCompletionTrigger precisa estar em um Collider marcado como Trigger.", this);
     }
 
-    private void OnTriggerEnter(Collider other)
+private void OnTriggerEnter(Collider other)
     {
         if (completed || other == null || other.GetComponentInParent<PlayerMovement>() == null)
             return;
-
-        completed = true;
-        if (completionLabel != null)
-        {
-            completionLabel.text = "FASE 4 CONCLUÍDA";
-            completionLabel.gameObject.SetActive(true);
-        }
-        Debug.Log("FASE 4 CONCLUÍDA", this);
 
         int menuBuildIndex = SceneUtility.GetBuildIndexByScenePath(MainMenuScenePath);
         if (menuBuildIndex < 0)
@@ -38,6 +30,8 @@ public sealed class Fase4PortalCompletionTrigger : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene(menuBuildIndex, LoadSceneMode.Single);
+        completed = true;
+        RegistroConclusaoFase.TryRegistrarConclusaoDaCenaAtual(this);
+        PhaseResultTransitionController.TryShowResult("MainMenu", true, this);
     }
 }

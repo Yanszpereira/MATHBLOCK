@@ -43,9 +43,17 @@ public sealed class SceneTransitionTrigger : MonoBehaviour
                (other.transform.root != null && other.transform.root.CompareTag(PlayerTag));
     }
 
-    private void LoadDestinationScene()
+private void LoadDestinationScene()
     {
-        if (!TryLoadScene(destinationSceneName, this))
+        if (string.IsNullOrWhiteSpace(destinationSceneName) ||
+            !Application.CanStreamedLevelBeLoaded(destinationSceneName))
+            return;
+
+        RegistroConclusaoFase.TryRegistrarConclusaoDaCenaAtual(this);
+        if (!PhaseResultTransitionController.TryShowResult(
+                destinationSceneName,
+                SceneManager.GetActiveScene().name == "Fase 4",
+                this))
             return;
 
         transitionStarted = true;

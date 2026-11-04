@@ -1166,6 +1166,7 @@ public void IniciarJogo()
             return;
         }
 
+        ResultadosDasFases.IniciarNovaPartida();
         SceneTransitionManager.TryTransitionToScene(buildIndex, this);
     }
 

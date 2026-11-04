@@ -438,7 +438,7 @@ private bool IsPlayerWithinReceptacleRange()
             yield break;
         }
 
-        bool developerBypass = DeveloperModeController.IsDeveloperModeActive;
+        bool developerBypass = DeveloperModeController.BypassPadValidation;
         bool correct = developerBypass || block.CurrentValue == expectedValue;
         if (correct)
         {

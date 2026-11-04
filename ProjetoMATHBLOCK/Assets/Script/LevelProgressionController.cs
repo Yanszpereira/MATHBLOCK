@@ -17,11 +17,13 @@ public sealed class LevelProgressionController : MonoBehaviour
         GlobalSceneBootstrap.Register(Install);
     }
 
-    private static void Install(Scene scene)
+private static void Install(Scene scene)
     {
         if (!scene.name.StartsWith("Fase") ||
-            FindFirstObjectByType<LevelProgressionController>() != null)
+            FindFirstObjectByType<LevelProgressionController>() != null ||
+            FindFirstObjectByType<SceneTransitionTrigger>(FindObjectsInactive.Include) != null)
             return;
+
         GameObject progressionObject = new GameObject("Level Progression");
         progressionObject.AddComponent<LevelProgressionController>();
     }

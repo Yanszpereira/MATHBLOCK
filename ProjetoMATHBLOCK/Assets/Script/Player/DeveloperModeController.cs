@@ -12,6 +12,9 @@ public sealed class DeveloperModeController : MonoBehaviour
     private static bool developerModeActive;
     public static bool IsDeveloperModeActive => developerModeActive;
 
+    /// <summary>True while developer mode should accept otherwise invalid pad answers.</summary>
+    public static bool BypassPadValidation => developerModeActive;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetDeveloperModeState()
     {

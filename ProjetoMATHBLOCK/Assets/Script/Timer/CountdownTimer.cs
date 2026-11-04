@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+
 public class CountdownTimer : MonoBehaviour
 {
     [Header("Tempo Inicial")]
@@ -34,6 +35,39 @@ public class CountdownTimer : MonoBehaviour
     private CanvasGroup fadeGroup;
 
     public bool IsPaused => externallyPaused;
+    public static CountdownTimer ClockAuthority => clockAuthority;
+    public float TempoInicial => tempoInicial;
+    public float TempoRestante => tempoAtual;
+
+
+    /// <summary>Calcula o percentual de tempo restante, em intervalo de 0 a 100.</summary>
+    public float GetPercentualTempoRestante() =>
+        CalculatePercentualTempoRestante(tempoInicial, tempoAtual);
+
+    public static float CalculatePercentualTempoRestante(float tempoInicial, float tempoRestante)
+    {
+        if (float.IsNaN(tempoInicial) || float.IsInfinity(tempoInicial) || tempoInicial <= 0f ||
+            float.IsNaN(tempoRestante) || float.IsInfinity(tempoRestante))
+            return 0f;
+
+        return Mathf.Clamp01(tempoRestante / tempoInicial) * 100f;
+    }
+
+public static string CalculateNota(float percentualTempoRestante)
+    {
+        if (float.IsNaN(percentualTempoRestante))
+            return "D";
+
+        if (percentualTempoRestante >= 80f)
+            return "A";
+        if (percentualTempoRestante >= 60f)
+            return "B";
+        if (percentualTempoRestante >= 40f)
+            return "C";
+
+        return "D";
+    }
+
 
     /// <summary>Optional scene-scoped pause for challenges with their own timer; false preserves the global timer's original behavior.</summary>
     public void SetPaused(bool paused)

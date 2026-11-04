@@ -247,7 +247,7 @@ public class ExpressionPuzzleController : MonoBehaviour
         return transforms;
     }
 
-    public void EvaluateCurrentState()
+public void EvaluateCurrentState()
     {
         if (currentExpression == null)
         {
@@ -266,6 +266,13 @@ public class ExpressionPuzzleController : MonoBehaviour
                 SetResultText("...");
                 return;
             }
+        }
+
+        if (DeveloperModeController.BypassPadValidation)
+        {
+            SetResultText("Modo desenvolvedor");
+            CompletePuzzle();
+            return;
         }
 
         if (currentExpression.UsesRestrictedOperands)
@@ -288,15 +295,22 @@ public class ExpressionPuzzleController : MonoBehaviour
 
         SetResultText(result.ToString());
 
-        if (!isSolved && result == targetValue)
-        {
-            isSolved = true;
-            PlayVerifierSolvedEffect();
-            PlayCorrectSound();
-            onSolved?.Invoke();
-            Solved?.Invoke();
-        }
+        if (result == targetValue)
+            CompletePuzzle();
     }
+
+private void CompletePuzzle()
+    {
+        if (isSolved)
+            return;
+
+        isSolved = true;
+        PlayVerifierSolvedEffect();
+        PlayCorrectSound();
+        onSolved?.Invoke();
+        Solved?.Invoke();
+    }
+
 
     public static bool IsAllowedRestrictedOperand(int value)
     {
