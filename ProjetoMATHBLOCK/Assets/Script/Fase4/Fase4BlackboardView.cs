@@ -46,7 +46,7 @@ public sealed class Fase4BlackboardView : MonoBehaviour
         ShowTimeChange(string.Empty, Color.white);
     }
 
-    private void Update()
+private void Update()
     {
         if (timerText != null)
         {
@@ -62,9 +62,9 @@ public sealed class Fase4BlackboardView : MonoBehaviour
         Color colorWithFade = feedbackColor;
         colorWithFade.a = normalized;
         feedbackText.color = colorWithFade;
-        feedbackText.transform.position = feedbackBasePosition + feedbackRiseDirection * (1f - normalized) * 0.42f;
+        feedbackText.transform.localPosition = feedbackBasePosition + feedbackRiseDirection * (1f - normalized);
         if (feedbackDuration <= 0f)
-            feedbackText.transform.position = feedbackBasePosition;
+            feedbackText.transform.localPosition = feedbackBasePosition;
     }
 
     public void SetExpression(string value)
@@ -126,17 +126,23 @@ public sealed class Fase4BlackboardView : MonoBehaviour
         transitionText.text = $"PRÓXIMA RODADA EM {Mathf.Clamp(secondsRemaining.Value, 1, 5)}...";
     }
 
-    public void ShowTimeChange(string text, Color color)
+public void ShowTimeChange(string text, Color color)
     {
         if (feedbackText == null)
             return;
+
+        if (feedbackDuration <= 0f)
+            feedbackBasePosition = feedbackText.transform.localPosition;
 
         feedbackText.text = text ?? string.Empty;
         feedbackColor = color;
         feedbackText.color = color;
         feedbackDuration = string.IsNullOrEmpty(text) ? 0f : 1.35f;
-        feedbackText.transform.position = feedbackBasePosition;
-        feedbackRiseDirection = feedbackText.transform.up;
+        feedbackText.transform.localPosition = feedbackBasePosition;
+        Transform labelParent = feedbackText.transform.parent;
+        feedbackRiseDirection = labelParent != null
+            ? labelParent.InverseTransformVector(feedbackText.transform.up * 0.42f)
+            : feedbackText.transform.up * 0.42f;
     }
 
     public static string FormatTime(float seconds)

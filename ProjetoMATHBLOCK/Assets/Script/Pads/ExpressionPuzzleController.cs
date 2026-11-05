@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using FMODUnity;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -119,7 +120,7 @@ public class ExpressionPuzzleController : MonoBehaviour
             ArithmeticOperator.Add,
             ExpressionGrouping.Left)
     };
-    [SerializeField] private int minimumTarget;
+    [SerializeField, Min(1)] private int minimumTarget = 1;
     [SerializeField] private int maximumTarget = 20;
     [SerializeField] private bool randomizeOnStart = true;
     [SerializeField] private bool useFixedSeed;
@@ -136,6 +137,10 @@ public class ExpressionPuzzleController : MonoBehaviour
     [SerializeField] private Color verifierSolvedColor = Color.green;
     [SerializeField, Min(0f)] private float verifierTurnOnDuration = 0.12f;
     [SerializeField, Min(0f)] private float verifierTurnOffDuration = 0.75f;
+
+    [Header("Som de acerto")]
+    [SerializeField] private bool playCorrectSound = true;
+    [SerializeField] private EventReference correctSound;
 
     private TMP_Text expressionText;
     private Coroutine verifierColorRoutine;
@@ -168,7 +173,7 @@ public class ExpressionPuzzleController : MonoBehaviour
         else
         {
             currentExpression = GetFirstValidExpression();
-            targetValue = minimumTarget;
+            targetValue = Mathf.Max(1, minimumTarget);
             RefreshPresentation();
             EvaluateCurrentState();
         }
@@ -189,6 +194,8 @@ public class ExpressionPuzzleController : MonoBehaviour
         verifierTurnOnDuration = Mathf.Max(0f, verifierTurnOnDuration);
         verifierTurnOffDuration = Mathf.Max(0f, verifierTurnOffDuration);
 
+        minimumTarget = Mathf.Max(1, minimumTarget);
+
         if (maximumTarget < minimumTarget)
             maximumTarget = minimumTarget;
     }
@@ -196,7 +203,9 @@ public class ExpressionPuzzleController : MonoBehaviour
     public void RandomizePuzzle()
     {
         currentExpression = GetRandomExpression();
-        targetValue = NextInclusive(minimumTarget, maximumTarget);
+        int effectiveMinimumTarget = Mathf.Max(1, minimumTarget);
+        int effectiveMaximumTarget = Mathf.Max(effectiveMinimumTarget, maximumTarget);
+        targetValue = NextInclusive(effectiveMinimumTarget, effectiveMaximumTarget);
         isSolved = false;
 
         RefreshPresentation();
@@ -238,7 +247,7 @@ public class ExpressionPuzzleController : MonoBehaviour
         return transforms;
     }
 
-    public void EvaluateCurrentState()
+public void EvaluateCurrentState()
     {
         if (currentExpression == null)
         {
@@ -257,6 +266,13 @@ public class ExpressionPuzzleController : MonoBehaviour
                 SetResultText("...");
                 return;
             }
+        }
+
+        if (DeveloperModeController.BypassPadValidation)
+        {
+            SetResultText("Modo desenvolvedor");
+            CompletePuzzle();
+            return;
         }
 
         if (currentExpression.UsesRestrictedOperands)
@@ -279,14 +295,22 @@ public class ExpressionPuzzleController : MonoBehaviour
 
         SetResultText(result.ToString());
 
-        if (!isSolved && result == targetValue)
-        {
-            isSolved = true;
-            PlayVerifierSolvedEffect();
-            onSolved?.Invoke();
-            Solved?.Invoke();
-        }
+        if (result == targetValue)
+            CompletePuzzle();
     }
+
+private void CompletePuzzle()
+    {
+        if (isSolved)
+            return;
+
+        isSolved = true;
+        PlayVerifierSolvedEffect();
+        PlayCorrectSound();
+        onSolved?.Invoke();
+        Solved?.Invoke();
+    }
+
 
     public static bool IsAllowedRestrictedOperand(int value)
     {
@@ -519,6 +543,20 @@ public class ExpressionPuzzleController : MonoBehaviour
             StopCoroutine(verifierColorRoutine);
 
         verifierColorRoutine = StartCoroutine(AnimateVerifierSolvedColor(displayText));
+    }
+
+    private void PlayCorrectSound()
+    {
+        if (!playCorrectSound)
+            return;
+
+        if (correctSound.IsNull)
+        {
+            Debug.LogWarning($"{name}: som de acerto FMOD nao configurado.", this);
+            return;
+        }
+
+        RuntimeManager.PlayOneShot(correctSound, transform.position);
     }
 
     private IEnumerator AnimateVerifierSolvedColor(TMP_Text displayText)

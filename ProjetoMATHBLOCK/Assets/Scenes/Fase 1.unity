@@ -30936,15 +30936,15 @@ PrefabInstance:
       objectReference: {fileID: 18635115}
     - target: {fileID: 2862294720460524906, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
       propertyPath: generationMode
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2862294720460524906, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
       propertyPath: possibleDoorMaxValue
-      value: 200
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 2862294720460524906, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
       propertyPath: possibleDoorMinValue
-      value: 150
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 7141801110489724545, guid: 5ec191bcf5f7f4c4d8138ffc1db35133, type: 3}
       propertyPath: m_LocalPosition.x

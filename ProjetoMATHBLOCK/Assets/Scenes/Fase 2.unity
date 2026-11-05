@@ -8325,6 +8325,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.002
       objectReference: {fileID: 0}
+    - target: {fileID: 915402392438297909, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
+      propertyPath: resetSceneName
+      value: Fase 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8229083528831542561, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
       propertyPath: m_Name
       value: Cronometro (1)
@@ -12492,7 +12496,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 493192785256983466, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.002
+      value: -0.001
+      objectReference: {fileID: 0}
+    - target: {fileID: 915402392438297909, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
+      propertyPath: resetSceneName
+      value: Fase 2
       objectReference: {fileID: 0}
     - target: {fileID: 8229083528831542561, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
       propertyPath: m_Name

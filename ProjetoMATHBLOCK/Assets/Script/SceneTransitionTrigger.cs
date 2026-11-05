@@ -49,6 +49,11 @@ public sealed class SceneTransitionTrigger : MonoBehaviour
 
     private IEnumerator LoadDestinationScene()
     {
+        if (string.IsNullOrWhiteSpace(destinationSceneName) ||
+            !Application.CanStreamedLevelBeLoaded(destinationSceneName))
+            yield break;
+
+        RegistroConclusaoFase.TryRegistrarConclusaoDaCenaAtual(this);
         transitionStarted = true;
         string cenaAtual = SceneManager.GetActiveScene().name;
         if (cenaAtual != "Fase 4" && cenaAtual.StartsWith("Fase") &&
@@ -56,7 +61,8 @@ public sealed class SceneTransitionTrigger : MonoBehaviour
             ProgressoAprendizado.Instance.ConcluirFase(cenaAtual))
             yield return ResultadosAprendizadoUI.Mostrar(cenaAtual);
 
-        if (!TryLoadScene(destinationSceneName, this))
+        if (!PhaseResultTransitionController.TryShowResult(
+                destinationSceneName, cenaAtual == "Fase 4", this))
             transitionStarted = false;
     }
 

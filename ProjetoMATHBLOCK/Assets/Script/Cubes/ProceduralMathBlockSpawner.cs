@@ -34,6 +34,8 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
     [Header("Spawn Area")]
     [SerializeField] private Vector3 spawnAreaSize = new Vector3(6f, 0f, 6f);
     [SerializeField] private float spawnHeightOffset = 0.75f;
+    [Tooltip("Altura extra, em metros no mundo, acima da posicao normal de spawn ao retornar do Void.")]
+    [SerializeField, Min(0f)] private float blockRespawnExtraHeight = 2f;
     [SerializeField] private Color gizmoColor = new Color(0.1f, 0.8f, 1f, 0.25f);
 
     private readonly List<GameObject> spawnedBlocks = new List<GameObject>();
@@ -63,6 +65,7 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
         spawnAreaSize.y = Mathf.Max(0f, spawnAreaSize.y);
         spawnAreaSize.z = Mathf.Max(0.1f, spawnAreaSize.z);
         spawnHeightOffset = Mathf.Max(0f, spawnHeightOffset);
+        blockRespawnExtraHeight = Mathf.Max(0f, blockRespawnExtraHeight);
         ConfigureSpawnCollider();
 
         if (requireResizableBlockComponent
@@ -683,6 +686,14 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
         );
 
         return transform.TransformPoint(localOffset);
+    }
+
+    // Reutiliza exatamente o sorteio X/Z da area do spawner de origem.
+    // A altura adicional e aplicada no eixo Y do mundo, independentemente
+    // da escala ou rotacao do objeto spawner.
+    public Vector3 GetRandomBlockRespawnPosition()
+    {
+        return GetRandomSpawnPosition() + Vector3.up * blockRespawnExtraHeight;
     }
 
     private void ClearSpawnedBlocks()

@@ -176,7 +176,7 @@ public sealed class SceneTransitionManager : MonoBehaviour
         FinishTransition();
     }
 
-    private static void PararAudioDaCenaAntesDeCarregar()
+    internal static void PararAudioDaCenaAntesDeCarregar()
     {
         // Emissores com StopEvent=None continuam vivos no FMOD mesmo apos
         // destruir a cena. Para-los atras do fade, antes de iniciar a nova

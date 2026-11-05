@@ -624,4 +624,29 @@ private static void SubscribeEvent(object target, string eventName, Action<objec
     Delegate handler = Expression.Lambda(eventInfo.EventHandlerType, invoke, parameters).Compile();
     eventInfo.AddEventHandler(target, handler);
 }
+
+
+[Test]
+public void ReceptacleProximity_UsesBoundsForNonConvexMeshCollider()
+{
+    Type coordinatorType = RequireType("Fase4ArenaRoundCoordinator");
+    MethodInfo closestPoint = coordinatorType.GetMethod("GetReceptacleClosestPoint", StaticFlags);
+    Assert.That(closestPoint, Is.Not.Null);
+
+    GameObject receptacle = GameObject.CreatePrimitive(PrimitiveType.Cube);
+    try
+    {
+        MeshCollider meshCollider = receptacle.AddComponent<MeshCollider>();
+        meshCollider.sharedMesh = receptacle.GetComponent<MeshFilter>().sharedMesh;
+        meshCollider.convex = false;
+        Vector3 playerPosition = new Vector3(2f, 0f, 0f);
+
+        Vector3 actual = (Vector3)closestPoint.Invoke(null, new object[] { meshCollider, playerPosition });
+        Assert.That(actual, Is.EqualTo(meshCollider.bounds.ClosestPoint(playerPosition)));
+    }
+    finally
+    {
+        UnityEngine.Object.DestroyImmediate(receptacle);
+    }
+}
 }

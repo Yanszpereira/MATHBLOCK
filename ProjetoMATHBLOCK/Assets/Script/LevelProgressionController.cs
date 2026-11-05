@@ -20,8 +20,11 @@ public sealed class LevelProgressionController : MonoBehaviour
     private static void Install(Scene scene)
     {
         if (!scene.name.StartsWith("Fase") ||
-            FindFirstObjectByType<LevelProgressionController>() != null)
+            FindFirstObjectByType<LevelProgressionController>() != null ||
+            (FindFirstObjectByType<SceneTransitionTrigger>(FindObjectsInactive.Include) != null &&
+             FindFirstObjectByType<GatilhoConclusaoFase>(FindObjectsInactive.Include) == null))
             return;
+
         GameObject progressionObject = new GameObject("Level Progression");
         progressionObject.AddComponent<LevelProgressionController>();
     }
@@ -79,6 +82,8 @@ public sealed class LevelProgressionController : MonoBehaviour
     {
         transitionStarted = true;
         string currentScene = SceneManager.GetActiveScene().name;
+        // Mantem o registro de notas junto ao fluxo de progresso da porta final.
+        RegistroConclusaoFase.TryRegistrarConclusaoDaCenaAtual(this);
 
         if (currentScene != "Fase 4" && ProgressoAprendizado.Instance != null)
         {
@@ -103,7 +108,7 @@ public sealed class LevelProgressionController : MonoBehaviour
         if (winScreen != null)
             winScreen.gameObject.SetActive(false);
 
-        SceneTransitionManager.TryTransitionToScene(nextScene, this);
+        PhaseResultTransitionController.TryShowResult(nextScene, currentScene == "Fase 4", this);
     }
 
     private static string GetNextScene(string currentScene)

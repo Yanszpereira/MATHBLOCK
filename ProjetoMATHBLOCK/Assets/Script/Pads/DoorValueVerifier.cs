@@ -98,21 +98,18 @@ public class DoorValueVerifier : MonoBehaviour
         }
     }
 
-    public void ReceiveValueFromPad(GameObject sourcePad, int receivedValue, GameObject sourceBlock)
+public void ReceiveValueFromPad(GameObject sourcePad, int receivedValue, GameObject sourceBlock)
     {
         if (!IsPadAccepted(sourcePad))
         {
             Debug.LogWarning($"Verificador {name} ignorou valor {receivedValue} de {ObjectName(sourcePad)}, pois aceita apenas o Pad {ObjectName(acceptedPadObject)}.");
-
             PlayErrorSound(sourcePad);
-
             return;
         }
 
-        if (!IsValueAccepted(receivedValue))
+        if (!DeveloperModeController.BypassPadValidation && !IsValueAccepted(receivedValue))
         {
             LogWrongValue(receivedValue);
-
             PlayErrorSound(sourcePad);
             ShowFeedback(wrongFeedbackObject);
             RespostaAvaliada?.Invoke(this, false);

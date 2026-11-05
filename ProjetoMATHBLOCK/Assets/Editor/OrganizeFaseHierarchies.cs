@@ -33,7 +33,7 @@ public static class OrganizeFaseHierarchies
 
     static OrganizeFaseHierarchies()
     {
-        EditorApplication.delayCall += TryOrganize;
+        // EditorApplication.delayCall += TryOrganize;
     }
 
     [MenuItem("MATHBLOCK/Organizar Hierarchy/Fases 1 e 2")]

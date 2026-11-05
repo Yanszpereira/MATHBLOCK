@@ -26,6 +26,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private EventReference jumpSound;
     [SerializeField] private EventReference voidFallSound;
 
+    [Header("Variacao do som de pulo")]
+    [SerializeField, Range(0f, 0.2f)] private float jumpPitchVariation = 0.06f;
+
     [Header("Som de passos")]
     [SerializeField] private float footstepInterval = 0.42f;
     [SerializeField] private float minMoveInputForFootsteps = 0.1f;
@@ -44,6 +47,8 @@ public class PlayerMovement : MonoBehaviour
     private bool hasPlayedVoidFallSound;
     private bool uiJumpRequested;
     private int maximumBlockDuplications;
+    private FMOD.Studio.EventDescription jumpSoundDescription;
+    private bool jumpSoundPreloaded;
 
     public bool IsTryingToMove => new Vector2(horizontalInput, verticalInput).sqrMagnitude > 0.01f;
     public bool IsFalling => !isGroundedThisFrame && verticalVelocity < -1f;
@@ -74,6 +79,22 @@ public class PlayerMovement : MonoBehaviour
         {
             jumpAction = playerInput.actions.FindAction("Jump", throwIfNotFound: false);
         }
+    }
+
+    private void Start()
+    {
+        PreloadJumpSound();
+    }
+
+    private void OnDestroy()
+    {
+        if (jumpSoundPreloaded && jumpSoundDescription.isValid())
+            jumpSoundDescription.unloadSampleData();
+    }
+
+    private void OnValidate()
+    {
+        jumpPitchVariation = Mathf.Clamp(jumpPitchVariation, 0f, 0.2f);
     }
 
     void Update()
@@ -159,9 +180,28 @@ public class PlayerMovement : MonoBehaviour
         if (jumpSound.IsNull)
             return;
 
-        // Mantem o som preso ao player durante o inicio do salto.
-        // Isso evita que um SFX 3D fique para tras enquanto o jogador se move.
-        RuntimeManager.PlayOneShotAttached(jumpSound, gameObject);
+        FMOD.Studio.EventInstance instance = RuntimeManager.CreateInstance(jumpSound);
+        RuntimeManager.AttachInstanceToGameObject(instance, gameObject);
+
+        float pitch = UnityEngine.Random.Range(
+            1f - jumpPitchVariation,
+            1f + jumpPitchVariation);
+        instance.setPitch(pitch);
+        instance.start();
+        instance.release();
+    }
+
+    private void PreloadJumpSound()
+    {
+        if (!playMovementSounds || jumpSound.IsNull)
+            return;
+
+        jumpSoundDescription = RuntimeManager.GetEventDescription(jumpSound);
+        if (!jumpSoundDescription.isValid())
+            return;
+
+        jumpSoundDescription.loadSampleData();
+        jumpSoundPreloaded = true;
     }
 
     public void PlayVoidFallSound()
