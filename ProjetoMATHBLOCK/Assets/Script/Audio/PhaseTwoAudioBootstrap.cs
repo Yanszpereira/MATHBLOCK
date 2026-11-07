@@ -9,6 +9,7 @@ public sealed class PhaseTwoAudioBootstrap : MonoBehaviour
     private const string PhaseTwoName = "Fase 2";
     private const string MusicEvent = "event:/735157__rotlily__simple-music-loop-bass-keys-drums";
     private EventInstance musicInstance;
+    private float musicVolume = 1f;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneInitializer()
@@ -29,6 +30,18 @@ public sealed class PhaseTwoAudioBootstrap : MonoBehaviour
     {
         musicInstance = RuntimeManager.CreateInstance(MusicEvent);
         musicInstance.start();
+        SetMusicVolume(PlayerPrefs.GetFloat("MusicVolume", 1f));
+    }
+
+    public void SetMusicVolume(float value)
+    {
+        musicVolume = Mathf.Clamp01(value);
+        if (!musicInstance.isValid())
+            return;
+
+        FMOD.RESULT result = musicInstance.setVolume(musicVolume);
+        if (result != FMOD.RESULT.OK)
+            Debug.LogError($"Failed to set Phase 2 music volume: {result}");
     }
 
     private void OnDestroy()

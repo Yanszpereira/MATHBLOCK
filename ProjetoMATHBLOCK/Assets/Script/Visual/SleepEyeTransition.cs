@@ -116,7 +116,7 @@ public sealed class SleepEyeTransition : MonoBehaviour
 
         yield return FadeEmitterVolume(
             musicEmitter,
-            1f,
+            Mathf.Clamp01(PlayerPrefs.GetFloat("MusicVolume", 1f)),
             phaseOneMusicFadeInDuration,
             false);
         phaseOneMusicFadeInRunning = false;

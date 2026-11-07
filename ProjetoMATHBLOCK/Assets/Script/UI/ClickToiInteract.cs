@@ -10,6 +10,7 @@ using UnityEngine.UI;
 public sealed class ClickToiInteract : MonoBehaviour
 {
     private const string SchoolbellFontPath = "Fonts & Materials/Schoolbell-Regular SDF";
+    private const string PromptEnabledKey = "InteractionPromptEnabled";
     private static ClickToiInteract instance;
 
     private GameObject prompt;
@@ -18,6 +19,9 @@ public sealed class ClickToiInteract : MonoBehaviour
     private Vector2 promptPosition;
     private GravityInteract gravityInteract;
     private Coroutine shakeRoutine;
+
+    public static bool IsPromptEnabled =>
+        PlayerPrefs.GetInt(PromptEnabledKey, 1) != 0;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneInitializer()
@@ -120,7 +124,7 @@ public sealed class ClickToiInteract : MonoBehaviour
         bool hasNoEquippedOperator = gravityInteract == null ||
             gravityInteract.EquippedOperator == GravityInteract.PencilOperator.None;
 
-        RefreshPrompt(heldBlockTouching);
+        RefreshPrompt(heldBlockTouching && IsPromptEnabled);
         if (promptText != null)
             promptText.color = hasNoEquippedOperator
                 ? new Color(1f, 0.2f, 0.2f, 1f)
@@ -157,7 +161,8 @@ public sealed class ClickToiInteract : MonoBehaviour
 
     private void TryShakePrompt()
     {
-        if (gravityInteract == null
+        if (!IsPromptEnabled
+            || gravityInteract == null
             || gravityInteract.EquippedOperator != GravityInteract.PencilOperator.None
             || !gravityInteract.IsHeldBlockTouchingAnotherBlock
             || promptRect == null)
@@ -187,6 +192,15 @@ public sealed class ClickToiInteract : MonoBehaviour
 
         promptRect.anchoredPosition = promptPosition;
         shakeRoutine = null;
+    }
+
+    public static void SetPromptEnabled(bool enabled)
+    {
+        PlayerPrefs.SetInt(PromptEnabledKey, enabled ? 1 : 0);
+        PlayerPrefs.Save();
+
+        if (!enabled && instance != null)
+            instance.RefreshPrompt(false);
     }
 
     private void RefreshPrompt(bool visible)

@@ -30555,7 +30555,6 @@ MonoBehaviour:
   fadeOutDuration: 0.65
   fadeInDuration: 0.45
   fadeColor: {r: 0, g: 0, b: 0, a: 1}
-  resetSceneName: Fase 1
   followPlayerLookDirection: 1
   playerCamera: {fileID: 0}
   visibleFaceYaw: 180
@@ -31268,6 +31267,18 @@ PrefabInstance:
     - target: {fileID: 17608517078358294, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: grabBlockSound.Guid.Data4
       value: -3149281
+      objectReference: {fileID: 0}
+    - target: {fileID: 2417110068975440310, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.00002
+      objectReference: {fileID: 0}
+    - target: {fileID: 2417110068975440310, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.00002
+      objectReference: {fileID: 0}
+    - target: {fileID: 2417110068975440310, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.08923
       objectReference: {fileID: 0}
     - target: {fileID: 4246532322668890469, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
       propertyPath: m_LocalRotation.w

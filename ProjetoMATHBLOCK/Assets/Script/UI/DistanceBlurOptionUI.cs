@@ -1,12 +1,23 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using FMODUnity;
 
 public sealed class DistanceBlurOptionUI : MonoBehaviour
 {
     private const string VolumeKey = "MasterVolume";
+    private const string MusicVolumeKey = "MusicVolume";
+    private static readonly HashSet<string> MusicEventPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "event:/796080__colinleblancsound__levelbgm",
+        "event:/MusicaFase1Certa",
+        "event:/735157__rotlily__simple-music-loop-bass-keys-drums",
+        "event:/MusicaFase3",
+        "event:/Fase4Music"
+    };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Install()
@@ -39,10 +50,13 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
         if (optionsMenu == null)
             return;
 
+        CreateMusicVolume(optionsMenu);
         ConfigureVolume(optionsMenu);
+        ConfigureMusicVolume(optionsMenu);
         ConfigureSensitivity(optionsMenu);
         CreateTouchSensitivity(optionsMenu);
         CreateBlurToggle(optionsMenu);
+        CreateInteractionPromptToggle(optionsMenu);
         ArrangeOptionsLayout(optionsMenu);
         ApplyRecordedLayout(optionsMenu);
     }
@@ -61,6 +75,57 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
         SetMasterVolume(slider.value);
     }
 
+    private static void CreateMusicVolume(RectTransform optionsMenu)
+    {
+        if (FindChild(optionsMenu, "Music Volume") != null)
+            return;
+
+        Slider volumeSlider = FindSlider(optionsMenu, "SliderVolume", "Volume");
+        if (volumeSlider == null || volumeSlider.transform.parent == null)
+            return;
+
+        GameObject row = Instantiate(volumeSlider.transform.parent.gameObject, optionsMenu);
+        row.name = "Music Volume";
+
+        Slider musicSlider = row.GetComponentInChildren<Slider>(true);
+        if (musicSlider == null)
+        {
+            Destroy(row);
+            return;
+        }
+
+        musicSlider.name = "SliderMusicVolume";
+        musicSlider.onValueChanged.RemoveAllListeners();
+    }
+
+    private static void ConfigureMusicVolume(RectTransform optionsMenu)
+    {
+        Slider slider = FindSlider(optionsMenu, "SliderMusicVolume", "Music Volume");
+        if (slider == null)
+            return;
+
+        slider.minValue = 0f;
+        slider.maxValue = 1f;
+        slider.wholeNumbers = false;
+        slider.SetValueWithoutNotify(Mathf.Clamp01(PlayerPrefs.GetFloat(MusicVolumeKey, 1f)));
+
+        TextMeshProUGUI valueLabel = FindValueLabel(slider.transform.parent);
+        UpdateVolumeValueLabel(valueLabel, slider.value);
+        slider.onValueChanged.RemoveAllListeners();
+        slider.onValueChanged.AddListener(value =>
+        {
+            SetMusicVolume(value);
+            UpdateVolumeValueLabel(valueLabel, value);
+        });
+        SetMusicVolume(slider.value);
+    }
+
+    private static void UpdateVolumeValueLabel(TextMeshProUGUI label, float value)
+    {
+        if (label != null)
+            label.text = Mathf.RoundToInt(Mathf.Clamp01(value) * 100f).ToString();
+    }
+
     private static void ConfigureSensitivity(RectTransform optionsMenu)
     {
         Slider slider = FindSlider(optionsMenu, "SliderSensibility", "Sensibility");
@@ -71,12 +136,19 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
         slider.maxValue = 100f;
         slider.wholeNumbers = false;
         slider.SetValueWithoutNotify(PlayerPrefs.GetFloat("MouseSensitivity", 50f));
+        TextMeshProUGUI valueLabel = FindValueLabel(slider.transform.parent);
+        if (valueLabel != null)
+            valueLabel.text = Mathf.RoundToInt(slider.value).ToString();
+
         slider.onValueChanged.AddListener(value =>
         {
             PlayerPrefs.SetFloat("MouseSensitivity", value);
             PlayerPrefs.Save();
             foreach (Look look in FindObjectsByType<Look>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 look.SetMouseSensitivity(value);
+
+            if (valueLabel != null)
+                valueLabel.text = Mathf.RoundToInt(value).ToString();
         });
 
         foreach (Look look in FindObjectsByType<Look>(FindObjectsInactive.Include, FindObjectsSortMode.None))
@@ -146,15 +218,47 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
             look.SetTouchSensitivity(value);
     }
 
+    private static void SetMusicVolume(float value)
+    {
+        value = Mathf.Clamp01(value);
+        PlayerPrefs.SetFloat(MusicVolumeKey, value);
+        PlayerPrefs.Save();
+
+        foreach (StudioEventEmitter emitter in FindObjectsByType<StudioEventEmitter>(
+                     FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
+        {
+            if (emitter == null ||
+                !MusicEventPaths.Contains(emitter.EventReference.Path) ||
+                !emitter.EventInstance.isValid())
+                continue;
+
+            FMOD.RESULT result = emitter.EventInstance.setVolume(value);
+            if (result != FMOD.RESULT.OK)
+                Debug.LogError($"Failed to set volume for background music '{emitter.EventReference.Path}': {result}");
+        }
+
+        foreach (PhaseTwoAudioBootstrap audio in FindObjectsByType<PhaseTwoAudioBootstrap>(
+                     FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
+        {
+            if (audio != null)
+                audio.SetMusicVolume(value);
+        }
+    }
+
     private static void ArrangeOptionsLayout(RectTransform optionsMenu)
     {
         Transform volume = FindChild(optionsMenu, "Volume");
+        Transform music = FindChild(optionsMenu, "Music Volume");
         Transform mouse = FindChild(optionsMenu, "Sensibility");
         Transform touch = FindChild(optionsMenu, "Touch Sensitivity");
         Transform blur = FindChild(optionsMenu, "Distance Blur Option");
+        Transform interactionPrompt = FindChild(optionsMenu, "Interaction Prompt Option");
         Transform back = FindChild(optionsMenu, "Back");
 
-        if (volume == null || mouse == null || touch == null || blur == null || back == null)
+        if (volume == null || music == null || mouse == null || touch == null || blur == null ||
+            interactionPrompt == null || back == null)
             return;
 
         Transform existingContainer = FindChild(optionsMenu, "Responsive Options Rows");
@@ -173,19 +277,25 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
         container.anchorMin = container.anchorMax = new Vector2(0.5f, 0.5f);
         container.pivot = new Vector2(0.5f, 0.5f);
         container.anchoredPosition = new Vector2(-8f, -35f);
-        container.sizeDelta = new Vector2(500f, 620f);
+        container.sizeDelta = new Vector2(500f, 720f);
         container.localScale = Vector3.one;
 
         ConfigureRow(volume, container, 205f, new Vector2(360f, 90f), 1.12f);
-        ConfigureRow(mouse, container, 90f, new Vector2(360f, 90f), 1.12f);
-        ConfigureRow(touch, container, -25f, new Vector2(360f, 90f), 1.12f);
-        ConfigureRow(blur, container, -140f, new Vector2(330f, 60f), 1.12f);
-        ConfigureRow(back, container, -260f, new Vector2(300f, 72f), 1.08f);
+        ConfigureRow(music, container, 110f, new Vector2(360f, 90f), 1.12f);
+        ConfigureRow(mouse, container, 15f, new Vector2(360f, 90f), 1.12f);
+        ConfigureRow(touch, container, -80f, new Vector2(360f, 90f), 1.12f);
+        ConfigureRow(blur, container, -80f, new Vector2(230f, 60f), 1.12f);
+        ConfigureRow(interactionPrompt, container, -80f, new Vector2(230f, 60f), 1.12f);
+        ((RectTransform)blur).anchoredPosition += Vector2.left * 125f;
+        ((RectTransform)interactionPrompt).anchoredPosition += Vector2.right * 125f;
+        ConfigureRow(back, container, -167f, new Vector2(300f, 72f), 1.08f);
 
         SetRowLabel(volume, "VOLUME");
+        SetRowLabel(music, "MÚSICA");
         SetRowLabel(mouse, "MOUSE");
         SetRowLabel(touch, "TOUCH");
         SetRowLabel(blur, "BLUR");
+        SetRowLabel(interactionPrompt, "INTERAÇÃO");
 
         Canvas.ForceUpdateCanvases();
     }
@@ -227,58 +337,53 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
     private static void ApplyRecordedLayout(RectTransform optionsMenu)
     {
         Transform volume = FindChild(optionsMenu, "Volume");
+        Transform music = FindChild(optionsMenu, "Music Volume");
         Transform mouse = FindChild(optionsMenu, "Sensibility");
         Transform touch = FindChild(optionsMenu, "Touch Sensitivity");
         Transform blur = FindChild(optionsMenu, "Distance Blur Option");
+        Transform interactionPrompt = FindChild(optionsMenu, "Interaction Prompt Option");
+
+        Vector2 sliderPosition = new Vector2(-84f, 79f);
+        Vector2 sliderSize = new Vector2(250f, 34f);
 
         ApplyGroupLayout(
             volume,
             new Vector2(-131f, 131f),
             new Vector2(169f, 36f),
-            new Vector2(-84f, 79f),
-            new Vector2(263f, 38f),
-            6f, -39f, 135f, -24f,
+            sliderPosition,
+            sliderSize,
+            6f, -37f, 128f, -23f,
+            null);
+
+        ApplyGroupLayout(
+            music,
+            new Vector2(-131f, 131f),
+            new Vector2(169f, 36f),
+            sliderPosition,
+            sliderSize,
+            6f, -37f, 128f, -23f,
             null);
 
         ApplyGroupLayout(
             mouse,
             new Vector2(-103f, 121f),
             new Vector2(169f, 36f),
-            new Vector2(-1f, 79f),
-            new Vector2(370f, 65f),
-            15f, -41f, 154f, -27f,
-            new RecordedRect(new Vector2(28f, 46f), new Vector2(72f, 29f), 2f));
+            sliderPosition,
+            sliderSize,
+            15f, -39f, 128f, -25f,
+            new RecordedRect(new Vector2(84f, 79f), new Vector2(48f, 29f), 0f));
 
         ApplyGroupLayout(
             touch,
             new Vector2(-94f, 103f),
             new Vector2(169f, 36f),
-            new Vector2(7f, 64f),
-            new Vector2(366f, 57f),
-            0f, -45f, 152f, -29f,
-            new RecordedRect(new Vector2(23f, 22f), new Vector2(72f, 29f), 2f));
+            sliderPosition,
+            sliderSize,
+            0f, -43f, 128f, -27f,
+            new RecordedRect(new Vector2(84f, 79f), new Vector2(48f, 29f), 0f));
 
-        if (blur != null)
-        {
-            RectTransform label = FindDirectRect(blur, "Label");
-            if (label != null)
-            {
-                label.anchorMin = Vector2.zero;
-                label.anchorMax = Vector2.one;
-                label.offsetMin = new Vector2(0f, 65f);
-                label.offsetMax = new Vector2(-62f, 65f);
-                label.localEulerAngles = Vector3.zero;
-                label.localScale = Vector3.one;
-            }
-
-            RectTransform toggle = FindDirectRect(blur, "Distance Blur Toggle");
-            SetFixedRect(toggle, new Vector2(-193f, 65f), new Vector2(48f, 24f), 0f);
-            if (toggle != null)
-            {
-                toggle.anchorMin = toggle.anchorMax = new Vector2(1f, 0.5f);
-                toggle.pivot = new Vector2(1f, 0.5f);
-            }
-        }
+        ApplyRecordedToggleLayout(blur, "Distance Blur Toggle", 125f, 40f);
+        ApplyRecordedToggleLayout(interactionPrompt, "Interaction Prompt Toggle", 160f, 0f);
 
         RectTransform back = FindChild(optionsMenu, "Back") as RectTransform;
         SetFixedRect(back, new Vector2(0f, -167f), new Vector2(300f, 72f), 0f);
@@ -287,6 +392,36 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
         SetFixedRect(note, new Vector2(170f, 324f), new Vector2(150f, 145f), 14f);
         if (note != null)
             note.localScale = Vector3.one * 2f;
+    }
+
+    private static void ApplyRecordedToggleLayout(
+        Transform row,
+        string toggleName,
+        float toggleX,
+        float labelX)
+    {
+        if (row == null)
+            return;
+
+        RectTransform label = FindDirectRect(row, "Label");
+        if (label != null)
+        {
+            label.anchorMin = Vector2.zero;
+            label.anchorMax = new Vector2(0f, 1f);
+            label.pivot = new Vector2(0f, 0.5f);
+            label.offsetMin = new Vector2(labelX, 0f);
+            label.offsetMax = new Vector2(150f + labelX, 0f);
+            label.localEulerAngles = Vector3.zero;
+            label.localScale = Vector3.one;
+        }
+
+        RectTransform toggle = FindDirectRect(row, toggleName);
+        SetFixedRect(toggle, new Vector2(toggleX, 0f), new Vector2(48f, 24f), 0f);
+        if (toggle != null)
+        {
+            toggle.anchorMin = toggle.anchorMax = new Vector2(0f, 0.5f);
+            toggle.pivot = new Vector2(0f, 0.5f);
+        }
     }
 
     private static void ApplyGroupLayout(
@@ -411,15 +546,42 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
 
     private static void CreateBlurToggle(RectTransform optionsMenu)
     {
-        Transform existingRow = FindChild(optionsMenu, "Distance Blur Option");
-        if (existingRow != null)
-        {
-            Toggle existingToggle = existingRow.GetComponentInChildren<Toggle>(true);
-            ConfigureBlurToggle(existingToggle);
-            return;
-        }
+        Transform row = CreateToggleOptionRow(
+            optionsMenu,
+            "Distance Blur Option",
+            "Blur de distancia",
+            "Distance Blur Toggle");
+        Toggle toggle = row.GetComponentInChildren<Toggle>(true);
+        ConfigureBlurToggle(toggle);
+    }
 
-        GameObject row = new GameObject("Distance Blur Option", typeof(RectTransform));
+    private static void CreateInteractionPromptToggle(RectTransform optionsMenu)
+    {
+        Transform row = CreateToggleOptionRow(
+            optionsMenu,
+            "Interaction Prompt Option",
+            "Mensagem de interação",
+            "Interaction Prompt Toggle");
+        Toggle toggle = row.GetComponentInChildren<Toggle>(true);
+        if (toggle == null)
+            return;
+
+        toggle.SetIsOnWithoutNotify(ClickToiInteract.IsPromptEnabled);
+        toggle.onValueChanged.RemoveListener(ClickToiInteract.SetPromptEnabled);
+        toggle.onValueChanged.AddListener(ClickToiInteract.SetPromptEnabled);
+    }
+
+    private static Transform CreateToggleOptionRow(
+        RectTransform optionsMenu,
+        string rowName,
+        string labelText,
+        string toggleName)
+    {
+        Transform existingRow = FindChild(optionsMenu, rowName);
+        if (existingRow != null)
+            return existingRow;
+
+        GameObject row = new GameObject(rowName, typeof(RectTransform));
         row.transform.SetParent(optionsMenu, false);
         RectTransform rowRect = row.GetComponent<RectTransform>();
         rowRect.anchorMin = rowRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -434,13 +596,13 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
         labelRect.offsetMin = new Vector2(0f, 0f);
         labelRect.offsetMax = new Vector2(-62f, 0f);
         TextMeshProUGUI label = labelObject.GetComponent<TextMeshProUGUI>();
-        label.text = "Blur de distancia";
+        label.text = labelText;
         label.fontSize = 16f;
         label.alignment = TextAlignmentOptions.MidlineLeft;
         CopyMenuTextStyle(optionsMenu, label);
         label.raycastTarget = false;
 
-        GameObject toggleObject = new GameObject("Distance Blur Toggle", typeof(RectTransform), typeof(Image), typeof(Toggle));
+        GameObject toggleObject = new GameObject(toggleName, typeof(RectTransform), typeof(Image), typeof(Toggle));
         toggleObject.transform.SetParent(row.transform, false);
         RectTransform toggleRect = toggleObject.GetComponent<RectTransform>();
         toggleRect.anchorMin = toggleRect.anchorMax = new Vector2(1f, 0.5f);
@@ -461,7 +623,7 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
         Toggle toggle = toggleObject.GetComponent<Toggle>();
         toggle.targetGraphic = background;
         toggle.graphic = check;
-        ConfigureBlurToggle(toggle);
+        return row.transform;
     }
 
     private static void ConfigureBlurToggle(Toggle toggle)
