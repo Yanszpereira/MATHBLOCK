@@ -17,7 +17,6 @@ public class CountdownTimer : MonoBehaviour
     [SerializeField, Min(0.05f)] private float fadeOutDuration = 0.65f;
     [SerializeField, Min(0.05f)] private float fadeInDuration = 0.45f;
     [SerializeField] private Color fadeColor = Color.black;
-    [SerializeField] private string resetSceneName = "Fase 1";
 
     [Header("Cronômetro físico")]
     [SerializeField] private bool followPlayerLookDirection = true;
@@ -187,7 +186,8 @@ public static string CalculateNota(float percentualTempoRestante)
         resetStarted = true;
         BlockResizeController.ExitAllForSceneTransition();
         Scene activeScene = SceneManager.GetActiveScene();
-        Debug.Log($"Tempo esgotado em {activeScene.name}. Reiniciando o jogo em {resetSceneName}.", this);
+        string resetSceneName = activeScene.name;
+        Debug.Log($"Tempo esgotado em {activeScene.name}. Reiniciando a mesma fase.", this);
 
         EnsureFadeOverlay(0f);
         yield return FadeCanvas(0f, 1f, fadeOutDuration, false);

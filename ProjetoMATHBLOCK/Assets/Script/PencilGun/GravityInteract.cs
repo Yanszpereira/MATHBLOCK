@@ -82,6 +82,8 @@ public class GravityInteract : MonoBehaviour
     public Transform GrabbedObject => grabbedObject;
     public bool IsHoldingBlock => IsHoldingObject;
     public Transform HeldBlock => IsHoldingBlock ? grabbedObject : null;
+    public bool IsHeldBlockTouchingAnotherBlock =>
+        grabbed && TryGetCarriedBlockOverlap(out MathBlockValue contactedBlock) && contactedBlock != null;
     public float GrabDistance => Mathf.Max(0f, grabDistance);
     public event Action InteractionRequested;
 
@@ -235,8 +237,13 @@ public class GravityInteract : MonoBehaviour
         if (operatorInteraction != null && operatorInteraction.TryInteractWithOperatorFromUI())
             return;
 
-        InteractionRequested?.Invoke();
         TryHandleGrabOrDrop();
+    }
+
+    public void InteractFromMobileUI()
+    {
+        InteractionRequested?.Invoke();
+        InteractFromUI();
     }
 
     private bool TryHandleContactOperatorFromUI()
@@ -251,7 +258,9 @@ public class GravityInteract : MonoBehaviour
         // Mesmo sem operador ou com uma conta invalida, nao deixa o mesmo toque
         // cair no fluxo de soltar o bloco.
         if (isOnCooldown || equippedOperator == PencilOperator.None)
+        {
             return true;
+        }
 
         ApplyOperatorToBlock(contactedBlock, $"contato com {contactedBlock.name}");
         return true;

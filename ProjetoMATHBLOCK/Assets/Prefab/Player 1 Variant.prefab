@@ -177,12 +177,19 @@ MonoBehaviour:
   gravityInteract: {fileID: 17608517078358294}
   beamOrigin: {fileID: 2417110068975440310}
   lineRenderer: {fileID: 8890148780339423255}
+  beamParticles: {fileID: 0}
+  tipGlowParticles: {fileID: 0}
   pointCount: 12
   curveOffset: 0.35
   originWidth: 0.07
   targetWidth: 0.04
   noOperatorColor: {r: 0.82, g: 0.84, b: 0.88, a: 1}
   beamRevealDuration: 0.5
+  particlesPerSecond: 24
+  particleLifetime: 0.6
+  particleRadius: 0.08
+  particleSize: 0.035
+  tipGlowSize: 0.16
 --- !u!1 &8106481746700066077
 GameObject:
   m_ObjectHideFlags: 0

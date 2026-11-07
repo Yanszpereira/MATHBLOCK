@@ -144,7 +144,11 @@ public sealed class ButtonsMobile : MonoBehaviour
     private void Interact()
     {
         if (Time.timeScale <= 0f) return;
-        gravityInteract?.InteractFromUI();
+
+        if (gravityInteract == null)
+            gravityInteract = FindFirstObjectByType<GravityInteract>();
+
+        gravityInteract?.InteractFromMobileUI();
     }
 
     private void Duplicate()

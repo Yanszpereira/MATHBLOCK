@@ -7,6 +7,9 @@ using FMODUnity;
 
 public class OperatorsScript : MonoBehaviour
 {
+    public static OperatorsScript Instance { get; private set; }
+    public static event Action<GravityInteract.PencilOperator> OperatorEquipped;
+
     [Header("Interação")]
     public Transform playerVision;
     public float grabDistance = 10f;
@@ -47,6 +50,7 @@ public class OperatorsScript : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
         ResolveReferences();
         ResolveInputAction();
         SetAllIconsAlpha(unequippedAlpha);
@@ -59,6 +63,7 @@ public class OperatorsScript : MonoBehaviour
 
     private void OnEnable()
     {
+        Instance = this;
         ResolveReferences();
         ResolveInputAction();
         if (interactOperatorAction != null)
@@ -71,6 +76,9 @@ public class OperatorsScript : MonoBehaviour
 
     private void OnDisable()
     {
+        if (Instance == this)
+            Instance = null;
+
         if (interactOperatorAction != null)
         {
             interactOperatorAction.performed -= OnInteractOperatorEvent;
@@ -213,6 +221,7 @@ public class OperatorsScript : MonoBehaviour
             equippedSceneOperator.RestoreToScene();
 
         pencilGun.SetEquippedOperator(operatorType);
+        OperatorEquipped?.Invoke(operatorType);
         PlaySelectionSound(operatorType, soundPosition);
 
         if (sceneOperator != null)

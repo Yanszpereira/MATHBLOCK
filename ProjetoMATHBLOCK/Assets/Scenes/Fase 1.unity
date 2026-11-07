@@ -10886,6 +10886,42 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 84
       objectReference: {fileID: 0}
+    - target: {fileID: 810000000000000001, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: particleKey
+      value: 41
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000000000000001, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: operatorType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000000000000001, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: particleSize
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000000000000001, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: operatorsScript
+      value: 
+      objectReference: {fileID: 612361991}
+    - target: {fileID: 810000000000000001, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: particleColor.b
+      value: 0.16353686
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000000000000001, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: particleColor.g
+      value: 0.7075472
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000000000000001, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: particleColor.r
+      value: 0.30270237
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000000000000001, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: particleSpawnRadius
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 810000000000000001, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
+      propertyPath: particleOriginOffset.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 896254376968379585, guid: 4ff1bca0188354e4a8002dab6be9c704, type: 3}
       propertyPath: m_Sprite
       value: 
