@@ -8326,6 +8326,10 @@ PrefabInstance:
       value: -0.002
       objectReference: {fileID: 0}
     - target: {fileID: 915402392438297909, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
+      propertyPath: tempoInicial
+      value: 360
+      objectReference: {fileID: 0}
+    - target: {fileID: 915402392438297909, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
       propertyPath: resetSceneName
       value: Fase 2
       objectReference: {fileID: 0}

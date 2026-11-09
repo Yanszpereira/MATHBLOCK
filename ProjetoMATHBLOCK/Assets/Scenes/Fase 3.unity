@@ -3732,6 +3732,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1673079234}
     m_Modifications:
     - target: {fileID: 915402392438297909, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
+      propertyPath: tempoInicial
+      value: 360
+      objectReference: {fileID: 0}
+    - target: {fileID: 915402392438297909, guid: 4e58e12710c5df14b840ced3ec350b22, type: 3}
       propertyPath: resetSceneName
       value: Fase 3
       objectReference: {fileID: 0}
@@ -11742,7 +11746,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50b96b0be5e4f224f88869ef82f4c208, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PortalParticleEffect
+  raioTremor: 4.5
+  portaFinal: {fileID: 0}
   plane: 0
+  centroInterior: {x: 0, y: 0, z: 0}
+  tamanhoInterior: {x: 0, y: 0}
+  deslocamentoFundo: 0.035
   maxParticles: 50000
   emissionRate: 600
   particleLifetime: 2.8
@@ -16602,7 +16611,7 @@ Transform:
   m_GameObject: {fileID: 2098351283}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.9999789, z: -0, w: -0.006499158}
-  m_LocalPosition: {x: -19.6, y: 178.08, z: -67.9}
+  m_LocalPosition: {x: -6.5, y: 179, z: -94}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

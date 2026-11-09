@@ -30550,7 +30550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1601d51255a2cb4ea7167784efa9073, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CountdownTimer
-  tempoInicial: 300
+  tempoInicial: 360
   timerText: {fileID: 1911027188}
   fadeOutDuration: 0.65
   fadeInDuration: 0.45
