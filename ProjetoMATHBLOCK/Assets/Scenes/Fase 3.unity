@@ -919,8 +919,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 9c5f1fff8bb210d4b98941dea0ef7842, type: 2}
+  m_sharedMaterial: {fileID: -2683401584759747728, guid: 9c5f1fff8bb210d4b98941dea0ef7842, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1017,7 +1017,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  - {fileID: -2683401584759747728, guid: 9c5f1fff8bb210d4b98941dea0ef7842, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -8263,6 +8263,7 @@ MonoBehaviour:
   isSmallBalance: 1
   originalBalance: {fileID: 1053136630}
   smallBalanceTextHeight: 0.75
+  smallBalanceTextFont: {fileID: 11400000, guid: 9c5f1fff8bb210d4b98941dea0ef7842, type: 2}
   smallBalanceTextFontSize: 64
   smallBalanceTextCharacterSize: 0.1
   smallBalanceEqualColor: {r: 0, g: 1, b: 0, a: 1}
@@ -9015,6 +9016,7 @@ MonoBehaviour:
   isSmallBalance: 0
   originalBalance: {fileID: 0}
   smallBalanceTextHeight: 0.75
+  smallBalanceTextFont: {fileID: 0}
   smallBalanceTextFontSize: 64
   smallBalanceTextCharacterSize: 0.1
   smallBalanceEqualColor: {r: 0, g: 1, b: 0, a: 1}
@@ -10320,7 +10322,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player 1 Variant
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3271105319279223346, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 4745981285788249604, guid: cbd6c23943eef1e40bc59ca8aa928b0c, type: 3}
@@ -13192,9 +13195,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -3026964105432897942, guid: 3226b101498f18648a8eebd82544e602, type: 3}
       insertIndex: -1
       addedObject: {fileID: 127582785}
-    - targetCorrespondingSourceObject: {fileID: -6917659534823972515, guid: 3226b101498f18648a8eebd82544e602, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2098357207}
     - targetCorrespondingSourceObject: {fileID: 8155134994468157353, guid: 3226b101498f18648a8eebd82544e602, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1926445047}
@@ -13234,9 +13234,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8518638247838255305, guid: 3226b101498f18648a8eebd82544e602, type: 3}
       insertIndex: -1
       addedObject: {fileID: 856203915}
-    - targetCorrespondingSourceObject: {fileID: 3654232955436339643, guid: 3226b101498f18648a8eebd82544e602, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2110987953}
     - targetCorrespondingSourceObject: {fileID: -509346146326006797, guid: 3226b101498f18648a8eebd82544e602, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2134103168}
@@ -13486,9 +13483,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7099243632499026046, guid: 3226b101498f18648a8eebd82544e602, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2038996749}
-    - targetCorrespondingSourceObject: {fileID: -2857800171577593289, guid: 3226b101498f18648a8eebd82544e602, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2118149930}
     - targetCorrespondingSourceObject: {fileID: -5461189205459188474, guid: 3226b101498f18648a8eebd82544e602, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1752413568}
@@ -13858,9 +13852,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5652430988409131538, guid: 3226b101498f18648a8eebd82544e602, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1672150102}
-    - targetCorrespondingSourceObject: {fileID: 8257048911870775513, guid: 3226b101498f18648a8eebd82544e602, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2124073767}
     - targetCorrespondingSourceObject: {fileID: -4857101322240257774, guid: 3226b101498f18648a8eebd82544e602, type: 3}
       insertIndex: -1
       addedObject: {fileID: 727046109}
@@ -15107,6 +15098,7 @@ MonoBehaviour:
   isSmallBalance: 0
   originalBalance: {fileID: 0}
   smallBalanceTextHeight: 0.75
+  smallBalanceTextFont: {fileID: 0}
   smallBalanceTextFontSize: 64
   smallBalanceTextCharacterSize: 0.1
   smallBalanceEqualColor: {r: 0, g: 1, b: 0, a: 1}
@@ -15178,6 +15170,7 @@ MonoBehaviour:
   isSmallBalance: 1
   originalBalance: {fileID: 1460716222}
   smallBalanceTextHeight: 0.75
+  smallBalanceTextFont: {fileID: 11400000, guid: 9c5f1fff8bb210d4b98941dea0ef7842, type: 2}
   smallBalanceTextFontSize: 64
   smallBalanceTextCharacterSize: 0.1
   smallBalanceEqualColor: {r: 0, g: 1, b: 0, a: 1}

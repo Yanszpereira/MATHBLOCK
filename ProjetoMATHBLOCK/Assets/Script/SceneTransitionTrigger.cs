@@ -49,9 +49,17 @@ public sealed class SceneTransitionTrigger : MonoBehaviour
 
     private IEnumerator LoadDestinationScene()
     {
-        if (string.IsNullOrWhiteSpace(destinationSceneName) ||
-            !Application.CanStreamedLevelBeLoaded(destinationSceneName))
+        if (string.IsNullOrWhiteSpace(destinationSceneName))
+        {
+            Debug.LogError("SceneTransitionTrigger não possui uma cena de destino.", this);
             yield break;
+        }
+
+        if (!Application.CanStreamedLevelBeLoaded(destinationSceneName))
+        {
+            Debug.LogError($"A cena de destino '{destinationSceneName}' não está no Build Settings ou não pode ser carregada.", this);
+            yield break;
+        }
 
         RegistroConclusaoFase.TryRegistrarConclusaoDaCenaAtual(this);
         transitionStarted = true;

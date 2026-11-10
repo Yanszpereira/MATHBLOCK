@@ -78,7 +78,7 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
         Scene sourceScene = SceneManager.GetActiveScene();
 
         yield return FadeTo(1f, 0.6f);
-        ConfigurePanel(finalPhase);
+        ConfigurePanel(finalPhase, destinationScene);
         panel.SetActive(true);
 
         if (finalPhase)
@@ -116,7 +116,7 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
         Cursor.visible = true;
     }
 
-    private void ConfigurePanel(bool finalPhase)
+    private void ConfigurePanel(bool finalPhase, string destinationScene)
     {
         string grade;
         if (finalPhase && ResultadosDasFases.TryObterResultadoFinal(out ResultadoFinal final))
@@ -135,7 +135,10 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
 
         gradeText.text = grade;
         SetGradeImage(grade);
-        SetButtonLabels(finalPhase ? "Voltar ao menu principal" : "Ir para a proxima fase");
+        string nextLabel = finalPhase
+            ? (destinationScene == "LastScene" ? "Ver cena final" : "Voltar ao menu principal")
+            : "Ir para a proxima fase";
+        SetButtonLabels(nextLabel);
     }
 
     private int GetCurrentPhase()

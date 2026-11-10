@@ -81,6 +81,7 @@ public sealed class BalanceScaleController : MonoBehaviour
     [SerializeField, InspectorName("É Balança Menor")] private bool isSmallBalance;
     [SerializeField, InspectorName("Balança Original")] private BalanceScaleController originalBalance;
     [SerializeField, Min(0f), InspectorName("Altura dos Textos")] private float smallBalanceTextHeight = 0.75f;
+    [SerializeField, InspectorName("Fonte dos Valores")] private TMP_FontAsset smallBalanceTextFont;
     [SerializeField, Min(1), InspectorName("Tamanho da Fonte")] private int smallBalanceTextFontSize = 64;
     [SerializeField, Min(0.001f), InspectorName("Escala dos Textos")] private float smallBalanceTextCharacterSize = 0.1f;
     [SerializeField, InspectorName("Cor quando Igual")] private Color smallBalanceEqualColor = Color.green;
@@ -269,6 +270,9 @@ private TextMeshPro GetOrCreateSmallBalanceText(Transform parent, string textNam
         if (textMesh == null)
             textMesh = textTransform.gameObject.AddComponent<TextMeshPro>();
 
+        if (smallBalanceTextFont != null)
+            textMesh.font = smallBalanceTextFont;
+
         textMesh.alignment = TextAlignmentOptions.Center;
         textMesh.textWrappingMode = TextWrappingModes.NoWrap;
         textMesh.fontSize = Mathf.Max(1, smallBalanceTextFontSize);
@@ -284,14 +288,14 @@ private static void ApplySmallBalanceTextOutline(TextMeshPro textMesh)
             return;
 
         const float outlineWidth = 0.5f;
-        textMesh.outlineColor = Color.white;
+        textMesh.outlineColor = textMesh.color;
         textMesh.outlineWidth = outlineWidth;
 
         Material material = textMesh.fontMaterial;
         if (material != null)
         {
             if (material.HasProperty("_OutlineColor"))
-                material.SetColor("_OutlineColor", Color.white);
+                material.SetColor("_OutlineColor", textMesh.color);
             if (material.HasProperty("_OutlineWidth"))
                 material.SetFloat("_OutlineWidth", outlineWidth);
         }

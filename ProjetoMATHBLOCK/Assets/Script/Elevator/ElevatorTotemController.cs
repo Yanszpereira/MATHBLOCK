@@ -818,9 +818,9 @@ public sealed class ElevatorTotemController : MonoBehaviour
             ? requiredValueInput
             : requiredValue.ToString();
 
-        // The digital font is dynamically populated. Ensure every digit in
-        // the required value has a real glyph before rebuilding the label.
-        if (requiredValueText.font != null)
+        // Only dynamic fonts can add glyphs. Static fonts already use their atlas and fallbacks.
+        if (requiredValueText.font != null &&
+            requiredValueText.font.atlasPopulationMode == AtlasPopulationMode.Dynamic)
             requiredValueText.font.TryAddCharacters(valueText);
 
         requiredValueText.SetText(valueText);
