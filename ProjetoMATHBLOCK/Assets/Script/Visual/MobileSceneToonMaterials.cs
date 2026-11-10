@@ -69,6 +69,14 @@
               // Preservar os materiais Toon dedicados das seis ilhas importadas.
               if (BelongsToPhaseTwoImportedIslands(target))
                   continue;
+              // Os modelos importados da Fase 3 ja possuem materiais Toon proprios.
+              // Evitar que as lajes planas recebam o material cinza generico em Play Mode.
+              if (target != null &&
+                  target.gameObject.scene.name.Equals("Fase 3", System.StringComparison.OrdinalIgnoreCase) &&
+                  (target.transform.root.name.Equals("fase3_nova", System.StringComparison.OrdinalIgnoreCase) ||
+                   target.transform.root.name.Equals("fase3_ilha (1)", System.StringComparison.OrdinalIgnoreCase)))
+                  continue;
+
 
               // O restante da geometria da Fase 2 conserva seus materiais e cores,
               // sem reflexos nem ToonShader.
