@@ -228,14 +228,19 @@ public sealed class DistanceBlurOptionUI : MonoBehaviour
                      FindObjectsInactive.Include,
                      FindObjectsSortMode.None))
         {
-            if (emitter == null ||
-                !MusicEventPaths.Contains(emitter.EventReference.Path) ||
-                !emitter.EventInstance.isValid())
+            if (emitter == null || !emitter.EventInstance.isValid())
                 continue;
 
-            FMOD.RESULT result = emitter.EventInstance.setVolume(value);
-            if (result != FMOD.RESULT.OK)
-                Debug.LogError($"Failed to set volume for background music '{emitter.EventReference.Path}': {result}");
+            FMOD.RESULT descriptionResult = emitter.EventInstance.getDescription(
+                out FMOD.Studio.EventDescription eventDescription);
+            if (descriptionResult != FMOD.RESULT.OK ||
+                eventDescription.getPath(out string eventPath) != FMOD.RESULT.OK ||
+                !MusicEventPaths.Contains(eventPath))
+                continue;
+
+            FMOD.RESULT volumeResult = emitter.EventInstance.setVolume(value);
+            if (volumeResult != FMOD.RESULT.OK)
+                Debug.LogError($"Failed to set volume for background music '{eventPath}': {volumeResult}");
         }
 
         foreach (PhaseTwoAudioBootstrap audio in FindObjectsByType<PhaseTwoAudioBootstrap>(
