@@ -16097,11 +16097,11 @@ MonoBehaviour:
   finalBlinkSpeed: 1
   sceneEntryOpeningSpeed: 0.35
   initialEyeOpeningSpeed: 0.35
-  enableVisionBlur: 1
+  enableVisionBlur: 0
   visionBlurRadius: 3
   decreaseVisionBlurPerBlink: 0
   visionBlurRadiusDecreasePerBlink: 1.5
-  increaseVisionBlurPerBlink: 1
+  increaseVisionBlurPerBlink: 0
   visionBlurRadiusIncreasePerBlink: 2
   visionBlurShader: {fileID: 4800000, guid: 65cf921fc02e45a6aa34c1f816af3522, type: 3}
   finalSkipButtonExitDuration: 0.25
@@ -16139,6 +16139,8 @@ MonoBehaviour:
   provaJogador: {fileID: 9206332363068324568}
   redcube: {fileID: 1432672260}
   sceneToLoad: Fase 1
+  ambienceFadeOutDuration: 0.6
+  phaseOneMusicFadeInDuration: 1.5
 --- !u!114 &6605935447967456985
 MonoBehaviour:
   m_ObjectHideFlags: 0
