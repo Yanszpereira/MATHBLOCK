@@ -16096,6 +16096,20 @@ MonoBehaviour:
   blinkOpeningSpeedMultiplier: 0.335
   finalBlinkSpeed: 1
   sceneEntryOpeningSpeed: 0.35
+  blinkSound:
+    Guid:
+      Data1: 1988611292
+      Data2: 1212676235
+      Data3: 643085983
+      Data4: 315554536
+    Path: event:/Piscada
+  yawnSound:
+    Guid:
+      Data1: -1643878989
+      Data2: 1203410391
+      Data3: -245013119
+      Data4: 281074836
+    Path: event:/bocejo2 2
   initialEyeOpeningSpeed: 0.35
   enableVisionBlur: 1
   visionBlurRadius: 3
@@ -16139,6 +16153,8 @@ MonoBehaviour:
   provaJogador: {fileID: 9206332363068324568}
   redcube: {fileID: 1432672260}
   sceneToLoad: Fase 1
+  ambienceFadeOutDuration: 0.6
+  phaseOneMusicFadeInDuration: 1.5
 --- !u!114 &6605935447967456985
 MonoBehaviour:
   m_ObjectHideFlags: 0

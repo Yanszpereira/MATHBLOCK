@@ -13,6 +13,8 @@ public class SleepAnimation : MonoBehaviour
     private const string YawnSoundEventPath = "event:/bocejo2 2";
 
     [Header("Piscadas")]
+    [SerializeField, Min(0f), Tooltip("Espera antes da primeira piscada, para ela não acontecer logo no começo da cena.")]
+    private float firstBlinkDelay = 5f;
     [SerializeField, Min(0f), Tooltip("Intervalo de espera entre piscadas, em segundos.")]
     private float blinkInterval = 5f;
     [SerializeField, Min(0.1f), Tooltip("Velocidade de fechamento das piscadas normais.")]
@@ -29,8 +31,10 @@ public class SleepAnimation : MonoBehaviour
     [Header("Sons da cutscene")]
     [SerializeField, Tooltip("Som tocado no início de cada piscada.")]
     private EventReference blinkSound;
-    [SerializeField, Tooltip("Som de bocejo tocado quando a cutscene inicial começa.")]
+    [SerializeField, Tooltip("Som de bocejo tocado depois da segunda piscada.")]
     private EventReference yawnSound;
+    [SerializeField, Min(0f), Tooltip("Atraso do bocejo depois da segunda piscada.")]
+    private float yawnAfterSecondBlinkDelay = 0.5f;
 
     [Header("Abertura inicial dos olhos")]
     [SerializeField, Min(0.1f), Tooltip("Velocidade de abertura dos olhos ao iniciar a cena.")]
@@ -204,7 +208,6 @@ public class SleepAnimation : MonoBehaviour
 
         initialTurnStarted = true;
         openingInitialEyes = true;
-        PlayCutsceneSound(yawnSound, YawnSoundEventPath);
         ShowSkipButton();
         if (initialTurnTarget == null)
             return;
@@ -325,7 +328,8 @@ public class SleepAnimation : MonoBehaviour
         if (!isBlinking)
         {
             intervalElapsed += deltaTime;
-            if (intervalElapsed < blinkInterval)
+            float currentBlinkDelay = blinkCount == 0 ? firstBlinkDelay : blinkInterval;
+            if (intervalElapsed < currentBlinkDelay)
                 return;
 
             intervalElapsed = 0f;
@@ -338,7 +342,6 @@ public class SleepAnimation : MonoBehaviour
             isBlinking = true;
             isClosing = true;
             isHoldingClosed = false;
-            PlayCutsceneSound(blinkSound, BlinkSoundEventPath);
             if (blinkCount == 2)
                 StartFinalSkipButtonExit();
         }
@@ -618,7 +621,11 @@ public class SleepAnimation : MonoBehaviour
 
     private void OnBlinkClosed()
     {
+        if (blinkCount == 1)
+            PlayCutsceneSound(blinkSound, BlinkSoundEventPath);
         blinkCount++;
+        if (blinkCount == 2)
+            StartCoroutine(PlayYawnAfterSecondBlink());
         float radiusChange = 0f;
         if (increaseVisionBlurPerBlink)
             radiusChange += Mathf.Max(0f, visionBlurRadiusIncreasePerBlink);
@@ -675,5 +682,14 @@ public class SleepAnimation : MonoBehaviour
 
         if (!string.IsNullOrWhiteSpace(fallbackEventPath))
             RuntimeManager.PlayOneShot(fallbackEventPath, transform.position);
+    }
+
+    private System.Collections.IEnumerator PlayYawnAfterSecondBlink()
+    {
+        if (yawnAfterSecondBlinkDelay > 0f)
+            yield return new WaitForSecondsRealtime(yawnAfterSecondBlinkDelay);
+
+        if (!transitioningToScene)
+            PlayCutsceneSound(yawnSound, YawnSoundEventPath);
     }
 }
