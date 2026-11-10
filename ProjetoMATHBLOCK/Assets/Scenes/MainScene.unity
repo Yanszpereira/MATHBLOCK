@@ -16096,6 +16096,20 @@ MonoBehaviour:
   blinkOpeningSpeedMultiplier: 0.335
   finalBlinkSpeed: 1
   sceneEntryOpeningSpeed: 0.35
+  blinkSound:
+    Guid:
+      Data1: 1988611292
+      Data2: 1212676235
+      Data3: 643085983
+      Data4: 315554536
+    Path: event:/Piscada
+  yawnSound:
+    Guid:
+      Data1: -1643878989
+      Data2: 1203410391
+      Data3: -245013119
+      Data4: 281074836
+    Path: event:/bocejo2 2
   initialEyeOpeningSpeed: 0.35
   enableVisionBlur: 0
   visionBlurRadius: 3
