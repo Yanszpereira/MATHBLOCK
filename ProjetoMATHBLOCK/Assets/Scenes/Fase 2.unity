@@ -16524,7 +16524,7 @@ MonoBehaviour:
   elevator: {fileID: 1635937427}
   paper: {fileID: 41816887}
   moveSpeed: 20
-  platformSideOffset: {x: -0.069980934, y: 0.022350859, z: -0.0008130373}
+  platformSideOffset: {x: -0.09, y: 0.05, z: 0.03}
   paperEjectionDistance: 2
   paperEjectionDuration: 1
   paperRotationDegrees: 60
