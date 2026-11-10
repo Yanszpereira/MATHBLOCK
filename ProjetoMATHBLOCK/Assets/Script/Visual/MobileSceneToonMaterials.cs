@@ -66,8 +66,12 @@
                   target.GetComponentInParent<PortalParticleEffect>() != null))
                   continue;
 
-              // A geometria da Fase 2 deve conservar integralmente os materiais
-              // e cores definidos na cena, mas sem reflexos nem ToonShader.
+              // Preservar os materiais Toon dedicados das seis ilhas importadas.
+              if (BelongsToPhaseTwoImportedIslands(target))
+                  continue;
+
+              // O restante da geometria da Fase 2 conserva seus materiais e cores,
+              // sem reflexos nem ToonShader.
               if (BelongsToPhaseTwoScenarioGeometry(target))
               {
                   RemoveReflectionsPreservingAppearance(target);
@@ -559,6 +563,24 @@
           {
               if (current.name.Equals("Fase4_SegundaMetade", System.StringComparison.OrdinalIgnoreCase) ||
                     current.name.Equals("Cenariofase4v2", System.StringComparison.OrdinalIgnoreCase))
+                  return true;
+          }
+
+          return false;
+      }
+
+
+      private static bool BelongsToPhaseTwoImportedIslands(Renderer target)
+      {
+          if (target == null ||
+              !target.gameObject.scene.name.Equals("Fase 2", System.StringComparison.OrdinalIgnoreCase))
+              return false;
+
+          for (Transform current = target.transform; current != null; current = current.parent)
+          {
+              if (current.name.StartsWith("F2_Ilha_", System.StringComparison.OrdinalIgnoreCase) &&
+                  current.parent != null &&
+                  current.parent.name.Equals("fase2ilha1", System.StringComparison.OrdinalIgnoreCase))
                   return true;
           }
 
