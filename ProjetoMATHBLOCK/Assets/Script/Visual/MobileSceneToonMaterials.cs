@@ -66,8 +66,20 @@
                   target.GetComponentInParent<PortalParticleEffect>() != null))
                   continue;
 
-              // A geometria da Fase 2 deve conservar integralmente os materiais
-              // e cores definidos na cena, mas sem reflexos nem ToonShader.
+              // Preservar os materiais Toon dedicados das seis ilhas importadas.
+              if (BelongsToPhaseTwoImportedIslands(target))
+                  continue;
+              // Os modelos importados da Fase 3 ja possuem materiais Toon proprios.
+              // Evitar que as lajes planas recebam o material cinza generico em Play Mode.
+              if (target != null &&
+                  target.gameObject.scene.name.Equals("Fase 3", System.StringComparison.OrdinalIgnoreCase) &&
+                  (target.transform.root.name.Equals("fase3_nova", System.StringComparison.OrdinalIgnoreCase) ||
+                   target.transform.root.name.Equals("fase3_ilha (1)", System.StringComparison.OrdinalIgnoreCase)))
+                  continue;
+
+
+              // O restante da geometria da Fase 2 conserva seus materiais e cores,
+              // sem reflexos nem ToonShader.
               if (BelongsToPhaseTwoScenarioGeometry(target))
               {
                   RemoveReflectionsPreservingAppearance(target);
@@ -88,7 +100,13 @@
                   continue;
               }
 
-              if (IsGroundSurface(target))
+              if (BelongsToPhaseOneReformedScenario(target) && IsGroundSurface(target) && CanConvert(target))
+              {
+                  ConvertRenderer(target, toonShader, false, false, true);
+                  continue;
+              }
+
+              if (!BelongsToPhaseOneReformedScenario(target) && IsGroundSurface(target))
               {
                   ApplyMatteGroundMaterial(target);
                   continue;
@@ -199,6 +217,18 @@
                    objectName.Contains("Geometria", System.StringComparison.OrdinalIgnoreCase)))
                   return true;
           }
+
+          return false;
+      }
+
+      private static bool BelongsToPhaseOneReformedScenario(Renderer target)
+      {
+          if (target == null || target.gameObject.scene.name != "Fase 1")
+              return false;
+
+          for (Transform current = target.transform; current != null; current = current.parent)
+              if (current.name.Equals("Fase1_reformulada", System.StringComparison.OrdinalIgnoreCase))
+                  return true;
 
           return false;
       }
@@ -436,12 +466,13 @@
           Renderer target,
           Shader toonShader,
           bool isGround,
-          bool enableLegacyOutline)
+          bool enableLegacyOutline,
+          bool removeHighlights = false)
       {
           Material[] originals = target.sharedMaterials;
           Material[] converted = new Material[originals.Length];
           bool compartilhar = PodeCompartilhar(target);
-          int variante = 3 + (isGround ? 1 : 0) + (enableLegacyOutline ? 2 : 0);
+          int variante = 3 + (isGround ? 1 : 0) + (enableLegacyOutline ? 2 : 0) + (removeHighlights ? 4 : 0);
 
           for (int i = 0; i < originals.Length; i++)
           {
@@ -493,6 +524,13 @@
                   toon.EnableKeyword("_SPECULAR_ON");
                   toon.EnableKeyword("_RIM_ON");
               }
+              if (removeHighlights)
+              {
+                  toon.DisableKeyword("_SPECULAR_ON");
+                  toon.DisableKeyword("_RIM_ON");
+                  toon.SetFloat("_EnableSpecular", 0f);
+                  toon.SetFloat("_EnableRim", 0f);
+              }
               if (enableLegacyOutline)
               {
                   toon.EnableKeyword("_OUTLINE_ON");
@@ -533,6 +571,24 @@
           {
               if (current.name.Equals("Fase4_SegundaMetade", System.StringComparison.OrdinalIgnoreCase) ||
                     current.name.Equals("Cenariofase4v2", System.StringComparison.OrdinalIgnoreCase))
+                  return true;
+          }
+
+          return false;
+      }
+
+
+      private static bool BelongsToPhaseTwoImportedIslands(Renderer target)
+      {
+          if (target == null ||
+              !target.gameObject.scene.name.Equals("Fase 2", System.StringComparison.OrdinalIgnoreCase))
+              return false;
+
+          for (Transform current = target.transform; current != null; current = current.parent)
+          {
+              if (current.name.StartsWith("F2_Ilha_", System.StringComparison.OrdinalIgnoreCase) &&
+                  current.parent != null &&
+                  current.parent.name.Equals("fase2ilha1", System.StringComparison.OrdinalIgnoreCase))
                   return true;
           }
 

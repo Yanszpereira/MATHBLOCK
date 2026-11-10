@@ -1,3 +1,4 @@
+using FMODUnity;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,6 +9,8 @@ using UnityEngine.UI;
 public class SleepAnimation : MonoBehaviour
 {
     private const float MaxVisionBlurRadius = 20f;
+    private const string BlinkSoundEventPath = "event:/piscada";
+    private const string YawnSoundEventPath = "event:/bocejo2 2";
 
     [Header("Piscadas")]
     [SerializeField, Min(0f), Tooltip("Intervalo de espera entre piscadas, em segundos.")]
@@ -22,6 +25,12 @@ public class SleepAnimation : MonoBehaviour
     private float finalBlinkSpeed = 0.7f;
     [SerializeField, Min(0.1f), Tooltip("Velocidade de abertura dos olhos após carregar a nova cena.")]
     private float sceneEntryOpeningSpeed = 0.35f;
+
+    [Header("Sons da cutscene")]
+    [SerializeField, Tooltip("Som tocado no início de cada piscada.")]
+    private EventReference blinkSound;
+    [SerializeField, Tooltip("Som de bocejo tocado quando a cutscene inicial começa.")]
+    private EventReference yawnSound;
 
     [Header("Abertura inicial dos olhos")]
     [SerializeField, Min(0.1f), Tooltip("Velocidade de abertura dos olhos ao iniciar a cena.")]
@@ -195,6 +204,7 @@ public class SleepAnimation : MonoBehaviour
 
         initialTurnStarted = true;
         openingInitialEyes = true;
+        PlayCutsceneSound(yawnSound, YawnSoundEventPath);
         ShowSkipButton();
         if (initialTurnTarget == null)
             return;
@@ -328,6 +338,7 @@ public class SleepAnimation : MonoBehaviour
             isBlinking = true;
             isClosing = true;
             isHoldingClosed = false;
+            PlayCutsceneSound(blinkSound, BlinkSoundEventPath);
             if (blinkCount == 2)
                 StartFinalSkipButtonExit();
         }
@@ -652,5 +663,17 @@ public class SleepAnimation : MonoBehaviour
                 break;
 
         }
+    }
+
+    private void PlayCutsceneSound(EventReference sound, string fallbackEventPath)
+    {
+        if (!sound.IsNull)
+        {
+            RuntimeManager.PlayOneShot(sound, transform.position);
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(fallbackEventPath))
+            RuntimeManager.PlayOneShot(fallbackEventPath, transform.position);
     }
 }
