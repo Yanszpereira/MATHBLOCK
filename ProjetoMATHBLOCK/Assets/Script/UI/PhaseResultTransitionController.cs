@@ -1,4 +1,5 @@
 using System.Collections;
+using FMODUnity;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -7,6 +8,9 @@ using UnityEngine.UI;
 
 public sealed class PhaseResultTransitionController : MonoBehaviour
 {
+    private const string StampSoundEventPath = "event:/carimbo";
+    private const string SurpriseSoundEventPath = "event:/resultadoteste";
+
     private static PhaseResultTransitionController instance;
 
     [Header("Optional Inspector visuals")]
@@ -17,6 +21,14 @@ public sealed class PhaseResultTransitionController : MonoBehaviour
     [SerializeField] private Image gradeImageD;
     [SerializeField] private TMP_Text messageText;
     [SerializeField] private TMP_Text gradeText;
+
+    [Header("Final cutscene audio")]
+    [SerializeField, Tooltip("Som sincronizado com o aparecimento da nota final.")]
+    private EventReference stampSound;
+    [SerializeField, Tooltip("Reação surpresa tocada logo depois do carimbo.")]
+    private EventReference surpriseSound;
+    [SerializeField, Min(0f), Tooltip("Atraso entre o carimbo e a reação surpresa.")]
+    private float surpriseSoundDelay = 0.3f;
 
     public static bool IsResultOpen => instance != null && instance.panel != null && instance.panel.activeSelf;
     private TMP_FontAsset resultFont;
@@ -68,6 +80,10 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
         yield return FadeTo(1f, 0.6f);
         ConfigurePanel(finalPhase);
         panel.SetActive(true);
+
+        if (finalPhase)
+
+            yield return PlayFinalGradeSounds();
         UnlockResultCursor();
 
         while (choice == 0)
@@ -156,7 +172,7 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
         RectTransform panelRect = panel.GetComponent<RectTransform>();
         panelRect.anchorMin = new Vector2(.5f, .5f);
         panelRect.anchorMax = new Vector2(.5f, .5f);
-        panelRect.sizeDelta = new Vector2(900f, 675f);
+        panelRect.sizeDelta = new Vector2(900f, 675f);
         panelRect.anchoredPosition = new Vector2(0f, 100f);
 
         messageText ??= CreateText("Message", panel.transform, 34, TextAlignmentOptions.Center);
@@ -202,6 +218,44 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
         fadeGroup.alpha = target;
     }
 
+    private IEnumerator PlayFinalGradeSounds()
+
+    {
+
+        PlayResultSound(stampSound, StampSoundEventPath);
+
+        if (surpriseSoundDelay > 0f)
+
+            yield return new WaitForSecondsRealtime(surpriseSoundDelay);
+
+        PlayResultSound(surpriseSound, SurpriseSoundEventPath);
+
+    }
+
+
+
+    private void PlayResultSound(EventReference sound, string fallbackEventPath)
+
+    {
+
+        if (!sound.IsNull)
+
+        {
+
+            RuntimeManager.PlayOneShot(sound, transform.position);
+
+            return;
+
+        }
+
+        if (!string.IsNullOrWhiteSpace(fallbackEventPath))
+
+            RuntimeManager.PlayOneShot(fallbackEventPath, transform.position);
+
+    }
+
+
+
     private static Image CreateImage(string name, Transform parent, Color color)
     {
         GameObject item = new GameObject(name, typeof(RectTransform), typeof(Image));
@@ -236,15 +290,15 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
         buttonImage.sprite = buttonSprite;
         buttonImage.preserveAspect = true;
         buttonImage.color = Color.white;
-        Button button = item.GetComponent<Button>();
-        button.transition = Selectable.Transition.ColorTint;
-        ColorBlock colors = button.colors;
-        colors.normalColor = new Color(.8f, .8f, .8f, 1f);
-        colors.highlightedColor = Color.white;
-        colors.selectedColor = Color.white;
-        colors.pressedColor = new Color(.62f, .72f, .85f, 1f);
-        colors.fadeDuration = .12f;
-        button.colors = colors;
+        Button button = item.GetComponent<Button>();
+        button.transition = Selectable.Transition.ColorTint;
+        ColorBlock colors = button.colors;
+        colors.normalColor = new Color(.8f, .8f, .8f, 1f);
+        colors.highlightedColor = Color.white;
+        colors.selectedColor = Color.white;
+        colors.pressedColor = new Color(.62f, .72f, .85f, 1f);
+        colors.fadeDuration = .12f;
+        button.colors = colors;
         button.onClick.AddListener(action);
 
         TMP_Text label = CreateText(name + " Label", item.transform, 28, TextAlignmentOptions.Center);
