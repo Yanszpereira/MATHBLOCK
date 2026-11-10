@@ -88,7 +88,13 @@
                   continue;
               }
 
-              if (IsGroundSurface(target))
+              if (BelongsToPhaseOneReformedScenario(target) && IsGroundSurface(target) && CanConvert(target))
+              {
+                  ConvertRenderer(target, toonShader, false, false, true);
+                  continue;
+              }
+
+              if (!BelongsToPhaseOneReformedScenario(target) && IsGroundSurface(target))
               {
                   ApplyMatteGroundMaterial(target);
                   continue;
@@ -199,6 +205,18 @@
                    objectName.Contains("Geometria", System.StringComparison.OrdinalIgnoreCase)))
                   return true;
           }
+
+          return false;
+      }
+
+      private static bool BelongsToPhaseOneReformedScenario(Renderer target)
+      {
+          if (target == null || target.gameObject.scene.name != "Fase 1")
+              return false;
+
+          for (Transform current = target.transform; current != null; current = current.parent)
+              if (current.name.Equals("Fase1_reformulada", System.StringComparison.OrdinalIgnoreCase))
+                  return true;
 
           return false;
       }
@@ -436,12 +454,13 @@
           Renderer target,
           Shader toonShader,
           bool isGround,
-          bool enableLegacyOutline)
+          bool enableLegacyOutline,
+          bool removeHighlights = false)
       {
           Material[] originals = target.sharedMaterials;
           Material[] converted = new Material[originals.Length];
           bool compartilhar = PodeCompartilhar(target);
-          int variante = 3 + (isGround ? 1 : 0) + (enableLegacyOutline ? 2 : 0);
+          int variante = 3 + (isGround ? 1 : 0) + (enableLegacyOutline ? 2 : 0) + (removeHighlights ? 4 : 0);
 
           for (int i = 0; i < originals.Length; i++)
           {
@@ -492,6 +511,13 @@
               {
                   toon.EnableKeyword("_SPECULAR_ON");
                   toon.EnableKeyword("_RIM_ON");
+              }
+              if (removeHighlights)
+              {
+                  toon.DisableKeyword("_SPECULAR_ON");
+                  toon.DisableKeyword("_RIM_ON");
+                  toon.SetFloat("_EnableSpecular", 0f);
+                  toon.SetFloat("_EnableRim", 0f);
               }
               if (enableLegacyOutline)
               {

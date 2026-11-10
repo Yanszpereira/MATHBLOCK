@@ -43,7 +43,8 @@ public sealed class Fase1DoorAntiParkourBarriers : MonoBehaviour
         int installedDoorCount = 0;
         foreach (DoorValueVerifier door in doors)
         {
-            if (door == null || door.transform == null)
+            // Verificadores de puzzle independentes nao representam portas.
+            if (door == null || door.GetComponent<DoorOpener>() == null)
                 continue;
 
             CreateSideBarrier(root.transform, door.transform, "Esquerda", LeftCenter);

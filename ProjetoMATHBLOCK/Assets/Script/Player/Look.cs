@@ -93,7 +93,7 @@ public class Look : MonoBehaviour
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        if (hasFocus)
+        if (hasFocus && !PhaseResultTransitionController.IsResultOpen)
             LockCursor();
     }
 
@@ -132,8 +132,9 @@ public class Look : MonoBehaviour
 
     private void Update()
     {
-        if (Time.timeScale <= 0f)
+        if (Time.timeScale <= 0f || PhaseResultTransitionController.IsResultOpen)
         {
+            mouseInput = Vector2.zero;
             touchInput = Vector2.zero;
             lookTouchId = -1;
             return;
