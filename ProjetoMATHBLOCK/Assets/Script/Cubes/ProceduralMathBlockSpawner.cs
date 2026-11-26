@@ -578,7 +578,8 @@ public class ProceduralMathBlockSpawner : MonoBehaviour
             FindObjectsSortMode.None);
 
         foreach (ProceduralMathBlockSpawner spawner in sceneSpawners)
-            if (spawner != null && spawner.gameObject.scene == gameObject.scene && spawner.progressionUnlocked)
+            if (spawner != null && spawner.gameObject.scene == gameObject.scene &&
+                spawner.doorVerifier != null && spawner.progressionUnlocked)
                 yield break;
 
         PlayerMovement player = FindFirstObjectByType<PlayerMovement>();
