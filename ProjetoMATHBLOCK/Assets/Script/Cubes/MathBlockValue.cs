@@ -723,32 +723,20 @@ public class MathBlockValue : MonoBehaviour
         return new Vector3(Mathf.Abs(value.x), Mathf.Abs(value.y), Mathf.Abs(value.z));
     }
 
-    private void UpdateLabelVisibility()
+private void UpdateLabelVisibility()
     {
         if (valueLabels == null)
             return;
 
-        if (labelCamera == null)
-            labelCamera = Camera.main;
-
-        if (labelCamera == null)
-            return;
-
-        Vector3 cameraPosition = labelCamera.transform.position;
-        for (int i = 0; i < valueLabels.Length && i < FaceLabels.Length; i++)
+        // Let LabelOverlay's Cull Back and ZTest handle visibility for each
+        // rendering camera. Camera.main can select an unrelated scene camera.
+        foreach (TextMesh label in valueLabels)
         {
-            TextMesh label = valueLabels[i];
             if (label == null)
                 continue;
-
-            Vector3 faceNormal = transform.TransformDirection(FaceLabels[i].direction).normalized;
-            Vector3 directionToCamera = labelCamera.orthographic
-                ? -labelCamera.transform.forward
-                : (cameraPosition - label.transform.position).normalized;
-
             Renderer labelRenderer = label.GetComponent<Renderer>();
             if (labelRenderer != null)
-                labelRenderer.enabled = Vector3.Dot(faceNormal, directionToCamera) > 0.01f;
+                labelRenderer.enabled = true;
         }
     }
 
