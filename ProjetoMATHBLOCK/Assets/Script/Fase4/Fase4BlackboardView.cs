@@ -183,10 +183,10 @@ public void ShowTimeChange(string text, Color color)
         float usableWidth = usableHalfWidth * 2f;
         float usableHeight = usableHalfHeight * 2f;
 
-        expressionText = CreateLabel("Quadro_Fase4_Expressao", font, origin + vertical * usableHalfHeight * 0.46f, textRotation, usableWidth, usableHeight * 0.30f, 1.25f, TextAlignmentOptions.Center, new Color(0.97f, 0.96f, 0.87f));
+        expressionText = CreateLabel("Quadro_Fase4_Expressao", font, origin + vertical * usableHalfHeight * 0.30f, textRotation, usableWidth, usableHeight * 0.30f, 1.25f, TextAlignmentOptions.Center, new Color(0.97f, 0.96f, 0.87f));
         roundText = CreateLabel("Quadro_Fase4_Rodada", font, origin - horizontal * usableHalfWidth * 0.52f + vertical * usableHalfHeight * 0.78f, textRotation, usableWidth * 0.46f, usableHeight * 0.24f, 0.75f, TextAlignmentOptions.Left, new Color(0.93f, 0.91f, 0.82f));
         timerText = CreateLabel("Quadro_Fase4_Cronometro", font, origin + horizontal * usableHalfWidth * 0.52f + vertical * usableHalfHeight * 0.78f, textRotation, usableWidth * 0.46f, usableHeight * 0.24f, 0.85f, TextAlignmentOptions.Right, Color.white);
-        errorsText = CreateLabel("Quadro_Fase4_Erros", font, origin + vertical * usableHalfHeight * 0.15f, textRotation, usableWidth * 0.45f, usableHeight * 0.06f, 0.72f, TextAlignmentOptions.Center, Color.white);
+        errorsText = CreateLabel("Quadro_Fase4_Erros", font, origin + vertical * usableHalfHeight * -0.35f, textRotation, usableWidth * 0.45f, usableHeight * 0.06f, 0.72f, TextAlignmentOptions.Center, Color.white);
         statusText = CreateLabel("Quadro_Fase4_Status", font, origin - vertical * usableHalfHeight * 0.15f, textRotation, usableWidth, usableHeight * 0.17f, 0.95f, TextAlignmentOptions.Center, new Color(0.96f, 0.94f, 0.84f), true);
         feedbackText = CreateLabel("Quadro_Fase4_AjusteTempo", font, origin - vertical * usableHalfHeight * 0.50f, textRotation, usableWidth * 0.42f, usableHeight * 0.08f, 0.9f, TextAlignmentOptions.Center, Color.white);
         feedbackBasePosition = feedbackText.transform.position;
