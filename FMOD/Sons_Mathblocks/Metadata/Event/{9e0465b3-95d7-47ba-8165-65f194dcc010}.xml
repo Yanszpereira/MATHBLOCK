@@ -97,6 +97,9 @@
 		</relationship>
 	</object>
 	<object class="EventMixerGroup" id="{3de527e9-7f52-4c9a-88b7-49abb08141bd}">
+		<property name="volume">
+			<value>-3</value>
+		</property>
 		<property name="name">
 			<value>Audio 1</value>
 		</property>
