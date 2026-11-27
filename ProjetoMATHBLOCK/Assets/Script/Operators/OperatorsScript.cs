@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -47,6 +48,9 @@ public class OperatorsScript : MonoBehaviour
     private int lastInteractionFrame = -1;
     private bool lastInteractionSucceeded;
     private int unlockedOperatorMask;
+    private readonly Dictionary<Image, Vector3> hudIconBaseScales = new();
+    private static Sprite hudGlowSprite;
+    private Coroutine hudZoomRoutine;
 
     private void Awake()
     {
@@ -54,6 +58,7 @@ public class OperatorsScript : MonoBehaviour
         ResolveReferences();
         ResolveInputAction();
         SetAllIconsAlpha(unequippedAlpha);
+        AnimateHudIconScales(GravityInteract.PencilOperator.None, true);
     }
 
     private void Start()
@@ -247,6 +252,7 @@ public class OperatorsScript : MonoBehaviour
             pencilGun.ClearEquippedOperator();
 
         SetAllIconsAlpha(unequippedAlpha);
+        AnimateHudIconScales(GravityInteract.PencilOperator.None);
     }
 
     private void UnlockOperator(GravityInteract.PencilOperator operatorType)
@@ -557,6 +563,10 @@ public class OperatorsScript : MonoBehaviour
         SetIconAlpha(subtractionIcon, alpha);
         SetIconAlpha(multiplicationIcon, alpha);
         SetIconAlpha(divisionIcon, alpha);
+        SetIconSelected(additionIcon, false, "Addition Glow");
+        SetIconSelected(subtractionIcon, false, "Subtraction Glow");
+        SetIconSelected(multiplicationIcon, false, "Multiplication Glow");
+        SetIconSelected(divisionIcon, false, "Division Glow");
     }
 
     private void UpdateHudIcons(GravityInteract.PencilOperator equipped)
@@ -567,20 +577,219 @@ public class OperatorsScript : MonoBehaviour
         {
             case GravityInteract.PencilOperator.Addition:
                 SetIconAlpha(additionIcon, equippedAlpha);
+                SetIconSelected(additionIcon, true, "Addition Glow", equipped);
                 break;
 
             case GravityInteract.PencilOperator.Subtraction:
                 SetIconAlpha(subtractionIcon, equippedAlpha);
+                SetIconSelected(subtractionIcon, true, "Subtraction Glow", equipped);
                 break;
 
             case GravityInteract.PencilOperator.Multiplication:
                 SetIconAlpha(multiplicationIcon, equippedAlpha);
+                SetIconSelected(multiplicationIcon, true, "Multiplication Glow", equipped);
                 break;
 
             case GravityInteract.PencilOperator.Division:
                 SetIconAlpha(divisionIcon, equippedAlpha);
+                SetIconSelected(divisionIcon, true, "Division Glow", equipped);
                 break;
         }
+
+        AnimateHudIconScales(equipped);
+    }
+
+    private void SetIconSelected(
+        Image icon,
+        bool selected,
+        string glowName,
+        GravityInteract.PencilOperator operatorType = GravityInteract.PencilOperator.None)
+    {
+        if (icon == null)
+            return;
+
+        if (!hudIconBaseScales.TryGetValue(icon, out Vector3 baseScale))
+        {
+            baseScale = icon.transform.localScale;
+            hudIconBaseScales.Add(icon, baseScale);
+        }
+
+        Transform glowTransform = icon.transform.Find(glowName);
+        if (glowTransform == null)
+        {
+            GameObject glowObject = new GameObject(
+                glowName,
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image));
+            glowTransform = glowObject.transform;
+            glowTransform.SetParent(icon.transform, false);
+            glowTransform.SetAsFirstSibling();
+
+            RectTransform glowRect = (RectTransform)glowTransform;
+            glowRect.anchorMin = Vector2.zero;
+            glowRect.anchorMax = Vector2.one;
+            glowRect.offsetMin = new Vector2(-12f, -12f);
+            glowRect.offsetMax = new Vector2(12f, 12f);
+        }
+
+        Image glow = glowTransform.GetComponent<Image>();
+        if (glow == null)
+            return;
+
+        if (glow.sprite == null)
+            glow.sprite = hudGlowSprite != null ? hudGlowSprite : CreateHudGlowSprite();
+        glow.preserveAspect = false;
+        glow.raycastTarget = false;
+        glow.transform.SetAsFirstSibling();
+
+        if (selected)
+        {
+            Color color = GetOperatorColor(operatorType);
+            color.a = 0.8f;
+            glow.color = color;
+            glow.enabled = glow.sprite != null;
+            glow.rectTransform.localScale = Vector3.one * 1.25f;
+        }
+        else
+        {
+            glow.enabled = false;
+            glow.rectTransform.localScale = Vector3.one;
+        }
+    }
+
+    private void AnimateHudIconScales(GravityInteract.PencilOperator equipped, bool immediate = false)
+    {
+        if (hudZoomRoutine != null)
+        {
+            StopCoroutine(hudZoomRoutine);
+            hudZoomRoutine = null;
+        }
+
+        Image[] icons = { additionIcon, subtractionIcon, multiplicationIcon, divisionIcon };
+        Vector3[] startScales = new Vector3[icons.Length];
+        Vector3[] targetScales = new Vector3[icons.Length];
+
+        for (int i = 0; i < icons.Length; i++)
+        {
+            Image icon = icons[i];
+            if (icon == null)
+                continue;
+
+            if (!hudIconBaseScales.TryGetValue(icon, out Vector3 baseScale))
+            {
+                baseScale = icon.transform.localScale;
+                hudIconBaseScales.Add(icon, baseScale);
+            }
+
+            startScales[i] = icon.transform.localScale;
+            bool selected = IsHudIconSelected(icon, equipped);
+            float scaleMultiplier = equipped == GravityInteract.PencilOperator.None
+                ? 1f
+                : selected ? 1.25f : 0.88f;
+            targetScales[i] = baseScale * scaleMultiplier;
+        }
+
+        if (immediate)
+        {
+            for (int i = 0; i < icons.Length; i++)
+                if (icons[i] != null)
+                    icons[i].transform.localScale = targetScales[i];
+            return;
+        }
+
+        hudZoomRoutine = StartCoroutine(AnimateHudIconScales(startScales, targetScales, icons));
+    }
+
+    private IEnumerator AnimateHudIconScales(
+        Vector3[] startScales,
+        Vector3[] targetScales,
+        Image[] icons)
+    {
+        const float duration = 0.24f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            t = t * t * (3f - 2f * t);
+
+            for (int i = 0; i < icons.Length; i++)
+                if (icons[i] != null)
+                    icons[i].transform.localScale = Vector3.Lerp(startScales[i], targetScales[i], t);
+
+            yield return null;
+        }
+
+        for (int i = 0; i < icons.Length; i++)
+            if (icons[i] != null)
+                icons[i].transform.localScale = targetScales[i];
+
+        hudZoomRoutine = null;
+    }
+
+    private bool IsHudIconSelected(Image icon, GravityInteract.PencilOperator equipped)
+    {
+        return equipped switch
+        {
+            GravityInteract.PencilOperator.Addition => icon == additionIcon,
+            GravityInteract.PencilOperator.Subtraction => icon == subtractionIcon,
+            GravityInteract.PencilOperator.Multiplication => icon == multiplicationIcon,
+            GravityInteract.PencilOperator.Division => icon == divisionIcon,
+            _ => false
+        };
+    }
+
+    private Color GetOperatorColor(GravityInteract.PencilOperator operatorType)
+    {
+        PencilTipOperatorColor colorSource = pencilGun != null
+            ? pencilGun.GetComponent<PencilTipOperatorColor>()
+            : null;
+
+        if (colorSource != null && colorSource.TryGetOperatorColor(operatorType, out Color color))
+            return color;
+
+        return operatorType switch
+        {
+            GravityInteract.PencilOperator.Addition => new Color(0.1f, 1f, 0.25f, 1f),
+            GravityInteract.PencilOperator.Subtraction => new Color(1f, 0.45f, 0.05f, 1f),
+            GravityInteract.PencilOperator.Multiplication => new Color(0.1f, 0.35f, 1f, 1f),
+            GravityInteract.PencilOperator.Division => new Color(1f, 0.08f, 0.08f, 1f),
+            _ => Color.white
+        };
+    }
+
+    private static Sprite CreateHudGlowSprite()
+    {
+        const int size = 64;
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+        {
+            name = "Operator HUD Glow",
+            hideFlags = HideFlags.HideAndDontSave,
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp
+        };
+
+        Vector2 center = Vector2.one * ((size - 1) * 0.5f);
+        float radius = size * 0.5f;
+        for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+        {
+            float distance = Vector2.Distance(new Vector2(x, y), center) / radius;
+            float alpha = Mathf.Pow(Mathf.Clamp01(1f - distance), 2f) * 0.8f;
+            texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+        }
+
+        texture.Apply(false, true);
+        hudGlowSprite = Sprite.Create(
+            texture,
+            new Rect(0f, 0f, size, size),
+            new Vector2(0.5f, 0.5f),
+            100f);
+        hudGlowSprite.name = "Operator HUD Glow";
+        hudGlowSprite.hideFlags = HideFlags.HideAndDontSave;
+        return hudGlowSprite;
     }
 
     private Transform GetAbsorbTarget()

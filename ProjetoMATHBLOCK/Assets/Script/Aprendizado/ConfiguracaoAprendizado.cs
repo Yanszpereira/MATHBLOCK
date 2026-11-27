@@ -54,17 +54,17 @@ public sealed class ConfiguracaoAprendizado : ScriptableObject
     {
         subfases = new List<Subfase>
         {
-            Criar("fase1_porta1", "Fase 1", "Adicao e Subtracao", TipoGatilho.Porta, 0,
+            Criar("fase1_porta1", "Fase 1", "Adição e Subtração", TipoGatilho.Porta, 0,
                 (ConteudoMatematico.Operadores, .55f)),
-            Criar("fase1_porta2", "Fase 1", "Operacoes com Multiplicacao", TipoGatilho.Porta, 1,
+            Criar("fase1_porta2", "Fase 1", "Operações com Multiplicação", TipoGatilho.Porta, 1,
                 (ConteudoMatematico.Operadores, .7f)),
-            Criar("fase1_porta3", "Fase 1", "Operacoes com Divisao", TipoGatilho.Porta, 2,
+            Criar("fase1_porta3", "Fase 1", "Operações com Divisão", TipoGatilho.Porta, 2,
                 (ConteudoMatematico.Operadores, .85f)),
-            Criar("fase2_elevador", "Fase 2", "Numero, Escala e Espaco", TipoGatilho.Elevador, 0,
+            Criar("fase2_elevador", "Fase 2", "Número, Escala e Espaço", TipoGatilho.Elevador, 0,
                 (ConteudoMatematico.EscalaEEspaco, 1f)),
-            Criar("fase3_balanca1", "Fase 3", "Igualdade e Equilibrio I", TipoGatilho.Balanca, 0,
+            Criar("fase3_balanca1", "Fase 3", "Igualdade e Equilíbrio I", TipoGatilho.Balanca, 0,
                 (ConteudoMatematico.Equacoes, .85f)),
-            Criar("fase3_balanca2", "Fase 3", "Igualdade e Equilibrio II", TipoGatilho.Balanca, 1,
+            Criar("fase3_balanca2", "Fase 3", "Igualdade e Equilíbrio II", TipoGatilho.Balanca, 1,
                 (ConteudoMatematico.Equacoes, 1f))
         };
     }

@@ -121,7 +121,7 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
         string grade;
         if (finalPhase && ResultadosDasFases.TryObterResultadoFinal(out ResultadoFinal final))
         {
-            messageText.text = "Parabens, voce finalizou o jogo! Esta e a tua nota final:";
+            messageText.text = "Parabéns, você finalizou o jogo! Esta é a sua nota final:";
             grade = final.Nota;
         }
         else
@@ -129,7 +129,7 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
             if (!ResultadosDasFases.TryObterResultado(GetCurrentPhase(), out ResultadoDaFase result))
                 result = new ResultadoDaFase(GetCurrentPhase(), 0f, "D");
 
-            messageText.text = "Parabens, voce completou a fase. Aqui esta a sua nota:";
+            messageText.text = "Parabéns, você completou a fase. Aqui está a sua nota:";
             grade = result.Nota;
         }
 
@@ -137,7 +137,7 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
         SetGradeImage(grade);
         string nextLabel = finalPhase
             ? (destinationScene == "LastScene" ? "Ver cena final" : "Voltar ao menu principal")
-            : "Ir para a proxima fase";
+            : "Ir para a próxima fase";
         SetButtonLabels(nextLabel);
     }
 
@@ -149,7 +149,7 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
 
     private void EnsureUi()
     {
-        resultFont = Resources.Load<TMP_FontAsset>("Fonts & Materials/Schoolbell-Regular SDF");
+        resultFont = Resources.Load<TMP_FontAsset>("Fonts & Materials/Schoolbell-Regular SDF");
         buttonSprite = Resources.Load<Sprite>("PhaseResult/BotaoPassaFase");
         Sprite paperSprite = Resources.Load<Sprite>("PhaseResult/PapelComClipe");
         GameObject canvasObject = new GameObject("Phase Result Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(CanvasGroup));

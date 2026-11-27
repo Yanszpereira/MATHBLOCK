@@ -15,7 +15,7 @@ MonoBehaviour:
   subfases:
   - id: fase1_porta1
     cena: Fase 1
-    nome: Adicao e Subtracao
+    nome: Adição e Subtração
     gatilho: 0
     indiceNaCena: 0
     conteudos:
@@ -23,7 +23,7 @@ MonoBehaviour:
       peso: 0.55
   - id: fase1_porta2
     cena: Fase 1
-    nome: Operacoes com Multiplicacao
+    nome: Operações com Multiplicação
     gatilho: 0
     indiceNaCena: 1
     conteudos:
@@ -31,7 +31,7 @@ MonoBehaviour:
       peso: 0.7
   - id: fase1_porta3
     cena: Fase 1
-    nome: Operacoes com Divisao
+    nome: Operações com Divisão
     gatilho: 0
     indiceNaCena: 2
     conteudos:
@@ -39,7 +39,7 @@ MonoBehaviour:
       peso: 0.85
   - id: fase2_elevador
     cena: Fase 2
-    nome: Numero, Escala e Espaco
+    nome: Número, Escala e Espaço
     gatilho: 1
     indiceNaCena: 0
     conteudos:
@@ -47,7 +47,7 @@ MonoBehaviour:
       peso: 1
   - id: fase3_balanca1
     cena: Fase 3
-    nome: Igualdade e Equilibrio I
+    nome: Igualdade e Equilíbrio I
     gatilho: 2
     indiceNaCena: 0
     conteudos:
@@ -55,7 +55,7 @@ MonoBehaviour:
       peso: 0.85
   - id: fase3_balanca2
     cena: Fase 3
-    nome: Igualdade e Equilibrio II
+    nome: Igualdade e Equilíbrio II
     gatilho: 2
     indiceNaCena: 1
     conteudos:

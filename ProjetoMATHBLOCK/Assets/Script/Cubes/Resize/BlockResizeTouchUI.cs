@@ -10,6 +10,7 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
     private const string MenuButtonName = "MenuButton";
     private const string StretchButtonName = "Stretch";
     private const string ExitButtonName = "ExitStretch";
+    private const string ResetButtonName = "Resize";
 
     private readonly Dictionary<GameObject, bool> previousVisibility = new Dictionary<GameObject, bool>();
     private BlockResizeController controller;
@@ -17,6 +18,7 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
     private GameObject operatorsGroup;
     private Button stretchButton;
     private Button exitButton;
+    private Button resetButton;
     private float nextTargetCheck;
     private bool resizeHudActive;
 
@@ -72,6 +74,7 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
         operatorsGroup ??= FindSceneTransform(OperatorsGroupName)?.gameObject;
         stretchButton ??= FindDirectButton(StretchButtonName);
         exitButton ??= FindDirectButton(ExitButtonName);
+        resetButton ??= FindDirectButton(ResetButtonName);
 
         if (stretchButton == null)
         {
@@ -87,9 +90,17 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
                 new Vector2(-311f, 149f), new Vector2(230f, 230f));
             exitButton.onClick.AddListener(ExitStretchMode);
         }
+        if (resetButton != null)
+        {
+            resetButton.onClick.RemoveListener(ResetResizeSession);
+            resetButton.onClick.AddListener(ResetResizeSession);
+        }
+        else
+            Debug.LogWarning($"HUD mobile: botao '{ResetButtonName}' nao foi encontrado em {MobileGroupName}.", this);
 
         stretchButton.gameObject.SetActive(false);
         exitButton.gameObject.SetActive(false);
+        resetButton?.gameObject.SetActive(false);
     }
 
     private void BeginStretchMode()
@@ -103,6 +114,8 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
     }
 
     private void ExitStretchMode() => controller?.ConfirmResizeSession();
+
+    private void ResetResizeSession() => controller?.ResetResizeSessionToOriginalSize();
 
     private void HandleResizeModeChanged(bool active)
     {
@@ -123,7 +136,8 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
             GameObject item = child.gameObject;
             previousVisibility[item] = item.activeSelf;
             bool keepVisible = child.name.Equals(MenuButtonName, System.StringComparison.OrdinalIgnoreCase)
-                || child.name.Equals(ExitButtonName, System.StringComparison.OrdinalIgnoreCase);
+                || child.name.Equals(ExitButtonName, System.StringComparison.OrdinalIgnoreCase)
+                || child.name.Trim().Equals(ResetButtonName, System.StringComparison.OrdinalIgnoreCase);
             item.SetActive(keepVisible);
         }
 
@@ -133,6 +147,7 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
             operatorsGroup.SetActive(false);
         }
         exitButton?.gameObject.SetActive(true);
+        resetButton?.gameObject.SetActive(true);
         resizeHudActive = true;
     }
 
@@ -148,6 +163,7 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
         resizeHudActive = false;
         exitButton?.gameObject.SetActive(false);
         stretchButton?.gameObject.SetActive(false);
+        resetButton?.gameObject.SetActive(false);
         nextTargetCheck = 0f;
     }
 
@@ -184,8 +200,13 @@ public sealed class BlockResizeTouchUI : MonoBehaviour
 
     private Button FindDirectButton(string expectedName)
     {
-        Transform child = mobileGroup != null ? mobileGroup.Find(expectedName) : null;
-        return child != null ? child.GetComponent<Button>() : null;
+        if (mobileGroup == null)
+            return null;
+
+        foreach (Transform child in mobileGroup)
+            if (child.name.Trim().Equals(expectedName, System.StringComparison.OrdinalIgnoreCase))
+                return child.GetComponent<Button>();
+        return null;
     }
 
     private static Transform FindSceneTransform(string expectedName)

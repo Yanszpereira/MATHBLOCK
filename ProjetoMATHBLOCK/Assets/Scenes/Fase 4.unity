@@ -23822,19 +23822,19 @@ MonoBehaviour:
   edgePadding: 2
   applyLayoutInEditMode: 1
   expressions:
-  - name: Soma e subtracao
+  - name: Soma e subtração
     firstOperator: 0
     secondOperator: 1
     grouping: 0
-  - name: Subtracao e soma
+  - name: Subtração e soma
     firstOperator: 1
     secondOperator: 0
     grouping: 0
-  - name: Multiplicacao e subtracao
+  - name: Multiplicação e subtração
     firstOperator: 2
     secondOperator: 1
     grouping: 0
-  - name: Divisao e soma
+  - name: Divisão e soma
     firstOperator: 3
     secondOperator: 0
     grouping: 0
@@ -25254,19 +25254,19 @@ MonoBehaviour:
   edgePadding: 2
   applyLayoutInEditMode: 1
   expressions:
-  - name: Soma e subtracao
+  - name: Soma e subtração
     firstOperator: 0
     secondOperator: 1
     grouping: 0
-  - name: Subtracao e soma
+  - name: Subtração e soma
     firstOperator: 1
     secondOperator: 0
     grouping: 0
-  - name: Multiplicacao e subtracao
+  - name: Multiplicação e subtração
     firstOperator: 2
     secondOperator: 1
     grouping: 0
-  - name: Divisao e soma
+  - name: Divisão e soma
     firstOperator: 3
     secondOperator: 0
     grouping: 0

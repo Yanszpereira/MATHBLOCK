@@ -105,7 +105,7 @@ public sealed class ClickToiInteract : MonoBehaviour
 
         promptText.text = IsMobilePlatform()
             ? "Clique no botão para interagir"
-            : "Clique E para interagir";
+            : "Pressione E para interagir";
         promptText.fontSize = 34f;
         promptText.alignment = TextAlignmentOptions.Center;
         promptText.color = Color.white;

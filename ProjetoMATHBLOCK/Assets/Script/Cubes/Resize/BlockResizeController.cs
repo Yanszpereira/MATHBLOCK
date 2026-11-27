@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -49,6 +50,8 @@ public sealed class BlockResizeController : MonoBehaviour
 
     private BlockResizeGizmo resizeGizmo;
     private BlockResizeParticleEffect resizeParticleEffect;
+    private readonly Dictionary<ResizableBlock, Vector3Int> originalDimensionsByBlock =
+        new Dictionary<ResizableBlock, Vector3Int>();
     private BlockResizeInteractionState state;
     private ResizableBlock selectedBlock;
     private ResizeFace selectedFace;
@@ -208,6 +211,16 @@ public sealed class BlockResizeController : MonoBehaviour
             return;
         }
 
+        Keyboard keyboard = Keyboard.current;
+        if (!MobileTouchControls.ShouldShowTouchControls()
+            && keyboard != null
+            && (keyboard.cKey.wasPressedThisFrame
+                || (keyboard.ctrlKey.isPressed && keyboard.zKey.wasPressedThisFrame)))
+        {
+            ResetResizeSessionToOriginalSize();
+            return;
+        }
+
         if (state == BlockResizeInteractionState.ResizeMode)
         {
             UpdateHoveredHandle(GetActivePointerRay());
@@ -239,6 +252,30 @@ public sealed class BlockResizeController : MonoBehaviour
             if (clickAction == null || clickAction.WasReleasedThisFrame())
                 EndHandleDrag();
         }
+    }
+
+    public bool ResetResizeSessionToOriginalSize()
+    {
+        if (state == BlockResizeInteractionState.Idle || selectedBlock == null)
+            return false;
+
+        if (state == BlockResizeInteractionState.DraggingHandle)
+            EndHandleDrag();
+
+        Vector3Int originalDimensions = originalDimensionsByBlock[selectedBlock];
+        bool sizeChanged = selectedBlock.Dimensions != originalDimensions;
+        ResizableBlockState resetState = new ResizableBlockState(
+            originalDimensions,
+            sessionStartState.Position,
+            sessionStartState.Rotation);
+        selectedBlock.RestoreState(resetState);
+        if (sizeChanged)
+            PlayResizeStepSound();
+        resizeGizmo?.UpdateLayout();
+        RefreshSelectedBlockParticles();
+        UpdateHoveredHandle(GetActivePointerRay());
+        LogInteraction($"tamanho original restaurado dims={selectedBlock.Dimensions}");
+        return true;
     }
 
     public bool TryBeginResizeAtCameraCenter()
@@ -293,6 +330,8 @@ public sealed class BlockResizeController : MonoBehaviour
 
         selectedBlock = block;
         selectedFace = face;
+        if (!originalDimensionsByBlock.ContainsKey(block))
+            originalDimensionsByBlock.Add(block, block.Dimensions);
         sessionStartState = block.CaptureState();
         CaptureAndFreezeRigidbody(block.GetComponent<Rigidbody>());
 

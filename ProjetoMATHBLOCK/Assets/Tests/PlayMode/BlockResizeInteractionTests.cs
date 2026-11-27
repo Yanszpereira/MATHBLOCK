@@ -518,6 +518,42 @@ public class BlockResizeInteractionTests
     }
 
     [UnityTest]
+    public IEnumerator ResetResizeSession_RestoresOriginalSizeWithoutExitingResizeMode()
+    {
+        Harness h = CreateHarness(9); yield return null;
+        Vector3 initialPosition = h.Block.transform.position;
+        Assert.That(h.BeginFromFace("PositiveZ"), Is.True);
+        Assert.That(h.Drag("Right", 1.1f), Is.True);
+        Assert.That(h.Dimensions, Is.Not.EqualTo(Vector3Int.one));
+
+        Assert.That(Invoke(h.Controller, "ResetResizeSessionToOriginalSize"), Is.True);
+        Assert.That(h.Dimensions, Is.EqualTo(Vector3Int.one));
+        Assert.That(Vector3.Distance(h.Block.transform.position, initialPosition), Is.LessThan(0.001f));
+        Assert.That(GetProperty(h.Controller, "State").ToString(), Is.EqualTo("ResizeMode"));
+
+        Invoke(h.Controller, "ConfirmResizeSession");
+        Assert.That(Invoke(h.Controller, "ResetResizeSessionToOriginalSize"), Is.False);
+    }
+
+    [UnityTest]
+    public IEnumerator ResetResizeSession_RestoresFirstResizeSizeAcrossSessions()
+    {
+        Harness h = CreateHarness(9); yield return null;
+        Assert.That(h.BeginFromFace("PositiveZ"), Is.True);
+        Assert.That(h.Drag("Right", 1.1f), Is.True);
+        Invoke(h.Controller, "ConfirmResizeSession");
+        Assert.That(h.Dimensions, Is.Not.EqualTo(Vector3Int.one));
+
+        Assert.That(h.BeginFromFace("PositiveZ"), Is.True);
+        Assert.That(h.Drag("Right", 1.1f), Is.True);
+        Assert.That(h.Dimensions.x, Is.GreaterThan(1));
+        Assert.That(Invoke(h.Controller, "ResetResizeSessionToOriginalSize"), Is.True);
+
+        Assert.That(h.Dimensions, Is.EqualTo(Vector3Int.one));
+        Assert.That(GetProperty(h.Controller, "State").ToString(), Is.EqualTo("ResizeMode"));
+    }
+
+    [UnityTest]
     public IEnumerator Exit_RestoresControlsCursorRigidbodyAndActionMap()
     {
         Harness h = CreateHarness(9, true); yield return null;

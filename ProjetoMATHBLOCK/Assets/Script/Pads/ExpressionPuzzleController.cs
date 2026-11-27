@@ -100,22 +100,22 @@ public class ExpressionPuzzleController : MonoBehaviour
     [SerializeField] private List<ExpressionDefinition> expressions = new List<ExpressionDefinition>
     {
         new ExpressionDefinition(
-            "Soma e subtracao",
+            "Soma e subtração",
             ArithmeticOperator.Add,
             ArithmeticOperator.Subtract,
             ExpressionGrouping.Left),
         new ExpressionDefinition(
-            "Subtracao e soma",
+            "Subtração e soma",
             ArithmeticOperator.Subtract,
             ArithmeticOperator.Add,
             ExpressionGrouping.Left),
         new ExpressionDefinition(
-            "Multiplicacao e subtracao",
+            "Multiplicação e subtração",
             ArithmeticOperator.Multiply,
             ArithmeticOperator.Subtract,
             ExpressionGrouping.Left),
         new ExpressionDefinition(
-            "Divisao e soma",
+            "Divisão e soma",
             ArithmeticOperator.Divide,
             ArithmeticOperator.Add,
             ExpressionGrouping.Left)
