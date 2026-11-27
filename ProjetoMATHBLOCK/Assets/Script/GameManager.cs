@@ -20,6 +20,12 @@ public class GameManager : MonoBehaviour
         Instance = this;
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
     public void RegisterCorrectDoorValue(GameObject sourcePad, int receivedValue, GameObject sourceBlock, DoorValueVerifier sourceVerifier)
     {
         correctDoorValueCount++;

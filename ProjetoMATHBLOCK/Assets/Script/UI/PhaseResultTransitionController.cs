@@ -10,6 +10,7 @@ public sealed class PhaseResultTransitionController : MonoBehaviour
 {
     private const string StampSoundEventPath = "event:/carimbo";
     private const string SurpriseSoundEventPath = "event:/resultadoteste";
+    private const string ButtonClickEventPath = "event:/SonsMenu";
 
     private static PhaseResultTransitionController instance;
 
@@ -184,14 +185,23 @@ private IEnumerator ShowRoutine(string destinationScene, bool finalPhase)
         gradeText ??= CreateText("Grade", panel.transform, 108, TextAlignmentOptions.Center);
         SetRect(gradeText.rectTransform, new Vector2(225, -290), new Vector2(-225, -420));
 
-        CreateButton("Next Button", panel.transform, new Vector2(-185, -405), () => choice = 1);
-        CreateButton("Restart Button", panel.transform, new Vector2(185, -405), () => choice = 2);
+        CreateButton("Next Button", panel.transform, new Vector2(-185, -405), () => SelectResultAction(1));
+        CreateButton("Restart Button", panel.transform, new Vector2(185, -405), () => SelectResultAction(2));
         panel.SetActive(false);
 
         if (EventSystem.current == null)
             new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
     }
 
+    private void SelectResultAction(int selectedChoice)
+    {
+        if (choice != 0)
+            return;
+
+        choice = selectedChoice;
+        RuntimeManager.PlayOneShot(ButtonClickEventPath);
+    }
+
     private void SetButtonLabels(string nextLabel)
     {
         TextMeshProUGUI[] labels = panel.GetComponentsInChildren<TextMeshProUGUI>(true);

@@ -1,8 +1,11 @@
+using FMODUnity;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public sealed class Fase4DoorExpressionController : MonoBehaviour
 {
+    private const string DoorOpenEventPath = "event:/PortaAbre";
+
     [Header("Lentes")]
     [SerializeField] private MeshRenderer leftLightRenderer;
     [SerializeField] private MeshRenderer rightLightRenderer;
@@ -180,6 +183,7 @@ public sealed class Fase4DoorExpressionController : MonoBehaviour
 
         openingStarted = true;
         openingElapsed = 0f;
+        RuntimeManager.PlayOneShot(DoorOpenEventPath, transform.position);
     }
 
     private void AnimateOpening()

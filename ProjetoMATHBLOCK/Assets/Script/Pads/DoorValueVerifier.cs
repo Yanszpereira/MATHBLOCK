@@ -145,7 +145,9 @@ public void ReceiveValueFromPad(GameObject sourcePad, int receivedValue, GameObj
         PlaySuccessParticles();
         ShowFeedback(correctFeedbackObject);    
 
-        GameManager.Instance?.RegisterCorrectDoorValue(sourcePad, receivedValue, sourceBlock, this);
+        GameManager gameManager = GameManager.Instance;
+        if (gameManager != null)
+            gameManager.RegisterCorrectDoorValue(sourcePad, receivedValue, sourceBlock, this);
         RespostaAvaliada?.Invoke(this, true);
 
         if (doorOpener == null)
