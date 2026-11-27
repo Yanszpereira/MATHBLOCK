@@ -8810,6 +8810,13 @@ MonoBehaviour:
   leftOpenAngle: 90
   rightOpenAngle: -90
   openingDuration: 4
+  doorOpenSound:
+    Guid:
+      Data1: 215736475
+      Data2: 1226829997
+      Data3: 831488165
+      Data4: 208379324
+    Path: event:/PortaAbre
 --- !u!43 &864329637
 Mesh:
   m_ObjectHideFlags: 0
@@ -9159,6 +9166,20 @@ MonoBehaviour:
   wrongBlockReturnDuration: 0.65
   correctBlockDisappearDuration: 0.7
   failureRespawnDelay: 2
+  correctAnswerSound:
+    Guid:
+      Data1: -291252969
+      Data2: 1154478309
+      Data3: -327878502
+      Data4: -51084846
+    Path: event:/Acertou
+  wrongAnswerSound:
+    Guid:
+      Data1: -1402069544
+      Data2: 1230858852
+      Data3: -1520451928
+      Data4: 127955640
+    Path: event:/erroOperation
 --- !u!1001 &895177820
 PrefabInstance:
   m_ObjectHideFlags: 0

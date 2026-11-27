@@ -4,8 +4,6 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class Fase4DoorExpressionController : MonoBehaviour
 {
-    private const string DoorOpenEventPath = "event:/PortaAbre";
-
     [Header("Lentes")]
     [SerializeField] private MeshRenderer leftLightRenderer;
     [SerializeField] private MeshRenderer rightLightRenderer;
@@ -24,6 +22,9 @@ public sealed class Fase4DoorExpressionController : MonoBehaviour
     [SerializeField] private float leftOpenAngle = 90f;
     [SerializeField] private float rightOpenAngle = -90f;
     [SerializeField, Min(0f)] private float openingDuration = 4f;
+
+    [Header("Som FMOD")]
+    [SerializeField] private EventReference doorOpenSound;
 
     private Quaternion leftClosedRotation;
     private Quaternion rightClosedRotation;
@@ -183,7 +184,9 @@ public sealed class Fase4DoorExpressionController : MonoBehaviour
 
         openingStarted = true;
         openingElapsed = 0f;
-        RuntimeManager.PlayOneShot(DoorOpenEventPath, transform.position);
+
+        if (!doorOpenSound.IsNull)
+            RuntimeManager.PlayOneShot(doorOpenSound, transform.position);
     }
 
     private void AnimateOpening()

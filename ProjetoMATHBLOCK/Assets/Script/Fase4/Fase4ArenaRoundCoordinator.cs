@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using FMODUnity;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,6 +32,10 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
     [SerializeField, Min(0.1f)] private float correctBlockDisappearDuration = 0.7f;
     [SerializeField, Min(0f)] private float failureRespawnDelay = 2f;
 
+    [Header("Som FMOD")]
+    [SerializeField] private EventReference correctAnswerSound;
+    [SerializeField] private EventReference wrongAnswerSound;
+
     private Fase4RoundManager rounds;
     private Fase4ArenaObstacleController obstacleController;
     private GravityInteract interaction;
@@ -51,9 +56,6 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
     private readonly List<Renderer> indicatorRenderers = new List<Renderer>();
     private readonly List<MaterialPropertyBlock> originalIndicatorBlocks = new List<MaterialPropertyBlock>();
     private MaterialPropertyBlock indicatorPropertyBlock;
-    private AudioSource feedbackAudio;
-    private AudioClip wrongTone;
-    private AudioClip correctTone;
 
     public event Action PistonsActivationRequested;
     public event Action ObstaclesDeactivationRequested;
@@ -126,7 +128,6 @@ public sealed class Fase4ArenaRoundCoordinator : MonoBehaviour
         originalGlobalTimerPaused = globalCountdown.IsPaused;
         globalCountdown.SetPaused(true);
         ownsGlobalTimerPause = true;
-        EnsureFeedbackAudio();
         blackboard.SetRound(rounds.CurrentRound, Fase4RoundManager.TotalRounds);
         blackboard.SetExpression(string.Empty);
         blackboard.SetTimer(Fase4RoundManager.InitialRoundSeconds);
@@ -164,8 +165,6 @@ private void OnDestroy()
     RestoreIndicatorState();
     if (ownsGlobalTimerPause && globalCountdown != null)
         globalCountdown.SetPaused(originalGlobalTimerPaused);
-    if (wrongTone != null) Destroy(wrongTone);
-    if (correctTone != null) Destroy(correctTone);
     if (obstacleController != null)
         obstacleController.Shutdown();
 }
@@ -456,7 +455,7 @@ private bool IsPlayerWithinReceptacleRange()
                 submittedBlocks.Remove(instanceId);
                 yield break;
             }
-            PlayFeedbackTone(correctTone);
+            PlayAnswerSound(correctAnswerSound);
             StartCoroutine(DisappearCorrectBlock(block, ownership));
         }
         else
@@ -508,7 +507,6 @@ private void OnRoundStateChanged(Fase4RoundManager.RoundState state)
                 blackboard.SetTransitionCountdown(5);
                 SetIndicatorColor(CorrectGreen);
                 blackboard.ShowTimeChange("+35s", CorrectGreen);
-                PlayFeedbackTone(correctTone);
                 break;
             case Fase4RoundManager.RoundState.FailureAndRespawn:
                 CancelCandidate();
@@ -566,7 +564,7 @@ private void SetBlackboardMotionForState(Fase4RoundManager.RoundState state)
         blackboard.SetErrors(errorCount);
         blackboard.SetStatus("INCORRETO!");
         SetIndicatorColor(IncorrectRed);
-        PlayFeedbackTone(wrongTone);
+        PlayAnswerSound(wrongAnswerSound);
         if (errorCount == 1)
             blackboard.ShowTimeChange("−5s", IncorrectRed);
     }
@@ -837,38 +835,9 @@ private void OnPlayerRespawnCompleted(PlayerMovement respawnedPlayer)
                 indicatorRenderers[i].SetPropertyBlock(originalIndicatorBlocks[i]);
     }
 
-    private void EnsureFeedbackAudio()
+    private void PlayAnswerSound(EventReference sound)
     {
-        feedbackAudio = GetComponent<AudioSource>();
-        if (feedbackAudio == null)
-            feedbackAudio = gameObject.AddComponent<AudioSource>();
-        feedbackAudio.playOnAwake = false;
-        feedbackAudio.spatialBlend = 0f;
-        wrongTone = CreateTone("Fase4_WrongAnswer", 520f, 330f, 0.22f);
-        correctTone = CreateTone("Fase4_CorrectAnswer", 620f, 880f, 0.26f);
-    }
-
-    private static AudioClip CreateTone(string clipName, float startFrequency, float endFrequency, float duration)
-    {
-        const int sampleRate = 22050;
-        int sampleCount = Mathf.CeilToInt(sampleRate * duration);
-        float[] samples = new float[sampleCount];
-        for (int i = 0; i < sampleCount; i++)
-        {
-            float t = i / (float)sampleRate;
-            float blend = t / duration;
-            float frequency = Mathf.Lerp(startFrequency, endFrequency, blend);
-            float envelope = Mathf.Sin(Mathf.PI * blend) * 0.15f;
-            samples[i] = Mathf.Sin(2f * Mathf.PI * frequency * t) * envelope;
-        }
-        AudioClip clip = AudioClip.Create(clipName, sampleCount, 1, sampleRate, false);
-        clip.SetData(samples, 0);
-        return clip;
-    }
-
-    private void PlayFeedbackTone(AudioClip clip)
-    {
-        if (feedbackAudio != null && clip != null)
-            feedbackAudio.PlayOneShot(clip);
+        if (!sound.IsNull)
+            RuntimeManager.PlayOneShot(sound, receptacleRoot.position);
     }
 }
